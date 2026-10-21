@@ -1,50 +1,15 @@
-import { HTTP_METHODS, providerForHost, providerForPackage, sdkEndpoint, type HttpMethod, type Provider } from "@shapi/core";
+import {
+  HTTP_METHODS,
+  providerForHost,
+  providerForPackage,
+  sdkEndpoint,
+  type CallSite,
+  type HttpMethod,
+  type NameValue,
+  type Provider,
+  type Surface,
+} from "@shapi/core";
 import { Node, SyntaxKind, type CallExpression, type SourceFile } from "ts-morph";
-
-export type CallKind = "http" | "sdk";
-
-export interface CallSite {
-  file: string;
-  line: number;
-  column: number;
-  provider: string | null;
-  kind: CallKind;
-  /** HTTP library (fetch, axios, got, undici, ky, node-fetch) or SDK package name. */
-  client: string;
-  /** SDK method chain, for example "rest.actions.createWorkflowDispatch". */
-  operation?: string;
-  method: HttpMethod | null;
-  host: string | null;
-  /** Path with dynamic segments as {name} or {}, query string removed. */
-  endpoint: string | null;
-  /** True when provider, method and endpoint are all known. */
-  resolved: boolean;
-  /** What this call site's code depends on. */
-  surface: Surface;
-}
-
-export interface NameValue {
-  name: string;
-  /** Statically known value, with unknown parts as {name}; null when unknown. */
-  value: string | null;
-}
-
-export interface Surface {
-  /** Response body field paths read, dot-separated; array elements as "[]". */
-  fields: string[];
-  /** Status codes the code compares against. */
-  statusCodes: number[];
-  /** Branches on `response.ok`. */
-  checksOk: boolean;
-  /** String values response fields are compared against. */
-  enums: { field: string; values: string[] }[];
-  /** Request headers set, names lowercased (API version pins live here). */
-  headers: NameValue[];
-  /** Request query parameters. */
-  query: NameValue[];
-  /** Response headers read, names lowercased. */
-  responseHeaders: string[];
-}
 
 export function emptySurface(): Surface {
   return { fields: [], statusCodes: [], checksOk: false, enums: [], headers: [], query: [], responseHeaders: [] };

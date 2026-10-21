@@ -1,5 +1,6 @@
 import { Node, SyntaxKind, type CallExpression } from "ts-morph";
-import type { FoundCall, Surface } from "./callsites";
+import type { Surface } from "@shapi/core";
+import type { FoundCall } from "./callsites";
 
 /**
  * How a client wraps the response: where the status code lives and how the

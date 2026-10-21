@@ -6,3 +6,4 @@ One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../
 - M1-T1 provider registry: [summary](M1-T1-provider-registry.md) · PR: [#2](https://github.com/SriVarshini09/YC/pull/2) · open
 - M1-T2 call-site extractor: [summary](M1-T2-call-site-extractor.md) · PR: [#3](https://github.com/SriVarshini09/YC/pull/3) · open
 - M1-T3 dependency surface: [summary](M1-T3-dependency-surface.md) · PR: [#4](https://github.com/SriVarshini09/YC/pull/4) · open
+- M1-T4 api.lock format: [summary](M1-T4-api-lock.md) · PR: pending

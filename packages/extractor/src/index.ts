@@ -1,11 +1,13 @@
 import path from "node:path";
 import { readFileSync } from "node:fs";
 import { Project, ScriptKind } from "ts-morph";
-import { extractFromFile, type CallSite, type FoundCall } from "./callsites";
+import type { CallSite } from "@shapi/core";
+import { extractFromFile, type FoundCall } from "./callsites";
 import { addResponseSurface } from "./surface";
 import { declaredProviders, listRepoFiles, toPosix, type DeclaredProvider } from "./files";
 
-export type { CallKind, CallSite, FoundCall, NameValue, Surface } from "./callsites";
+export type { CallKind, CallSite, NameValue, Surface } from "@shapi/core";
+export type { FoundCall } from "./callsites";
 export { evalString, parseUrl } from "./callsites";
 export type { DeclaredProvider } from "./files";
 
