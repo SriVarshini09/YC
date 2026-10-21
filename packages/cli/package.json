@@ -1,0 +1,29 @@
+{
+  "name": "shapi",
+  "version": "0.1.0",
+  "description": "Scan a repo for third-party API dependencies and the breaking changes that hit them",
+  "type": "module",
+  "bin": {
+    "shapi": "bin/shapi.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["bin", "dist"],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean"
+  },
+  "dependencies": {
+    "@shapi/core": "workspace:*",
+    "@shapi/extractor": "workspace:*",
+    "commander": "^15.0.0"
+  }
+}

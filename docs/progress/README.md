@@ -9,3 +9,4 @@ One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../
 - M1-T4 api.lock format: [summary](M1-T4-api-lock.md) · PR: [#5](https://github.com/SriVarshini09/YC/pull/5) · open
 - M1-T5 advisory format and seed: [summary](M1-T5-advisories.md) · PR: [#6](https://github.com/SriVarshini09/YC/pull/6) · open
 - M1-T6 matcher: [summary](M1-T6-matcher.md) · PR: [#7](https://github.com/SriVarshini09/YC/pull/7) · open
+- M1-T7 CLI: [summary](M1-T7-cli.md) · PR: pending

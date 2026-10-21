@@ -1,0 +1,1 @@
+{ "name": "cli-fixture", "dependencies": { "@hubspot/api-client": "^13.0.0" } }

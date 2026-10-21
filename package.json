@@ -17,6 +17,7 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.20.5",
     "eslint": "^10.13.0",
+    "shapi": "workspace:*",
     "tsup": "^9.0.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.72.0",
