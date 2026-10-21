@@ -1,0 +1,11 @@
+{
+  "name": "demo-ts",
+  "private": true,
+  "description": "SHAPI demo fixture: a small TypeScript service that calls GitHub, Stripe, QuickBooks and HubSpot. Dependencies are declared, never installed.",
+  "type": "module",
+  "dependencies": {
+    "@hubspot/api-client": "^13.0.0",
+    "axios": "^1.7.0",
+    "stripe": "^17.0.0"
+  }
+}
