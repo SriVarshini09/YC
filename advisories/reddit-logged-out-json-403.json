@@ -1,0 +1,25 @@
+{
+  "id": "reddit-logged-out-json-403",
+  "provider": "reddit",
+  "title": "Logged-out .json endpoints return 403",
+  "summary": "Unauthenticated requests to Reddit's public .json listing endpoints (for example /r/{subreddit}/top.json) started returning 403 Forbidden around 2026-05-30. OAuth (oauth.reddit.com) and logged-in access were reported as unaffected. No primary Reddit announcement was found.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/**/*.json",
+    "hosts": ["reddit.com", "www.reddit.com", "old.reddit.com"]
+  },
+  "changeClass": "auth",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": "2026-05-30",
+  "publishedNotice": null,
+  "effectiveDate": "2026-05-30",
+  "severity": "high",
+  "migrationNote": "Move to an approved OAuth app and call oauth.reddit.com with a bearer token.",
+  "sources": [
+    "https://dev.to/tonywangca/why-reddit-blocked-unauthenticated-json-in-2026-and-how-to-still-get-reddit-data-58b9",
+    "https://bigideasdb.com/reddit-json-403-forbidden"
+  ],
+  "status": "unverified"
+}
