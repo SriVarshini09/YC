@@ -1,0 +1,216 @@
+{
+  "lockfileVersion": 1,
+  "generator": "shapi 0.1.0",
+  "providers": [
+    {
+      "id": "github",
+      "callSites": 2,
+      "declaredBy": []
+    },
+    {
+      "id": "hubspot",
+      "callSites": 1,
+      "declaredBy": [
+        "@hubspot/api-client"
+      ]
+    },
+    {
+      "id": "quickbooks",
+      "callSites": 1,
+      "declaredBy": []
+    },
+    {
+      "id": "stripe",
+      "callSites": 1,
+      "declaredBy": [
+        "stripe"
+      ]
+    }
+  ],
+  "callSites": [
+    {
+      "id": "5102cb8955c2",
+      "file": "src/accounting.ts",
+      "line": 7,
+      "column": 21,
+      "provider": "quickbooks",
+      "kind": "http",
+      "client": "fetch",
+      "method": "GET",
+      "host": "quickbooks.api.intuit.com",
+      "endpoint": "/v3/company/{realmId}/query",
+      "resolved": true,
+      "surface": {
+        "fields": [
+          "QueryResponse.Invoice"
+        ],
+        "statusCodes": [],
+        "checksOk": false,
+        "enums": [],
+        "headers": [
+          {
+            "name": "authorization",
+            "value": "Bearer {accessToken}"
+          },
+          {
+            "name": "accept",
+            "value": "application/json"
+          }
+        ],
+        "query": [
+          {
+            "name": "query",
+            "value": "{query}"
+          },
+          {
+            "name": "minorversion",
+            "value": "65"
+          }
+        ],
+        "responseHeaders": []
+      }
+    },
+    {
+      "id": "9ca4f2c991c8",
+      "file": "src/billing.ts",
+      "line": 6,
+      "column": 26,
+      "provider": "stripe",
+      "kind": "sdk",
+      "client": "stripe",
+      "operation": "customers.create",
+      "method": "POST",
+      "host": "api.stripe.com",
+      "endpoint": "/v1/customers",
+      "resolved": true,
+      "surface": {
+        "fields": [
+          "id",
+          "tax_exempt"
+        ],
+        "statusCodes": [],
+        "checksOk": false,
+        "enums": [
+          {
+            "field": "tax_exempt",
+            "values": [
+              "exempt"
+            ]
+          }
+        ],
+        "headers": [
+          {
+            "name": "stripe-version",
+            "value": "2024-06-20"
+          }
+        ],
+        "query": [],
+        "responseHeaders": []
+      }
+    },
+    {
+      "id": "e3000a6fe723",
+      "file": "src/crm.ts",
+      "line": 6,
+      "column": 22,
+      "provider": "hubspot",
+      "kind": "http",
+      "client": "axios",
+      "method": "GET",
+      "host": "api.hubapi.com",
+      "endpoint": "/crm-pipelines/v1/pipelines/deals",
+      "resolved": true,
+      "surface": {
+        "fields": [
+          "results"
+        ],
+        "statusCodes": [],
+        "checksOk": false,
+        "enums": [],
+        "headers": [
+          {
+            "name": "authorization",
+            "value": "Bearer {token}"
+          }
+        ],
+        "query": [],
+        "responseHeaders": []
+      }
+    },
+    {
+      "id": "2bb340d85329",
+      "file": "src/deploy.ts",
+      "line": 13,
+      "column": 21,
+      "provider": "github",
+      "kind": "http",
+      "client": "fetch",
+      "method": "POST",
+      "host": "api.github.com",
+      "endpoint": "/repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches",
+      "resolved": true,
+      "surface": {
+        "fields": [],
+        "statusCodes": [
+          204
+        ],
+        "checksOk": false,
+        "enums": [],
+        "headers": [
+          {
+            "name": "accept",
+            "value": "application/vnd.github+json"
+          },
+          {
+            "name": "authorization",
+            "value": "Bearer {token}"
+          },
+          {
+            "name": "x-github-api-version",
+            "value": "2022-11-28"
+          }
+        ],
+        "query": [],
+        "responseHeaders": []
+      }
+    },
+    {
+      "id": "4053ef3e9fbd",
+      "file": "src/deploy.ts",
+      "line": 28,
+      "column": 21,
+      "provider": "github",
+      "kind": "http",
+      "client": "fetch",
+      "method": "GET",
+      "host": "api.github.com",
+      "endpoint": "/repos/{owner}/{repo}/actions/workflows/{workflow}/runs",
+      "resolved": true,
+      "surface": {
+        "fields": [
+          "workflow_runs[]"
+        ],
+        "statusCodes": [],
+        "checksOk": true,
+        "enums": [],
+        "headers": [
+          {
+            "name": "authorization",
+            "value": "Bearer {token}"
+          },
+          {
+            "name": "x-github-api-version",
+            "value": "2022-11-28"
+          }
+        ],
+        "query": [
+          {
+            "name": "per_page",
+            "value": "1"
+          }
+        ],
+        "responseHeaders": []
+      }
+    }
+  ]
+}
