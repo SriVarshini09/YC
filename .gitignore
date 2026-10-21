@@ -7,3 +7,5 @@ coverage/
 .DS_Store
 # scan output written into the repo by `shapi scan --out`; committed reference locks are force-added
 /api.lock
+# local shape store written by the canary scheduler
+.shapi/
