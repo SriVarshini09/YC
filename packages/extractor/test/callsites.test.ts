@@ -72,9 +72,16 @@ describe("extractCallSites", () => {
 
 describe("parseUrl", () => {
   it("splits host and path and normalizes slashes", () => {
-    expect(parseUrl("https://API.github.com//repos/x/?a=1#h")).toEqual({ host: "api.github.com", path: "/repos/x" });
-    expect(parseUrl("{base}/v1/things")).toEqual({ host: null, path: "/v1/things" });
-    expect(parseUrl("https://{host}/v1")).toEqual({ host: null, path: "/v1" });
-    expect(parseUrl(undefined)).toEqual({ host: null, path: null });
+    expect(parseUrl("https://API.github.com//repos/x/?a=1&b#h")).toEqual({
+      host: "api.github.com",
+      path: "/repos/x",
+      query: [
+        { name: "a", value: "1" },
+        { name: "b", value: null },
+      ],
+    });
+    expect(parseUrl("{base}/v1/things")).toEqual({ host: null, path: "/v1/things", query: [] });
+    expect(parseUrl("https://{host}/v1")).toEqual({ host: null, path: "/v1", query: [] });
+    expect(parseUrl(undefined)).toEqual({ host: null, path: null, query: [] });
   });
 });

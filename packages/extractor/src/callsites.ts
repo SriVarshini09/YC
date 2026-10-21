@@ -19,6 +19,35 @@ export interface CallSite {
   endpoint: string | null;
   /** True when provider, method and endpoint are all known. */
   resolved: boolean;
+  /** What this call site's code depends on. */
+  surface: Surface;
+}
+
+export interface NameValue {
+  name: string;
+  /** Statically known value, with unknown parts as {name}; null when unknown. */
+  value: string | null;
+}
+
+export interface Surface {
+  /** Response body field paths read, dot-separated; array elements as "[]". */
+  fields: string[];
+  /** Status codes the code compares against. */
+  statusCodes: number[];
+  /** Branches on `response.ok`. */
+  checksOk: boolean;
+  /** String values response fields are compared against. */
+  enums: { field: string; values: string[] }[];
+  /** Request headers set, names lowercased (API version pins live here). */
+  headers: NameValue[];
+  /** Request query parameters. */
+  query: NameValue[];
+  /** Response headers read, names lowercased. */
+  responseHeaders: string[];
+}
+
+export function emptySurface(): Surface {
+  return { fields: [], statusCodes: [], checksOk: false, enums: [], headers: [], query: [], responseHeaders: [] };
 }
 
 /** A call site plus the AST nodes later passes (dependency surface) need. */
@@ -267,7 +296,7 @@ function fetchStyle(
     if (opts) method = methodFrom(ctx, propertyValue(opts, "method")) ?? (propertyValue(opts, "method") ? null : "GET");
     else method = null;
   }
-  return httpSite(call, lib, joinUrl(baseURL, evalString(ctx, urlArg)), method, optsArg);
+  return httpSite(ctx, call, lib, joinUrl(baseURL, evalString(ctx, urlArg)), method, opts ? optsArg : undefined);
 }
 
 /** axios(config) | axios(url, config) | axios.get(url, config) | axios.post(url, data, config) | axios.request(config) */
@@ -280,18 +309,31 @@ function axiosStyle(ctx: FileContext, call: CallExpression, verb: HttpMethod | u
     const url = evalString(ctx, propertyValue(firstObj, "url"));
     const base = evalString(ctx, propertyValue(firstObj, "baseURL")) ?? baseURL;
     const method = methodFrom(ctx, propertyValue(firstObj, "method")) ?? (propertyValue(firstObj, "method") ? null : "GET");
-    return httpSite(call, "axios", joinUrl(base, url), method, first);
+    const params = resolveObject(ctx, propertyValue(firstObj, "params"));
+    return httpSite(ctx, call, "axios", joinUrl(base, url), method, first, params);
   }
   const hasBody = verb === "POST" || verb === "PUT" || verb === "PATCH";
   const config = hasBody ? args[2] : args[1];
   const cfg = resolveObject(ctx, config);
   let method: HttpMethod | null = verb ?? "GET";
   if (!verb && cfg) method = methodFrom(ctx, propertyValue(cfg, "method")) ?? "GET";
-  return httpSite(call, "axios", joinUrl(baseURL, evalString(ctx, first)), method, config);
+  const params = cfg ? resolveObject(ctx, propertyValue(cfg, "params")) : undefined;
+  return httpSite(ctx, call, "axios", joinUrl(baseURL, evalString(ctx, first)), method, config, params);
 }
 
-function httpSite(call: CallExpression, lib: HttpLib, url: string | undefined, method: HttpMethod | null, options?: Node): FoundCall {
-  const { host, path } = parseUrl(url);
+function httpSite(
+  ctx: FileContext,
+  call: CallExpression,
+  lib: HttpLib,
+  url: string | undefined,
+  method: HttpMethod | null,
+  options?: Node,
+  params?: Node,
+): FoundCall {
+  const { host, path, query } = parseUrl(url);
+  const surface = emptySurface();
+  surface.headers = headersOf(ctx, options);
+  surface.query = [...query, ...objectEntries(ctx, params)];
   const provider = host ? (providerForHost(host)?.id ?? null) : null;
   return {
     call,
@@ -307,6 +349,7 @@ function httpSite(call: CallExpression, lib: HttpLib, url: string | undefined, m
       host,
       endpoint: path,
       resolved: Boolean(provider && path && method),
+      surface,
     },
   };
 }
@@ -355,6 +398,11 @@ function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined
   }
 
   const host = client.provider.hosts.find((h) => !h.startsWith("*.")) ?? null;
+  const surface = emptySurface();
+  surface.headers = [...headersOf(ctx, client.options, "defaultHeaders"), ...headersOf(ctx, options)];
+  const apiVersion = client.options ? propertyValue(client.options, "apiVersion") : undefined;
+  if (apiVersion) surface.headers.push({ name: `${client.provider.id}-version`, value: evalString(ctx, apiVersion) ?? null });
+  surface.headers.sort((a, b) => a.name.localeCompare(b.name));
   return {
     call,
     options,
@@ -371,6 +419,7 @@ function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined
       host,
       endpoint,
       resolved: Boolean(method && endpoint),
+      surface,
     },
   };
 }
@@ -422,6 +471,25 @@ export function propName(node: Node): string {
   return node.getText();
 }
 
+/** `headers` (or another key) of an options object, as lowercased name/value pairs. */
+function headersOf(ctx: FileContext, options: Node | undefined, key = "headers"): NameValue[] {
+  const obj = resolveObject(ctx, options);
+  return obj ? objectEntries(ctx, resolveObject(ctx, propertyValue(obj, key))).map((h) => ({ ...h, name: h.name.toLowerCase() })) : [];
+}
+
+function objectEntries(ctx: FileContext, obj: Node | undefined): NameValue[] {
+  if (!obj || !Node.isObjectLiteralExpression(obj)) return [];
+  const out: NameValue[] = [];
+  for (const prop of obj.getProperties()) {
+    if (Node.isPropertyAssignment(prop)) {
+      out.push({ name: propName(prop.getNameNode()), value: evalString(ctx, prop.getInitializer()) ?? null });
+    } else if (Node.isShorthandPropertyAssignment(prop)) {
+      out.push({ name: prop.getName(), value: evalString(ctx, prop.getNameNode()) ?? null });
+    }
+  }
+  return out;
+}
+
 /** The object literal an argument refers to, following one level of same-file const. */
 function resolveObject(ctx: FileContext, node: Node | undefined): Node | undefined {
   if (!node) return undefined;
@@ -453,6 +521,7 @@ export function evalString(ctx: { consts: Map<string, Node> }, node: Node | unde
   if (!node || depth > 8) return undefined;
   const expr = unwrap(node);
   if (Node.isStringLiteral(expr) || Node.isNoSubstitutionTemplateLiteral(expr)) return expr.getLiteralValue();
+  if (Node.isNumericLiteral(expr)) return expr.getLiteralText();
   if (Node.isTemplateExpression(expr)) {
     let out = expr.getHead().getLiteralText();
     for (const span of expr.getTemplateSpans()) {
@@ -503,8 +572,8 @@ function joinUrl(base: string | undefined, url: string | undefined): string | un
   return base.replace(/\/+$/, "") + "/" + url.replace(/^\/+/, "");
 }
 
-export function parseUrl(url: string | undefined): { host: string | null; path: string | null } {
-  if (url === undefined) return { host: null, path: null };
+export function parseUrl(url: string | undefined): { host: string | null; path: string | null; query: NameValue[] } {
+  if (url === undefined) return { host: null, path: null, query: [] };
   let host: string | null = null;
   let rest = url;
   const m = /^(?:[a-z]+:)?\/\/([^/?#]+)(.*)$/i.exec(url);
@@ -515,9 +584,17 @@ export function parseUrl(url: string | undefined): { host: string | null; path: 
     // "{base}/repos/x": unknown base, keep the path after it
     const slash = url.indexOf("/");
     rest = slash >= 0 ? url.slice(slash) : "/";
-    if (slash < 0) return { host: null, path: null };
+    if (slash < 0) return { host: null, path: null, query: [] };
   }
   let path = rest.split(/[?#]/)[0]!.replace(/\/{2,}/g, "/");
   if (path.length > 1) path = path.replace(/\/$/, "");
-  return { host, path: path || "/" };
+  const search = /\?([^#]*)/.exec(rest)?.[1] ?? "";
+  const query = search
+    .split("&")
+    .filter(Boolean)
+    .map((pair) => {
+      const [name, ...value] = pair.split("=");
+      return { name: name!, value: value.length ? value.join("=") : null };
+    });
+  return { host, path: path || "/", query };
 }

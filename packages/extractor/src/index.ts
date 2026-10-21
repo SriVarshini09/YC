@@ -2,9 +2,10 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 import { Project, ScriptKind } from "ts-morph";
 import { extractFromFile, type CallSite, type FoundCall } from "./callsites";
+import { addResponseSurface } from "./surface";
 import { declaredProviders, listRepoFiles, toPosix, type DeclaredProvider } from "./files";
 
-export type { CallKind, CallSite, FoundCall } from "./callsites";
+export type { CallKind, CallSite, FoundCall, NameValue, Surface } from "./callsites";
 export { evalString, parseUrl } from "./callsites";
 export type { DeclaredProvider } from "./files";
 
@@ -45,7 +46,10 @@ export function extractCallSites(rootDir: string): ExtractResult {
       overwrite: true,
       scriptKind: SCRIPT_KINDS[path.extname(abs)] ?? ScriptKind.TS,
     });
-    found.push(...extractFromFile(sf, rel));
+    for (const f of extractFromFile(sf, rel)) {
+      addResponseSurface(f);
+      found.push(f);
+    }
   }
   found.sort((a, b) => a.site.file.localeCompare(b.site.file) || a.site.line - b.site.line || a.site.column - b.site.column);
 
