@@ -1,0 +1,332 @@
+[
+  {
+    "id": "github",
+    "name": "GitHub",
+    "hosts": ["api.github.com", "uploads.github.com"],
+    "sdkPackages": ["@octokit/rest", "@octokit/core", "octokit", "@octokit/action", "@actions/github"],
+    "sdkMethods": {
+      "actions.createWorkflowDispatch": "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+      "actions.listWorkflowRuns": "GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
+      "actions.getWorkflowRun": "GET /repos/{owner}/{repo}/actions/runs/{run_id}",
+      "repos.get": "GET /repos/{owner}/{repo}",
+      "repos.getContent": "GET /repos/{owner}/{repo}/contents/{path}",
+      "repos.createDispatchEvent": "POST /repos/{owner}/{repo}/dispatches",
+      "pulls.create": "POST /repos/{owner}/{repo}/pulls",
+      "pulls.get": "GET /repos/{owner}/{repo}/pulls/{pull_number}",
+      "pulls.merge": "PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge",
+      "issues.create": "POST /repos/{owner}/{repo}/issues",
+      "issues.createComment": "POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
+      "checks.create": "POST /repos/{owner}/{repo}/check-runs"
+    },
+    "docsUrl": "https://docs.github.com/en/rest",
+    "changelogUrl": "https://github.blog/changelog/"
+  },
+  {
+    "id": "stripe",
+    "name": "Stripe",
+    "hosts": ["api.stripe.com", "files.stripe.com"],
+    "sdkPackages": ["stripe"],
+    "sdkMethods": {
+      "customers.create": "POST /v1/customers",
+      "customers.retrieve": "GET /v1/customers/{id}",
+      "customers.update": "POST /v1/customers/{id}",
+      "customers.list": "GET /v1/customers",
+      "paymentIntents.create": "POST /v1/payment_intents",
+      "paymentIntents.retrieve": "GET /v1/payment_intents/{id}",
+      "paymentIntents.confirm": "POST /v1/payment_intents/{id}/confirm",
+      "subscriptions.create": "POST /v1/subscriptions",
+      "subscriptions.update": "POST /v1/subscriptions/{id}",
+      "invoices.create": "POST /v1/invoices",
+      "checkout.sessions.create": "POST /v1/checkout/sessions",
+      "refunds.create": "POST /v1/refunds"
+    },
+    "docsUrl": "https://docs.stripe.com/api",
+    "changelogUrl": "https://docs.stripe.com/changelog"
+  },
+  {
+    "id": "twilio",
+    "name": "Twilio",
+    "hosts": ["api.twilio.com", "*.twilio.com"],
+    "sdkPackages": ["twilio"],
+    "sdkMethods": {
+      "messages.create": "POST /2010-04-01/Accounts/{AccountSid}/Messages.json",
+      "calls.create": "POST /2010-04-01/Accounts/{AccountSid}/Calls.json"
+    },
+    "docsUrl": "https://www.twilio.com/docs/usage/api",
+    "changelogUrl": "https://www.twilio.com/en-us/changelog"
+  },
+  {
+    "id": "shopify",
+    "name": "Shopify",
+    "hosts": ["*.myshopify.com"],
+    "sdkPackages": ["@shopify/shopify-api", "@shopify/admin-api-client", "shopify-api-node"],
+    "docsUrl": "https://shopify.dev/docs/api/admin",
+    "changelogUrl": "https://shopify.dev/changelog"
+  },
+  {
+    "id": "quickbooks",
+    "name": "QuickBooks Online",
+    "hosts": ["quickbooks.api.intuit.com", "sandbox-quickbooks.api.intuit.com", "oauth.platform.intuit.com"],
+    "sdkPackages": ["node-quickbooks", "intuit-oauth"],
+    "docsUrl": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/account",
+    "changelogUrl": "https://blogs.intuit.com/category/intuit-developer/"
+  },
+  {
+    "id": "xero",
+    "name": "Xero",
+    "hosts": ["api.xero.com", "identity.xero.com", "login.xero.com"],
+    "sdkPackages": ["xero-node"],
+    "docsUrl": "https://developer.xero.com/documentation/api/accounting/overview",
+    "changelogUrl": "https://developer.xero.com/changelog"
+  },
+  {
+    "id": "hubspot",
+    "name": "HubSpot",
+    "hosts": ["api.hubapi.com", "api.hubspot.com"],
+    "sdkPackages": ["@hubspot/api-client"],
+    "docsUrl": "https://developers.hubspot.com/docs/api/overview",
+    "changelogUrl": "https://developers.hubspot.com/changelog"
+  },
+  {
+    "id": "slack",
+    "name": "Slack",
+    "hosts": ["slack.com", "hooks.slack.com"],
+    "sdkPackages": ["@slack/web-api", "@slack/bolt", "@slack/webhook"],
+    "sdkMethods": {
+      "chat.postMessage": "POST /api/chat.postMessage",
+      "chat.update": "POST /api/chat.update",
+      "conversations.list": "POST /api/conversations.list",
+      "conversations.history": "POST /api/conversations.history",
+      "users.info": "POST /api/users.info",
+      "files.uploadV2": "POST /api/files.uploadV2"
+    },
+    "docsUrl": "https://api.slack.com/methods",
+    "changelogUrl": "https://api.slack.com/changelog"
+  },
+  {
+    "id": "openai",
+    "name": "OpenAI",
+    "hosts": ["api.openai.com"],
+    "sdkPackages": ["openai"],
+    "sdkMethods": {
+      "chat.completions.create": "POST /v1/chat/completions",
+      "responses.create": "POST /v1/responses",
+      "embeddings.create": "POST /v1/embeddings",
+      "images.generate": "POST /v1/images/generations",
+      "beta.assistants.create": "POST /v1/assistants",
+      "beta.threads.create": "POST /v1/threads",
+      "beta.threads.runs.create": "POST /v1/threads/{thread_id}/runs",
+      "files.create": "POST /v1/files"
+    },
+    "docsUrl": "https://platform.openai.com/docs/api-reference",
+    "changelogUrl": "https://platform.openai.com/docs/changelog"
+  },
+  {
+    "id": "anthropic",
+    "name": "Anthropic",
+    "hosts": ["api.anthropic.com"],
+    "sdkPackages": ["@anthropic-ai/sdk"],
+    "sdkMethods": {
+      "messages.create": "POST /v1/messages",
+      "messages.stream": "POST /v1/messages",
+      "messages.countTokens": "POST /v1/messages/count_tokens",
+      "models.list": "GET /v1/models"
+    },
+    "docsUrl": "https://docs.claude.com/en/api",
+    "changelogUrl": "https://docs.claude.com/en/release-notes/api"
+  },
+  {
+    "id": "salesforce",
+    "name": "Salesforce",
+    "hosts": ["*.salesforce.com", "*.force.com"],
+    "sdkPackages": ["jsforce", "@jsforce/jsforce-node"],
+    "docsUrl": "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/",
+    "changelogUrl": "https://help.salesforce.com/s/articleView?id=release-notes.salesforce_release_notes.htm"
+  },
+  {
+    "id": "zendesk",
+    "name": "Zendesk",
+    "hosts": ["*.zendesk.com"],
+    "sdkPackages": ["node-zendesk"],
+    "docsUrl": "https://developer.zendesk.com/api-reference/",
+    "changelogUrl": "https://developer.zendesk.com/api-reference/changelog/changelog/"
+  },
+  {
+    "id": "intercom",
+    "name": "Intercom",
+    "hosts": ["api.intercom.io", "api.eu.intercom.io", "api.au.intercom.io"],
+    "sdkPackages": ["intercom-client"],
+    "docsUrl": "https://developers.intercom.com/docs/references/rest-api/api.intercom.io",
+    "changelogUrl": "https://developers.intercom.com/docs/build-an-integration/learn-more/rest-apis/api-changelog"
+  },
+  {
+    "id": "sendgrid",
+    "name": "SendGrid",
+    "hosts": ["api.sendgrid.com"],
+    "sdkPackages": ["@sendgrid/mail", "@sendgrid/client"],
+    "sdkMethods": {
+      "send": "POST /v3/mail/send"
+    },
+    "docsUrl": "https://www.twilio.com/docs/sendgrid/api-reference"
+  },
+  {
+    "id": "mailchimp",
+    "name": "Mailchimp",
+    "hosts": ["*.api.mailchimp.com"],
+    "sdkPackages": ["@mailchimp/mailchimp_marketing", "@mailchimp/mailchimp_transactional"],
+    "docsUrl": "https://mailchimp.com/developer/marketing/api/"
+  },
+  {
+    "id": "plaid",
+    "name": "Plaid",
+    "hosts": ["production.plaid.com", "sandbox.plaid.com", "development.plaid.com"],
+    "sdkPackages": ["plaid"],
+    "docsUrl": "https://plaid.com/docs/api/",
+    "changelogUrl": "https://plaid.com/docs/changelog/"
+  },
+  {
+    "id": "square",
+    "name": "Square",
+    "hosts": ["connect.squareup.com", "connect.squareupsandbox.com"],
+    "sdkPackages": ["square"],
+    "docsUrl": "https://developer.squareup.com/reference/square",
+    "changelogUrl": "https://developer.squareup.com/docs/changelog/connect"
+  },
+  {
+    "id": "paypal",
+    "name": "PayPal",
+    "hosts": ["api-m.paypal.com", "api-m.sandbox.paypal.com", "api.paypal.com", "api.sandbox.paypal.com"],
+    "sdkPackages": ["@paypal/paypal-server-sdk", "@paypal/checkout-server-sdk"],
+    "docsUrl": "https://developer.paypal.com/api/rest/"
+  },
+  {
+    "id": "google-gemini",
+    "name": "Google Gemini API",
+    "hosts": ["generativelanguage.googleapis.com"],
+    "sdkPackages": ["@google/genai", "@google/generative-ai"],
+    "docsUrl": "https://ai.google.dev/api",
+    "changelogUrl": "https://ai.google.dev/gemini-api/docs/changelog"
+  },
+  {
+    "id": "google",
+    "name": "Google APIs",
+    "hosts": ["*.googleapis.com"],
+    "sdkPackages": ["googleapis"],
+    "docsUrl": "https://developers.google.com/apis-explorer"
+  },
+  {
+    "id": "microsoft-graph",
+    "name": "Microsoft Graph",
+    "hosts": ["graph.microsoft.com"],
+    "sdkPackages": ["@microsoft/microsoft-graph-client", "@microsoft/msgraph-sdk"],
+    "docsUrl": "https://learn.microsoft.com/en-us/graph/api/overview",
+    "changelogUrl": "https://developer.microsoft.com/en-us/graph/changelog"
+  },
+  {
+    "id": "meta-graph",
+    "name": "Meta Graph API",
+    "hosts": ["graph.facebook.com", "graph.instagram.com"],
+    "sdkPackages": ["facebook-nodejs-business-sdk"],
+    "docsUrl": "https://developers.facebook.com/docs/graph-api",
+    "changelogUrl": "https://developers.facebook.com/docs/graph-api/changelog"
+  },
+  {
+    "id": "x",
+    "name": "X (Twitter)",
+    "hosts": ["api.x.com", "api.twitter.com", "upload.twitter.com"],
+    "sdkPackages": ["twitter-api-v2"],
+    "docsUrl": "https://docs.x.com/x-api",
+    "changelogUrl": "https://docs.x.com/changelog"
+  },
+  {
+    "id": "reddit",
+    "name": "Reddit",
+    "hosts": ["reddit.com", "www.reddit.com", "oauth.reddit.com", "old.reddit.com"],
+    "sdkPackages": ["snoowrap"],
+    "docsUrl": "https://www.reddit.com/dev/api/"
+  },
+  {
+    "id": "linkedin",
+    "name": "LinkedIn",
+    "hosts": ["api.linkedin.com"],
+    "sdkPackages": ["linkedin-api-client"],
+    "docsUrl": "https://learn.microsoft.com/en-us/linkedin/",
+    "changelogUrl": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/recent-changes"
+  },
+  {
+    "id": "notion",
+    "name": "Notion",
+    "hosts": ["api.notion.com"],
+    "sdkPackages": ["@notionhq/client"],
+    "docsUrl": "https://developers.notion.com/reference",
+    "changelogUrl": "https://developers.notion.com/page/changelog"
+  },
+  {
+    "id": "airtable",
+    "name": "Airtable",
+    "hosts": ["api.airtable.com"],
+    "sdkPackages": ["airtable"],
+    "docsUrl": "https://airtable.com/developers/web/api/introduction"
+  },
+  {
+    "id": "atlassian",
+    "name": "Atlassian (Jira, Confluence)",
+    "hosts": ["*.atlassian.net", "api.atlassian.com"],
+    "sdkPackages": ["jira.js", "jira-client", "confluence.js"],
+    "docsUrl": "https://developer.atlassian.com/cloud/jira/platform/rest/v3/",
+    "changelogUrl": "https://developer.atlassian.com/changelog/"
+  },
+  {
+    "id": "linear",
+    "name": "Linear",
+    "hosts": ["api.linear.app"],
+    "sdkPackages": ["@linear/sdk"],
+    "docsUrl": "https://linear.app/developers"
+  },
+  {
+    "id": "discord",
+    "name": "Discord",
+    "hosts": ["discord.com", "discordapp.com"],
+    "sdkPackages": ["discord.js", "@discordjs/rest"],
+    "docsUrl": "https://discord.com/developers/docs/reference",
+    "changelogUrl": "https://discord.com/developers/docs/change-log"
+  },
+  {
+    "id": "zoom",
+    "name": "Zoom",
+    "hosts": ["api.zoom.us", "zoom.us"],
+    "sdkPackages": [],
+    "docsUrl": "https://developers.zoom.us/docs/api/",
+    "changelogUrl": "https://developers.zoom.us/changelog/"
+  },
+  {
+    "id": "dropbox",
+    "name": "Dropbox",
+    "hosts": ["api.dropboxapi.com", "content.dropboxapi.com"],
+    "sdkPackages": ["dropbox"],
+    "docsUrl": "https://www.dropbox.com/developers/documentation/http/documentation"
+  },
+  {
+    "id": "pinterest",
+    "name": "Pinterest",
+    "hosts": ["api.pinterest.com"],
+    "sdkPackages": [],
+    "docsUrl": "https://developers.pinterest.com/docs/api/v5/",
+    "changelogUrl": "https://developers.pinterest.com/docs/getting-started/changelog/"
+  },
+  {
+    "id": "resend",
+    "name": "Resend",
+    "hosts": ["api.resend.com"],
+    "sdkPackages": ["resend"],
+    "docsUrl": "https://resend.com/docs/api-reference/introduction"
+  },
+  {
+    "id": "cloudflare",
+    "name": "Cloudflare",
+    "hosts": ["api.cloudflare.com"],
+    "sdkPackages": ["cloudflare"],
+    "docsUrl": "https://developers.cloudflare.com/api/",
+    "changelogUrl": "https://developers.cloudflare.com/changelog/"
+  }
+]
