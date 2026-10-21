@@ -1,0 +1,25 @@
+{
+  "id": "github-workflow-dispatch-204-to-200",
+  "provider": "github",
+  "title": "workflow_dispatch returns 200 with a body instead of 204",
+  "summary": "POST .../actions/workflows/{workflow_id}/dispatches started answering 200 OK with a JSON body (workflow run id) instead of 204 No Content. The OpenAPI schema and docs still said 204, and there was no changelog, version, or preview header. Clients that require exactly 204 treat a successful dispatch as a failure. GitHub later (2026-02-19) documented 200 as the response when return_run_details is set, and GitHub CLI v2.87.0+ sets it by default.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches"
+  },
+  "changeClass": "status-code",
+  "trigger": {
+    "statusCodes": [204]
+  },
+  "firstObserved": "2025-12-19",
+  "publishedNotice": null,
+  "effectiveDate": "2025-12-19",
+  "severity": "critical",
+  "migrationNote": "Treat both 200 and 204 as success (any 2xx). If you want the run id, send return_run_details: true and read it from the 200 body.",
+  "recipeId": "status-code-accept-set",
+  "sources": [
+    "https://stategraph.com/blog/github-broke-the-contract",
+    "https://github.blog/changelog/2026-02-19-workflow-dispatch-api-now-returns-run-ids"
+  ],
+  "status": "verified"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "meta-graph-v21-sunset",
+  "provider": "meta-graph",
+  "title": "Graph API v21.0 removed on 2027-01-21",
+  "summary": "Graph API v21.0 is deprecated and removed on 2027-01-21. After that, calls pinned to v21.0 are served by the next oldest usable version without an error.",
+  "endpoint": {
+    "method": "*",
+    "path": "/v21.0/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": null,
+    "url": "https://developers.facebook.com/docs/graph-api/changelog/versions"
+  },
+  "effectiveDate": "2027-01-21",
+  "severity": "high",
+  "migrationNote": "Move the version segment to a supported version (v22.0 or later) and re-test the fields you read.",
+  "sources": ["https://developers.facebook.com/docs/graph-api/changelog/versions"],
+  "status": "verified"
+}

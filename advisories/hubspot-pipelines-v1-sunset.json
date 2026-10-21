@@ -1,0 +1,24 @@
+{
+  "id": "hubspot-pipelines-v1-sunset",
+  "provider": "hubspot",
+  "title": "Pipelines API v1 retired on 2026-12-04",
+  "summary": "HubSpot retires the legacy CRM Pipelines API v1 on 2026-12-04; after that, calls to v1 endpoints stop working. The replacement is the Pipelines API 2026-09 version (GA 2026-09-09). The /crm-pipelines/v1 path comes from HubSpot's legacy v1 reference; the notice itself names no paths.",
+  "endpoint": {
+    "method": "*",
+    "path": "/crm-pipelines/v1/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-08-14",
+    "url": "https://developers.hubspot.com/changelog/pipelines-api-v1-sunset"
+  },
+  "effectiveDate": "2026-12-04",
+  "severity": "high",
+  "migrationNote": "Migrate to the Pipelines API 2026-09 (or 2026-03 or newer) endpoints before 2026-12-04.",
+  "sources": ["https://developers.hubspot.com/changelog/pipelines-api-v1-sunset"],
+  "status": "verified"
+}

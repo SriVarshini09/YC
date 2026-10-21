@@ -11,7 +11,7 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "providers.json"],
+  "files": ["dist", "providers.json", "schema"],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean"
   },

@@ -1,0 +1,28 @@
+{
+  "id": "quickbooks-minorversion-below-75-ignored",
+  "provider": "quickbooks",
+  "title": "Minor versions below 75 are silently answered as minor version 75",
+  "summary": "Since 2025-08-01 the QuickBooks Online Accounting API ignores any minorversion below 75 and responds with minor version 75 data, without an error. Code pinned to an older minor version receives a different response shape with no signal.",
+  "endpoint": {
+    "method": "*",
+    "path": "/v3/company/{realmId}/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "query": [{ "name": "minorversion", "below": 75 }]
+  },
+  "firstObserved": "2025-08-01",
+  "publishedNotice": {
+    "date": null,
+    "url": "https://blogs.intuit.com/?p=34635"
+  },
+  "effectiveDate": "2025-08-01",
+  "severity": "high",
+  "migrationNote": "Set minorversion=75 (or remove it) and re-test parsing against minor version 75 responses.",
+  "sources": [
+    "https://blogs.intuit.com/?p=34635",
+    "https://www.apideck.com/blog/ai-built-accounting-integrations-maintenance",
+    "https://docs.codat.io/updates/250401-qbo-minor-versions-update"
+  ],
+  "status": "verified"
+}
