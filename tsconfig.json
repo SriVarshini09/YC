@@ -4,7 +4,8 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@shapi/*": ["packages/*/src/index.ts"]
+      "@shapi/*": ["packages/*/src/index.ts"],
+      "shapi": ["packages/cli/src/index.ts"]
     }
   },
   "include": ["packages/*/src", "packages/*/test", "vitest.config.ts"],

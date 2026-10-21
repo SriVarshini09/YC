@@ -5,7 +5,10 @@ const pkg = (name: string) => fileURLToPath(new URL(`./packages/${name}/src/inde
 
 export default defineConfig({
   resolve: {
-    alias: [{ find: /^@shapi\/([a-z-]+)$/, replacement: pkg("$1") }],
+    alias: [
+      { find: /^@shapi\/([a-z-]+)$/, replacement: pkg("$1") },
+      { find: /^shapi$/, replacement: pkg("cli") },
+    ],
   },
   test: {
     include: ["packages/*/test/**/*.test.ts"],
