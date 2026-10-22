@@ -70,7 +70,6 @@ describe("matchAdvisories", () => {
     expect(first?.reasons).toEqual(["compares the response status to 204"]);
     expect(lines(result.affected)).toEqual([
       `github-workflow-dispatch-204-to-200@${lock.callSites[0]!.line}`,
-      `github-workflow-dispatch-204-to-200@${lock.callSites[2]!.line}`,
       `quickbooks-minorversion-below-75-ignored@${lock.callSites[4]!.line}`,
       `reddit-logged-out-json-403@${lock.callSites[7]!.line}`,
     ]);
@@ -80,6 +79,8 @@ describe("matchAdvisories", () => {
   it("reports endpoint callers that do not depend on the change as exposed, and ignores other methods and hosts", () => {
     expect(lines(result.exposed)).toEqual([
       `github-workflow-dispatch-204-to-200@${lock.callSites[1]!.line}`,
+      // already accepts both 200 and 204 (the advisory's newStatusCodes): handled, so only exposed
+      `github-workflow-dispatch-204-to-200@${lock.callSites[2]!.line}`,
       `quickbooks-minorversion-below-75-ignored@${lock.callSites[5]!.line}`,
     ]);
   });

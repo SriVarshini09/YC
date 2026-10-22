@@ -36,6 +36,11 @@ export const TriggerSchema = z
   .object({
     /** Affected when the code compares the status against one of these (the old codes). */
     statusCodes: z.array(z.number().int()).optional(),
+    /**
+     * The codes the provider answers with now. Code that already compares
+     * against all of them handles the change and is not affected.
+     */
+    newStatusCodes: z.array(z.number().int()).optional(),
     /** Affected when the code reads one of these body fields (or a field beneath it). */
     fields: z.array(z.string()).optional(),
     /** Affected when the code compares this field against string values. */
