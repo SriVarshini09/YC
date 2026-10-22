@@ -1,6 +1,6 @@
 # Progress index
 
-One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../PLAN.md).
+One line per task: task, summary file, PR, status.
 
 - M0-T1 scaffold: [summary](M0-T1-scaffold.md) · PR: [#1](https://github.com/SriVarshini09/YC/pull/1) · open
 - M1-T1 provider registry: [summary](M1-T1-provider-registry.md) · PR: [#2](https://github.com/SriVarshini09/YC/pull/2) · open
@@ -24,11 +24,9 @@ One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../
 - M3-T4 PR delivery and shapi fix: [summary](M3-T4-pr-delivery.md) · PR: [#20](https://github.com/SriVarshini09/YC/pull/20) · open
 - M4-T1 MCP server: [summary](M4-T1-mcp-server.md) · PR: [#21](https://github.com/SriVarshini09/YC/pull/21) · open
 - M4-T2 agent skill and editor setup: [summary](M4-T2-agent-skill.md) · PR: [#22](https://github.com/SriVarshini09/YC/pull/22) · open
-- M5-T2 drift observatory: [summary](M5-T2-observatory.md) · PR: [#23](https://github.com/SriVarshini09/YC/pull/23) · open
-- M5-T1 commit mining: [summary](M5-T1-commit-mining.md) · PR: [#24](https://github.com/SriVarshini09/YC/pull/24) · open
-- M5-T3 YC application draft: [summary](M5-T3-application.md) · PR: [#25](https://github.com/SriVarshini09/YC/pull/25) · open
 - PA-A1 backend foundation: [summary](PA-A1-backend-foundation.md) · PR: [#26](https://github.com/SriVarshini09/YC/pull/26) · open
 - PA-A2 GitHub App: [summary](PA-A2-github-app.md) · PR: [#27](https://github.com/SriVarshini09/YC/pull/27) · open
 - PA-A3 PR engine: [summary](PA-A3-pr-engine.md) · PR: [#28](https://github.com/SriVarshini09/YC/pull/28) · open
 - PA-A3b PR engine follow-up: [summary](PA-A3b-pr-engine-followup.md) · PR: [#29](https://github.com/SriVarshini09/YC/pull/29) · open
 - PA-A4 real sandbox: [summary](PA-A4-sandbox.md) · PR: [#30](https://github.com/SriVarshini09/YC/pull/30) · open
+- Repository cleanup: [summary](PA-repo-cleanup.md) · PR: [#31](https://github.com/SriVarshini09/YC/pull/31) · open
