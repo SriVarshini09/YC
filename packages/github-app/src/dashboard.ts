@@ -14,6 +14,8 @@ export interface DashboardInput {
   manual: { advisory: Advisory; callSites: number }[];
   upcoming: { advisory: Advisory; daysUntil: number }[];
   paused: boolean;
+  /** Paused from the SHAPI web app (separate from this issue's checkbox). */
+  pausedFromWeb?: boolean;
   limits: PrLimits;
 }
 
@@ -34,6 +36,7 @@ export function renderDashboard(d: DashboardInput): string {
     `- [${d.paused ? "x" : " "}] <!-- shapi:pause --> Pause SHAPI on this repository`,
     "",
   ];
+  if (d.pausedFromWeb) lines.push("SHAPI is also paused on this repository from the SHAPI web app; resume it there.", "");
   const section = (title: string, rows: string[], empty?: string) => {
     if (!rows.length && !empty) return;
     lines.push(`## ${title}`, "", ...(rows.length ? rows : [empty!]), "");

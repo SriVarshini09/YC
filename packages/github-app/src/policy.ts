@@ -30,8 +30,10 @@ export interface PlanInput {
   openCount: number;
   createdLastHour: number;
   limits: PrLimits;
-  /** Paused from the dashboard: SHAPI changes nothing in this repository. */
+  /** Paused (dashboard or web app): SHAPI changes nothing in this repository. */
   paused: boolean;
+  /** Shown on the dashboard for waiting fixes while paused. */
+  pausedReason?: string;
   /** Ticked on the dashboard: open these now, past the limits. */
   createNow: ReadonlySet<string>;
   /** Ticked on the dashboard: reopen fixes a maintainer closed. */
@@ -61,7 +63,7 @@ export function planFixPrs(input: PlanInput): PrDecision[] {
   let open = input.openCount;
   let created = input.createdLastHour;
   return [...input.candidates].sort(byUrgency).map((advisory): PrDecision => {
-    if (input.paused) return { advisory, action: "wait", reason: "paused from the dashboard" };
+    if (input.paused) return { advisory, action: "wait", reason: input.pausedReason ?? "paused from the dashboard" };
     const existing = input.existing.get(advisory.id);
     if (existing?.state === "open") {
       return existing.stopped ? { advisory, action: "skip", reason: "updates stopped on this PR" } : { advisory, action: "update" };

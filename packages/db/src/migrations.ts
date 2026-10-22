@@ -190,6 +190,26 @@ const migrations: Record<string, Migration> = {
       await sql`alter table scans drop column if exists check_run_id, drop column if exists advisories`.execute(db);
     },
   },
+  "0005_web_sessions": {
+    // Web app sign-in. Only a hash of the session token is stored; the GitHub user token is never kept.
+    async up(db: Kysely<unknown>) {
+      await sql`
+        create table sessions (
+          token_hash text primary key,
+          github_user_id bigint not null,
+          login text not null,
+          installation_ids jsonb not null,
+          csrf text not null,
+          created_at timestamptz not null default now(),
+          expires_at timestamptz not null
+        );
+        create index sessions_expiry on sessions (expires_at);
+      `.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`drop table if exists sessions`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };
