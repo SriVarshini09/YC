@@ -1,0 +1,358 @@
+{
+  "generated": "2026-10-22",
+  "since12m": "2025-10-22",
+  "incidents": [
+    {
+      "incident": "github-workflow-dispatch-204-to-200",
+      "provider": "github",
+      "kind": "silent change",
+      "change_date": "2025-12-19",
+      "search_matches": 19068,
+      "fetched": 7425,
+      "candidate_commits": 4894,
+      "repos_with_matching_fix": 261,
+      "fixed_before_date": 0,
+      "fixed_within_7_days": 4,
+      "fixed_after_30_days": 256,
+      "median_lag_days_after_change": 220,
+      "p90_lag_days_after_change": 297,
+      "first_fix": "2025-12-19"
+    },
+    {
+      "incident": "quickbooks-minorversion-below-75",
+      "provider": "quickbooks",
+      "kind": "silent change",
+      "change_date": "2025-08-01",
+      "search_matches": 268,
+      "fetched": 268,
+      "candidate_commits": 140,
+      "repos_with_matching_fix": 36,
+      "fixed_before_date": 0,
+      "fixed_within_7_days": 0,
+      "fixed_after_30_days": 36,
+      "median_lag_days_after_change": 346,
+      "p90_lag_days_after_change": 426,
+      "first_fix": "2025-10-29"
+    },
+    {
+      "incident": "reddit-logged-out-json-403",
+      "provider": "reddit",
+      "kind": "silent change",
+      "change_date": "2026-05-30",
+      "search_matches": 15596,
+      "fetched": 7330,
+      "candidate_commits": 4169,
+      "repos_with_matching_fix": 1047,
+      "fixed_before_date": 124,
+      "fixed_within_7_days": 77,
+      "fixed_after_30_days": 678,
+      "median_lag_days_after_change": 59,
+      "p90_lag_days_after_change": 129,
+      "first_fix": "2026-04-30"
+    },
+    {
+      "incident": "meta-graph-v20-sunset",
+      "provider": "meta-graph",
+      "kind": "announced deadline",
+      "change_date": "2026-09-24",
+      "search_matches": 722,
+      "fetched": 722,
+      "candidate_commits": 588,
+      "repos_with_matching_fix": 114,
+      "fixed_before_date": 57,
+      "fixed_within_7_days": 21,
+      "fixed_after_30_days": 0,
+      "median_lag_days_after_change": 11,
+      "p90_lag_days_after_change": 24,
+      "first_fix": "2026-08-25"
+    },
+    {
+      "incident": "xero-granular-scopes",
+      "provider": "xero",
+      "kind": "announced deadline",
+      "change_date": "2026-03-02",
+      "search_matches": 1600,
+      "fetched": 1600,
+      "candidate_commits": 1165,
+      "repos_with_matching_fix": 283,
+      "fixed_before_date": 1,
+      "fixed_within_7_days": 3,
+      "fixed_after_30_days": 256,
+      "median_lag_days_after_change": 124,
+      "p90_lag_days_after_change": 210,
+      "first_fix": "2026-02-14"
+    }
+  ],
+  "providers": [
+    {
+      "provider": "openai",
+      "name": "OpenAI",
+      "raw_matches_12m": 26726,
+      "distinct_repos_first_page": 240,
+      "samples": [
+        "azqajafardev/nanoassist-ai: refactor(dream): replace two-phase Dream class with simple cron + process_direct (#3990)",
+        "li--paul/uv_scaffolding_xpu: Keep launch scripts and setup in sync with the 2.14 stack",
+        "xanstomper/mochi: feat(skills): add mochi-automation-surface — when to use live vs headless, NDJSON probe, computer/device hygiene (#64)",
+        "jpablo/dspy4s: Upgrade the port to dspy 3.4.0 (#1)",
+        "raulvallejo/market-scout: fix: migrate ReAct agent to OpenAI gpt-4o-mini",
+        "singhalakhdeep1/eventflow: eventflow: fix frontend tsconfig TS5102, add turbo.json, wire AI copy to OpenAI, add compose app services",
+        "amitmohapatra/agent-harness: One tools=[...]: mcp(...) servers and agents; one gateway for model names; approval rules in the catalog; N3 measured (#",
+        "FSIFofficial/CosmoBase-AI-Bot: Switch to @google/genai and gemini-3.8-flash",
+        "geosp/mixvllm: Launch vLLM via 'vllm serve' instead of deprecated api_server module",
+        "davecthomas/ai-api-unified-http: feat/library-3-26-moderation-backends: library 3.26.0, moderation backends, configuration errors (1.16.0) (#40)"
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "name": "Anthropic",
+      "raw_matches_12m": 14662,
+      "distinct_repos_first_page": 232,
+      "samples": [
+        "tak848/dotfiles: chore(deps): update all non-major dependencies (#988)",
+        "abrahamberg/FreeChessCoach: build(deps): Bump the npm-minor-patch group with 17 updates (#67)",
+        "RDW-Labz/project-swarm: S4/S5 sensitive: S4 ops contract, field export, transcript size, review recorder lanes, owner-action modules (#259)",
+        "WatchMeJoustMyFlags/JoustMania: feat(agent): inference.backend flag replaces AGENT_INFERENCE_BACKEND (#1810) (#1843)",
+        "rjmurillo/ai-agents: chore(deps): update dependency @anthropic-ai/claude-code to v2.1.299 (#6816)",
+        "Jimthetaxguy/IMPULSE-rs: fix(llm): fail closed when photon's Anthropic origin is unusable (#139)",
+        "Joncik91/ITROPA: Stop sending temperature to the Anthropic API",
+        "artistreellc/Arbo: CI: stop the security review failing red on every PR; actions on Node 24 (#43)",
+        "numikel/agent-evaluator: feat: agent-evaluator 0.1.0 — UI-level evaluator for chatbots and AI agents (#1)",
+        "M3dM4x/cell44: feat: Claude 5.5 pipeline + Cloudflare Worker (PR #2)"
+      ]
+    },
+    {
+      "provider": "github",
+      "name": "GitHub",
+      "raw_matches_12m": 11449,
+      "distinct_repos_first_page": 247,
+      "samples": [
+        "yang-pingzkr/WBQYBH: 2026第一周观红中麻将一元一分亲友圈敏略财经",
+        "oxidean/oxidean: feat: GitHub Actions parity — conformance, runtimes, web surface, cache, reusable workflows, PR test-merges (#158)",
+        "juju4/ansible-harden-windows: chore(deps): update vampire/setup-wsl action to v7.2.0 (#46)",
+        "danog/MadelineProto: Install the extensions of the docker image with PIE, not pecl",
+        "krt-profit/basetool: feat(release): record changelog entries as fragments folded at the release (#2881)",
+        "unslothai/unsloth: Bump the actions group across 1 directory with 8 updates (#13835)",
+        "ekbm/verilay: Platform check page: /platform-health tests every service Verilay depends on",
+        "NiGhTTraX/ts-monorepo: fix(deps): update dependency next to ~16.4.0",
+        "Lakshay989/VibePDF: ci: actions/checkout v7.0.1 and actions/setup-node v7.1.0",
+        "benpshore/pdftextract: build(deps): bump the github-actions group across 1 directory with 11 updates (#286)"
+      ]
+    },
+    {
+      "provider": "stripe",
+      "name": "Stripe",
+      "raw_matches_12m": 2620,
+      "distinct_repos_first_page": 237,
+      "samples": [
+        "laparo-coding/hemera: chore(deps): bump stripe from 22.6.2 to 23.0.0 (#623)",
+        "cvinirwin9455/crystalpiston: Stripe Payments + Packages + Application funnel (Stripe dormant on prod) (#121)",
+        "application-MoveSpot/global-connect-ads: feat(admin): Google OAuth login + email URL fixes + brief wizard improvements",
+        "application-MoveSpot/global-connect-ads: fix: replace /annonceur with /advertiser in all email URLs (#176)",
+        "application-MoveSpot/global-connect-ads: fix: remove display-type step from brief wizard (#175)",
+        "application-MoveSpot/global-connect-ads: fix: correct step_b2 CTA link in business advertiser onboarding (#174)",
+        "application-MoveSpot/global-connect-ads: feat(ui): remove \"Nouveau\" badge from LED screen promo card (#173)",
+        "application-MoveSpot/global-connect-ads: fix(i18n): translate \"Done\" → \"Fait\" in advertiser onboarding badge (#172)",
+        "application-MoveSpot/global-connect-ads: fix: switch Stripe checkout to hosted_page to fix broken embedded payments (#171)",
+        "application-MoveSpot/global-connect-ads: fix: replace deprecated Stripe ui_mode 'embedded' with 'embedded_page'"
+      ]
+    },
+    {
+      "provider": "slack",
+      "name": "Slack",
+      "raw_matches_12m": 1039,
+      "distinct_repos_first_page": 259,
+      "samples": [
+        "elastic/cloudbeat: chore(deps): update slackapi/slack-github-action action to v4 (main) (#9127)",
+        "X-oss-byte/Nextjs: Update dependency @slack/web-api to v8 (#9700)",
+        "jiy8ni/NVIDIA-AI-Hackathon: fix(retrieval): use Slack Real-time Search API",
+        "it447/Missing-Properties-in-Hubspot-Contact-: Add reminder-state tracking backed by Upstash Redis (#8)",
+        "robhunter/agentdeals: Resolve three names readers ask for to the records that answer them (#1819)",
+        "itdoanh/rinco: fix(infra): make Postgres + Alertmanager + OTel collector start cleanly",
+        "opsknight-labs/OpsKnight: refactor(chatops): unified Slack war-room boundary — adapter + lease + neutral projection (#674)",
+        "bluntlycoded/nodewatch: Add Slack and Teams OAuth for alert channels",
+        "ultrametricai/ultrametric: Fix api-quality crawl gap for 7 flagship products (Databricks contest wave)",
+        "WashU-Astroparticle-Lab/lore: Stages B-E: brief template default, Slack CLI, interaction contract, Q&A routing"
+      ]
+    },
+    {
+      "provider": "google",
+      "name": "Google Maps",
+      "raw_matches_12m": 836,
+      "distinct_repos_first_page": 228,
+      "samples": [
+        "smarter-sh/smarter: feat(llmtool): add installable extensions with a signed registry",
+        "nepalparajuli77-art/XENON-HEALTH-NEPAL: refactor: update navigation, emergency protocols, and hospital data",
+        "weasdown/dispatch: feat: add SCAS resource centres (#35)",
+        "logan-han/tax-invoice: chore: drop unused deps, update the toolchain and type-check in CI",
+        "marcosoci-eng/pedalagilla-app: Refactor zone drawing logic and add new refs",
+        "Shalinis50/ACIMS-Mobility-System: feat: integrate Google Maps and update navigation",
+        "Eric434/shipment-: chore: update environment configuration and deps",
+        "smarter-sh/smarter: fix: isolate infrastructure tasks from operational tasks, never block a worker, and refresh the smarter LLMClient, its p",
+        "snir-sh/TravelMemory: feat: Add dotenv support and migrate to new Places API",
+        "k8thompson134/where-to: Migrate off deprecated Google Maps APIs"
+      ]
+    },
+    {
+      "provider": "shopify",
+      "name": "Shopify",
+      "raw_matches_12m": 698,
+      "distinct_repos_first_page": 197,
+      "samples": [
+        "Firesio/shopify-cloudflare-app: fix(dev): hide wrangler's \"Missing required secrets\" in dev and tests, document the rest",
+        "innovationtreehouse/apps.checkin: fix(s-read): pin Shopify Admin API 2026-04 and poll bulk ops by id (#2314)",
+        "ericdude4/shopifex: Shopifex 3.0: managed installation, expiring tokens, GraphQL Admin API, Phoenix 1.8 (#112)",
+        "NangoHQ/integration-templates: fix(shopify): move retired Admin API pins to 2026-04 (#717)",
+        "jundihuang/brand-lab: fix: adapt to Shopify API schema changes for discovery",
+        "mksd0398/nitrogen: Add checks for what has fallen behind",
+        "mynewstartupidea/My-first-app: feat: Shopify custom-app sync -- orders, products, inventory, locations, abandoned checkouts, discounts, returns + webho",
+        "santhil-cyber/zippee-aisensy-bridge: Optimize retargeting engine: Redis batching, health guard, analytics reduction, Shopify API update",
+        "betterthanaletterllc/builder-pinatagrams: shopify: one pinned Admin API version (2026-07), cached token, deadlines",
+        "ThomasMcCrossin/curlys-order-form: Move Shopify Admin API calls to 2026-07"
+      ]
+    },
+    {
+      "provider": "twilio",
+      "name": "Twilio",
+      "raw_matches_12m": 436,
+      "distinct_repos_first_page": 106,
+      "samples": [
+        "maxgerashenko/prototypeRAG: Stage 1 step 4, Twilio part: webhook, media stream adapter, Voice SDK call page (DEC-43)",
+        "ThePopOpp/redial: Merge the Coolify deployment track with the Supabase dashboard track",
+        "atdr/buzz-me-in: ci: report coverage to Codecov and make entry points requirable (#85)",
+        "naomytcheums-dotcom/rag-saas-platform: Add Twilio API-key auth, n8n in Docker Compose, and n8n/Airbyte status endpoints",
+        "sus4yoo-star/dabar: Android: target API 36 (Android 16) for Google Play policy (#311)",
+        "vincentkafula/Algetic-PTY-LTD: Replace self-hosted Private SIP network with real Twilio Team Calling",
+        "Turkokami/Nolan-Pest-Control: Add new-lead SMS alerts to the quote route",
+        "qoretechnologies/module-v8: fix: pin Shopify to the current stable API version, not a release candidate",
+        "dmarlop-cloud/twilio-api-watch: Add twilio-api-watch: scan for deprecated Twilio API usage",
+        "secc/RockPlugins: Merge master (v13 production line) into hotfix-1.16.12 (#274)"
+      ]
+    },
+    {
+      "provider": "x",
+      "name": "Twitter",
+      "raw_matches_12m": 300,
+      "distinct_repos_first_page": 184,
+      "samples": [
+        "Luxter77/ms-AMiwstawke-bot: Update README with deprecation notice",
+        "jameskomo/docswatcher: knowledge: X (Twitter) API provider, with v1.1 media upload, search, statuses/filter and oEmbed, and the Account Activit",
+        "faizanshahg453/TweetPulse: fix: make session verification robust and resilient to Twitter API endpoint deprecations",
+        "punn-pca/Firekeeper-core1: refactor: remove public sharing feature and dependencies",
+        "punn-pca/firekeeper-core: refactor: remove public sharing feature and dependencies",
+        "nmir120/Twitter-Bot-Mindfulness-Quotes-: Remove hardcoded API credentials; replace dead twit with twitter-api-v2",
+        "janephp/json-schema: Merge `next-8.x` into `next` (#1063)",
+        "janephp/open-api-3: Merge `next-8.x` into `next` (#1063)",
+        "janephp/open-api-3-1: Merge `next-8.x` into `next` (#1063)",
+        "janephp/open-api-common: Merge `next-8.x` into `next` (#1063)"
+      ]
+    },
+    {
+      "provider": "reddit",
+      "name": "Reddit",
+      "raw_matches_12m": 237,
+      "distinct_repos_first_page": 132,
+      "samples": [
+        "Mnthn2326/hindi-osint-pipeline: chore(ingestion): fully deprecate Reddit from project scope",
+        "monid-ai/monid: Async run protocol (lifecycle hooks) + FULL Apify port (46 endpoints) (#2)",
+        "pkyanam/monid: Async run protocol (lifecycle hooks) + FULL Apify port (46 endpoints) (#2)",
+        "EmmmmDeee/Huntsman-Search-Engine-HSE-Termux-Android-Aarch64-Rust-: Integrate and Reconcile Declarative Correlator Rule Simplification with Main Branch (#494)",
+        "lucasaxm/BiluBot: Refactor Reddit client and integrate SQLite support",
+        "KrnLsh/RedFetcher: refactor(scraper): transition to Selenium + PRAW hybrid model with token tracking",
+        "Jiyko/Reddit-Data-Reader-via-pushshift: Add deprecation notice to README",
+        "thomaspryor/Broadwayscore: fix(social-pulse): revive Reddit path — stale BD zone defaults + old.reddit.com host",
+        "360ghar/social-ai-reply: Hardened merge of #22 platform stack (multi-platform scan, scrapers, files, search) (#23)",
+        "slancj/noesis: feat: add Reddit integration and refactor perception/trigger system  - Add Reddit tool and integration for self-initiati"
+      ]
+    },
+    {
+      "provider": "meta-graph",
+      "name": "Facebook Graph",
+      "raw_matches_12m": 150,
+      "distinct_repos_first_page": 134,
+      "samples": [
+        "Velocta/fbuploadpro: feat(insights): live Facebook Graph API fetch with 15-min localStorage caching (Spec 062) (#584)",
+        "DayMoonDevelopment/post-for-me: Merge pull request #312 from DayMoonDevelopment/feat/update-facebook-graph-api",
+        "Harshavardhan-Dev-988/ExpenseTrackPro-Cloud: Pin Facebook identity provider to Graph API v23.0",
+        "haildv1007/mkttools: Fix deprecated Facebook ?ids= parameter — use per-post queries",
+        "01RG0/facebook-comment-agent-: feat: replace Meta Graph API with Zernio API",
+        "HinduTempleCoins/Bot: fix(auth): Facebook Graph API v19 -> v23",
+        "HoucineMohamed/houcine-world: Add YouTube and Facebook as connectable platforms",
+        "BractwoWojownikowKruki/bractwowojownikowkruki.github.io: fix: replace deprecated Facebook Graph API fields (picture/link/type)",
+        "mikusnuz/meta-mcp: Upgrade to Graph API v26.0, remove Tenor, add Threads API features",
+        "DayMoonDevelopment/post-for-me: fix(trigger): bump Facebook Graph API version off deprecated v20.0"
+      ]
+    },
+    {
+      "provider": "hubspot",
+      "name": "HubSpot",
+      "raw_matches_12m": 123,
+      "distinct_repos_first_page": 102,
+      "samples": [
+        "hookdeck/webhook-skills: fix: correct verification facts in 7 skills (#208)",
+        "rverheijen/hubspot-cli: Add .env / .env.<environment> support with global flags",
+        "noor7300/yt-pmn-online: Enhancement pass: 20 more articles fact-checked (461 of 650 total)",
+        "BigOrangeLab/hubspot-skills: chore: refresh all skills for HubSpot Fall 2026 (date-based API versioning)",
+        "getcargohq/gtm-skills: Bump CDK to 1.0.81 and the CLI pin to 1.0.96, and bind call-scribe to an LLM connector (#34)",
+        "dennisedson/hubspot-central-brain: refactor(api): centralize HubSpot API paths ahead of the dated migration",
+        "mitodl/ol-django: chore(django): raise the floor to 4.2 and add django-upgrade (#556)",
+        "klyp/klyp-gf-to-hubspot: feat(hubspot)!: migrate to Private App auth and Marketing Forms v3",
+        "gfleure/lab: Add first rev ops workflow: HubSpot deal stage -> Slack",
+        "Themis128/cloudless.gr: chore: remove dead HubSpot and Cognito SSM keys and type definitions"
+      ]
+    },
+    {
+      "provider": "salesforce",
+      "name": "Salesforce",
+      "raw_matches_12m": 104,
+      "distinct_repos_first_page": 78,
+      "samples": [
+        "Jins-00757/Fronted-MERN: Complete Day 3 Salesforce OAuth UI and fix critical bugs",
+        "pg-dev-git/foss_analytics_toolkit: refactor(branding): migrate TCRM references to ASFT",
+        "rpezzullo-cpu/Ada-Flags: Rework Cowork Phase F: form-fields-only Teams message, Salesforce postponed (#3)",
+        "solenopsis/Solenopsis: fix: resolve issue #255 - remove deprecated NamedFilter from delta-push package generation",
+        "raycast/extensions: Update area-code-search extension (#29399)",
+        "open-metadata/docs-om: Docs: Salesforce connector – OAuth 2.0, API version, and field fixes (#289)",
+        "AshrafRezk/faisalbinsaedan: Support rental/commercial leads and project pagination",
+        "sf-llms-context/sf-llms-context: update: all content to Summer '26 / API v67.0",
+        "PriceyHub/openflow: fix: use salesforce_api_version parameter in QuerySalesforceObject processors",
+        "kj-fang/wireless_ce_avatar: Feature/agent skill nw experience (#46)"
+      ]
+    },
+    {
+      "provider": "quickbooks",
+      "name": "QuickBooks",
+      "raw_matches_12m": 98,
+      "distinct_repos_first_page": 29,
+      "samples": [
+        "nyrcryptogirl/qb-payments-business-template: Fix 6 critical issues in QuickBooks Payments template",
+        "gigirassy/monorepo: refactor: update QuickBooks API routes for async handling and improve environment URL construction",
+        "GarayInvestments/HouseRenoAI: Phase D Complete: Performance & Cost Optimization",
+        "vespo92/QBO-MCP-TS: Research accountant needs and requirements (#91)",
+        "mdahmann/qbo-toggl-mcp: Research accountant needs and requirements (#91)",
+        "mindstone/mcp-servers: fix(quickbooks)!: gate production writes behind QB_ALLOW_PROD_WRITES=1 (M3.13)",
+        "Michael-Abril/generic-template-dashboard-varity-test: feat(live-api): Complete CONCERN #1 - Live API for all integration pages",
+        "dev-personal-projects/test-intuint-worker-api: Merge pull request #2 from dev-personal-projects/experimental/credit-note-settlement",
+        "dev-personal-projects/test-intuint-worker-api: feat: Add resilience, middleware, and optimizations to API",
+        "Nytely-Official/quickbooks-api: Add CRUD operations and PDF download support for all entity classes"
+      ]
+    },
+    {
+      "provider": "xero",
+      "name": "Xero",
+      "raw_matches_12m": 36,
+      "distinct_repos_first_page": 27,
+      "samples": [
+        "integry/mcptest: The catalog now has 218 verified servers, up from 111, with 107 new ones. In the final `npm run validate-catalog` run al",
+        "knowall-ai/bookie: docs: Xero API coverage matrix",
+        "maff0000/bagman: [CD-6] Record Slice 2 Xero API research (PID §102.1)",
+        "khizaryarkhan/ledger-app: Fix: Xero OAuth scope was missing accounting.payments and accounting.settings",
+        "Sahid-m/Xero-Hack: Cache Xero token lookups (demo perf fix) and add /launch pitch slides.",
+        "johnnwilliams27/Vantor-core: feat(xero): real OAuth adapter + Demo Company end-to-end verified (#56)",
+        "keboola/component-xero-accounting-writer: feat: add column_mapping to entity config, fix deprecated write_tabledef_manifest",
+        "NangoHQ/integration-templates: fix(xero): accept pre-1970 dates + per-row try/catch so one bad row can't kill the whole sync (#486)",
+        "Autohive-AI/autohive-integrations: fix(xero): upgrade SDK to v2.0.0, fix Lambda crash on error paths (#310) (#311)",
+        "slickbench/xero-rs: feat: add If-Modified-Since header support for incremental syncing"
+      ]
+    }
+  ]
+}
