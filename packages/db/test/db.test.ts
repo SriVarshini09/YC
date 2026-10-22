@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { loadAdvisories } from "@shapi/core";
+import { sql } from "kysely";
 import { inferShape, providerSalt } from "@shapi/shapes";
 import { PgShapeStore, createDb, listAdvisories, migrateToLatest, upsertAdvisories, withService, withTenant, type Db } from "@shapi/db";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
@@ -69,6 +70,17 @@ describe("tenant isolation (row-level security)", () => {
     expect(Number(updated.numUpdatedRows)).toBe(0);
     const still = await withService(app, (tx) => tx.selectFrom("repositories").select("enabled").where("full_name", "=", "globex/site").executeTakeFirstOrThrow());
     expect(still.enabled).toBe(true);
+  });
+
+  it("survives the server dropping its idle connections, and reconnects", async () => {
+    const errors: Error[] = [];
+    const client = createDb({ connectionString: pg.url, onError: (err) => errors.push(err) });
+    await sql`select 1`.execute(client);
+    await sql`select pg_terminate_backend(pid) from pg_stat_activity where usename = 'postgres' and pid <> pg_backend_pid() and state = 'idle' and backend_type = 'client backend'`.execute(owner);
+    await new Promise((r) => setTimeout(r, 200));
+    expect(errors.length).toBeGreaterThan(0);
+    expect((await sql<{ ok: number }>`select 1 as ok`.execute(client)).rows).toEqual([{ ok: 1 }]);
+    await client.destroy();
   });
 
   it("rejects malformed account ids", async () => {

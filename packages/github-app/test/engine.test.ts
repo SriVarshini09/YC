@@ -93,6 +93,8 @@ describe("dashboard", () => {
     expect(body).toContain("- [ ] <!-- shapi:retry:c --> Change c [#2]");
     expect(body).toContain("Change d: 3 call sites.");
     expect(body).toContain("in 12 days");
+    expect(body).toContain("Limits: 2 new PRs per hour");
+    expect(renderDashboard({ ...input, limits: { hourly: 1, open: 10 } })).toContain("Limits: 1 new PR per hour");
     expect(parseDashboard(body)).toEqual({ createNow: new Set(), retry: new Set(), paused: false });
 
     const ticked = body.replace("- [ ] <!-- shapi:create:b -->", "- [x] <!-- shapi:create:b -->").replace("- [ ] <!-- shapi:pause -->", "- [X] <!-- shapi:pause -->").replace("- [ ] <!-- shapi:retry:c -->", "- [x] <!-- shapi:retry:c -->");
@@ -153,6 +155,18 @@ describe("upsertFixPr", () => {
     expect(github.fileAt("shapi/change-a", "src/deploy.ts")).toBe("newer\n");
     expect(github.pulls[0]!.body).toBe("new body");
     expect(github.pulls).toHaveLength(1);
+  });
+
+  it("regenerates an unchanged fix when its PR conflicts with the base, and never 404s looking up a new branch", async () => {
+    const { octokit, github } = setup();
+    await upsertFixPr(octokit, fix("new\n"));
+    expect(github.calls.some((c) => c.path.includes("/git/ref/heads/shapi/"))).toBe(false);
+    const before = github.refs.get("shapi/change-a");
+    github.pulls[0]!.mergeable = false;
+    expect(await upsertFixPr(octokit, fix("new\n"))).toMatchObject({ action: "updated" });
+    expect(github.refs.get("shapi/change-a")).not.toBe(before);
+    github.pulls[0]!.mergeable = null; // still computing: treated as fine
+    expect(await upsertFixPr(octokit, fix("new\n"))).toMatchObject({ action: "unchanged" });
   });
 
   it("never overwrites a branch someone else pushed to, or a PR with the stop label", async () => {

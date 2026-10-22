@@ -23,6 +23,7 @@ export interface DashboardIntents {
   paused: boolean;
 }
 
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 const pr = (number?: number, url?: string) => (number && url ? ` [#${number}](${url})` : "");
 
 export function renderDashboard(d: DashboardInput): string {
@@ -60,7 +61,7 @@ export function renderDashboard(d: DashboardInput): string {
   );
   lines.push(
     "---",
-    `Limits: ${d.limits.hourly} new PRs per hour, ${d.limits.open} open at once. Add the \`${STOP_LABEL}\` label to a SHAPI PR to stop updates to it.`,
+    `Limits: ${plural(d.limits.hourly, "new PR")} per hour, ${d.limits.open} open at once. Add the \`${STOP_LABEL}\` label to a SHAPI PR to stop updates to it.`,
   );
   return lines.join("\n") + "\n";
 }
