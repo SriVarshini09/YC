@@ -32,3 +32,4 @@ One line per task: task, summary file, PR, status.
 - Repository cleanup: [summary](PA-repo-cleanup.md) · PR: [#31](https://github.com/SriVarshini09/YC/pull/31) · open
 - PA-A5 scan and fix jobs in the cloud: [summary](PA-A5-cloud-jobs.md) · PR: [#32](https://github.com/SriVarshini09/YC/pull/32) · open
 - PA-A6a web app: [summary](PA-A6a-web-app.md) · PR: [#33](https://github.com/SriVarshini09/YC/pull/33) · open
+- PA-A6b billing: [summary](PA-A6b-billing.md) · PR: pending · open

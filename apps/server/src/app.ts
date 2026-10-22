@@ -2,11 +2,13 @@ import Fastify, { type FastifyInstance } from "fastify";
 import { ping, type Db } from "@shapi/db";
 import type { Config } from "./config";
 import { webhookRoutes } from "./github/webhook";
+import { stripeClient, type BillingDeps } from "./billing/stripe";
+import { stripeWebhookRoutes } from "./billing/webhook";
 import { webRoutes } from "./web/routes";
 
 export interface AppDeps {
   db: Db;
-  config: Pick<Config, "LOG_LEVEL" | "GIT_SHA" | "NODE_ENV" | "githubApp" | "webApp">;
+  config: Pick<Config, "LOG_LEVEL" | "GIT_SHA" | "NODE_ENV" | "githubApp" | "webApp" | "billing">;
   /** Queue a stored webhook delivery for the worker. */
   enqueueWebhook?: (deliveryId: string) => Promise<void>;
   /** For tests: GitHub's OAuth and API endpoints. */
@@ -38,7 +40,9 @@ export function buildApp({ db, config, enqueueWebhook, fetch }: AppDeps): Fastif
   app.get("/version", async () => ({ name: "shapi", sha: config.GIT_SHA }));
 
   webhookRoutes(app, { db, secret: config.githubApp?.webhookSecret, enqueue: enqueueWebhook ?? (async () => {}) });
-  webRoutes(app, { db, config: config.webApp, fetch });
+  const billing: BillingDeps | undefined = config.billing ? { db, stripe: stripeClient(config.billing, { fetch }), config: config.billing } : undefined;
+  stripeWebhookRoutes(app, { billing });
+  webRoutes(app, { db, config: config.webApp, fetch, billing });
 
   return app;
 }

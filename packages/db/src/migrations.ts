@@ -210,6 +210,33 @@ const migrations: Record<string, Migration> = {
       await sql`drop table if exists sessions`.execute(db);
     },
   },
+  "0006_billing": {
+    // Stripe billing: one subscription per account, priced per private repository beyond the free one.
+    async up(db: Kysely<unknown>) {
+      await sql`
+        create table billing (
+          account_id bigint primary key references accounts on delete cascade,
+          stripe_customer_id text unique,
+          stripe_subscription_id text unique,
+          status text not null default 'none',
+          quantity integer not null default 0,
+          current_period_end timestamptz,
+          updated_at timestamptz not null default now()
+        );
+        create table stripe_events (
+          id text primary key,
+          type text not null,
+          received_at timestamptz not null default now()
+        );
+      `.execute(db);
+      await sql`alter table billing enable row level security`.execute(db);
+      await sql`alter table billing force row level security`.execute(db);
+      await sql`create policy tenant_isolation on billing using (${tenantPredicate("account_id")}) with check (${tenantPredicate("account_id")})`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`drop table if exists billing, stripe_events`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };

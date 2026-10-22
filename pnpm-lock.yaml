@@ -247,6 +247,9 @@ importers:
       pg-boss:
         specifier: ^12.38.0
         version: 12.38.0(@opentelemetry/api@1.10.0)
+      stripe:
+        specifier: 22.6.2
+        version: 22.6.2(@types/node@22.20.5)
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -2485,6 +2488,15 @@ packages:
   std-env@4.3.0:
     resolution: {integrity: sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==}
 
+  stripe@22.6.2:
+    resolution: {integrity: sha512-PwRE2scocvXqDKPiskMa5vRJEAEkq46W69XyUYmAwrNSLr675lQnfqLwnsndAWizwgihOWw/irLmoFRo3ez7ew==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/node': '>=18'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   sucrase@3.35.1:
     resolution: {integrity: sha512-DhuTmvZWux4H1UOnWMB3sk0sbaCVOoQZjv8u1rDoTV0HTdGem9hkAZtl4JZy8P2z4Bg0nT+YMeOFyVr4zcG5Tw==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -4665,6 +4677,10 @@ snapshots:
   statuses@2.0.2: {}
 
   std-env@4.3.0: {}
+
+  stripe@22.6.2(@types/node@22.20.5):
+    optionalDependencies:
+      '@types/node': 22.20.5
 
   sucrase@3.35.1:
     dependencies:

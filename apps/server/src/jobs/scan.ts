@@ -6,11 +6,14 @@ import { withService, type Db, type Tx } from "@shapi/db";
 import { extractCallSites } from "@shapi/extractor";
 import { checkRunOutput, completeCheckRun, fetchRepoSnapshot, startCheckRun } from "@shapi/github-app";
 import type { SnapshotFile } from "@shapi/sandbox";
+import { repositoryCovered } from "../billing/plan";
 import type { GitHubClients } from "../github/clients";
 
 export interface ScanDeps {
   db: Db;
   github: GitHubClients;
+  /** Billing is configured: private repositories beyond the plan are not scanned. */
+  billingEnforced?: boolean;
   now?: () => Date;
 }
 
@@ -110,6 +113,12 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
   });
   const scan = ctx.row;
   if (!scan || !ctx.claimed) return { scanId, status: "skipped", reason: scan ? `scan is ${scan.status}` : "scan not found" };
+  const plan = await repositoryCovered(deps.db, scan.account_id, scan.repository_id, deps.billingEnforced ?? false);
+  if (!plan.covered) {
+    const reason = `not covered by the plan: ${plan.reason}`;
+    await withService(deps.db, (tx) => tx.updateTable("scans").set({ status: "failed", error: reason, finished_at: now() }).where("id", "=", scan.id).execute());
+    return { scanId, repositoryId: scan.repository_id, status: "skipped", reason };
+  }
 
   const installation = scan.github_installation_id!;
   const [owner, repo] = scan.full_name.split("/") as [string, string];
