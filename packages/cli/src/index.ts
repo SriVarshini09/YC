@@ -1,8 +1,10 @@
 import { Command, CommanderError, Option } from "commander";
+import { fix, type FixDeps, type FixOptions } from "./fix";
 import { renderText } from "./report";
 import { VERSION, scan, toJsonReport, type ScanOptions } from "./scan";
 
 export { DEFAULT_ADVISORIES, VERSION, scan, toJsonReport, type ScanOptions, type ScanOutcome } from "./scan";
+export { DEFAULT_RECORDINGS, fix, type FixDeps, type FixOptions, type FixOutcome } from "./fix";
 export { renderText } from "./report";
 
 export interface Io {
@@ -19,7 +21,7 @@ const processIo: Io = {
 };
 
 /** Run the CLI with `argv` (as in process.argv) and return the exit code. */
-export async function run(argv: string[], io: Io = processIo): Promise<number> {
+export async function run(argv: string[], io: Io = processIo, fixDeps: Partial<FixDeps> = {}): Promise<number> {
   let exitCode = 0;
   const program = new Command()
     .name("shapi")
@@ -44,6 +46,24 @@ export async function run(argv: string[], io: Io = processIo): Promise<number> {
       if (opts.json) io.stdout(JSON.stringify(toJsonReport(outcome), null, 2) + "\n");
       else io.stdout(renderText(outcome, opts.color !== false && Boolean(io.isTTY)));
       exitCode = outcome.exitCode;
+    });
+
+  program
+    .command("fix")
+    .description("Repair affected call sites test-first: generate a contract test, apply the recipe (or Claude), keep the change only if the test passes")
+    .argument("[path]", "repository to fix", ".")
+    .option("--repo <url>", "clone a GitHub repository (shallow) and fix it; with --pr the PR goes to that repository")
+    .option("--advisory <id>", "only this advisory")
+    .option("--advisories <dir>", "advisory directory (default: the bundled advisories/)")
+    .option("--db <file>", "shape store with canary observations (checked before recordings)", ".shapi/shapes.db")
+    .option("--recordings <dir>", "recorded response sequences (default: the bundled fixtures/recordings/)")
+    .option("--llm", "ask Claude when no recipe fixes the call site (needs ANTHROPIC_API_KEY)")
+    .option("--write", "write the fix and the contract test into the local repository")
+    .option("--pr", "open a pull request with the fix and the contract test")
+    .addOption(new Option("--now <date>", "evaluate deadlines as of this date").hideHelp())
+    .action(async (target: string, opts: FixOptions) => {
+      const outcomes = await fix(opts.repo ? undefined : target, opts, { log: (l) => io.stdout(`${l}\n`), ...fixDeps });
+      exitCode = outcomes.every((o) => o.result?.status === "fixed" || o.result?.status === "already-handled") ? 0 : 1;
     });
 
   try {
