@@ -26,6 +26,10 @@ npx shapi fix fixtures/demo-ts
 
 For every affected call site, `shapi fix` generates a contract test from the before/after response shapes, confirms it fails, applies the advisory's recipe (or asks Claude with `--llm`), and keeps the change only if the test then passes. `--write` writes the fix into the repo; `--pr` opens a pull request with the fix, the test and the evidence (`--repo <github url> --pr` works on a repo you haven't cloned). Example: [shapi-demo PR #2](https://github.com/SriVarshini09/shapi-demo/pull/2).
 
+## Use it from your editor
+
+Claude Code and Cursor pick up the `shapi` MCP server (`.mcp.json`, `.cursor/mcp.json`) and the `shapi` agent skill (`.claude/skills/shapi`) when this repo is open. Ask: *"Use SHAPI to check fixtures/demo-ts for third-party API breakages and fix what you can."* For other repositories, see [docs/agents.md](docs/agents.md).
+
 ## Watch providers
 
 ```bash
@@ -42,6 +46,7 @@ Canary probes call provider APIs (GitHub public endpoints; the workflow_dispatch
 - `packages/canary`: canary workers, scheduler, replay, draft advisories
 - `packages/repair`: recipes, contract test generation, repair agent (Claude fallback)
 - `packages/github-app`: pull request delivery (token now, GitHub App later)
+- `packages/mcp`: MCP server for coding agents (`scan`, `advisories`, `impact`, `apply_fix`)
 - `packages/cli`: `shapi` command
 - `advisories/`: seeded advisories (open JSON format)
 - `fixtures/demo-ts`: demo service
