@@ -17,7 +17,7 @@ const log = {
 const db = createDb({ connectionString: config.DATABASE_URL });
 try {
   const boss = await startWorker({ databaseUrl: config.DATABASE_URL, db, config, env: process.env, log });
-  log.info({ cron: config.CANARY_CRON }, "worker started");
+  log.info({ cron: config.CANARY_CRON, githubApp: Boolean(config.githubApp) }, "worker started");
   const shutdown = async (signal: string) => {
     log.info({ signal }, "shutting down");
     await boss.stop({ graceful: true, timeout: 30_000 });

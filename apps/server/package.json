@@ -13,19 +13,27 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts src/web.ts src/worker.ts src/migrate.ts --format esm --dts --clean",
+    "build": "tsup src/index.ts src/web.ts src/worker.ts src/migrate.ts src/register.ts --format esm --dts --clean",
     "start:web": "node dist/web.js",
     "start:worker": "node dist/worker.js",
-    "migrate": "node dist/migrate.js"
+    "migrate": "node dist/migrate.js",
+    "github:register": "node dist/register.js",
+    "dev": "node scripts/dev.ts"
   },
   "dependencies": {
+    "@octokit/rest": "^22.0.1",
     "@sentry/node": "^11.8.0",
     "@shapi/canary": "workspace:*",
     "@shapi/core": "workspace:*",
     "@shapi/db": "workspace:*",
+    "@shapi/github-app": "workspace:*",
     "@shapi/shapes": "workspace:*",
     "fastify": "^5.12.7",
+    "kysely": "^0.29.7",
     "pg-boss": "^12.38.0",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "smee-client": "5.0.0"
   }
 }
