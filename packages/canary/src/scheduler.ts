@@ -1,5 +1,5 @@
 import type { Advisory } from "@shapi/core";
-import { ShapeStore, diffShapes, inferShape, providerSalt, type ShapeDiff } from "@shapi/shapes";
+import { diffShapes, inferShape, providerSalt, type ShapeDiff, type ShapeRepository } from "@shapi/shapes";
 import { draftAdvisory } from "./draft";
 import { probeSource, type Env, type Probe, type Worker } from "./probe";
 import { githubWorker } from "./workers/github";
@@ -33,7 +33,8 @@ export interface ProbeResult {
 }
 
 export interface RunOptions {
-  store: ShapeStore;
+  /** Where shapes are stored: the local SQLite store, or the hosted Postgres store. */
+  store: ShapeRepository;
   workers?: Worker[];
   env?: Env;
   fetch?: typeof globalThis.fetch;
@@ -70,7 +71,7 @@ export async function runOnce(opts: RunOptions): Promise<RunReport> {
 
 async function runProbe(
   probe: Probe,
-  store: ShapeStore,
+  store: ShapeRepository,
   doFetch: typeof globalThis.fetch,
   now: () => Date,
   secret: string,
@@ -88,8 +89,8 @@ async function runProbe(
     const body = await res.text();
     const shape = inferShape({ status: res.status, headers: res.headers, body }, { salt: providerSalt(probe.provider, secret) });
     const source = probeSource(probe);
-    const previous = store.latest(probe.provider, probe.method, probe.endpoint, source);
-    const stored = store.record({
+    const previous = await store.latest(probe.provider, probe.method, probe.endpoint, source);
+    const stored = await store.record({
       provider: probe.provider,
       method: probe.method,
       endpoint: probe.endpoint,

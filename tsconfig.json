@@ -8,6 +8,6 @@
       "shapi": ["packages/cli/src/index.ts"]
     }
   },
-  "include": ["packages/*/src", "packages/*/test", "vitest.config.ts"],
+  "include": ["packages/*/src", "packages/*/test", "apps/*/src", "apps/*/test", "test-utils", "vitest.config.ts"],
   "exclude": ["**/dist", "**/test/fixtures", "fixtures"]
 }

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      # Install also builds every package (root `prepare` script).
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      # Tests start a real Postgres via embedded-postgres; no service container needed.
+      - run: pnpm test
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker build -t shapi-server:ci .
+      - name: Smoke-test the image
+        run: |
+          docker network create smoke
+          docker run -d --name pg --network smoke -e POSTGRES_PASSWORD=pw postgres:17
+          for i in $(seq 1 30); do docker exec pg pg_isready -U postgres && break; sleep 1; done
+          URL=postgres://postgres:pw@pg:5432/postgres
+          docker run --rm --network smoke -e DATABASE_URL=$URL -e SHAPI_SHAPE_SECRET=ci shapi-server:ci node dist/migrate.js
+          docker run -d --name web --network smoke -p 8080:8080 -e DATABASE_URL=$URL -e SHAPI_SHAPE_SECRET=ci shapi-server:ci
+          for i in $(seq 1 30); do curl -fs localhost:8080/readyz && break; sleep 1; done
+          curl -fs localhost:8080/readyz

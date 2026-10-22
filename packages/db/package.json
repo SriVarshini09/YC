@@ -1,0 +1,29 @@
+{
+  "name": "@shapi/db",
+  "version": "0.1.0",
+  "description": "SHAPI's Postgres schema, migrations, tenant isolation, and stores",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean"
+  },
+  "dependencies": {
+    "@shapi/core": "workspace:*",
+    "@shapi/shapes": "workspace:*",
+    "kysely": "^0.29.7",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.6"
+  }
+}

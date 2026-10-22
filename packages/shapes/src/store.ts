@@ -41,10 +41,24 @@ interface Row {
   shape_json: string;
 }
 
+type MaybePromise<T> = T | Promise<T>;
+
+/**
+ * Anything that stores observed shapes: the local SQLite `ShapeStore` (synchronous) or the hosted
+ * Postgres store in `@shapi/db` (asynchronous). Callers `await` every method so either works.
+ */
+export interface ShapeRepository {
+  record(obs: Observation): MaybePromise<StoredObservation>;
+  history(provider: string, method: string, endpoint: string, opts?: { limit?: number; source?: string }): MaybePromise<StoredObservation[]>;
+  latest(provider: string, method: string, endpoint: string, source?: string): MaybePromise<StoredObservation | undefined>;
+  previousDistinct(provider: string, method: string, endpoint: string, source?: string): MaybePromise<StoredObservation | undefined>;
+  endpoints(): MaybePromise<EndpointSummary[]>;
+}
+
 const SCHEMA_VERSION = 1;
 
-/** SQLite store of observed response shapes (better-sqlite3; Postgres later). */
-export class ShapeStore {
+/** SQLite store of observed response shapes (better-sqlite3), for the CLI and local runs. */
+export class ShapeStore implements ShapeRepository {
   private constructor(private readonly db: Database.Database) {}
 
   /** Open (and create or migrate) a store. Use ":memory:" for tests. */
