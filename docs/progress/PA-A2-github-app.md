@@ -16,8 +16,8 @@ The worker handles:
 
 Each delivery runs in one locked transaction that rolls back on failure. A sweeper runs every 10 minutes: it re-queues stored deliveries, asks GitHub to redeliver ones that never arrived (GitHub never retries), and prunes payloads after 14 days.
 
-Verified: 162 tests pass, 25 of them new, against a fake GitHub and real Postgres. A local run took a signed ping through web, queue and worker, and refused a bad signature.
-Not done: a live install, which needs you to register the app (below). Running the queued scans and posting check runs comes in A5, and fix PR limits in A3.
+Verified: 162 tests pass, 25 of them new, against a fake GitHub and real Postgres. In a live check on 2026-10-22, the app `shapi-dev-sv` was registered and installed on `SriVarshini09/shapi-demo`, with webhooks forwarded through smee. The install created the account and repo, and a push to main queued scan 1 for commit `78bd37e`. All three deliveries (installation, push, check_suite) were processed with no errors.
+Not done: a hosted webhook URL (the app still points at smee.io until the Fly deploy). Running the queued scans and posting check runs comes in A5, where `check_suite` events are a natural trigger, and fix PR limits in A3.
 
 ```
 pnpm build
