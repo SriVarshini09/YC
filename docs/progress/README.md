@@ -11,3 +11,4 @@ One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../
 - M1-T6 matcher: [summary](M1-T6-matcher.md) · PR: [#7](https://github.com/SriVarshini09/YC/pull/7) · open
 - M1-T7 CLI: [summary](M1-T7-cli.md) · PR: [#8](https://github.com/SriVarshini09/YC/pull/8) · open
 - M1-T8 demo fixture and tests: [summary](M1-T8-demo-fixture.md) · PR: [#9](https://github.com/SriVarshini09/YC/pull/9) · open
+- M2-T1 shape inference: [summary](M2-T1-shape-inference.md) · PR: [#10](https://github.com/SriVarshini09/YC/pull/10) · open

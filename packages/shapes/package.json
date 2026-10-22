@@ -1,0 +1,21 @@
+{
+  "name": "@shapi/shapes",
+  "version": "0.1.0",
+  "description": "Response shape inference, shape store, and shape diff",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}
