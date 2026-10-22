@@ -1,0 +1,24 @@
+{
+  "name": "@shapi/sandbox",
+  "version": "0.1.0",
+  "description": "Isolated places to run untrusted repository code: an E2B microVM in production, a temp folder for local development",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/build-template.ts --format esm --dts --clean",
+    "build-template": "node dist/build-template.js"
+  },
+  "dependencies": {
+    "e2b": "2.52.1"
+  }
+}

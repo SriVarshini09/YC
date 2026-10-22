@@ -23,6 +23,8 @@
     "@octokit/plugin-throttling": "^11.0.5",
     "@octokit/rest": "^22.0.1",
     "@shapi/core": "workspace:*",
-    "@shapi/repair": "workspace:*"
+    "@shapi/repair": "workspace:*",
+    "@shapi/sandbox": "workspace:*",
+    "tar": "^7.5.22"
   }
 }

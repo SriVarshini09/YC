@@ -1,16 +1,19 @@
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import type { Advisory, LockedCallSite } from "@shapi/core";
 import type { ResponseShape } from "@shapi/shapes";
 import { generateContractTest } from "./contract";
 import type { LlmFixer } from "./llm";
 import { runRecipe, type FileChange, type Recipe } from "./recipe";
-import { runTestFile, type TestRun } from "./runner";
+import { runFailure, testsRan, type TestRun } from "./runner";
+import { localWorkspace, type Workspace } from "./workspace";
 
 export interface RepairInput {
-  /** The repository to repair. It is never modified: all work happens in a sandbox copy. */
-  repoDir: string;
+  /**
+   * Where to work: a sandbox workspace (the hosted service), or else a temp copy of `repoDir`
+   * (the CLI on the developer's own checkout). The original repository is never modified.
+   */
+  workspace?: Workspace;
+  repoDir?: string;
   advisory: Advisory;
   callSite: LockedCallSite;
   /** The response the code was written against, and the one the provider sends now. */
@@ -31,7 +34,7 @@ export interface Attempt {
 export interface RepairResult {
   status: "fixed" | "rejected" | "already-handled" | "unsupported";
   method?: "recipe" | "llm";
-  /** Sandbox copy holding the fixed code (for inspection or delivery). */
+  /** Where the fixed code was verified: a local folder, or "<provider>:<sandbox id>". */
   sandbox?: string;
   /** Source files changed by the fix, plus the added contract test. Paths are repo-relative. */
   changes: FileChange[];
@@ -42,30 +45,42 @@ export interface RepairResult {
   reason?: string;
 }
 
-const COPY_SKIP = new Set([".git", "node_modules", "dist", "coverage", ".shapi"]);
+const PROTECTED = new Set([".git", "node_modules", "dist", "coverage", ".shapi"]);
 
 /**
  * Repair one affected call site, test-first:
- * 1. copy the repo into a sandbox, 2. write the generated contract test and confirm it fails,
+ * 1. work in a copy of the repo, 2. write the generated contract test and confirm it fails,
  * 3. apply the advisory's recipe, or ask the LLM fixer, 4. keep the change only if the test passes.
  */
 export async function repairCallSite(input: RepairInput): Promise<RepairResult> {
-  const { repoDir, advisory, callSite } = input;
-  const original = readFileSync(path.join(repoDir, callSite.file), "utf8");
+  const { advisory, callSite } = input;
+  if (!input.workspace && !input.repoDir) throw new Error("repairCallSite needs a workspace or a repoDir");
+  const ws = input.workspace ?? localWorkspace(input.repoDir!);
+  const original = await ws.read(callSite.file);
+  if (original === undefined) return { status: "unsupported", sandbox: ws.location, changes: [], attempts: [], reason: `${callSite.file} is not in the repository` };
   const test = generateContractTest({ callSite, advisory, before: input.before, after: input.after, sourceText: original });
   if (test.status !== "generated") return { status: "unsupported", changes: [], attempts: [], reason: test.reason };
 
-  const sandbox = makeSandbox(repoDir);
-  const testPath = path.join(sandbox, test.file);
-  mkdirSync(path.dirname(testPath), { recursive: true });
-  writeFileSync(testPath, test.content);
+  await ws.write(test.file, test.content);
   const testChange: FileChange = { file: test.file, before: "", after: test.content, notes: ["generated contract test"] };
 
-  const baseline = runTestFile(sandbox, test.file);
+  const baseline = await ws.runTest(test.file);
+  // The baseline only confirms the breakage if the test really ran and failed; a broken environment proves nothing.
+  if (!baseline.passed && !testsRan(baseline.output)) {
+    return {
+      status: "unsupported",
+      sandbox: ws.location,
+      changes: [],
+      test: { file: test.file, content: test.content },
+      baseline,
+      attempts: [],
+      reason: `the contract test could not run: ${runFailure(baseline.output)}`,
+    };
+  }
   if (baseline.passed) {
     return {
       status: "already-handled",
-      sandbox,
+      sandbox: ws.location,
       changes: [],
       test: { file: test.file, content: test.content },
       baseline,
@@ -75,24 +90,22 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
   }
 
   const attempts: Attempt[] = [];
-  const target = path.join(sandbox, callSite.file);
-
   const recipe = runRecipe(input.recipes, advisory, callSite, original);
   if (recipe.status === "applied") {
-    writeFileSync(target, recipe.change.after);
-    const run = runTestFile(sandbox, test.file);
+    await ws.write(callSite.file, recipe.change.after);
+    const run = await ws.runTest(test.file);
     attempts.push({ method: "recipe", outcome: run.passed ? "passed" : "failed", detail: recipe.recipe, run });
     if (run.passed) {
-      return { status: "fixed", method: "recipe", sandbox, changes: [recipe.change, testChange], test: { file: test.file, content: test.content }, baseline, attempts };
+      return { status: "fixed", method: "recipe", sandbox: ws.location, changes: [recipe.change, testChange], test: { file: test.file, content: test.content }, baseline, attempts };
     }
-    writeFileSync(target, original);
+    await ws.write(callSite.file, original);
   } else {
     attempts.push({ method: "recipe", outcome: "skipped", detail: recipe.reason });
   }
 
   if (!input.llm) {
     attempts.push({ method: "llm", outcome: "skipped", detail: "no LLM fixer configured" });
-    return rejected(sandbox, test, baseline, attempts);
+    return rejected(ws, test, baseline, attempts);
   }
 
   const proposal = await input.llm.fix({
@@ -104,36 +117,34 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
   });
   if (proposal.status !== "proposed") {
     attempts.push({ method: "llm", outcome: "skipped", detail: proposal.reason });
-    return rejected(sandbox, test, baseline, attempts);
+    return rejected(ws, test, baseline, attempts);
   }
 
   const changes: FileChange[] = [];
   for (const f of proposal.files) {
     const rel = path.posix.normalize(f.path.replaceAll("\\", "/"));
-    if (rel.startsWith("..") || path.posix.isAbsolute(rel) || rel === test.file || rel.split("/").some((s) => COPY_SKIP.has(s))) {
+    if (rel.startsWith("..") || path.posix.isAbsolute(rel) || rel === test.file || rel.split("/").some((s) => PROTECTED.has(s))) {
       attempts.push({ method: "llm", outcome: "failed", detail: `refused to write ${f.path}: outside the repo, the test, or a protected folder` });
-      restore(sandbox, repoDir, changes);
-      return rejected(sandbox, test, baseline, attempts);
+      await restore(ws, changes);
+      return rejected(ws, test, baseline, attempts);
     }
-    const abs = path.join(sandbox, rel);
-    const before = existsSync(abs) ? readFileSync(abs, "utf8") : "";
-    mkdirSync(path.dirname(abs), { recursive: true });
-    writeFileSync(abs, f.content);
+    const before = (await ws.read(rel)) ?? "";
+    await ws.write(rel, f.content);
     changes.push({ file: rel, before, after: f.content, notes: [proposal.explanation] });
   }
-  const run = runTestFile(sandbox, test.file);
+  const run = await ws.runTest(test.file);
   attempts.push({ method: "llm", outcome: run.passed ? "passed" : "failed", detail: `${proposal.model}: ${proposal.explanation}`, run });
   if (run.passed) {
-    return { status: "fixed", method: "llm", sandbox, changes: [...changes, testChange], test: { file: test.file, content: test.content }, baseline, attempts };
+    return { status: "fixed", method: "llm", sandbox: ws.location, changes: [...changes, testChange], test: { file: test.file, content: test.content }, baseline, attempts };
   }
-  restore(sandbox, repoDir, changes);
-  return rejected(sandbox, test, baseline, attempts);
+  await restore(ws, changes);
+  return rejected(ws, test, baseline, attempts);
 }
 
-function rejected(sandbox: string, test: { file: string; content: string }, baseline: TestRun, attempts: Attempt[]): RepairResult {
+function rejected(ws: Workspace, test: { file: string; content: string }, baseline: TestRun, attempts: Attempt[]): RepairResult {
   return {
     status: "rejected",
-    sandbox,
+    sandbox: ws.location,
     changes: [],
     test: { file: test.file, content: test.content },
     baseline,
@@ -142,22 +153,7 @@ function rejected(sandbox: string, test: { file: string; content: string }, base
   };
 }
 
-/** Put LLM-written files back to the repo's version. */
-function restore(sandbox: string, repoDir: string, changes: FileChange[]): void {
-  for (const c of changes) {
-    const src = path.join(repoDir, c.file);
-    if (existsSync(src)) writeFileSync(path.join(sandbox, c.file), readFileSync(src));
-  }
-}
-
-/** Copy the repo (without .git, build output or dependencies) and link its node_modules so its own test setup works. */
-function makeSandbox(repoDir: string): string {
-  const sandbox = mkdtempSync(path.join(os.tmpdir(), "shapi-repair-"));
-  cpSync(repoDir, sandbox, {
-    recursive: true,
-    filter: (src) => !COPY_SKIP.has(path.basename(src)) || path.resolve(src) === path.resolve(repoDir),
-  });
-  const modules = path.join(repoDir, "node_modules");
-  if (existsSync(modules)) symlinkSync(modules, path.join(sandbox, "node_modules"), "junction");
-  return sandbox;
+/** Put LLM-written files back to their content before the attempt. */
+async function restore(ws: Workspace, changes: FileChange[]): Promise<void> {
+  for (const c of changes) await ws.write(c.file, c.before);
 }

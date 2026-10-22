@@ -29,3 +29,18 @@ export function runTestFile(dir: string, file: string, timeoutMs = 120_000): Tes
   const exitCode = res.status ?? 1;
   return { passed: exitCode === 0, exitCode, output };
 }
+
+/**
+ * Whether vitest actually ran tests (its summary counts them). A startup crash, an import error or
+ * "no tests" fails too, but proves nothing about the code under test.
+ */
+export function testsRan(output: string): boolean {
+  return /^\s*Tests\s+.*\d+ (?:failed|passed)/m.test(output);
+}
+
+/** The first line that explains why a run did not get as far as running tests. */
+export function runFailure(output: string): string {
+  const lines = output.split("\n").map((l) => l.trim()).filter(Boolean);
+  // "SyntaxError: ..." says more than a banner such as "Startup Error".
+  return lines.find((l) => /\b\w*Error: |\berror: /i.test(l)) ?? lines.find((l) => /Cannot find|not found|Error/.test(l)) ?? lines[0] ?? "no output";
+}
