@@ -25,3 +25,4 @@ One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../
 - M4-T1 MCP server: [summary](M4-T1-mcp-server.md) · PR: [#21](https://github.com/SriVarshini09/YC/pull/21) · open
 - M4-T2 agent skill and editor setup: [summary](M4-T2-agent-skill.md) · PR: [#22](https://github.com/SriVarshini09/YC/pull/22) · open
 - M5-T2 drift observatory: [summary](M5-T2-observatory.md) · PR: [#23](https://github.com/SriVarshini09/YC/pull/23) · open
+- M5-T1 commit mining: [summary](M5-T1-commit-mining.md) · PR: [#24](https://github.com/SriVarshini09/YC/pull/24) · open

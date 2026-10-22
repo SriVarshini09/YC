@@ -1,0 +1,92 @@
+{
+  "_about": "Hand classification (2026-10-22) of every repo whose commit subject line mentions the change, from the candidates the search found. Classes: accept-200 = fixed code that rejected GitHub's new 200; empty-204 = fixed code that broke on the empty 204 after GitHub made 200 opt-in (2026-02-19); run-details = adopted return_run_details / run id from the dispatch response; moved-to-75 = moved QuickBooks calls to minorversion=75; pinned-old = pinned a minor version Intuit already ignores. Repos not listed were judged unrelated (for example '#204' pull request numbers, docs, or adding a workflow_dispatch trigger).",
+  "github-workflow-dispatch-204-to-200": {
+    "accept-200": [
+      "vincentng295/gemini_fbchat",
+      "stategraph/stategraph",
+      "refracta/df-translations",
+      "mend/docker-base-images",
+      "kikujizo/ai-harness",
+      "dlstupka/hth",
+      "opaque-dev/opaque",
+      "voilalz/frontier-pulse",
+      "pyzz58/gpt-recommendations"
+    ],
+    "empty-204": [
+      "oliverwirthsalpine/planner-delta-tracker",
+      "fullsend-ai/fullsend",
+      "mmtm-studios/twinfang",
+      "TITANICBHAI/3gpTube",
+      "augustintiberghien/five-lundi",
+      "Shebovich/business-sites-bot",
+      "unfoldingWord/bible-editor",
+      "ruslankanat-sdet/sdet-portfolio",
+      "emrevegas/flipbot",
+      "fischervincent/webwatch",
+      "mlender-ai/fomo-club",
+      "PoojaJeeva/marketing-dashboard",
+      "B3B3097/VIBE-CODE",
+      "lenaxia/talos-ops-prod",
+      "lenaxia/LLMSafeSpaces",
+      "noencke/agentic-emojis",
+      "HereLiesAz/aive",
+      "icandoitccc-jpg/chenstricks-motion",
+      "onlykappa/KappaForge",
+      "craigoley/remudero",
+      "jairdiazrios95-web/sunset-world-data-platform"
+    ],
+    "run-details": [
+      "irilminakhai-rgb/main",
+      "git-for-windows/gfw-helper-github-app",
+      "stefanpenner-cs/org-dispatch-test",
+      "vinicius33/heimdall",
+      "port-labs/ocean",
+      "gitgitgadget/gitgitgadget-github-app",
+      "zetatech-a/finance-news-monitor",
+      "PyGithub/PyGithub",
+      "alwaysmeticulous/report-diffs-action",
+      "garden-co/jazz",
+      "lhpaul/ai-dev-framework-template",
+      "deepregatta/forecast-tiles",
+      "hoffresearch/urna",
+      "SylphxAI/.github",
+      "armosec/helm-charts",
+      "kubescape/helm-charts",
+      "kubescape/node-agent",
+      "kubescape/kubescape",
+      "kubescape/workflows",
+      "daniel-ospina/tortoise",
+      "kibertoad/cat-factory",
+      "euvvel/veil",
+      "BestNathan/nession",
+      "bashrusakh/DeskForge",
+      "compliance-framework/workflows",
+      "willemkokke/livery",
+      "HumblebragAB/computercat-api",
+      "Keshaqaz/aures"
+    ]
+  },
+  "quickbooks-minorversion-below-75": {
+    "moved-to-75": [
+      "primus-brennan/billing-automation",
+      "yashjain5194-cpu/copy-yourlegal",
+      "VantaX-Org/Atheon",
+      "ACIConst/cmbutchers",
+      "excelle-insights/quickbooks",
+      "hfscdogg/outgrow",
+      "RCOLKITT/AccountingQB-MCP",
+      "tioperfumes07/IH35-TMS",
+      "mindstone/mcp-servers",
+      "theomleslie-ops/bakery-dashboard-2",
+      "Chamfer-Consulting/gpc-purchase-order-hx",
+      "Tans2101/Trenston"
+    ],
+    "pinned-old": ["toyslatam/dl-qb-sync"]
+  },
+  "sampled": {
+    "_about": "For the three larger incidents, 25 rule-matched repos per incident were drawn at random (seed 42) and judged by hand. clear = the commit adapts to the change; probable = likely but the subject line alone doesn't prove it.",
+    "reddit-logged-out-json-403": { "sample": 25, "clear": 11, "probable": 4, "removed_reddit_source": 4 },
+    "meta-graph-v20-sunset": { "sample": 25, "clear": 21, "probable": 1 },
+    "xero-granular-scopes": { "sample": 25, "clear": 15, "probable": 5 }
+  }
+}
