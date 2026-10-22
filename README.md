@@ -50,5 +50,4 @@ Canary probes call provider APIs (GitHub public endpoints; the workflow_dispatch
 - `packages/cli`: `shapi` command
 - `advisories/`: seeded advisories (open JSON format)
 - `fixtures/demo-ts`: demo service
-- `docs/PLAN.md`: build plan; `docs/progress/`: one summary per task
-- `research/`: market research and product thesis
+- `docs/progress/`: one summary per task

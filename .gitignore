@@ -9,3 +9,9 @@ coverage/
 /api.lock
 # local shape store written by the canary scheduler
 .shapi/
+# plans, research and application drafts: kept on the founders' machines, never in the repository
+research/
+research_notes/
+reports/
+docs/PLAN.md
+docs/private/
