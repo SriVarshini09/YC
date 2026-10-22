@@ -70,7 +70,7 @@ describe("app registration and auth", () => {
   it("asks for the minimum permissions and events", () => {
     const m = appManifest({ name: "SHAPI", url: "https://shapi.dev", webhookUrl: "https://hooks.example/x", redirectUrl: "http://localhost:3999/callback", public: false });
     expect(m.default_permissions).toEqual({ metadata: "read", contents: "write", pull_requests: "write", checks: "write", issues: "write" });
-    expect(m.default_events).toEqual(["push", "pull_request"]);
+    expect(m.default_events).toEqual(["push", "pull_request", "issues"]);
     expect(m.hook_attributes).toEqual({ url: "https://hooks.example/x", active: true });
     expect(Object.keys(APP_PERMISSIONS)).not.toContain("administration");
     expect(APP_EVENTS).not.toContain("issue_comment");
@@ -83,7 +83,7 @@ describe("app registration and auth", () => {
 
   it("creates a scoped installation token with a signed app JWT", async () => {
     const gh = fakeGitHub({ "POST /app/installations/42/access_tokens": accessToken });
-    const token = await scopedInstallationToken(creds, 42, { repositoryIds: [7], permissions: { ...SCAN_PERMISSIONS } }, { fetch: gh.fetch });
+    const token = await scopedInstallationToken(creds, 42, { repositoryIds: [7], permissions: { ...SCAN_PERMISSIONS } }, { fetch: gh.fetch, resilient: false });
     expect(token.token).toBe("ghs_installation");
     const call = gh.calls[0]!;
     expect(call.body).toEqual({ repository_ids: [7], permissions: { metadata: "read", contents: "read" } });
@@ -102,14 +102,14 @@ describe("app registration and auth", () => {
           ? json(200, { total_count: 101, repositories: page(1) })
           : json(200, { total_count: 101, repositories: page(100) }, { link: '<https://api.github.com/installation/repositories?per_page=100&page=2>; rel="next"' }),
     });
-    const repos = await listInstallationRepositories(installationOctokit(creds, 42, { fetch: gh.fetch }));
+    const repos = await listInstallationRepositories(installationOctokit(creds, 42, { fetch: gh.fetch, resilient: false }));
     expect(repos).toHaveLength(101);
     expect(gh.calls.filter((c) => c.path === "/installation/repositories").map((c) => c.auth)).toEqual(["token ghs_installation", "token ghs_installation"]);
   });
 
   it("exchanges the manifest code without credentials", async () => {
     const gh = fakeGitHub({ "POST /app-manifests/code123/conversions": () => json(201, { id: 9, slug: "shapi", pem: "k", webhook_secret: "w" }) });
-    const app = await convertManifestCode("code123", { fetch: gh.fetch });
+    const app = await convertManifestCode("code123", { fetch: gh.fetch, resilient: false });
     expect(app).toMatchObject({ id: 9, slug: "shapi" });
     expect(gh.calls[0]!.auth).toBeNull();
   });
@@ -193,7 +193,7 @@ describe("redelivery", () => {
           ? json(200, [d(2, "b", 500, "2026-10-22T08:00:00Z"), d(1, "a", 500, "2026-10-20T08:00:00Z")])
           : json(200, [d(3, "c", 202, "2026-10-22T09:00:00Z")], { link: '<https://api.github.com/app/hook/deliveries?per_page=100&cursor=next>; rel="next"' }),
     });
-    const list = await listRecentDeliveries(appOctokit(creds, { fetch: gh.fetch }), new Date("2026-10-21T00:00:00Z"));
+    const list = await listRecentDeliveries(appOctokit(creds, { fetch: gh.fetch, resilient: false }), new Date("2026-10-21T00:00:00Z"));
     expect(list.map((x) => x.guid)).toEqual(["c", "b"]);
     expect(gh.calls.every((c) => /^bearer /i.test(c.auth ?? ""))).toBe(true);
   });

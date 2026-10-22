@@ -143,6 +143,39 @@ const migrations: Record<string, Migration> = {
       await sql`drop index if exists webhook_deliveries_unprocessed, webhook_deliveries_processed, scans_pending`.execute(db);
     },
   },
+  "0003_fix_prs": {
+    // The PR engine: one row per (repository, advisory) fix PR, plus per-repository settings and the dashboard issue.
+    async up(db: Kysely<unknown>) {
+      await sql`
+        alter table repositories add column settings jsonb not null default '{}';
+        alter table repositories add column dashboard_issue integer;
+        create table fix_prs (
+          id bigserial primary key,
+          account_id bigint not null references accounts on delete cascade,
+          repository_id bigint not null references repositories on delete cascade,
+          advisory_id text not null,
+          branch text not null,
+          number integer,
+          url text,
+          state text not null check (state in ('open', 'closed', 'merged')),
+          stopped boolean not null default false,
+          head_sha text,
+          created_at timestamptz not null default now(),
+          updated_at timestamptz not null default now(),
+          closed_at timestamptz,
+          unique (repository_id, advisory_id)
+        );
+        create index fix_prs_branch on fix_prs (repository_id, branch);
+      `.execute(db);
+      await sql`alter table fix_prs enable row level security`.execute(db);
+      await sql`alter table fix_prs force row level security`.execute(db);
+      await sql`create policy tenant_isolation on fix_prs using (${tenantPredicate("account_id")}) with check (${tenantPredicate("account_id")})`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`drop table if exists fix_prs`.execute(db);
+      await sql`alter table repositories drop column if exists settings, drop column if exists dashboard_issue`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };
