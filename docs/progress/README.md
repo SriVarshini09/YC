@@ -16,3 +16,4 @@ One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../
 - M2-T3 canary workers and scheduler: [summary](M2-T3-canary-workers.md) · PR: [#12](https://github.com/SriVarshini09/YC/pull/12) · open
 - M2-T4 shape diff and classification: [summary](M2-T4-shape-diff.md) · PR: [#13](https://github.com/SriVarshini09/YC/pull/13) · open
 - M2-T5 replay of the GitHub incident: [summary](M2-T5-incident-replay.md) · PR: [#14](https://github.com/SriVarshini09/YC/pull/14) · open
+- M2-T6 draft advisory from diff: [summary](M2-T6-draft-advisory.md) · PR: pending

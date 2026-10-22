@@ -1,4 +1,6 @@
+import type { Advisory } from "@shapi/core";
 import { ShapeStore, diffShapes, inferShape, providerSalt, type ShapeDiff } from "@shapi/shapes";
+import { draftAdvisory } from "./draft";
 import type { Env, Probe, Worker } from "./probe";
 import { githubWorker } from "./workers/github";
 import { stripeWorker } from "./workers/stripe";
@@ -24,6 +26,8 @@ export interface ProbeResult {
   previousHash?: string;
   /** What changed, when the shape changed. */
   diff?: ShapeDiff;
+  /** Draft advisory, when the change is breaking. */
+  draft?: Advisory;
   error?: string;
   ms: number;
 }
@@ -93,13 +97,16 @@ async function runProbe(
       shape,
     });
     const changed = previous !== undefined && previous.shapeHash !== stored.shapeHash;
+    const diff = changed ? diffShapes(previous.shape, stored.shape) : undefined;
+    const draft = changed && diff ? draftAdvisory({ before: previous, after: stored, diff }) : undefined;
     return {
       ...base,
       status: res.status,
       shapeHash: stored.shapeHash,
       changed,
       previousHash: previous?.shapeHash,
-      ...(changed ? { diff: diffShapes(previous.shape, stored.shape) } : {}),
+      ...(diff ? { diff } : {}),
+      ...(draft ? { draft } : {}),
       ms: Math.round(performance.now() - started),
     };
   } catch (err) {
