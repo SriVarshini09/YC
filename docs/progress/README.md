@@ -30,3 +30,4 @@ One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../
 - PA-A1 backend foundation: [summary](PA-A1-backend-foundation.md) · PR: [#26](https://github.com/SriVarshini09/YC/pull/26) · open
 - PA-A2 GitHub App: [summary](PA-A2-github-app.md) · PR: [#27](https://github.com/SriVarshini09/YC/pull/27) · open
 - PA-A3 PR engine: [summary](PA-A3-pr-engine.md) · PR: [#28](https://github.com/SriVarshini09/YC/pull/28) · open
+- PA-A3b PR engine follow-up: [summary](PA-A3b-pr-engine-followup.md) · PR: pending · open
