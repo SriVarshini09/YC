@@ -15,9 +15,10 @@ What exists: a web app in the existing web process, server-rendered with no clie
 - Migration `0005` adds `sessions`. New config: `SHAPI_GITHUB_CLIENT_ID`, `SHAPI_GITHUB_CLIENT_SECRET`, `SHAPI_PUBLIC_URL`, `SHAPI_SESSION_SECRET` (required in production) and `SHAPI_GITHUB_APP_SLUG`.
 
 Verified: 212 tests pass, 9 of them new. They cover the sign-in flow, the forged-state and failed-exchange paths, no stored user token, hashed sessions, sign-out and tampered cookies, other accounts unreachable by account or repository id, CSRF, settings validation, escaping, and the two pause switches.
-Not done: Stripe billing (A6b, after the pricing decision), and a live sign-in, which needs the callback URL added to the GitHub App.
+Live check, 2026-10-22: signed in with GitHub on the local server through the `shapi-dev-sv` OAuth client. The accounts page listed SriVarshini09, and the account page showed `shapi-demo` with its last scan `09df375` and 2 affected call sites, plus the settings form. The stored session was a 64-character hash with an 8-hour lifetime, limited to installation 174261320, with no GitHub user token anywhere. Locally the server runs on port 8787, because another local service holds 8080; the app's redirect URI is `http://localhost:8787/auth/github/callback`.
+Not done: Stripe billing (A6b, after the pricing decision).
 
 ```
 pnpm test
-pnpm build && pnpm --filter @shapi/server dev     # then open http://localhost:8080
+pnpm build && pnpm --filter @shapi/server dev     # PORT=8787 SHAPI_PUBLIC_URL=http://localhost:8787 if 8080 is taken
 ```
