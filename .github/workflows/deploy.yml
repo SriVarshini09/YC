@@ -1,0 +1,32 @@
+name: Deploy
+
+# Deploys main to Fly.io. Does nothing until the FLY_API_TOKEN repository secret is set.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - name: Check for Fly token
+        id: token
+        run: |
+          if [ -n "$FLY_API_TOKEN" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "FLY_API_TOKEN not set; skipping deploy."; fi
+      - if: steps.token.outputs.present == 'true'
+        uses: actions/checkout@v5
+      - if: steps.token.outputs.present == 'true'
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      - if: steps.token.outputs.present == 'true'
+        run: flyctl deploy --remote-only --env GIT_SHA=${{ github.sha }}
