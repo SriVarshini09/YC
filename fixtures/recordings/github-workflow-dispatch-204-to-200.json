@@ -1,0 +1,46 @@
+{
+  "provider": "github",
+  "method": "POST",
+  "endpoint": "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+  "note": "Reconstruction of the December 2025 incident: before, 204 No Content (as documented and in GitHub's OpenAPI schema); after, 200 OK with a body. The 200 body uses the fields GitHub documents for this endpoint today (workflow_run_id, run_url, html_url). Values are placeholders; this is not captured traffic.",
+  "sources": [
+    "https://stategraph.com/blog/github-broke-the-contract",
+    "https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event"
+  ],
+  "observations": [
+    {
+      "observedAt": "2025-12-18T09:00:00Z",
+      "status": 204,
+      "headers": {
+        "x-github-api-version-selected": "2022-11-28",
+        "x-github-media-type": "github.v3; format=json",
+        "x-ratelimit-remaining": "4999",
+        "date": "Thu, 18 Dec 2025 09:00:00 GMT"
+      },
+      "body": ""
+    },
+    {
+      "observedAt": "2025-12-18T21:00:00Z",
+      "status": 204,
+      "headers": {
+        "x-github-api-version-selected": "2022-11-28",
+        "x-github-media-type": "github.v3; format=json",
+        "x-ratelimit-remaining": "4987",
+        "date": "Thu, 18 Dec 2025 21:00:00 GMT"
+      },
+      "body": ""
+    },
+    {
+      "observedAt": "2025-12-19T09:00:00Z",
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "x-github-api-version-selected": "2022-11-28",
+        "x-github-media-type": "github.v3; format=json",
+        "x-ratelimit-remaining": "4999",
+        "date": "Fri, 19 Dec 2025 09:00:00 GMT"
+      },
+      "body": "{\"workflow_run_id\":20412345678,\"run_url\":\"https://api.github.com/repos/shapi-dev/canary/actions/runs/20412345678\",\"html_url\":\"https://github.com/shapi-dev/canary/actions/runs/20412345678\"}"
+    }
+  ]
+}

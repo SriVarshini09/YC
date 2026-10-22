@@ -1,10 +1,12 @@
 import { Command, CommanderError } from "commander";
 import { ShapeStore } from "@shapi/shapes";
+import { loadRecording, replay } from "./replay";
 import { DEFAULT_DB, DEV_SECRET, runEvery, runOnce, type RunReport } from "./scheduler";
 
 export type { Env, Probe, Worker } from "./probe";
 export { githubWorker } from "./workers/github";
 export { stripeWorker } from "./workers/stripe";
+export { RecordingSchema, loadRecording, replay, type Recording, type ReplayResult } from "./replay";
 export { DEFAULT_DB, DEV_SECRET, WORKERS, runEvery, runOnce, type ProbeResult, type RunOptions, type RunReport } from "./scheduler";
 
 export interface Io {
@@ -20,6 +22,7 @@ export function renderReport(report: RunReport): string {
   for (const r of report.results) {
     const outcome = r.error ? `error: ${r.error}` : `${r.status}  ${r.changed ? "CHANGED" : r.previousHash ? "same" : "first"}  ${r.shapeHash!.slice(0, 12)}`;
     lines.push(`  ${r.id.padEnd(idWidth)}  ${r.method.padEnd(4)} ${r.endpoint}  ${outcome}  ${r.ms} ms`);
+    for (const c of r.diff?.changes ?? []) lines.push(`      ${c.impact.padEnd(13)} ${c.detail}`);
   }
   for (const s of report.skipped) lines.push(`  ${s.id.padEnd(idWidth)}  skipped: ${s.reason}`);
   const changed = report.results.filter((r) => r.changed).length;
@@ -66,6 +69,25 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
           resolve();
         });
       });
+    });
+
+  program
+    .command("replay")
+    .description("replay a recorded response sequence through the shape store and diff")
+    .argument("<recording>", "recording JSON file")
+    .option("--db <file>", "shape store file (default: in memory)", ":memory:")
+    .action((file: string, opts: { db: string }) => {
+      const store = ShapeStore.open(opts.db);
+      const result = replay(loadRecording(file), store, env.SHAPI_SHAPE_SECRET ?? DEV_SECRET);
+      store.close();
+      const { provider, method, endpoint } = result.recording;
+      io.stdout(`${provider} ${method} ${endpoint}: ${result.observations.length} observations replayed\n`);
+      if (!result.diff) {
+        io.stdout("shape never changed\n");
+        return;
+      }
+      io.stdout(`changed between ${result.before!.observedAt} and ${result.after.observedAt}${result.diff.breaking ? " (BREAKING)" : ""}\n`);
+      for (const c of result.diff.changes) io.stdout(`  ${c.impact.padEnd(13)} ${c.changeClass ?? "-"}  ${c.detail}\n`);
     });
 
   program
