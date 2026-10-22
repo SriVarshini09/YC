@@ -3,6 +3,8 @@ import { z } from "zod";
 
 /** Repo-level advisories folder: apps/server/{src,dist}/ → ../../../advisories. Overridden in the container. */
 const DEFAULT_ADVISORIES = fileURLToPath(new URL("../../../advisories", import.meta.url));
+/** Recorded before/after responses shipped with SHAPI, used when the canary has none for an endpoint. */
+const DEFAULT_RECORDINGS = fileURLToPath(new URL("../../../fixtures/recordings", import.meta.url));
 
 const ConfigSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -27,6 +29,9 @@ const ConfigSchema = z.object({
   WEBHOOK_SWEEP_CRON: z.string().default("*/10 * * * *"),
   /** Days to keep processed webhook payloads. */
   WEBHOOK_RETENTION_DAYS: z.coerce.number().int().positive().default(14),
+  SHAPI_RECORDINGS: z.string().default(DEFAULT_RECORDINGS),
+  /** Cron for re-matching stored api.locks against the advisory database (it also runs after every advisory sync). */
+  FANOUT_CRON: z.string().default("17 3 * * *"),
 });
 
 export interface GitHubAppConfig {

@@ -30,3 +30,4 @@ One line per task: task, summary file, PR, status.
 - PA-A3b PR engine follow-up: [summary](PA-A3b-pr-engine-followup.md) · PR: [#29](https://github.com/SriVarshini09/YC/pull/29) · open
 - PA-A4 real sandbox: [summary](PA-A4-sandbox.md) · PR: [#30](https://github.com/SriVarshini09/YC/pull/30) · open
 - Repository cleanup: [summary](PA-repo-cleanup.md) · PR: [#31](https://github.com/SriVarshini09/YC/pull/31) · open
+- PA-A5 scan and fix jobs in the cloud: [summary](PA-A5-cloud-jobs.md) · PR: [#32](https://github.com/SriVarshini09/YC/pull/32) · open
