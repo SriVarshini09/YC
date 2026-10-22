@@ -71,7 +71,7 @@ function fakeGitHub() {
     Object.defineProperty(res, "url", { value: url.href });
     return res;
   }) as typeof globalThis.fetch;
-  return { state, calls, fetch, clients: githubClients(githubApp, { fetch }) as GitHubClients };
+  return { state, calls, fetch, clients: githubClients(githubApp, { fetch, resilient: false }) as GitHubClients };
 }
 
 const installation = (id: number, login = "acme") => ({ id, account: { login, type: "Organization" } });
@@ -242,9 +242,11 @@ describe("webhook events", () => {
     expect(await withService(db, (tx) => tx.selectFrom("accounts").selectAll().execute())).toEqual([]);
   });
 
-  it("ignores events it does not handle yet, but marks them processed", async () => {
+  it("ignores events it does not handle, but marks them processed", async () => {
     const gh = fakeGitHub();
-    expect((await processDelivery({ db, github: gh.clients }, await deliver("pull_request", { action: "closed" }))).outcome).toBe("ignored: pull_request");
+    const id = await deliver("star", { action: "created" });
+    expect((await processDelivery({ db, github: gh.clients }, id)).outcome).toBe("ignored: star");
+    expect((await processDelivery({ db, github: gh.clients }, id)).outcome).toBe("already processed");
   });
 });
 

@@ -27,6 +27,9 @@ export interface RepositoriesTable {
   last_scan_sha: string | null;
   last_scanned_at: Timestamp | null;
   created_at: CreatedAt;
+  /** Dashboard state: { paused, createNow: advisory ids, retry: advisory ids }. */
+  settings: ColumnType<Record<string, unknown>, string | undefined, string>;
+  dashboard_issue: number | null;
 }
 
 export interface ScansTable {
@@ -52,6 +55,24 @@ export interface FindingsTable {
   call_site: JSONColumnType<object>;
   reasons: JSONColumnType<string[]>;
   created_at: CreatedAt;
+}
+
+/** One fix PR per (repository, advisory): its deterministic branch and what happened to it. */
+export interface FixPrsTable {
+  id: Id;
+  account_id: string;
+  repository_id: string;
+  advisory_id: string;
+  branch: string;
+  number: number | null;
+  url: string | null;
+  state: "open" | "closed" | "merged";
+  stopped: Generated<boolean>;
+  head_sha: string | null;
+  /** When the current PR was opened (reset when a closed fix is reopened from the dashboard); drives the hourly limit. */
+  created_at: ColumnType<Date, string | Date | undefined, string | Date>;
+  updated_at: Timestamp;
+  closed_at: Timestamp | null;
 }
 
 /** Global, not per tenant: the advisory database. */
@@ -96,10 +117,11 @@ export interface Database {
   repositories: RepositoriesTable;
   scans: ScansTable;
   findings: FindingsTable;
+  fix_prs: FixPrsTable;
   advisories: AdvisoriesTable;
   observations: ObservationsTable;
   webhook_deliveries: WebhookDeliveriesTable;
 }
 
 /** Tables holding one customer's data; row-level security keeps each customer to its own rows. */
-export const TENANT_TABLES = ["accounts", "repositories", "scans", "findings"] as const;
+export const TENANT_TABLES = ["accounts", "repositories", "scans", "findings", "fix_prs"] as const;

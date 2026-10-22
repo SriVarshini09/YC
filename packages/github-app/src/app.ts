@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createAppAuth } from "@octokit/auth-app";
-import { Octokit } from "@octokit/rest";
+import type { Octokit } from "@octokit/rest";
+import { createOctokit, type ClientOptions } from "./client";
 
 /** The registered SHAPI GitHub App: its id and private key (PEM). */
 export interface AppCredentials {
@@ -21,12 +22,11 @@ export const APP_PERMISSIONS = {
 } as const;
 
 /** Webhook events beyond installation events, which every app receives. */
-export const APP_EVENTS = ["push", "pull_request"] as const;
+export const APP_EVENTS = ["push", "pull_request", "issues"] as const;
 
 /** Read-only token permissions for scanning a repo: the least a scan job needs. */
 export const SCAN_PERMISSIONS = { metadata: "read", contents: "read" } as const;
 
-type Fetch = typeof globalThis.fetch;
 type Permissions = Record<string, "read" | "write">;
 
 /** Keys from env vars often arrive with literal "\n"; turn them back into a PEM. */
@@ -35,23 +35,16 @@ export function normalizePrivateKey(key: string): string {
 }
 
 /** Authenticated as the app itself (a JWT): for /app endpoints such as installations and webhook deliveries. */
-export function appOctokit(creds: AppCredentials, opts: { fetch?: Fetch } = {}): Octokit {
-  return new Octokit({
-    authStrategy: createAppAuth,
-    auth: { appId: creds.appId, privateKey: normalizePrivateKey(creds.privateKey) },
-    userAgent: "shapi",
-    request: opts.fetch ? { fetch: opts.fetch } : undefined,
-  });
+export function appOctokit(creds: AppCredentials, opts: ClientOptions = {}): Octokit {
+  return createOctokit({ authStrategy: createAppAuth, auth: { appId: creds.appId, privateKey: normalizePrivateKey(creds.privateKey) } }, opts);
 }
 
 /** Authenticated as one installation; the token is created on first use and refreshed before it expires. */
-export function installationOctokit(creds: AppCredentials, installationId: number | string, opts: { fetch?: Fetch } = {}): Octokit {
-  return new Octokit({
-    authStrategy: createAppAuth,
-    auth: { appId: creds.appId, privateKey: normalizePrivateKey(creds.privateKey), installationId: Number(installationId) },
-    userAgent: "shapi",
-    request: opts.fetch ? { fetch: opts.fetch } : undefined,
-  });
+export function installationOctokit(creds: AppCredentials, installationId: number | string, opts: ClientOptions = {}): Octokit {
+  return createOctokit(
+    { authStrategy: createAppAuth, auth: { appId: creds.appId, privateKey: normalizePrivateKey(creds.privateKey), installationId: Number(installationId) } },
+    opts,
+  );
 }
 
 export interface ScopedToken {
@@ -68,7 +61,7 @@ export async function scopedInstallationToken(
   creds: AppCredentials,
   installationId: number | string,
   scope: { repositoryIds?: number[]; permissions?: Permissions },
-  opts: { fetch?: Fetch } = {},
+  opts: ClientOptions = {},
 ): Promise<ScopedToken> {
   const auth = (await appOctokit(creds, opts).auth({
     type: "installation",
@@ -142,8 +135,8 @@ export interface RegisteredApp {
 }
 
 /** Exchange the manifest flow's one-time code (valid for one hour) for the new app's credentials. */
-export async function convertManifestCode(code: string, opts: { fetch?: Fetch } = {}): Promise<RegisteredApp> {
-  const octokit = new Octokit({ userAgent: "shapi", request: opts.fetch ? { fetch: opts.fetch } : undefined });
+export async function convertManifestCode(code: string, opts: ClientOptions = {}): Promise<RegisteredApp> {
+  const octokit = createOctokit({}, opts);
   const { data } = await octokit.request("POST /app-manifests/{code}/conversions", { code });
   return data as unknown as RegisteredApp;
 }

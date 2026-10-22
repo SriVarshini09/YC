@@ -1,5 +1,5 @@
 import { withService, type Db, type Tx } from "@shapi/db";
-import { listInstallationRepositories, type InstallationRepository } from "@shapi/github-app";
+import { STOP_LABEL, isDashboard, listInstallationRepositories, parseDashboard, type InstallationRepository } from "@shapi/github-app";
 import type { GitHubClients } from "./clients";
 
 /** The parts of GitHub's webhook payloads SHAPI reads. */
@@ -18,6 +18,15 @@ interface WebhookPayload {
   after?: string;
   deleted?: boolean;
   repository?: { id: number; full_name: string; default_branch: string; private: boolean; archived?: boolean };
+  pull_request?: {
+    number: number;
+    html_url: string;
+    merged: boolean;
+    head: { ref: string; sha: string };
+    labels: { name: string }[];
+  };
+  issue?: { number: number; body: string | null; pull_request?: unknown };
+  sender?: { type: string };
 }
 
 export interface EventDeps {
@@ -96,8 +105,11 @@ async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload
     }
     case "push":
       return handlePush(tx, github, payload);
+    case "pull_request":
+      return handlePullRequest(tx, payload);
+    case "issues":
+      return handleIssue(tx, payload);
     default:
-      // pull_request and others are stored for the PR engine; nothing to do yet.
       return `ignored: ${event}`;
   }
 }
@@ -182,4 +194,51 @@ async function handlePush(tx: Tx, github: GitHubClients, payload: WebhookPayload
     .returning("id")
     .executeTakeFirstOrThrow();
   return `scan ${scan.id} queued`;
+}
+
+/** Keep SHAPI's record of its fix PRs current: merged, closed, reopened, or stopped by label. */
+async function handlePullRequest(tx: Tx, payload: WebhookPayload): Promise<string> {
+  const pr = payload.pull_request;
+  if (!pr || !payload.repository) return "ignored: no pull request";
+  if (!pr.head.ref.startsWith("shapi/")) return "ignored: not a SHAPI branch";
+  const repo = await tx.selectFrom("repositories").select("id").where("github_repo_id", "=", String(payload.repository.id)).executeTakeFirst();
+  if (!repo) return "ignored: unknown repository";
+  const row = await tx.selectFrom("fix_prs").select("id").where("repository_id", "=", repo.id).where("branch", "=", pr.head.ref).executeTakeFirst();
+  if (!row) return "ignored: not a PR SHAPI opened";
+
+  const now = new Date();
+  const set = (() => {
+    switch (payload.action) {
+      case "closed":
+        return pr.merged ? { state: "merged" as const, closed_at: now } : { state: "closed" as const, closed_at: now };
+      case "reopened":
+        return { state: "open" as const, closed_at: null };
+      case "labeled":
+      case "unlabeled":
+        return { stopped: pr.labels.some((l) => l.name === STOP_LABEL) };
+      default:
+        return undefined;
+    }
+  })();
+  if (!set) return `ignored: pull_request.${payload.action}`;
+  await tx.updateTable("fix_prs").set({ ...set, number: pr.number, url: pr.html_url, updated_at: now }).where("id", "=", row.id).execute();
+  return `fix PR #${pr.number} ${payload.action}`;
+}
+
+/** A maintainer ticked a box on the dashboard issue: save the intent for the next delivery run. */
+async function handleIssue(tx: Tx, payload: WebhookPayload): Promise<string> {
+  const issue = payload.issue;
+  if (!issue || issue.pull_request || !payload.repository) return "ignored: no issue";
+  if (payload.action !== "edited") return `ignored: issues.${payload.action}`;
+  if (payload.sender?.type === "Bot") return "ignored: edited by a bot";
+  const repo = await tx
+    .selectFrom("repositories")
+    .select(["id", "dashboard_issue"])
+    .where("github_repo_id", "=", String(payload.repository.id))
+    .executeTakeFirst();
+  if (!repo || repo.dashboard_issue !== issue.number || !isDashboard(issue.body)) return "ignored: not the SHAPI dashboard";
+  const intents = parseDashboard(issue.body);
+  const settings = { paused: intents.paused, createNow: [...intents.createNow], retry: [...intents.retry] };
+  await tx.updateTable("repositories").set({ settings: JSON.stringify(settings) }).where("id", "=", repo.id).execute();
+  return `dashboard saved (paused: ${settings.paused}, open now: ${settings.createNow.length}, retry: ${settings.retry.length})`;
 }

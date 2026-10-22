@@ -6,3 +6,4 @@ export { syncAdvisoriesJob } from "./jobs/advisories";
 export { sweepWebhooks, type SweepDeps, type SweepResult } from "./jobs/webhook-sweeper";
 export { githubClients, type GitHubClients } from "./github/clients";
 export { processDelivery, type ProcessResult } from "./github/events";
+export { PR_LABEL, deliverRepoFixes, type DeliverInput, type DeliveryReport, type FixCandidate } from "./github/fixes";
