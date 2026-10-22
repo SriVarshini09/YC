@@ -14,7 +14,10 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["bin", "dist"],
+  "files": [
+    "bin",
+    "dist"
+  ],
   "engines": {
     "node": ">=22"
   },
@@ -22,8 +25,12 @@
     "build": "tsup src/index.ts --format esm --dts --clean"
   },
   "dependencies": {
+    "@shapi/canary": "workspace:*",
     "@shapi/core": "workspace:*",
     "@shapi/extractor": "workspace:*",
+    "@shapi/github-app": "workspace:*",
+    "@shapi/repair": "workspace:*",
+    "@shapi/shapes": "workspace:*",
     "commander": "^15.0.0"
   }
 }

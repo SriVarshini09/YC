@@ -53,7 +53,7 @@ export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome
   if (opts.repo) {
     if (opts.repo.startsWith("-")) throw new Error(`--repo: not a repository URL: ${opts.repo}`);
     cleanup = mkdtempSync(path.join(os.tmpdir(), "shapi-scan-"));
-    execFileSync("git", ["clone", "--depth", "1", "--quiet", "--", opts.repo, cleanup], { stdio: ["ignore", "ignore", "pipe"] });
+    execFileSync("git", ["-c", "core.autocrlf=false", "clone", "--depth", "1", "--quiet", "--", opts.repo, cleanup], { stdio: ["ignore", "ignore", "pipe"] });
     dir = cleanup;
     label = opts.repo;
   }
