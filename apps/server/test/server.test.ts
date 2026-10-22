@@ -102,7 +102,7 @@ describe("worker", () => {
     const boss = await startWorker({
       databaseUrl: pg.url,
       db,
-      config: { CANARY_CRON: "7 * * * *", SHAPI_ADVISORIES: ADVISORIES, canaryProviders: ["github"], WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14 },
+      config: { CANARY_CRON: "7 * * * *", SHAPI_ADVISORIES: ADVISORIES, canaryProviders: ["github"], WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14, SHAPI_RECORDINGS: path.join(root, "fixtures/recordings"), FANOUT_CRON: "" },
       env: { SHAPI_SHAPE_SECRET: "test" },
       log: { info: (_o, m) => logs.push(m ?? ""), error: (o, m) => logs.push(`ERROR ${m} ${String((o as { err?: unknown }).err)}`) },
       fetch: (async () => new Response("{}", { status: 200 })) as typeof globalThis.fetch,

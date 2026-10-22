@@ -1,4 +1,5 @@
 import { withService, type Db, type Tx } from "@shapi/db";
+import { sql } from "kysely";
 import { STOP_LABEL, isDashboard, listInstallationRepositories, parseDashboard, type InstallationRepository } from "@shapi/github-app";
 import type { GitHubClients } from "./clients";
 
@@ -34,11 +35,16 @@ export interface EventDeps {
   github: GitHubClients;
 }
 
+/** A scan to start once the delivery is committed: one queued by a push, or a first scan of a newly added repository. */
+export type ScanRequest = { scanId: string } | { repositoryId: string };
+
 export interface ProcessResult {
   deliveryId: string;
   event: string;
   action: string | null;
   outcome: string;
+  /** Scans this delivery asks for. The worker queues them after the transaction commits. */
+  scans: ScanRequest[];
 }
 
 /**
@@ -50,12 +56,13 @@ export async function processDelivery(deps: EventDeps, deliveryId: string): Prom
   try {
     return await withService(deps.db, async (tx) => {
       const row = await tx.selectFrom("webhook_deliveries").selectAll().where("delivery_id", "=", deliveryId).forUpdate().executeTakeFirst();
-      if (!row) return { deliveryId, event: "unknown", action: null, outcome: "not found" };
+      if (!row) return { deliveryId, event: "unknown", action: null, outcome: "not found", scans: [] };
       const result = { deliveryId, event: row.event, action: row.action };
-      if (row.processed_at) return { ...result, outcome: "already processed" };
-      const outcome = await handleEvent(tx, deps.github, row.event, row.payload as WebhookPayload);
+      if (row.processed_at) return { ...result, outcome: "already processed", scans: [] };
+      const scans: ScanRequest[] = [];
+      const outcome = await handleEvent(tx, deps.github, row.event, row.payload as WebhookPayload, scans);
       await tx.updateTable("webhook_deliveries").set({ processed_at: new Date(), error: null }).where("delivery_id", "=", deliveryId).execute();
-      return { ...result, outcome };
+      return { ...result, outcome, scans };
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -64,7 +71,7 @@ export async function processDelivery(deps: EventDeps, deliveryId: string): Prom
   }
 }
 
-async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload: WebhookPayload): Promise<string> {
+async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload: WebhookPayload, scans: ScanRequest[]): Promise<string> {
   const installation = payload.installation;
   switch (event) {
     case "installation": {
@@ -74,7 +81,7 @@ async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload
         case "new_permissions_accepted":
         case "unsuspend": {
           const accountId = await upsertAccount(tx, { ...installation, suspended_at: null });
-          const repos = await syncRepositories(tx, github, accountId, installation.id);
+          const repos = await syncRepositories(tx, github, accountId, installation.id, scans);
           return `account ${accountId} synced with ${repos} repositories`;
         }
         case "deleted": {
@@ -94,8 +101,8 @@ async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload
     }
     case "installation_repositories": {
       if (!installation) return "ignored: no installation";
-      const accountId = await ensureAccount(tx, github, installation.id);
-      const repos = await syncRepositories(tx, github, accountId, installation.id);
+      const accountId = await ensureAccount(tx, github, installation.id, scans);
+      const repos = await syncRepositories(tx, github, accountId, installation.id, scans);
       return `repositories synced (${repos})`;
     }
     case "installation_target": {
@@ -104,7 +111,7 @@ async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload
       return "account renamed";
     }
     case "push":
-      return handlePush(tx, github, payload);
+      return handlePush(tx, github, payload, scans);
     case "pull_request":
       return handlePullRequest(tx, payload);
     case "issues":
@@ -134,49 +141,53 @@ async function upsertAccount(tx: Tx, installation: InstallationPayload): Promise
 }
 
 /** The account for an installation, created from the GitHub API if its install event never arrived. */
-async function ensureAccount(tx: Tx, github: GitHubClients, installationId: number): Promise<string> {
+async function ensureAccount(tx: Tx, github: GitHubClients, installationId: number, scans: ScanRequest[]): Promise<string> {
   const existing = await tx.selectFrom("accounts").select("id").where("github_installation_id", "=", String(installationId)).executeTakeFirst();
   if (existing) return existing.id;
   const { data } = await github.app().rest.apps.getInstallation({ installation_id: installationId });
   const account = data.account && "login" in data.account ? { login: data.account.login, type: data.account.type } : null;
   const accountId = await upsertAccount(tx, { id: installationId, account, suspended_at: data.suspended_at });
-  await syncRepositories(tx, github, accountId, installationId);
+  await syncRepositories(tx, github, accountId, installationId, scans);
   return accountId;
 }
 
-/** Make the account's repositories match what the installation can see. Returns how many it has. */
-async function syncRepositories(tx: Tx, github: GitHubClients, accountId: string, installationId: number): Promise<number> {
+/** Make the account's repositories match what the installation can see; newly added ones get a first scan. Returns how many it has. */
+async function syncRepositories(tx: Tx, github: GitHubClients, accountId: string, installationId: number, scans: ScanRequest[]): Promise<number> {
   const repos = await listInstallationRepositories(github.installation(installationId));
-  for (const repo of repos) await upsertRepository(tx, accountId, repo);
+  for (const repo of repos) {
+    const { id, inserted } = await upsertRepository(tx, accountId, repo);
+    if (inserted && !repo.archived) scans.push({ repositoryId: id });
+  }
   let removed = tx.deleteFrom("repositories").where("account_id", "=", accountId);
   if (repos.length) removed = removed.where("github_repo_id", "not in", repos.map((r) => String(r.id)));
   await removed.execute();
   return repos.length;
 }
 
-async function upsertRepository(tx: Tx, accountId: string, repo: InstallationRepository): Promise<string> {
+async function upsertRepository(tx: Tx, accountId: string, repo: InstallationRepository): Promise<{ id: string; inserted: boolean }> {
   const values = { account_id: accountId, full_name: repo.full_name, default_branch: repo.default_branch, private: repo.private };
   const row = await tx
     .insertInto("repositories")
     .values({ github_repo_id: repo.id, enabled: !repo.archived, ...values })
     .onConflict((oc) => oc.column("github_repo_id").doUpdateSet(values))
-    .returning("id")
+    // xmax is 0 only on a freshly inserted row: tells a new repository from an updated one.
+    .returning(["id", sql<boolean>`xmax = 0`.as("inserted")])
     .executeTakeFirstOrThrow();
-  return row.id;
+  return { id: row.id, inserted: row.inserted };
 }
 
-/** A push to a repo's default branch queues a scan of the new commit (the scan job arrives in A5). */
-async function handlePush(tx: Tx, github: GitHubClients, payload: WebhookPayload): Promise<string> {
+/** A push to a repo's default branch queues a scan of the new commit. */
+async function handlePush(tx: Tx, github: GitHubClients, payload: WebhookPayload, scans: ScanRequest[]): Promise<string> {
   const { installation, repository: repo, after } = payload;
   if (!installation || !repo) return "ignored: no installation";
   if (payload.deleted || !after || /^0+$/.test(after)) return "ignored: branch deleted";
   if (payload.ref !== `refs/heads/${repo.default_branch}`) return "ignored: not the default branch";
 
-  const accountId = await ensureAccount(tx, github, installation.id);
+  const accountId = await ensureAccount(tx, github, installation.id, scans);
   const account = await tx.selectFrom("accounts").select("suspended_at").where("id", "=", accountId).executeTakeFirstOrThrow();
   if (account.suspended_at) return "ignored: account suspended";
 
-  const repositoryId = await upsertRepository(tx, accountId, repo);
+  const { id: repositoryId } = await upsertRepository(tx, accountId, repo);
   const { enabled } = await tx.selectFrom("repositories").select("enabled").where("id", "=", repositoryId).executeTakeFirstOrThrow();
   if (!enabled) return "ignored: repository disabled";
 
@@ -193,6 +204,9 @@ async function handlePush(tx: Tx, github: GitHubClients, payload: WebhookPayload
     .values({ account_id: accountId, repository_id: repositoryId, sha: after, status: "queued" })
     .returning("id")
     .executeTakeFirstOrThrow();
+  // The push scans this commit: a first scan the same delivery asked for (lost install event) is not needed.
+  const others = scans.filter((s) => !("repositoryId" in s && s.repositoryId === repositoryId));
+  scans.splice(0, scans.length, ...others, { scanId: scan.id });
   return `scan ${scan.id} queued`;
 }
 

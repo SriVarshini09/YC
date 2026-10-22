@@ -15,6 +15,9 @@ const shapiDir = fileURLToPath(new URL("../../../.shapi", import.meta.url));
 const envFile = path.join(shapiDir, "github-app.env");
 if (!existsSync(envFile)) throw new Error(`${envFile} not found: run pnpm --filter @shapi/server github:register first`);
 process.loadEnvFile(envFile);
+// Fixes are verified in E2B when a key is saved locally; otherwise in a local folder (your own code only).
+const e2bEnv = path.join(shapiDir, "e2b.env");
+if (existsSync(e2bEnv)) process.loadEnvFile(e2bEnv);
 
 const dataDir = path.join(shapiDir, "dev-postgres");
 const port = Number(process.env.SHAPI_DEV_PG_PORT ?? 54329);

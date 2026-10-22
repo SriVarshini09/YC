@@ -40,6 +40,9 @@ export interface ScansTable {
   status: "queued" | "running" | "succeeded" | "failed";
   api_lock: JSONColumnType<object> | null;
   error: string | null;
+  check_run_id: ColumnType<string, string | number, string | number> | null;
+  /** Advisory id -> modified time of every advisory this scan's api.lock was matched against. */
+  advisories: ColumnType<Record<string, string>, string | undefined, string>;
   created_at: CreatedAt;
   started_at: Timestamp | null;
   finished_at: Timestamp | null;

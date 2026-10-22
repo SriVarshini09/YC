@@ -184,6 +184,9 @@ importers:
       shapi:
         specifier: workspace:*
         version: link:packages/cli
+      tar:
+        specifier: ^7.5.22
+        version: 7.5.22
       tsup:
         specifier: ^9.0.0
         version: 9.0.0(postcss@8.5.31)(typescript@5.9.3)
@@ -214,9 +217,18 @@ importers:
       '@shapi/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@shapi/extractor':
+        specifier: workspace:*
+        version: link:../../packages/extractor
       '@shapi/github-app':
         specifier: workspace:*
         version: link:../../packages/github-app
+      '@shapi/repair':
+        specifier: workspace:*
+        version: link:../../packages/repair
+      '@shapi/sandbox':
+        specifier: workspace:*
+        version: link:../../packages/sandbox
       '@shapi/shapes':
         specifier: workspace:*
         version: link:../../packages/shapes

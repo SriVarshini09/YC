@@ -176,6 +176,20 @@ const migrations: Record<string, Migration> = {
       await sql`alter table repositories drop column if exists settings, drop column if exists dashboard_issue`.execute(db);
     },
   },
+  "0004_cloud_scans": {
+    // Cloud scans: the check run posted for each scan, and which advisory versions it was matched against.
+    async up(db: Kysely<unknown>) {
+      await sql`
+        alter table scans add column check_run_id bigint;
+        alter table scans add column advisories jsonb not null default '{}';
+        create index scans_latest on scans (repository_id, finished_at desc) where status = 'succeeded';
+      `.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`drop index if exists scans_latest`.execute(db);
+      await sql`alter table scans drop column if exists check_run_id, drop column if exists advisories`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };

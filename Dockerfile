@@ -29,10 +29,12 @@ RUN pnpm --filter @shapi/server deploy --prod --legacy /out
 FROM node:24-bookworm-slim
 ENV NODE_ENV=production \
     PORT=8080 \
-    SHAPI_ADVISORIES=/app/advisories
+    SHAPI_ADVISORIES=/app/advisories \
+    SHAPI_RECORDINGS=/app/recordings
 WORKDIR /app
 COPY --from=build /out ./
 COPY advisories ./advisories
+COPY fixtures/recordings ./recordings
 USER node
 EXPOSE 8080
 CMD ["node", "dist/web.js"]
