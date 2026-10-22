@@ -42,7 +42,7 @@ describe("replay of the GitHub workflow_dispatch incident", () => {
 
   it("prints the classification from the CLI", async () => {
     let out = "";
-    const code = await run(["node", "shapi-canary", "replay", recordingFile], { stdout: (s) => (out += s), stderr: () => {} }, {});
+    const code = await run(["node", "shapi-canary", "replay", recordingFile, "--no-drafts"], { stdout: (s) => (out += s), stderr: () => {} }, {});
     expect(code).toBe(0);
     expect(out).toContain("3 observations replayed");
     expect(out).toContain("(BREAKING)");

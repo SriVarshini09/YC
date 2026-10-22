@@ -1,9 +1,14 @@
 import { Command, CommanderError } from "commander";
 import { ShapeStore } from "@shapi/shapes";
+import { draftAdvisory, writeDraft } from "./draft";
 import { loadRecording, replay } from "./replay";
 import { DEFAULT_DB, DEV_SECRET, runEvery, runOnce, type RunReport } from "./scheduler";
 
+/** Where machine-drafted advisories go for review (advisories/ itself holds reviewed ones). */
+export const DEFAULT_DRAFTS = "advisories/drafts";
+
 export type { Env, Probe, Worker } from "./probe";
+export { draftAdvisory, writeDraft, type DraftInput } from "./draft";
 export { githubWorker } from "./workers/github";
 export { stripeWorker } from "./workers/stripe";
 export { RecordingSchema, loadRecording, replay, type Recording, type ReplayResult } from "./replay";
@@ -47,13 +52,20 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
     .option("--interval <minutes>", "minutes between runs when not --once", "60")
     .option("--db <file>", "shape store file", DEFAULT_DB)
     .option("--provider <id...>", "only these providers")
-    .action(async (opts: { once?: boolean; interval: string; db: string; provider?: string[] }) => {
+    .option("--drafts <dir>", "write draft advisories for breaking changes here", DEFAULT_DRAFTS)
+    .option("--no-drafts", "do not write draft advisories")
+    .action(async (opts: { once?: boolean; interval: string; db: string; provider?: string[]; drafts: string | false }) => {
       if (!env.SHAPI_SHAPE_SECRET) io.stderr(`shapi-canary: SHAPI_SHAPE_SECRET not set, using the dev secret "${DEV_SECRET}"\n`);
       const store = ShapeStore.open(opts.db);
       const runOpts = { store, env, providers: opts.provider };
+      const saveDrafts = (report: RunReport) => {
+        if (opts.drafts === false) return;
+        for (const r of report.results) if (r.draft) io.stdout(`draft advisory: ${writeDraft(r.draft, opts.drafts)}\n`);
+      };
       if (opts.once) {
         const report = await runOnce(runOpts);
         io.stdout(renderReport(report));
+        saveDrafts(report);
         store.close();
         exitCode = report.results.some((r) => r.error) ? 1 : 0;
         return;
@@ -62,7 +74,10 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
       if (!(minutes > 0)) throw new Error(`--interval: expected a positive number of minutes, got ${opts.interval}`);
       io.stdout(`running every ${minutes} min; Ctrl+C to stop\n`);
       await new Promise<void>((resolve) => {
-        const stop = runEvery(minutes * 60_000, runOpts, (report) => io.stdout(`${new Date().toISOString()}\n${renderReport(report)}`));
+        const stop = runEvery(minutes * 60_000, runOpts, (report) => {
+          io.stdout(`${new Date().toISOString()}\n${renderReport(report)}`);
+          saveDrafts(report);
+        });
         process.once("SIGINT", () => {
           stop();
           store.close();
@@ -76,7 +91,9 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
     .description("replay a recorded response sequence through the shape store and diff")
     .argument("<recording>", "recording JSON file")
     .option("--db <file>", "shape store file (default: in memory)", ":memory:")
-    .action((file: string, opts: { db: string }) => {
+    .option("--drafts <dir>", "write a draft advisory for a breaking change here", DEFAULT_DRAFTS)
+    .option("--no-drafts", "do not write a draft advisory")
+    .action((file: string, opts: { db: string; drafts: string | false }) => {
       const store = ShapeStore.open(opts.db);
       const result = replay(loadRecording(file), store, env.SHAPI_SHAPE_SECRET ?? DEV_SECRET);
       store.close();
@@ -88,6 +105,8 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
       }
       io.stdout(`changed between ${result.before!.observedAt} and ${result.after.observedAt}${result.diff.breaking ? " (BREAKING)" : ""}\n`);
       for (const c of result.diff.changes) io.stdout(`  ${c.impact.padEnd(13)} ${c.changeClass ?? "-"}  ${c.detail}\n`);
+      const draft = draftAdvisory({ before: result.before!, after: result.after, diff: result.diff });
+      if (draft && opts.drafts !== false) io.stdout(`draft advisory: ${writeDraft(draft, opts.drafts)}\n`);
     });
 
   program

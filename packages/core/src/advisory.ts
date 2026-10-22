@@ -70,6 +70,15 @@ export const AdvisorySchema = z.object({
   sources: z.array(z.url()).min(1),
   /** "verified": checked against a primary or two independent sources. "unverified": secondary reports only. */
   status: z.enum(["verified", "unverified"]),
+  /** Observations behind a machine-drafted advisory: what SHAPI saw before and after the change. */
+  evidence: z
+    .object({
+      source: z.string(),
+      before: z.object({ observedAt: z.iso.datetime(), status: z.number().int(), shapeHash: z.string() }),
+      after: z.object({ observedAt: z.iso.datetime(), status: z.number().int(), shapeHash: z.string() }),
+      changes: z.array(z.string()),
+    })
+    .optional(),
 });
 export type Advisory = z.infer<typeof AdvisorySchema>;
 
