@@ -16,7 +16,13 @@ What exists: the worker now runs SHAPI end to end.
 - **`advisory-fanout`** (after every advisory sync, and daily): re-match each repository's stored api.lock against new or changed advisories without downloading code, and queue a fix job where one hits.
 
 Verified: 203 tests pass, 8 of them new (fake GitHub with real tarballs and check runs, real Postgres). They include the worker running push → scan → fix → PR end to end. Lint, typecheck and build are clean. The Docker image (now with recordings) passed the CI smoke test locally on Postgres 17: migrations, queues, readiness, and the worker's advisory sync and fan-out. GitHub Actions minutes are used up until Nov 1, so CI could not run.
-Not done: a live run on shapi-demo, scanning changed files only, and multiple affected call sites per advisory in one PR.
+Live check, 2026-10-22, on `shapi-demo` (GitHub App, smee, E2B):
+1. A commit putting the 204-only check back on main (`7d926cb`) arrived as a push webhook and queued scan 69.
+2. The scan found 5 call sites, 3 affected, and posted a neutral `SHAPI` check with 3 annotations on the commit.
+3. The fix job repaired the GitHub one in E2B sandbox `iz0fi1vrielm8cmvbwbrg`, opened shapi-demo PR #7 (labeled `shapi`, `![200, 204].includes(res.status)`, verified-in trailer), and listed QuickBooks and HubSpot as having no recipe. No sandbox was left running.
+4. Closing #7 was recorded. The revert (`09df375`) was scanned, the GitHub call site became exposed (2 affected), and no PR was opened.
+Two side notes: the dashboard stayed closed because issue #4 had been closed (by design), and shapi-demo's own CI could not start because it is private and out of Actions minutes.
+Not done: scanning only changed files, and several affected call sites of one advisory fixed in one PR.
 
 ```
 pnpm test
