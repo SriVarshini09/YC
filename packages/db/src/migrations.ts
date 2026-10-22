@@ -130,6 +130,19 @@ const migrations: Record<string, Migration> = {
       await sql`drop table if exists findings, scans, repositories, accounts, advisories, observations, webhook_deliveries cascade`.execute(db);
     },
   },
+  "0002_webhook_sweeper": {
+    // The sweeper looks for unprocessed deliveries and prunes old processed ones.
+    async up(db: Kysely<unknown>) {
+      await sql`
+        create index webhook_deliveries_unprocessed on webhook_deliveries (received_at) where processed_at is null;
+        create index webhook_deliveries_processed on webhook_deliveries (processed_at) where processed_at is not null;
+        create index scans_pending on scans (repository_id, sha) where status in ('queued', 'running');
+      `.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`drop index if exists webhook_deliveries_unprocessed, webhook_deliveries_processed, scans_pending`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };
