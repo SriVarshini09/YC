@@ -24,6 +24,7 @@ export interface EndpointSummary {
   provider: string;
   method: string;
   endpoint: string;
+  source: string;
   observations: number;
   distinctShapes: number;
   lastObservedAt: string;
@@ -84,40 +85,51 @@ export class ShapeStore {
     return { ...obs, shape, id: Number(info.lastInsertRowid), shapeHash: hash };
   }
 
-  /** Observations of one endpoint, newest first. */
-  history(provider: string, method: string, endpoint: string, limit = 100): StoredObservation[] {
+  /**
+   * Observations of one endpoint, newest first. Pass `source` to stay within one
+   * vantage point: the same endpoint answers differently with and without a token,
+   * so observations from different sources must not be compared.
+   */
+  history(
+    provider: string,
+    method: string,
+    endpoint: string,
+    opts: { limit?: number; source?: string } = {},
+  ): StoredObservation[] {
     const rows = this.db
       .prepare(
-        `SELECT * FROM observations WHERE provider = ? AND method = ? AND endpoint = ?
+        `SELECT * FROM observations WHERE provider = ? AND method = ? AND endpoint = ? AND (? IS NULL OR source = ?)
          ORDER BY observed_at DESC, id DESC LIMIT ?`,
       )
-      .all(provider, method, endpoint, limit) as Row[];
+      .all(provider, method, endpoint, opts.source ?? null, opts.source ?? null, opts.limit ?? 100) as Row[];
     return rows.map(fromRow);
   }
 
-  latest(provider: string, method: string, endpoint: string): StoredObservation | undefined {
-    return this.history(provider, method, endpoint, 1)[0];
+  latest(provider: string, method: string, endpoint: string, source?: string): StoredObservation | undefined {
+    return this.history(provider, method, endpoint, { limit: 1, source })[0];
   }
 
   /** The most recent observation whose shape differs from the latest one: the "before" side of the last change. */
-  previousDistinct(provider: string, method: string, endpoint: string): StoredObservation | undefined {
-    const latest = this.latest(provider, method, endpoint);
+  previousDistinct(provider: string, method: string, endpoint: string, source?: string): StoredObservation | undefined {
+    const latest = this.latest(provider, method, endpoint, source);
     if (!latest) return undefined;
     const row = this.db
       .prepare(
-        `SELECT * FROM observations WHERE provider = ? AND method = ? AND endpoint = ? AND shape_hash != ?
+        `SELECT * FROM observations WHERE provider = ? AND method = ? AND endpoint = ? AND (? IS NULL OR source = ?)
+           AND shape_hash != ?
          ORDER BY observed_at DESC, id DESC LIMIT 1`,
       )
-      .get(provider, method, endpoint, latest.shapeHash) as Row | undefined;
+      .get(provider, method, endpoint, source ?? null, source ?? null, latest.shapeHash) as Row | undefined;
     return row ? fromRow(row) : undefined;
   }
 
+  /** One row per endpoint and source. */
   endpoints(): EndpointSummary[] {
     return this.db
       .prepare(
-        `SELECT provider, method, endpoint, COUNT(*) AS observations, COUNT(DISTINCT shape_hash) AS distinctShapes,
+        `SELECT provider, method, endpoint, source, COUNT(*) AS observations, COUNT(DISTINCT shape_hash) AS distinctShapes,
                 MAX(observed_at) AS lastObservedAt
-         FROM observations GROUP BY provider, method, endpoint ORDER BY provider, endpoint, method`,
+         FROM observations GROUP BY provider, method, endpoint, source ORDER BY provider, endpoint, method, source`,
       )
       .all() as EndpointSummary[];
   }

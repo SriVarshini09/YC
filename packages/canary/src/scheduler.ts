@@ -1,7 +1,7 @@
 import type { Advisory } from "@shapi/core";
 import { ShapeStore, diffShapes, inferShape, providerSalt, type ShapeDiff } from "@shapi/shapes";
 import { draftAdvisory } from "./draft";
-import type { Env, Probe, Worker } from "./probe";
+import { probeSource, type Env, type Probe, type Worker } from "./probe";
 import { githubWorker } from "./workers/github";
 import { stripeWorker } from "./workers/stripe";
 
@@ -87,13 +87,14 @@ async function runProbe(
     });
     const body = await res.text();
     const shape = inferShape({ status: res.status, headers: res.headers, body }, { salt: providerSalt(probe.provider, secret) });
-    const previous = store.latest(probe.provider, probe.method, probe.endpoint);
+    const source = probeSource(probe);
+    const previous = store.latest(probe.provider, probe.method, probe.endpoint, source);
     const stored = store.record({
       provider: probe.provider,
       method: probe.method,
       endpoint: probe.endpoint,
       observedAt: now().toISOString(),
-      source: `canary:${probe.provider}`,
+      source,
       shape,
     });
     const changed = previous !== undefined && previous.shapeHash !== stored.shapeHash;

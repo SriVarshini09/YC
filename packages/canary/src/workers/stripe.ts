@@ -21,6 +21,7 @@ export const stripeWorker: Worker = {
       endpoint,
       url: `${API}${path}`,
       headers,
+      auth: "token",
     });
     return {
       probes: [

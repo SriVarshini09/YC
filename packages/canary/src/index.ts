@@ -7,7 +7,7 @@ import { DEFAULT_DB, DEV_SECRET, runEvery, runOnce, type RunReport } from "./sch
 /** Where machine-drafted advisories go for review (advisories/ itself holds reviewed ones). */
 export const DEFAULT_DRAFTS = "advisories/drafts";
 
-export type { Env, Probe, Worker } from "./probe";
+export { probeSource, type Env, type Probe, type Worker } from "./probe";
 export { draftAdvisory, writeDraft, type DraftInput } from "./draft";
 export { githubWorker } from "./workers/github";
 export { stripeWorker } from "./workers/stripe";
@@ -119,7 +119,7 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
       store.close();
       if (rows.length === 0) io.stdout("no observations yet\n");
       for (const r of rows) {
-        io.stdout(`  ${r.provider}  ${r.method} ${r.endpoint}  ${r.observations} observations, ${r.distinctShapes} distinct shapes, last ${r.lastObservedAt}\n`);
+        io.stdout(`  ${r.source}  ${r.method} ${r.endpoint}  ${r.observations} observations, ${r.distinctShapes} distinct shapes, last ${r.lastObservedAt}\n`);
       }
     });
 

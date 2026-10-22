@@ -96,7 +96,31 @@ describe("runOnce", () => {
 
     const endpoint = "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches";
     expect(store.history("github", "POST", endpoint).map((o) => o.shape.status)).toEqual([200, 204]);
-    expect(store.latest("github", "POST", endpoint)?.source).toBe("canary:github");
+    expect(store.latest("github", "POST", endpoint)?.source).toBe("canary:github:token");
+    store.close();
+  });
+
+  it("does not report a change when the same endpoint is called first anonymously, then with a token", async () => {
+    const store = ShapeStore.open(":memory:");
+    const repoBody = (signedIn: boolean) => ({
+      id: 1296269,
+      full_name: "octocat/Hello-World",
+      ...(signedIn ? { permissions: { admin: false, pull: true } } : { temp_clone_token: null }),
+    });
+    const routes = (signedIn: boolean) => ({
+      ...githubRoutes(() => new Response(null, { status: 204 })),
+      "GET /repos/octocat/Hello-World": () =>
+        json(200, repoBody(signedIn), signedIn ? { "github-authentication-token-expiration": "2027-01-20 00:00:00 UTC" } : { "accept-ranges": "bytes" }),
+    });
+    const anonymous = await runOnce({ store, env, fetch: fakeFetch(routes(false)).fn, workers: [githubWorker] });
+    const signedIn = await runOnce({ store, env: { ...env, SHAPI_GITHUB_TOKEN: "t" }, fetch: fakeFetch(routes(true)).fn, workers: [githubWorker] });
+    expect(anonymous.results.every((r) => !r.previousHash)).toBe(true);
+    // each auth mode starts its own history: "first", not "changed", and no draft
+    expect(signedIn.results.filter((r) => r.changed || r.draft)).toEqual([]);
+    expect(signedIn.results.every((r) => !r.previousHash)).toBe(true);
+
+    const again = await runOnce({ store, env, fetch: fakeFetch(routes(false)).fn, workers: [githubWorker] });
+    expect(again.results.every((r) => r.previousHash && !r.changed)).toBe(true);
     store.close();
   });
 
@@ -148,6 +172,6 @@ describe("shapi-canary CLI", () => {
     let out = "";
     const code = await run(["node", "shapi-canary", "status", "--db", db], { stdout: (s) => (out += s), stderr: () => {} }, env);
     expect(code).toBe(0);
-    expect(out).toContain("github  GET /repos/{owner}/{repo}  1 observations, 1 distinct shapes");
+    expect(out).toContain("canary:github:anonymous  GET /repos/{owner}/{repo}  1 observations, 1 distinct shapes");
   });
 });

@@ -17,6 +17,7 @@ export const githubWorker: Worker = {
       "User-Agent": "shapi-canary",
     };
     if (env.SHAPI_GITHUB_TOKEN) headers.Authorization = `Bearer ${env.SHAPI_GITHUB_TOKEN}`;
+    const auth = env.SHAPI_GITHUB_TOKEN ? "token" : "anonymous";
     const get = (id: string, endpoint: string, path: string): Probe => ({
       id: `github:${id}`,
       provider: "github",
@@ -24,6 +25,7 @@ export const githubWorker: Worker = {
       endpoint,
       url: `${API}${path}`,
       headers,
+      auth,
     });
 
     const probes: Probe[] = [
@@ -46,6 +48,7 @@ export const githubWorker: Worker = {
         url: `${API}/repos/${repo}/actions/workflows/${encodeURIComponent(workflow)}/dispatches`,
         headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify({ ref: env.SHAPI_CANARY_REF ?? "main" }),
+        auth: "token",
       });
     } else {
       skipped.push({

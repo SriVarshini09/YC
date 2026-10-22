@@ -68,6 +68,10 @@ const VOLATILE_HEADERS = new Set([
   "date", "age", "etag", "last-modified", "expires", "set-cookie", "cf-ray", "server-timing", "x-request-id",
   "request-id", "x-github-request-id", "x-runtime", "x-served-by", "x-cache", "x-cache-hits", "x-timer",
   "content-length", "connection", "keep-alive", "via", "report-to", "nel", "idempotency-key", "original-request",
+  // transport and caching: vary with chunking, compression and proxies, not with the API contract
+  "transfer-encoding", "accept-ranges", "content-encoding", "vary", "alt-svc", "cache-control",
+  // token metadata: present only on authenticated calls, value changes per token
+  "github-authentication-token-expiration",
 ]);
 
 export function providerSalt(provider: string, secret: string): string {
