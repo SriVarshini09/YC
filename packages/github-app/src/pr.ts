@@ -114,7 +114,9 @@ export async function upsertFixPr(octokit: Octokit, pr: UpsertFixPullRequest): P
     const found = { branch: pr.branch, url: openPr.html_url, number: openPr.number, state: "open" as const };
     if (openPr.labels.some((l) => l.name === STOP_LABEL)) return { action: "skipped", reason: `labeled ${STOP_LABEL}`, ...found };
     if (!ours) return { action: "skipped", reason: "someone else pushed to the branch", ...found };
-    if (head && (await filesMatch(octokit, owner, repo, head, pr.files))) {
+    // A PR that conflicts with its base is regenerated even when the fix itself is unchanged.
+    const conflicted = (await octokit.rest.pulls.get({ owner, repo, pull_number: openPr.number })).data.mergeable === false;
+    if (head && !conflicted && (await filesMatch(octokit, owner, repo, head, pr.files))) {
       if (openPr.title !== pr.title || (openPr.body ?? "") !== pr.body) {
         await octokit.rest.pulls.update({ owner, repo, pull_number: openPr.number, title: pr.title, body: pr.body });
       }
@@ -143,13 +145,10 @@ function splitRepo(full: string): { owner: string; repo: string } {
   return { owner, repo };
 }
 
+/** The branch's head commit, or undefined. Uses matching-refs, which answers [] rather than a 404 for a new branch. */
 async function branchHead(octokit: Octokit, owner: string, repo: string, branch: string): Promise<string | undefined> {
-  try {
-    return (await octokit.rest.git.getRef({ owner, repo, ref: `heads/${branch}` })).data.object.sha;
-  } catch (err) {
-    if ((err as { status?: number }).status === 404) return undefined;
-    throw err;
-  }
+  const { data } = await octokit.rest.git.listMatchingRefs({ owner, repo, ref: `heads/${branch}` });
+  return data.find((r) => r.ref === `refs/heads/${branch}`)?.object.sha;
 }
 
 /** Commit `files` on top of the base branch's head; returns the new commit's sha. */

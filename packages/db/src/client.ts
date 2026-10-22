@@ -11,11 +11,16 @@ export interface DbOptions {
   /** Run as the restricted app role (default). Migrations pass false to run as the owner. */
   appRole?: boolean;
   max?: number;
+  /** Errors on idle connections (database restart, failover, idle timeout). Default: log to stderr. */
+  onError?: (err: Error) => void;
 }
 
 /** A Kysely client over a pg pool. Every connection switches to the app role, so row-level security applies. */
 export function createDb(opts: DbOptions): Db {
   const pool = new pg.Pool({ connectionString: opts.connectionString, max: opts.max ?? 10 });
+  // Without a listener, an idle connection dropped by the server crashes the process. The pool
+  // discards the broken connection and opens a new one on the next query.
+  pool.on("error", opts.onError ?? ((err) => console.error(JSON.stringify({ level: "error", msg: "idle database connection lost", err: String(err) }))));
   if (opts.appRole !== false) {
     pool.on("connect", (client) => {
       void client.query(`set role ${APP_ROLE}`);

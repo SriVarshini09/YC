@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { loadAdvisories, type Advisory } from "@shapi/core";
-import { createDb, migrateToLatest, withService, type Db } from "@shapi/db";
+import { createDb, migrateToLatest, withService, withTenant, type Db } from "@shapi/db";
 import { STOP_LABEL } from "@shapi/github-app";
 import { fakeRepoGitHub } from "../../../test-utils/fake-github";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
@@ -168,10 +168,32 @@ describe("fix delivery", () => {
 
     const paused = await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts", "different\n"), candidate(high, "src/b.ts")], now });
     expect(paused.outcomes.map((o) => o.action)).toEqual(["wait", "wait"]);
+    // the open PR stays under "Open fix PRs"; only the new fix gets an "open now" box
+    expect(t.github.issues[0]!.body).not.toContain("shapi:create:crit");
+    expect(t.github.issues[0]!.body).toContain("shapi:create:high");
     expect(t.github.fileAt("shapi/crit", "src/a.ts")).toBe("fixed crit\n");
     expect(t.github.pulls).toHaveLength(1);
     expect(t.github.issues[0]!.body).toContain("- [x] <!-- shapi:pause -->");
     expect(first.dashboard!.number).toBe(issue.number);
+  });
+
+  it("keeps fix PR records to their own tenant", async () => {
+    const t = setup();
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")] });
+    const other = await owner
+      .insertInto("accounts")
+      .values({ github_installation_id: 43, login: "other", type: "User", settings: JSON.stringify({}) })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+    const mine = await withService(db, (tx) => tx.selectFrom("fix_prs").select("account_id").executeTakeFirstOrThrow());
+    expect(await db.selectFrom("fix_prs").selectAll().execute()).toEqual([]);
+    expect(await withTenant(db, other.id, (tx) => tx.selectFrom("fix_prs").selectAll().execute())).toEqual([]);
+    expect(await withTenant(db, mine.account_id, (tx) => tx.selectFrom("fix_prs").select("advisory_id").execute())).toEqual([{ advisory_id: "crit" }]);
+    await expect(
+      withTenant(db, other.id, (tx) =>
+        tx.insertInto("fix_prs").values({ account_id: mine.account_id, repository_id: repositoryId, advisory_id: "x", branch: "shapi/x", state: "open", updated_at: new Date() }).execute(),
+      ),
+    ).rejects.toThrow(/row-level security/);
   });
 
   it("ignores PR events for branches SHAPI does not own", async () => {
