@@ -20,6 +20,7 @@ export function renderReport(report: RunReport): string {
   for (const r of report.results) {
     const outcome = r.error ? `error: ${r.error}` : `${r.status}  ${r.changed ? "CHANGED" : r.previousHash ? "same" : "first"}  ${r.shapeHash!.slice(0, 12)}`;
     lines.push(`  ${r.id.padEnd(idWidth)}  ${r.method.padEnd(4)} ${r.endpoint}  ${outcome}  ${r.ms} ms`);
+    for (const c of r.diff?.changes ?? []) lines.push(`      ${c.impact.padEnd(13)} ${c.detail}`);
   }
   for (const s of report.skipped) lines.push(`  ${s.id.padEnd(idWidth)}  skipped: ${s.reason}`);
   const changed = report.results.filter((r) => r.changed).length;

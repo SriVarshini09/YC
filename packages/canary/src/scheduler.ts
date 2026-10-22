@@ -1,4 +1,4 @@
-import { ShapeStore, inferShape, providerSalt } from "@shapi/shapes";
+import { ShapeStore, diffShapes, inferShape, providerSalt, type ShapeDiff } from "@shapi/shapes";
 import type { Env, Probe, Worker } from "./probe";
 import { githubWorker } from "./workers/github";
 import { stripeWorker } from "./workers/stripe";
@@ -22,6 +22,8 @@ export interface ProbeResult {
   changed: boolean;
   /** Hash of the previous observation, when there was one. */
   previousHash?: string;
+  /** What changed, when the shape changed. */
+  diff?: ShapeDiff;
   error?: string;
   ms: number;
 }
@@ -90,12 +92,14 @@ async function runProbe(
       source: `canary:${probe.provider}`,
       shape,
     });
+    const changed = previous !== undefined && previous.shapeHash !== stored.shapeHash;
     return {
       ...base,
       status: res.status,
       shapeHash: stored.shapeHash,
-      changed: previous !== undefined && previous.shapeHash !== stored.shapeHash,
+      changed,
       previousHash: previous?.shapeHash,
+      ...(changed ? { diff: diffShapes(previous.shape, stored.shape) } : {}),
       ms: Math.round(performance.now() - started),
     };
   } catch (err) {

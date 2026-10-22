@@ -90,6 +90,9 @@ describe("runOnce", () => {
     const after = fakeFetch(githubRoutes(() => json(200, { workflow_run_id: 123, run_url: "https://api.github.com/r/1", html_url: "https://github.com/r/1" })));
     const second = await runOnce({ store, env: dispatchEnv, fetch: after.fn, now, workers: [githubWorker] });
     expect(second.results.filter((r) => r.changed).map((r) => r.id)).toEqual(["github:workflow-dispatch"]);
+    const changed = second.results.find((r) => r.changed);
+    expect(changed?.diff?.breaking).toBe(true);
+    expect(changed?.diff?.changes[0]).toMatchObject({ kind: "status-code", changeClass: "status-code", from: 204, to: 200 });
 
     const endpoint = "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches";
     expect(store.history("github", "POST", endpoint).map((o) => o.shape.status)).toEqual([200, 204]);
