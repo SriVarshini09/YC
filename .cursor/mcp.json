@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "shapi": {
+      "command": "node",
+      "args": ["packages/mcp/bin/shapi-mcp.js"]
+    }
+  }
+}
