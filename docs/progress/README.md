@@ -22,3 +22,4 @@ One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../
 - M3-T2 contract test generation: [summary](M3-T2-contract-test.md) · PR: [#18](https://github.com/SriVarshini09/YC/pull/18) · open
 - M3-T3 repair agent: [summary](M3-T3-repair-agent.md) · PR: [#19](https://github.com/SriVarshini09/YC/pull/19) · open
 - M3-T4 PR delivery and shapi fix: [summary](M3-T4-pr-delivery.md) · PR: [#20](https://github.com/SriVarshini09/YC/pull/20) · open
+- M4-T1 MCP server: [summary](M4-T1-mcp-server.md) · PR: [#21](https://github.com/SriVarshini09/YC/pull/21) · open
