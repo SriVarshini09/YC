@@ -50,6 +50,7 @@ export function draftAdvisory({ before, after, diff }: DraftInput): Advisory | u
     effectiveDate: day,
     severity: SEVERITY[changeClass],
     migrationNote: migration(primary),
+    ...(changeClass === "status-code" ? { recipeId: "status-code-accept-set" } : {}),
     sources: [getProvider(provider)?.docsUrl ?? "https://shapi.dev"],
     status: "unverified",
     evidence: {
@@ -64,7 +65,10 @@ export function draftAdvisory({ before, after, diff }: DraftInput): Advisory | u
 function trigger(changes: ShapeChange[]): Trigger {
   const t: Trigger = {};
   for (const c of changes) {
-    if (c.changeClass === "status-code" && typeof c.from === "number") t.statusCodes = [...(t.statusCodes ?? []), c.from];
+    if (c.changeClass === "status-code" && typeof c.from === "number") {
+      t.statusCodes = [...(t.statusCodes ?? []), c.from];
+      if (typeof c.to === "number") t.newStatusCodes = [...(t.newStatusCodes ?? []), c.to];
+    }
     else if ((c.changeClass === "field-rename" || c.changeClass === "required-field") && c.kind !== "header-changed" && c.kind !== "body-kind" && c.path) {
       t.fields = [...(t.fields ?? []), c.path];
     } else if (c.changeClass === "enum-added" && c.path) t.enums = [...(t.enums ?? []), { field: c.path }];

@@ -105,8 +105,9 @@ export function pathMatches(endpoint: string, pattern: Pick<EndpointPattern, "pa
 function triggerReasons(site: LockedCallSite, trigger: Trigger): string[] {
   const s = site.surface;
   const reasons: string[] = [];
+  const handlesNew = (trigger.newStatusCodes ?? []).length > 0 && trigger.newStatusCodes!.every((c) => s.statusCodes.includes(c));
   for (const code of trigger.statusCodes ?? []) {
-    if (s.statusCodes.includes(code)) reasons.push(`compares the response status to ${code}`);
+    if (s.statusCodes.includes(code) && !handlesNew) reasons.push(`compares the response status to ${code}`);
   }
   for (const field of trigger.fields ?? []) {
     const read = s.fields.filter((f) => f === field || f.startsWith(`${field}.`) || f.startsWith(`${field}[]`));
