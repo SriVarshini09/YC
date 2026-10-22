@@ -8,7 +8,7 @@ import { createApiLock, loadAdvisories, matchAdvisories } from "@shapi/core";
 import { extractCallSites } from "@shapi/extractor";
 import { ShapeStore } from "@shapi/shapes";
 import { loadRecording, replay } from "@shapi/canary";
-import { RECIPES, claudeFixer, repairCallSite, runRecipe, type FixRequest, type LlmFixer } from "@shapi/repair";
+import { RECIPES, claudeFixer, repairCallSite, runRecipe, testsRan, type FixRequest, type LlmFixer, type Workspace } from "@shapi/repair";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const advisory = loadAdvisories(path.join(root, "advisories")).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
@@ -117,6 +117,37 @@ describe("repairCallSite", () => {
     expect(result.status).toBe("already-handled");
     expect(result.attempts).toEqual([]);
   }, 60_000);
+
+  it("never takes a test run that crashed before running tests as proof of the breakage", async () => {
+    const { dir, callSite, original } = demoRepo("broken-env");
+    // Exactly what vitest printed in E2B's Node 20.9 image: a startup crash, no tests run.
+    const startupCrash = [
+      "⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯",
+      "file:///home/user/repo/node_modules/rolldown/dist/shared/create-bundler-option.mjs:8",
+      "SyntaxError: The requested module 'node:util' does not provide an export named 'styleText'",
+    ].join("\n");
+    const files = new Map([[callSite.file, original]]);
+    const runs: string[] = [];
+    const ws: Workspace = {
+      location: "fake:1",
+      read: async (f) => files.get(f),
+      write: async (f, c) => void files.set(f, c),
+      runTest: async (f) => (runs.push(f), { passed: false, exitCode: 1, output: startupCrash }),
+    };
+    const result = await repairCallSite({ workspace: ws, advisory, callSite, ...shapes, recipes: RECIPES });
+    expect(result.status).toBe("unsupported");
+    expect(result.reason).toBe("the contract test could not run: SyntaxError: The requested module 'node:util' does not provide an export named 'styleText'");
+    expect(runs).toHaveLength(1);
+    expect(files.get(callSite.file)).toBe(original);
+    void dir;
+  });
+
+  it("recognises a vitest run that actually ran tests", () => {
+    expect(testsRan(" Test Files  1 failed (1)\n      Tests  1 failed (1)")).toBe(true);
+    expect(testsRan("      Tests  2 passed (2)")).toBe(true);
+    expect(testsRan(" Test Files  1 failed (1)\n      Tests  no tests")).toBe(false);
+    expect(testsRan("Startup Error")).toBe(false);
+  });
 
   it("rejects without an LLM when there is no recipe", async () => {
     const { dir, callSite } = demoRepo("no-llm");
