@@ -8,7 +8,7 @@ import { extractCallSites } from "@shapi/extractor";
 import { ShapeStore, type ResponseShape } from "@shapi/shapes";
 import { loadRecording, replay } from "@shapi/canary";
 import { RECIPES, claudeFixer, repairCallSite, type RepairResult } from "@shapi/repair";
-import { authFromEnv, octokitFor, openFixPr, prBranch, prTitle, renderPrBody, repoFromUrl, type OpenedPullRequest } from "@shapi/github-app";
+import { authFromEnv, octokitFor, prBranch, prTitle, renderPrBody, repoFromUrl, upsertFixPr, type OpenedPullRequest } from "@shapi/github-app";
 import { DEFAULT_ADVISORIES } from "./scan";
 
 /** Recorded response sequences shipped with SHAPI: packages/cli/{src,dist}/ → ../../../fixtures/recordings. */
@@ -121,7 +121,10 @@ async function deliverToGitHub(
 ): Promise<OpenedPullRequest> {
   const auth = authFromEnv();
   if (!auth) throw new Error("no GitHub credentials: set GITHUB_TOKEN, log in with `gh auth login`, or configure the SHAPI GitHub App variables");
-  return openFixPr(octokitFor(auth), { repo, files, ...meta });
+  // Same branch per advisory as the GitHub App: a rerun updates the PR instead of failing on the existing branch.
+  const outcome = await upsertFixPr(octokitFor(auth), { repo, files, ...meta, labels: ["shapi"] });
+  if (outcome.action === "skipped") throw new Error(`not delivered: ${outcome.reason}${outcome.url ? ` (${outcome.url})` : ""}`);
+  return { url: outcome.url, number: outcome.number, branch: outcome.branch, commit: outcome.commit };
 }
 
 /** Before/after shapes for an advisory: the shape store first (live canary data), then the recordings folder. */

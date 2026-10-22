@@ -13,6 +13,8 @@ export interface FakePull {
   head: { ref: string; sha: string };
   base: { ref: string };
   labels: { name: string }[];
+  /** null while GitHub computes it; false when the PR conflicts with its base. */
+  mergeable: boolean | null;
 }
 
 export interface FakeIssue {
@@ -112,6 +114,10 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
       const sha = refs.get(m[1]!);
       return sha ? json(200, { ref: `refs/heads/${m[1]}`, object: { sha } }) : notFound();
     }
+    if (method === "GET" && (m = /^\/git\/matching-refs\/heads\/(.+)$/.exec(rest))) {
+      const prefix = m[1]!;
+      return json(200, [...refs].filter(([name]) => name.startsWith(prefix)).map(([name, sha]) => ({ ref: `refs/heads/${name}`, object: { sha } })), href);
+    }
     if (method === "GET" && (m = /^\/git\/commits\/(.+)$/.exec(rest))) {
       const c = commits.get(m[1]!);
       return c ? json(200, { sha: m[1], message: c.message, tree: { sha: c.tree }, parents: c.parents.map((sha) => ({ sha })) }) : notFound();
@@ -169,13 +175,15 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
         head: { ref: body.head, sha: refs.get(body.head)! },
         base: { ref: body.base },
         labels: [],
+        mergeable: null,
       };
       pulls.push(pr);
       return json(201, pr);
     }
-    if (method === "PATCH" && (m = /^\/pulls\/(\d+)$/.exec(rest))) {
+    if ((m = /^\/pulls\/(\d+)$/.exec(rest))) {
       const pr = pulls.find((p) => p.number === Number(m![1]));
       if (!pr) return notFound();
+      if (method === "GET") return json(200, pr);
       Object.assign(pr, body.title !== undefined ? { title: body.title } : {}, body.body !== undefined ? { body: body.body } : {});
       return json(200, pr);
     }

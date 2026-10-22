@@ -105,7 +105,8 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
   for (const d of decisions) {
     const fix = input.fixes.find((f) => f.advisory.id === d.advisory.id)!;
     if (d.action === "wait" || d.action === "skip") {
-      if (d.action === "wait") waiting.push({ advisory: d.advisory, reason: d.reason ?? "waiting" });
+      // An open PR that waits (paused) is already listed as open; only new fixes get an "open now" box.
+      if (d.action === "wait" && existing.get(d.advisory.id)?.state !== "open") waiting.push({ advisory: d.advisory, reason: d.reason ?? "waiting" });
       report.outcomes.push({ advisoryId: d.advisory.id, action: d.action, reason: d.reason });
       continue;
     }
