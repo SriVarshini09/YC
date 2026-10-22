@@ -50,7 +50,7 @@ export function replay(recording: Recording, store: ShapeStore, secret: string):
       shape: inferShape({ status: o.status, headers: o.headers, body: o.body }, { salt }),
     }),
   );
-  const after = store.latest(provider, method, endpoint)!;
-  const before = store.previousDistinct(provider, method, endpoint);
+  const after = store.latest(provider, method, endpoint, "replay")!;
+  const before = store.previousDistinct(provider, method, endpoint, "replay");
   return { recording, observations, after, before, ...(before ? { diff: diffShapes(before.shape, after.shape) } : {}) };
 }

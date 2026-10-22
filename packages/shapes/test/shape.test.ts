@@ -68,6 +68,18 @@ describe("inferShape", () => {
     expect(field(shape, "total_count")?.pathHash).toMatch(/^[0-9a-f]{16}$/);
   });
 
+  it("ignores transport and token-metadata headers", () => {
+    const s = inferShape(
+      {
+        status: 200,
+        headers: { "Transfer-Encoding": "chunked", "Accept-Ranges": "bytes", Vary: "Accept, Authorization", "GitHub-Authentication-Token-Expiration": "2027-01-20", "X-OAuth-Scopes": "" },
+        body: "{}",
+      },
+      { salt },
+    );
+    expect(s.headerNames).toEqual(["x-oauth-scopes"]);
+  });
+
   it("handles empty and non-JSON bodies", () => {
     expect(inferShape({ status: 204, headers: {}, body: "" }, { salt })).toEqual({ status: 204, headers: {}, headerNames: [], body: { kind: "empty", fields: [] } });
     expect(inferShape({ status: 502, headers: new Headers({ "content-type": "text/html" }), body: "<html>" }, { salt }).body.kind).toBe("text");

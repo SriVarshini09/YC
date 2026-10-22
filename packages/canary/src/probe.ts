@@ -14,6 +14,17 @@ export interface Probe {
   url: string;
   headers?: Record<string, string>;
   body?: string;
+  /**
+   * Whether the request carries credentials. Providers answer the same endpoint
+   * differently for signed-in callers (GitHub adds `permissions`, drops
+   * `temp_clone_token`), so each mode keeps its own history.
+   */
+  auth: "anonymous" | "token";
+}
+
+/** Store source for a probe's observations: one history per provider and auth mode. */
+export function probeSource(probe: Pick<Probe, "provider" | "auth">): string {
+  return `canary:${probe.provider}:${probe.auth}`;
 }
 
 /** A provider's canary: builds its probes from the environment (credentials, test resources). */
