@@ -1,0 +1,28 @@
+{
+  "name": "@shapi/mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing SHAPI to coding agents: scan, advisories, impact, apply_fix",
+  "type": "module",
+  "bin": {
+    "shapi-mcp": "bin/shapi-mcp.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["bin", "dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@shapi/core": "workspace:*",
+    "diff": "^9.0.0",
+    "shapi": "workspace:*",
+    "zod": "^4.6.7"
+  }
+}
