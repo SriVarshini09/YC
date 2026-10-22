@@ -19,3 +19,4 @@ One line per task: task, summary file, PR, status. Full plan: [docs/PLAN.md](../
 - M2-T6 draft advisory from diff: [summary](M2-T6-draft-advisory.md) · PR: [#15](https://github.com/SriVarshini09/YC/pull/15) · open
 - M2-T7 canary keeps token and anonymous observations apart: [summary](M2-T7-canary-auth-variants.md) · PR: [#16](https://github.com/SriVarshini09/YC/pull/16) · open
 - M3-T1 recipe format and status-code recipe: [summary](M3-T1-status-code-recipe.md) · PR: [#17](https://github.com/SriVarshini09/YC/pull/17) · open
+- M3-T2 contract test generation: [summary](M3-T2-contract-test.md) · PR: [#18](https://github.com/SriVarshini09/YC/pull/18) · open

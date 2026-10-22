@@ -11,15 +11,20 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean"
   },
   "dependencies": {
     "@shapi/core": "workspace:*",
-    "ts-morph": "^28.0.0"
+    "@shapi/shapes": "workspace:*",
+    "ts-morph": "^28.0.0",
+    "vitest": "^5.0.5"
   },
   "devDependencies": {
+    "@shapi/canary": "workspace:*",
     "@shapi/extractor": "workspace:*"
   }
 }
