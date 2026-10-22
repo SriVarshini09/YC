@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 
@@ -32,6 +33,12 @@ const ConfigSchema = z.object({
   SHAPI_RECORDINGS: z.string().default(DEFAULT_RECORDINGS),
   /** Cron for re-matching stored api.locks against the advisory database (it also runs after every advisory sync). */
   FANOUT_CRON: z.string().default("17 3 * * *"),
+  /** Web sign-in: the GitHub App's OAuth client, the public URL GitHub redirects back to, and the cookie signing secret. */
+  SHAPI_GITHUB_CLIENT_ID: z.string().optional(),
+  SHAPI_GITHUB_CLIENT_SECRET: z.string().optional(),
+  SHAPI_GITHUB_APP_SLUG: z.string().optional(),
+  SHAPI_PUBLIC_URL: z.string().default("http://localhost:8080"),
+  SHAPI_SESSION_SECRET: z.string().optional(),
 });
 
 export interface GitHubAppConfig {
@@ -40,7 +47,15 @@ export interface GitHubAppConfig {
   webhookSecret: string;
 }
 
-export type Config = z.infer<typeof ConfigSchema> & { canaryProviders?: string[]; githubApp?: GitHubAppConfig };
+export interface WebAppConfig {
+  clientId: string;
+  clientSecret: string;
+  publicUrl: string;
+  sessionSecret: string;
+  appSlug?: string;
+}
+
+export type Config = z.infer<typeof ConfigSchema> & { canaryProviders?: string[]; githubApp?: GitHubAppConfig; webApp?: WebAppConfig };
 
 export function loadConfig(env: Record<string, string | undefined> = process.env): Config {
   const parsed = ConfigSchema.safeParse(env);
@@ -54,5 +69,19 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
   const githubApp = c.SHAPI_GITHUB_APP_ID
     ? { appId: c.SHAPI_GITHUB_APP_ID, privateKey: c.SHAPI_GITHUB_APP_PRIVATE_KEY!, webhookSecret: c.SHAPI_GITHUB_WEBHOOK_SECRET! }
     : undefined;
-  return { ...c, canaryProviders: c.CANARY_PROVIDERS?.split(",").map((s) => s.trim()).filter(Boolean), githubApp };
+  let webApp: WebAppConfig | undefined;
+  if (c.SHAPI_GITHUB_CLIENT_ID && c.SHAPI_GITHUB_CLIENT_SECRET) {
+    if (c.NODE_ENV === "production" && (!c.SHAPI_SESSION_SECRET || c.SHAPI_SESSION_SECRET.length < 32)) {
+      throw new Error("SHAPI_SESSION_SECRET (32+ characters) is required in production when web sign-in is configured");
+    }
+    webApp = {
+      clientId: c.SHAPI_GITHUB_CLIENT_ID,
+      clientSecret: c.SHAPI_GITHUB_CLIENT_SECRET,
+      publicUrl: c.SHAPI_PUBLIC_URL.replace(/\/+$/, ""),
+      // Development without a secret: sessions do not survive a restart, which is fine locally.
+      sessionSecret: c.SHAPI_SESSION_SECRET ?? randomBytes(32).toString("hex"),
+      appSlug: c.SHAPI_GITHUB_APP_SLUG,
+    };
+  }
+  return { ...c, canaryProviders: c.CANARY_PROVIDERS?.split(",").map((s) => s.trim()).filter(Boolean), githubApp, webApp };
 }

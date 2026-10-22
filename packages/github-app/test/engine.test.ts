@@ -72,6 +72,7 @@ describe("PR policy", () => {
     const ticked = plan({ candidates, existing, createdLastHour: 2, createNow: new Set(["low-1"]), retry: new Set(["high-0"]) });
     expect(ticked.filter((d) => d[1] === "create").map((d) => d[0])).toEqual(["high-0", "low-1"]);
     expect(plan({ candidates, paused: true }).every((d) => d[1] === "wait" && d[2] === "paused from the dashboard")).toBe(true);
+    expect(plan({ candidates, paused: true, pausedReason: "paused from the web app" }).every((d) => d[2] === "paused from the web app")).toBe(true);
   });
 });
 
@@ -100,6 +101,8 @@ describe("dashboard", () => {
     const ticked = body.replace("- [ ] <!-- shapi:create:b -->", "- [x] <!-- shapi:create:b -->").replace("- [ ] <!-- shapi:pause -->", "- [X] <!-- shapi:pause -->").replace("- [ ] <!-- shapi:retry:c -->", "- [x] <!-- shapi:retry:c -->");
     expect(parseDashboard(ticked)).toEqual({ createNow: new Set(["b"]), retry: new Set(["c"]), paused: true });
     expect(renderDashboard({ ...input, paused: true })).toContain("- [x] <!-- shapi:pause -->");
+    expect(renderDashboard({ ...input, pausedFromWeb: true })).toContain("paused on this repository from the SHAPI web app");
+    expect(renderDashboard(input)).not.toContain("SHAPI web app");
   });
 
   it("creates the issue once, updates only on change, and leaves a closed dashboard closed", async () => {

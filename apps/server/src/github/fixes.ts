@@ -82,7 +82,8 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
   const [owner, name] = repo.full_name.split("/") as [string, string];
   const dashboard = repo.dashboard_issue ? await readDashboard(octokit, owner, name, repo.dashboard_issue) : undefined;
   // The issue's checkboxes are the source of truth; settings hold the last state seen from its events.
-  const saved = repo.settings as { paused?: boolean; createNow?: string[]; retry?: string[] };
+  const saved = repo.settings as { paused?: boolean; createNow?: string[]; retry?: string[]; pausedFromWeb?: boolean };
+  const pausedFromWeb = saved.pausedFromWeb === true;
   const intents = dashboard
     ? parseDashboard(dashboard.body)
     : { paused: saved.paused ?? false, createNow: new Set(saved.createNow ?? []), retry: new Set(saved.retry ?? []) };
@@ -96,7 +97,8 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
     openCount: ctx.prs.filter((p) => p.state === "open").length,
     createdLastHour: ctx.prs.filter((p) => p.created_at > hourAgo).length,
     limits,
-    paused: intents.paused,
+    paused: intents.paused || pausedFromWeb,
+    pausedReason: pausedFromWeb ? "paused from the web app" : undefined,
     createNow: intents.createNow,
     retry: intents.retry,
   });
@@ -131,12 +133,13 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
     manual: input.manual ?? [],
     upcoming: input.upcoming ?? [],
     paused: intents.paused,
+    pausedFromWeb,
     limits,
   });
   try {
     report.dashboard = await upsertDashboard(octokit, { owner, repo: name, issueNumber: repo.dashboard_issue }, body);
     // Ticked "open now" and "retry" boxes have been acted on; the new body shows them unticked.
-    const settings = JSON.stringify({ paused: intents.paused, createNow: [], retry: [] });
+    const settings = JSON.stringify({ ...saved, paused: intents.paused, createNow: [], retry: [] });
     await withService(deps.db, (tx) => tx.updateTable("repositories").set({ dashboard_issue: report.dashboard!.number, settings }).where("id", "=", repo.id).execute());
   } catch (err) {
     report.errors.push(`dashboard: ${err instanceof Error ? err.message : String(err)}`);

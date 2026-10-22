@@ -247,12 +247,12 @@ async function handleIssue(tx: Tx, payload: WebhookPayload): Promise<string> {
   if (payload.sender?.type === "Bot") return "ignored: edited by a bot";
   const repo = await tx
     .selectFrom("repositories")
-    .select(["id", "dashboard_issue"])
+    .select(["id", "dashboard_issue", "settings"])
     .where("github_repo_id", "=", String(payload.repository.id))
     .executeTakeFirst();
   if (!repo || repo.dashboard_issue !== issue.number || !isDashboard(issue.body)) return "ignored: not the SHAPI dashboard";
   const intents = parseDashboard(issue.body);
-  const settings = { paused: intents.paused, createNow: [...intents.createNow], retry: [...intents.retry] };
+  const settings = { ...repo.settings, paused: intents.paused, createNow: [...intents.createNow], retry: [...intents.retry] };
   await tx.updateTable("repositories").set({ settings: JSON.stringify(settings) }).where("id", "=", repo.id).execute();
   return `dashboard saved (paused: ${settings.paused}, open now: ${settings.createNow.length}, retry: ${settings.retry.length})`;
 }

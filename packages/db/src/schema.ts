@@ -103,6 +103,18 @@ export interface ObservationsTable {
   shape: JSONColumnType<object>;
 }
 
+/** Internal: a signed-in web session. The cookie holds the token; this row holds its SHA-256. */
+export interface SessionsTable {
+  token_hash: string;
+  github_user_id: ColumnType<string, string | number, string | number>;
+  login: string;
+  /** GitHub App installations the user could access when signing in: the accounts the session may open. */
+  installation_ids: ColumnType<string[], string, string>;
+  csrf: string;
+  created_at: CreatedAt;
+  expires_at: Timestamp;
+}
+
 /** Internal: every GitHub webhook delivery, keyed by X-GitHub-Delivery so redeliveries are idempotent. */
 export interface WebhookDeliveriesTable {
   delivery_id: string;
@@ -124,6 +136,7 @@ export interface Database {
   advisories: AdvisoriesTable;
   observations: ObservationsTable;
   webhook_deliveries: WebhookDeliveriesTable;
+  sessions: SessionsTable;
 }
 
 /** Tables holding one customer's data; row-level security keeps each customer to its own rows. */
