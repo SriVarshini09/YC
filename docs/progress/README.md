@@ -33,4 +33,4 @@ One line per task: task, summary file, PR, status.
 - PA-A5 scan and fix jobs in the cloud: [summary](PA-A5-cloud-jobs.md) · PR: [#32](https://github.com/SriVarshini09/YC/pull/32) · open
 - PA-A6a web app: [summary](PA-A6a-web-app.md) · PR: [#33](https://github.com/SriVarshini09/YC/pull/33) · open
 - PA-A6b billing: [summary](PA-A6b-billing.md) · PR: [#34](https://github.com/SriVarshini09/YC/pull/34) · open
-- Follow-up: advisory sync and A6a leftovers: [summary](PA-followup-advisory-sync.md) · PR: pending · open
+- Follow-up: advisory sync and A6a leftovers: [summary](PA-followup-advisory-sync.md) · PR: [#35](https://github.com/SriVarshini09/YC/pull/35) · open
