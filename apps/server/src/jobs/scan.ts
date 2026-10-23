@@ -7,6 +7,7 @@ import { extractCallSites, loadPythonParser } from "@shapi/extractor";
 import { checkRunOutput, completeCheckRun, fetchRepoSnapshot, startCheckRun } from "@shapi/github-app";
 import type { SnapshotFile } from "@shapi/sandbox";
 import { repositoryCovered } from "../billing/plan";
+import type { Notifier } from "../notify/slack";
 import type { GitHubClients } from "../github/clients";
 
 export interface ScanDeps {
@@ -15,6 +16,8 @@ export interface ScanDeps {
   /** Billing is configured: private repositories beyond the plan are not scanned. */
   billingEnforced?: boolean;
   now?: () => Date;
+  /** Told about newly affected call sites once the scan is stored (Slack alerts). */
+  notify?: Notifier;
 }
 
 /** Either a scan queued by a push, or a repository to scan at its default branch head (first scan after install). */
@@ -54,7 +57,37 @@ export function lockFromSnapshot(files: SnapshotFile[]): ApiLock {
 }
 
 /** Replace a scan's findings with this match, and record which advisory versions it was matched against. */
-export async function saveFindings(tx: Tx, scan: { id: string; account_id: string; repository_id: string }, match: Pick<MatchResult, "affected" | "exposed">, evaluated: Record<string, string>) {
+/** One affected call site, independent of line numbers: the same finding survives unrelated edits above it. */
+const findingKey = (advisoryId: string, site: { file: string; endpoint: string | null }) => `${advisoryId}|${site.file}|${site.endpoint ?? ""}`;
+
+/**
+ * Store a scan's findings and return the affected ones that are new: not affected in the repository's
+ * previous successful scan, nor in this scan before (an advisory fan-out re-matches a stored scan).
+ */
+export async function saveFindings(
+  tx: Tx,
+  scan: { id: string; account_id: string; repository_id: string },
+  match: Pick<MatchResult, "affected" | "exposed">,
+  evaluated: Record<string, string>,
+): Promise<Finding[]> {
+  const previousScan = await tx
+    .selectFrom("scans")
+    .select("id")
+    .where("repository_id", "=", scan.repository_id)
+    .where("id", "!=", scan.id)
+    .where("status", "=", "succeeded")
+    .orderBy("finished_at", "desc")
+    .limit(1)
+    .executeTakeFirst();
+  const before = await tx
+    .selectFrom("findings")
+    .select(["advisory_id", "call_site"])
+    .where("kind", "=", "affected")
+    .where("scan_id", "in", previousScan ? [scan.id, previousScan.id] : [scan.id])
+    .execute();
+  const known = new Set(before.map((f) => findingKey(f.advisory_id, f.call_site as { file: string; endpoint: string | null })));
+  const fresh = match.affected.filter((f) => !known.has(findingKey(f.advisory.id, f.callSite)));
+
   await tx.deleteFrom("findings").where("scan_id", "=", scan.id).execute();
   const rows = [
     ...match.affected.map((f) => ({ kind: "affected" as const, f })),
@@ -70,6 +103,7 @@ export async function saveFindings(tx: Tx, scan: { id: string; account_id: strin
   }));
   if (rows.length) await tx.insertInto("findings").values(rows).execute();
   await tx.updateTable("scans").set({ advisories: JSON.stringify(evaluated) }).where("id", "=", scan.id).execute();
+  return fresh;
 }
 
 /**
@@ -135,15 +169,17 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
     const match = matchAdvisories(lock, advisories.map((a) => a.advisory), { now: now() });
     const evaluated = Object.fromEntries(advisories.map((a) => [a.advisory.id, a.modified]));
 
-    await withService(deps.db, async (tx) => {
-      await saveFindings(tx, scan, match, evaluated);
+    const fresh = await withService(deps.db, async (tx) => {
+      const fresh = await saveFindings(tx, scan, match, evaluated);
       await tx
         .updateTable("scans")
         .set({ status: "succeeded", api_lock: JSON.stringify(lock), finished_at: now(), error: null, check_run_id: checkRunId ?? null })
         .where("id", "=", scan.id)
         .execute();
       await tx.updateTable("repositories").set({ last_scan_sha: scan.sha, last_scanned_at: now() }).where("id", "=", scan.repository_id).execute();
+      return fresh;
     });
+    if (fresh.length) await deps.notify?.({ accountId: scan.account_id, repositoryId: scan.repository_id, sha: scan.sha, reason: "push", findings: fresh });
     if (checkRunId) {
       const failOnAffected = (scan.settings as { failOnAffected?: boolean }).failOnAffected === true;
       await completeCheckRun(octokit, { owner, repo, checkRunId }, checkRunOutput(match, { failOnAffected })).catch(() => undefined);

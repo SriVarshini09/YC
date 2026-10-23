@@ -23,6 +23,10 @@ The hosted GitHub App is not open for public installation yet. Everything on thi
 
 Events: `push`, `pull_request`, `issues`, plus the installation events every app receives.
 
+## Slack alerts
+
+Paste a Slack [incoming webhook](https://api.slack.com/messaging/webhooks) link under **Settings** in the web app, and SHAPI posts to that channel when a repository gets a **new** affected call site. That happens after a push, or when a new advisory hits code SHAPI already mapped. Each message lists the advisories with their severity, links to the exact lines, and the deadlines. A call site that was already affected isn't announced again. Use **Send a test message** to check the link.
+
 ## Noise controls
 
 - At most **2 new PRs per hour** and **10 open at once** per repository, most urgent first. Both are configurable in the web app.

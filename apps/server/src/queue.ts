@@ -12,6 +12,7 @@ import { runCanaryJob } from "./jobs/canary";
 import { runAdvisoryFanout } from "./jobs/fanout";
 import { runFixJob, sandboxRunner, type WorkspaceRunner } from "./jobs/fix";
 import { runScanJob, staleQueuedScans } from "./jobs/scan";
+import { slackNotifier } from "./notify/slack";
 import { sweepWebhooks } from "./jobs/webhook-sweeper";
 
 /** Every queue the worker handles. Names are stable: they live in the database. */
@@ -77,7 +78,7 @@ export interface WorkerDeps {
   db: Db;
   config: Pick<
     Config,
-    "CANARY_CRON" | "SHAPI_ADVISORIES" | "SHAPI_ADVISORIES_REPO" | "ADVISORIES_SYNC_CRON" | "canaryProviders" | "githubApp" | "WEBHOOK_SWEEP_CRON" | "WEBHOOK_RETENTION_DAYS" | "SHAPI_RECORDINGS" | "FANOUT_CRON" | "billing"
+    "CANARY_CRON" | "SHAPI_ADVISORIES" | "SHAPI_ADVISORIES_REPO" | "ADVISORIES_SYNC_CRON" | "canaryProviders" | "githubApp" | "WEBHOOK_SWEEP_CRON" | "WEBHOOK_RETENTION_DAYS" | "SHAPI_RECORDINGS" | "FANOUT_CRON" | "billing" | "SHAPI_PUBLIC_URL"
   >;
   env: Record<string, string | undefined>;
   log: Logger;
@@ -112,6 +113,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     ? { db: deps.db, stripe: stripeClient(deps.config.billing, { fetch: deps.fetch }), config: deps.config.billing }
     : undefined;
   const billingEnforced = Boolean(billing);
+  const notify = slackNotifier({ db: deps.db, fetch: deps.fetch, publicUrl: deps.config.SHAPI_PUBLIC_URL, advisoriesRepo: deps.config.SHAPI_ADVISORIES_REPO, log: deps.log });
 
   await boss.work(QUEUES.advisoriesSync, async () => {
     const repo = deps.config.SHAPI_ADVISORIES_REPO;
@@ -141,7 +143,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
   });
   await boss.work<ScanRequest>(QUEUES.repoScan, { batchSize: 1 }, async ([job]) => {
     if (!job) return;
-    const report = await runScanJob({ db: deps.db, github: requireGithub(), billingEnforced }, job.data);
+    const report = await runScanJob({ db: deps.db, github: requireGithub(), billingEnforced, notify }, job.data);
     if (report.fix && report.scanId && report.repositoryId) await sendFix(boss, report.scanId, report.repositoryId);
     deps.log.info(report, "scan finished");
     return report;
@@ -164,7 +166,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     return report;
   });
   await boss.work(QUEUES.advisoryFanout, async () => {
-    const report = await runAdvisoryFanout(deps.db);
+    const report = await runAdvisoryFanout(deps.db, { notify });
     for (const f of report.fixScans) await sendFix(boss, f.scanId, f.repositoryId);
     deps.log.info(report, "advisory fan-out finished");
     return report;

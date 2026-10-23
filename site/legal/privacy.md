@@ -33,6 +33,10 @@ When you sign in with GitHub, SHAPI reads your GitHub user id, your login and th
 
 Paid plans are handled by Stripe. SHAPI creates a Stripe customer named after your GitHub account login. Stripe collects your payment details, email address and billing address directly, on its own pages. SHAPI never sees your card number. SHAPI stores the Stripe customer and subscription ids, the subscription status, how many private repositories are paid for, and when the current period ends.
 
+### Slack alerts (opt-in)
+
+If you add a Slack incoming webhook in the web app, SHAPI stores that link with your settings and posts a message to it when a repository gets a new affected call site. Each message holds the repository name, file paths and line numbers, the advisory, and its deadline. The message goes to your own Slack workspace, under Slack's terms. Remove the webhook in the web app to stop the alerts.
+
 ### Using Claude (opt-in)
 
 If an account turns on *Use Claude when no deterministic recipe fits*, SHAPI sends the affected file, the advisory and the contract test to Anthropic's API to propose a fix. It's off by default. Under Anthropic's commercial terms, API inputs are not used to train its models.

@@ -218,6 +218,52 @@ describe("web pages", () => {
     await app.close();
   });
 
+  it("connects Slack alerts: only an incoming webhook, shown masked, removable, with a test message", async () => {
+    const gh = fakeGitHub();
+    const slack: { url: string; body: { text: string } }[] = [];
+    let slackStatus = 200;
+    const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+      if (String(input).startsWith("https://hooks.slack.com/")) {
+        slack.push({ url: String(input), body: JSON.parse(String(init?.body)) });
+        return new Response(slackStatus === 200 ? "ok" : "no_service", { status: slackStatus });
+      }
+      return gh.fetch(input, init);
+    }) as typeof globalThis.fetch;
+    const app = buildApp({ db, config, fetch });
+    const { cookie } = await signIn(app);
+    const pageBody = async () => (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+    const csrf = csrfFrom(await pageBody());
+    const form = { cookie, "content-type": "application/x-www-form-urlencoded" };
+    const save = (extra: string) => app.inject({ method: "POST", url: `/a/${mine.account}/settings`, headers: form, payload: `csrf=${csrf}&hourly=2&open=10${extra}` });
+    const stored = async () => (await withService(db, (tx) => tx.selectFrom("accounts").select("settings").where("id", "=", mine.account).executeTakeFirstOrThrow())).settings as { slackWebhookUrl?: string };
+    const hook = "https://hooks.slack.com/services/T0001/B0001/abcdefXYZ123";
+
+    expect((await save(`&slack=${encodeURIComponent("https://evil.example/hook")}`)).statusCode).toBe(400);
+    expect((await save(`&slack=${encodeURIComponent(hook)}`)).statusCode).toBe(303);
+    expect((await stored()).slackWebhookUrl).toBe(hook);
+    let body = await pageBody();
+    expect(body).toContain("webhook ending in <span class=\"mono\">XYZ123</span>");
+    expect(body).not.toContain(hook);
+
+    // saving other settings with the field left empty keeps the webhook
+    expect((await save("")).statusCode).toBe(303);
+    expect((await stored()).slackWebhookUrl).toBe(hook);
+
+    const test = await app.inject({ method: "POST", url: `/a/${mine.account}/slack/test`, headers: form, payload: `csrf=${csrf}` });
+    expect(test.headers.location).toBe(`/a/${mine.account}?slack=sent`);
+    expect(slack).toEqual([{ url: hook, body: expect.objectContaining({ text: expect.stringContaining("SHAPI is connected") }) }]);
+    slackStatus = 404;
+    const failed = await app.inject({ method: "POST", url: `/a/${mine.account}/slack/test`, headers: form, payload: `csrf=${csrf}` });
+    expect(failed.headers.location).toBe(`/a/${mine.account}?slack=failed`);
+    body = (await app.inject({ url: `/a/${mine.account}?slack=failed`, headers: { cookie } })).body;
+    expect(body).toContain("Slack did not accept the test message");
+
+    expect((await save("&slackRemove=on")).statusCode).toBe(303);
+    expect((await stored()).slackWebhookUrl).toBeUndefined();
+    expect(await pageBody()).not.toContain("Send a test message");
+    await app.close();
+  });
+
   it("pauses and resumes a repository from the web app, separately from the dashboard checkbox", async () => {
     const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
     const { cookie } = await signIn(app);

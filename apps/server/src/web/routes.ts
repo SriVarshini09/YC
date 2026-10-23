@@ -21,6 +21,7 @@ import {
 } from "./auth";
 import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
 import { completeCheckout, portalUrl, setQuantity, startCheckout, type BillingDeps } from "../billing/stripe";
+import { SLACK_WEBHOOK, postSlack, slackTestMessage } from "../notify/slack";
 import { DOCS_URL, STYLES, html, page, shortSha, timeAgo, type Html } from "./html";
 
 export interface WebConfig extends OAuthConfig {
@@ -48,7 +49,16 @@ const SettingsSchema = z.object({
   open: z.coerce.number().int().min(1).max(50),
   failOnAffected: z.literal("on").optional(),
   llmFixes: z.literal("on").optional(),
+  /** A new Slack incoming webhook; empty keeps the current one. */
+  slack: z.union([z.literal(""), z.string().trim().regex(SLACK_WEBHOOK)]).optional(),
+  slackRemove: z.literal("on").optional(),
 });
+
+const SLACK_NOTICES: Record<string, string> = {
+  sent: "Test message sent to Slack.",
+  failed: "Slack did not accept the test message. Check the webhook link and try again.",
+  none: "Add a Slack webhook first.",
+};
 
 const idParam = z.string().regex(/^\d+$/);
 
@@ -193,7 +203,8 @@ ${installLink && accounts.length ? html`<p class="note"><a href="${installLink}"
         const billing = await tx.selectFrom("billing").selectAll().executeTakeFirst();
         return { account, repos, latest, affected, openPrs, billing };
       });
-      const settings = data.account.settings as { prLimits?: { hourly?: number; open?: number }; failOnAffected?: boolean; llmFixes?: boolean };
+      const settings = data.account.settings as { prLimits?: { hourly?: number; open?: number }; failOnAffected?: boolean; llmFixes?: boolean; slackWebhookUrl?: string };
+      const slackNotice = SLACK_NOTICES[(req.query as { slack?: string }).slack ?? ""];
       const limits = { ...DEFAULT_PR_LIMITS, ...(settings.prLimits ?? {}) };
       const covered = coverage(data.repos, data.billing, Boolean(deps.billing));
       const rows = data.repos.map((r) => {
@@ -227,8 +238,18 @@ ${planSection(ctx.account.id, ctx.session.csrf, data.repos, data.billing, Boolea
 <label>Open SHAPI PRs at once, per repository <input type="number" name="open" min="1" max="50" value="${limits.open}"></label>
 <label class="check"><input type="checkbox" name="failOnAffected" ${settings.failOnAffected ? "checked" : ""}> <span>Fail the SHAPI check when a call site is affected <span class="note">(it is neutral by default, so it never blocks a merge)</span></span></label>
 <label class="check"><input type="checkbox" name="llmFixes" ${settings.llmFixes ? "checked" : ""}> <span>Use Claude when no deterministic recipe fits <span class="note">(sends the affected file and its contract test to Anthropic; the change is kept only if the test passes in the sandbox)</span></span></label>
+<label>Slack alerts for new affected call sites <span class="note">${
+            settings.slackWebhookUrl ? html`(connected: webhook ending in <span class="mono">${settings.slackWebhookUrl.slice(-6)}</span>; paste a new one to replace it)` : html`(paste an <a href="https://api.slack.com/messaging/webhooks">incoming webhook</a> link, https://hooks.slack.com/services/…)`
+          }</span> <input type="url" name="slack" placeholder="https://hooks.slack.com/services/…" autocomplete="off"></label>
+${settings.slackWebhookUrl ? html`<label class="check"><input type="checkbox" name="slackRemove"> <span>Stop Slack alerts</span></label>` : ""}
 <p><button class="primary" type="submit">Save settings</button></p>
 </form>
+${slackNotice ? html`<p class="notice">${slackNotice}</p>` : ""}
+${
+  settings.slackWebhookUrl
+    ? html`<form method="post" action="/a/${ctx.account.id}/slack/test" class="inline"><input type="hidden" name="csrf" value="${ctx.session.csrf}"><button type="submit">Send a test message to Slack</button></form>`
+    : ""
+}
 <p class="note">Add the <span class="mono">${STOP_LABEL}</span> label to a SHAPI PR to stop updates to it.</p>`,
           ctx.session,
         ),
@@ -240,14 +261,31 @@ ${planSection(ctx.account.id, ctx.session.csrf, data.repos, data.billing, Boolea
       if (!ctx) return;
       if (!csrfOk(ctx.session, req.body)) return send(reply, page("Error", html`<h1>Form expired</h1><p class="lead">Go back and try again.</p>`, ctx.session), 403);
       const parsed = SettingsSchema.safeParse(req.body);
-      if (!parsed.success) return send(reply, page("Error", html`<h1>Invalid settings</h1><p class="lead">PRs per hour: 1 to 20. Open PRs: 1 to 50.</p>`, ctx.session), 400);
+      if (!parsed.success) {
+        return send(reply, page("Error", html`<h1>Invalid settings</h1><p class="lead">PRs per hour: 1 to 20. Open PRs: 1 to 50. A Slack webhook starts with https://hooks.slack.com/services/.</p>`, ctx.session), 400);
+      }
       const s = parsed.data;
       await withTenant(deps.db, ctx.account.id, async (tx) => {
         const current = await tx.selectFrom("accounts").select("settings").where("id", "=", ctx.account.id).executeTakeFirstOrThrow();
-        const next = { ...current.settings, prLimits: { hourly: s.hourly, open: s.open }, failOnAffected: s.failOnAffected === "on", llmFixes: s.llmFixes === "on" };
+        const next: Record<string, unknown> = { ...current.settings, prLimits: { hourly: s.hourly, open: s.open }, failOnAffected: s.failOnAffected === "on", llmFixes: s.llmFixes === "on" };
+        if (s.slackRemove === "on") delete next.slackWebhookUrl;
+        else if (s.slack) next.slackWebhookUrl = s.slack;
         await tx.updateTable("accounts").set({ settings: JSON.stringify(next) }).where("id", "=", ctx.account.id).execute();
       });
       return reply.redirect(`/a/${ctx.account.id}`, 303);
+    });
+
+    scope.post("/a/:accountId/slack/test", async (req, reply) => {
+      const ctx = await accountFor(req, reply);
+      if (!ctx) return;
+      if (!csrfOk(ctx.session, req.body)) return send(reply, page("Error", html`<h1>Form expired</h1><p class="lead">Go back and try again.</p>`, ctx.session), 403);
+      const account = await withTenant(deps.db, ctx.account.id, (tx) => tx.selectFrom("accounts").select(["login", "settings"]).where("id", "=", ctx.account.id).executeTakeFirstOrThrow());
+      const webhook = (account.settings as { slackWebhookUrl?: string }).slackWebhookUrl;
+      if (!webhook || !SLACK_WEBHOOK.test(webhook)) return reply.redirect(`/a/${ctx.account.id}?slack=none`, 303);
+      const sent = await postSlack(deps.fetch ?? globalThis.fetch, webhook, slackTestMessage(account.login, deps.config?.publicUrl ?? ""))
+        .then(() => true)
+        .catch(() => false);
+      return reply.redirect(`/a/${ctx.account.id}?slack=${sent ? "sent" : "failed"}`, 303);
     });
 
     const billingAction = (path: string, run: (billing: BillingDeps, account: { id: string; login: string }) => Promise<string>) =>
