@@ -18,7 +18,7 @@ Wiring:
 
 Verified:
 - `pnpm --filter @shapi/site docs:build` passes with no dead links.
-- Home, Quickstart and Security checked in a browser, light theme and teal accent.
+- Home, Quickstart and Security checked in a browser (dark theme, teal accent).
 - `pnpm lint` and `pnpm typecheck` pass.
 
 Needs you: Settings → Pages → Source: **GitHub Actions**. The first deploy runs after merge.
