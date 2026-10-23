@@ -15,7 +15,7 @@ let app: Db;
 beforeAll(async () => {
   pg = await startTestPostgres();
   owner = createDb({ connectionString: pg.url, appRole: false });
-  expect(await migrateToLatest(owner)).toEqual(["0001_init", "0002_webhook_sweeper", "0003_fix_prs", "0004_cloud_scans", "0005_web_sessions", "0006_billing"]);
+  expect(await migrateToLatest(owner)).toEqual(["0001_init", "0002_webhook_sweeper", "0003_fix_prs", "0004_cloud_scans", "0005_web_sessions", "0006_billing", "0007_billing_cancel_at"]);
   app = createDb({ connectionString: pg.url });
 }, 120_000);
 

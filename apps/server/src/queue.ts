@@ -119,12 +119,12 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     const repo = deps.config.SHAPI_ADVISORIES_REPO;
     const result = repo
       ? await syncAdvisoriesFromGitHub(deps.db, repo, { fetch: deps.fetch })
-      : { written: await syncAdvisoriesJob(deps.db, deps.config.SHAPI_ADVISORIES), invalid: [] };
+      : { written: await syncAdvisoriesJob(deps.db, deps.config.SHAPI_ADVISORIES), removed: [], invalid: [] };
     if (result.invalid.length) deps.log.error({ err: new Error("invalid advisories skipped"), invalid: result.invalid }, "advisory sync skipped invalid files");
-    deps.log.info({ source: repo ?? "folder", written: result.written }, "advisories synced");
-    // Re-matching only does work when something changed (see upsertAdvisories).
-    if (result.written) await boss.send(QUEUES.advisoryFanout, {});
-    return { written: result.written };
+    deps.log.info({ source: repo ?? "folder", written: result.written, removed: result.removed }, "advisories synced");
+    // Re-matching only does work when something changed (see upsertAdvisories); a removal changes findings too.
+    if (result.written || result.removed.length) await boss.send(QUEUES.advisoryFanout, {});
+    return { written: result.written, removed: result.removed.length };
   });
   await boss.work(QUEUES.canaryRun, async () => {
     const result = await runCanaryJob({ db: deps.db, env: deps.env, providers: deps.config.canaryProviders, fetch: deps.fetch });

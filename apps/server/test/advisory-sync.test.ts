@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createDb, listAdvisories, migrateToLatest, type Db } from "@shapi/db";
+import { createDb, listAdvisories, migrateToLatest, upsertAdvisories, type Db } from "@shapi/db";
 import { fakeRepoGitHub } from "../../../test-utils/fake-github";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { loadConfig, syncAdvisoriesFromGitHub } from "../src/index";
@@ -26,17 +26,20 @@ afterAll(async () => {
 }, 60_000);
 
 /** The public advisory repository as GitHub serves it: advisories/, schema/, scripts/ and docs. */
-function advisoryRepo(extra: Record<string, string> = {}) {
+function advisoryRepo(extra: Record<string, string> = {}, without: string[] = []) {
   const files: Record<string, string> = { "README.md": "# SHAPI advisories", "schema/advisory.schema.json": "{}", "scripts/validate.mjs": "" };
   for (const f of readdirSync(path.join(root, "advisories")).filter((f) => f.endsWith(".json"))) files[`advisories/${f}`] = readFileSync(path.join(root, "advisories", f), "utf8");
+  for (const f of without) delete files[f];
   return fakeRepoGitHub("SriVarshini09/shapi-advisories", { ...files, ...extra });
 }
+
+const advisoryFile = (id: string) => JSON.parse(readFileSync(path.join(root, "advisories", `${id}.json`), "utf8"));
 
 describe("advisory sync from the public repository", () => {
   it("syncs every advisory in advisories/, unauthenticated, and only rewrites what changed", async () => {
     const gh = advisoryRepo();
     const first = await syncAdvisoriesFromGitHub(db, "SriVarshini09/shapi-advisories", { fetch: gh.fetch });
-    expect(first).toEqual({ written: bundled, advisories: bundled, invalid: [] });
+    expect(first).toEqual({ written: bundled, removed: [], advisories: bundled, invalid: [] });
     expect((await listAdvisories(db)).map((a) => a.id)).toContain("github-workflow-dispatch-204-to-200");
     expect(gh.github.calls.some((c) => c.path === "/repos/SriVarshini09/shapi-advisories/tarball/main")).toBe(true);
     expect(gh.github.calls.some((c) => c.path.endsWith("/access_tokens"))).toBe(false);
@@ -58,6 +61,21 @@ describe("advisory sync from the public repository", () => {
     const gh = fakeRepoGitHub("SriVarshini09/shapi-advisories", { "README.md": "empty" });
     await expect(syncAdvisoriesFromGitHub(db, "SriVarshini09/shapi-advisories", { fetch: gh.fetch })).rejects.toThrow(/no valid advisories/);
     expect((await listAdvisories(db)).length).toBe(before);
+  });
+
+  it("removes advisories deleted from the repository, but not one whose file is only invalid, nor other sources", async () => {
+    await upsertAdvisories(db, [{ ...advisoryFile("github-workflow-dispatch-204-to-200"), id: "from-elsewhere" }], { reviewed: true, source: "repo" });
+    const all = advisoryRepo();
+    expect((await syncAdvisoriesFromGitHub(db, "SriVarshini09/shapi-advisories", { fetch: all.fetch })).removed).toEqual([]);
+
+    // reddit's file is deleted upstream; github's becomes invalid JSON (a bad edit, not a deletion)
+    const gone = advisoryRepo({ "advisories/github-workflow-dispatch-204-to-200.json": "{oops" }, ["advisories/reddit-logged-out-json-403.json"]);
+    const result = await syncAdvisoriesFromGitHub(db, "SriVarshini09/shapi-advisories", { fetch: gone.fetch });
+    expect(result.removed).toEqual(["reddit-logged-out-json-403"]);
+    const ids = (await listAdvisories(db)).map((a) => a.id);
+    expect(ids).not.toContain("reddit-logged-out-json-403");
+    expect(ids).toContain("github-workflow-dispatch-204-to-200");
+    expect(ids).toContain("from-elsewhere");
   });
 
   it("config accepts owner/name only", () => {

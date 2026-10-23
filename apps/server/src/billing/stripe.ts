@@ -132,6 +132,7 @@ export async function applySubscription(db: Db, subscription: Stripe.Subscriptio
       status: subscription.status,
       quantity: subscription.status === "canceled" ? 0 : (subscription.items.data[0]?.quantity ?? 0),
       current_period_end: periodEnd(subscription),
+      cancel_at: subscription.status === "canceled" ? null : subscription.cancel_at ? new Date(subscription.cancel_at * 1000) : subscription.cancel_at_period_end ? periodEnd(subscription) : null,
       updated_at: new Date(),
     };
     await tx

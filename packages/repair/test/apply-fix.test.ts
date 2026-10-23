@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
 import { createApiLock, loadAdvisories, matchAdvisories, type Advisory, type LockedCallSite } from "@shapi/core";
 import { extractCallSites } from "@shapi/extractor";
-import { RECIPES, generateContractTest, repairCallSite, runRecipe } from "@shapi/repair";
+import { RECIPES, generateContractTest, repairAdvisory, repairCallSite, runRecipe, runTestFile } from "@shapi/repair";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const advisories = loadAdvisories(path.join(root, "advisories"));
@@ -172,4 +172,66 @@ describe("apply-fix: response renames", () => {
     expect(result.status).toBe("already-handled");
     expect(readFileSync(path.join(dir, "src", "app.ts"), "utf8")).toBe(source);
   }, 60_000);
+});
+
+describe("repairAdvisory: every call site of an advisory in one change", () => {
+  const advisory = byId("quickbooks-minorversion-below-75-ignored");
+  const qbo = (fn: string, exported = true) => `${exported ? "export " : ""}async function ${fn}(realmId: string, token: string) {
+  const res = await fetch(\`https://quickbooks.api.intuit.com/v3/company/\${realmId}/query?query=x&minorversion=65\`, { headers: { Authorization: \`Bearer \${token}\` } });
+  const body = await res.json();
+  return body.QueryResponse;
+}
+`;
+
+  function multiRepo(files: Record<string, string>) {
+    const dir = path.join(tmp, `m${++n}`);
+    for (const [file, text] of Object.entries(files)) {
+      mkdirSync(path.join(dir, path.dirname(file)), { recursive: true });
+      writeFileSync(path.join(dir, file), text);
+    }
+    cpSync(path.join(root, "fixtures", "demo-ts", "package.json"), path.join(dir, "package.json"));
+    const sites = matchAdvisories(createApiLock(extractCallSites(dir), "test"), [advisory], { now }).affected.map((f) => f.callSite);
+    return { dir, sites };
+  }
+
+  it("fixes three call sites in two files: each file once, one contract test per call site", async () => {
+    const { dir, sites } = multiRepo({ "src/a.ts": qbo("invoices") + "\n" + qbo("bills"), "src/b.ts": qbo("payments") });
+    expect(sites).toHaveLength(3);
+    const repair = await repairAdvisory({ repoDir: dir, advisory, callSites: sites, recipes: RECIPES });
+    if (repair.sandbox) sandboxes.push(repair.sandbox);
+    expect(repair.status).toBe("fixed");
+    expect(repair.sites.map((s) => `${s.callSite.file}:${s.callSite.line} ${s.result.status}`)).toEqual(["src/a.ts:8 fixed", "src/a.ts:2 fixed", "src/b.ts:2 fixed"]);
+    expect(repair.changes.map((c) => c.file)).toEqual([
+      "src/a.ts",
+      "src/b.ts",
+      "test/shapi/quickbooks-minorversion-below-75-ignored.test.ts",
+      "test/shapi/quickbooks-minorversion-below-75-ignored.2.test.ts",
+      "test/shapi/quickbooks-minorversion-below-75-ignored.3.test.ts",
+    ]);
+    const a = repair.changes[0]!;
+    expect(a.before).toBe(readFileSync(path.join(dir, "src", "a.ts"), "utf8"));
+    expect(a.after.match(/minorversion=75/g)).toHaveLength(2);
+    expect(a.after).not.toContain("minorversion=65");
+    // every test passes against the combined change
+    const final = path.join(tmp, `final${n}`);
+    cpSync(dir, final, { recursive: true });
+    for (const c of repair.changes) {
+      mkdirSync(path.dirname(path.join(final, c.file)), { recursive: true });
+      writeFileSync(path.join(final, c.file), c.after);
+    }
+    for (const c of repair.changes.filter((c) => c.file.startsWith("test/"))) expect(runTestFile(final, c.file).passed).toBe(true);
+  }, 120_000);
+
+  it("is partial when one call site cannot be tested, and keeps the others", async () => {
+    const { dir, sites } = multiRepo({ "src/a.ts": qbo("invoices") + "\n" + qbo("internal", false) });
+    const repair = await repairAdvisory({ repoDir: dir, advisory, callSites: sites, recipes: RECIPES });
+    if (repair.sandbox) sandboxes.push(repair.sandbox);
+    expect(repair.status).toBe("partial");
+    expect(repair.sites.map((s) => [s.callSite.line, s.result.status, s.result.reason])).toEqual([
+      [8, "unsupported", "the call site is not inside an exported function"],
+      [2, "fixed", undefined],
+    ]);
+    expect(repair.changes.map((c) => c.file)).toEqual(["src/a.ts", "test/shapi/quickbooks-minorversion-below-75-ignored.2.test.ts"]);
+    expect(repair.changes[0]!.after.match(/minorversion=75/g)).toHaveLength(1);
+  }, 120_000);
 });

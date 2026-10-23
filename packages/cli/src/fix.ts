@@ -6,7 +6,7 @@ import { createApiLock, loadAdvisories, matchAdvisories, pathMatches, type Advis
 import { extractCallSites } from "@shapi/extractor";
 import { ShapeStore, type ResponseShape } from "@shapi/shapes";
 import { loadRecording, replay } from "@shapi/canary";
-import { RECIPES, claudeFixer, repairCallSite, type RepairResult } from "@shapi/repair";
+import { RECIPES, claudeFixer, localWorkspace, repairAdvisory, type RepairResult } from "@shapi/repair";
 import { authFromEnv, octokitFor, prBranch, prTitle, renderPrBody, repoFromUrl, upsertFixPr, type OpenedPullRequest } from "@shapi/github-app";
 import { DEFAULT_ADVISORIES } from "./scan";
 import { bundledDir } from "./paths";
@@ -64,26 +64,33 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
 
     const llm = opts.llm ? claudeFixer() : undefined;
     const outcomes: FixOutcome[] = [];
-    for (const finding of affected) {
-      const { advisory, callSite } = finding;
-      const where = `${callSite.file}:${callSite.line}`;
+    // One repair per advisory covering all of its call sites, so --write and --pr carry them together.
+    const byAdvisory = new Map<string, Finding[]>();
+    for (const f of affected) byAdvisory.set(f.advisory.id, [...(byAdvisory.get(f.advisory.id) ?? []), f]);
+    for (const findings of byAdvisory.values()) {
+      const advisory = findings[0]!.advisory;
       // With an advisory fix the contract test is built from the fix itself; otherwise it needs recorded responses.
       const shapes: { before?: ResponseShape; after?: ResponseShape; source: string } | undefined = advisory.fix ? { source: FIX_SOURCE } : findShapes(advisory, opts);
       if (!shapes) {
         const skipped = "no before/after shapes for this endpoint (record them with the canary, or add a recording)";
-        deps.log(`SKIP  ${where}  ${advisory.id}: ${skipped}`);
-        outcomes.push({ finding, skipped });
+        for (const finding of findings) {
+          deps.log(`SKIP  ${finding.callSite.file}:${finding.callSite.line}  ${advisory.id}: ${skipped}`);
+          outcomes.push({ finding, skipped });
+        }
         continue;
       }
-      const result = await repairCallSite({ repoDir: dir, advisory, callSite, before: shapes.before, after: shapes.after, recipes: RECIPES, llm });
-      const outcome: FixOutcome = { finding, shapeSource: shapes.source, result };
-      outcomes.push(outcome);
-      deps.log(`${result.status.toUpperCase().padEnd(15)} ${where}  ${advisory.id}${result.method ? `  via ${result.method}` : ""}${result.reason ? `: ${result.reason}` : ""}`);
-      for (const a of result.attempts) deps.log(`    ${a.method}: ${a.outcome} (${a.detail})`);
-
-      if (result.status !== "fixed") continue;
-      for (const c of result.changes) deps.log(`    ${c.before ? "M" : "A"} ${c.file}`);
-      const files = result.changes.map((c) => ({ path: c.file, content: c.after }));
+      const repair = await repairAdvisory({ workspace: localWorkspace(dir), advisory, callSites: findings.map((f) => f.callSite), before: shapes.before, after: shapes.after, recipes: RECIPES, llm });
+      const mine: FixOutcome[] = [];
+      for (const { callSite, result } of repair.sites) {
+        const finding = findings.find((f) => f.callSite.file === callSite.file && f.callSite.line === callSite.line && f.callSite.column === callSite.column)!;
+        mine.push({ finding, shapeSource: shapes.source, result });
+        deps.log(`${result.status.toUpperCase().padEnd(15)} ${callSite.file}:${callSite.line}  ${advisory.id}${result.method ? `  via ${result.method}` : ""}${result.reason ? `: ${result.reason}` : ""}`);
+        for (const a of result.attempts) deps.log(`    ${a.method}: ${a.outcome} (${a.detail})`);
+      }
+      outcomes.push(...mine);
+      if (!repair.changes.length) continue;
+      for (const c of repair.changes) deps.log(`    ${c.before ? "M" : "A"} ${c.file}`);
+      const files = repair.changes.map((c) => ({ path: c.file, content: c.after }));
 
       if (opts.write) {
         for (const f of files) {
@@ -93,20 +100,16 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
         deps.log(`    wrote ${files.length} files into ${dir}`);
       }
       if (opts.pr && remote) {
+        const fixed = repair.sites.filter((s) => s.result.status === "fixed");
         const meta = {
           title: prTitle(advisory),
           branch: prBranch(advisory),
-          commitMessage: `fix: ${advisory.title}\n\nAdvisory ${advisory.id}. Contract test ${result.test?.file} fails before this change and passes after.`,
-          body: renderPrBody({
-            advisory,
-            callSite,
-            result,
-            affectedInRepo: affected.filter((f) => f.advisory.id === advisory.id).length,
-            shapeSource: shapes.source,
-          }),
+          commitMessage: `fix: ${advisory.title}\n\nAdvisory ${advisory.id}, ${fixed.length} of ${repair.sites.length} call sites. Contract tests ${fixed.map((s) => s.result.test?.file).join(", ")} fail before this change and pass after.`,
+          body: renderPrBody({ advisory, repair, shapeSource: shapes.source }),
         };
-        outcome.pr = await (deps.deliver ?? deliverToGitHub)(remote, files, meta);
-        deps.log(`    pull request: ${outcome.pr.url}`);
+        const pr = await (deps.deliver ?? deliverToGitHub)(remote, files, meta);
+        for (const o of mine) if (o.result?.status === "fixed") o.pr = pr;
+        deps.log(`    pull request: ${pr.url}`);
       }
     }
     return outcomes;
