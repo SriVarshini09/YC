@@ -1,0 +1,27 @@
+{
+  "id": "shopify-non-expiring-offline-tokens-rejected",
+  "provider": "shopify",
+  "title": "Shopify rejects non-expiring offline access tokens from public apps on 2027-01-01",
+  "summary": "Starting January 1, 2027, every public app (including ones created before April 1, 2026) must use expiring offline access tokens to call the Admin API. Shopify enforces this on GraphQL Admin API requests: a request with a non-expiring token gets 403 Forbidden with \"Non-expiring access tokens are no longer accepted for the Admin API\", and merchants lose access until they re-authenticate. Custom apps and merchant-created apps are not affected.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "auth",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-05-20",
+    "url": "https://shopify.dev/changelog/posts/expiring-offline-access-tokens-required-for-all-public-apps-as-of-january-1-2027"
+  },
+  "effectiveDate": "2027-01-01",
+  "severity": "critical",
+  "migrationNote": "Exchange each stored non-expiring token for an expiring one with POST /admin/oauth/access_token (grant_type=urn:ietf:params:oauth:grant-type:token-exchange, subject_token_type and requested_token_type urn:shopify:params:oauth:token-type:offline-access-token, expiring=1), store the access token, refresh token and expiry, and refresh before expiry; on the official app templates set future.expiringOfflineAccessTokens: true and redeploy. Check API Health in the Dev Dashboard to confirm the app is migrated.",
+  "sources": [
+    "https://shopify.dev/changelog/posts/expiring-offline-access-tokens-required-for-all-public-apps-as-of-january-1-2027",
+    "https://shopify.dev/docs/apps/build/authentication-authorization/migrate-to-expiring-offline-access-tokens"
+  ],
+  "status": "verified"
+}

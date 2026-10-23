@@ -1,0 +1,27 @@
+{
+  "id": "twilio-rcs-undelivered-error-code-30046",
+  "provider": "twilio",
+  "title": "Twilio RCS unconfirmed-delivery error code changed from 30036 to 30046",
+  "summary": "Since August 10, 2026, an RCS message that cannot be delivered to an unreachable device fails with error code 30046 (Message delivery not confirmed) instead of 30036 (Validity Period Expired). Custom SMS failover logic that checks error_code or ErrorCode for 30036 no longer fires; Twilio's native SMS fallback is not affected.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json"
+  },
+  "changeClass": "enum-added",
+  "trigger": {
+    "enums": [{ "field": "error_code" }]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-07-09",
+    "url": "https://www.twilio.com/en-us/changelog/rcs-error-code-changing"
+  },
+  "effectiveDate": "2026-08-10",
+  "severity": "medium",
+  "migrationNote": "Wherever you branch on error_code (Message resource) or ErrorCode (status callbacks) to trigger SMS failover for RCS, treat 30046 the same as 30036, and test the fallback path.",
+  "sources": [
+    "https://www.twilio.com/en-us/changelog/rcs-error-code-changing",
+    "https://www.twilio.com/docs/messaging/api/message-resource"
+  ],
+  "status": "verified"
+}

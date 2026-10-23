@@ -47,8 +47,11 @@ export const TriggerSchema = z
     enums: z.array(z.object({ field: z.string() })).optional(),
     /** Affected when the request sets this header (optionally to one of these values). */
     headers: z.array(z.object({ name: z.string(), values: z.array(z.string()).optional() })).optional(),
-    /** Affected when the request sets this query parameter (optionally to a number below `below`). */
-    query: z.array(z.object({ name: z.string(), below: z.number().optional() })).optional(),
+    /**
+     * Affected when the request sets this query parameter: optionally to a number below `below`, or to
+     * one of `values` (a comma-separated value such as `metric=a,b` matches when any item does).
+     */
+    query: z.array(z.object({ name: z.string(), below: z.number().optional(), values: z.array(z.string()).optional() })).optional(),
     /** Every call to the endpoint is affected (sunsets, auth and scope changes). */
     any: z.boolean().optional(),
   })

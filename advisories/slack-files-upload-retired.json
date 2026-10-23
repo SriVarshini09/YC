@@ -1,0 +1,28 @@
+{
+  "id": "slack-files-upload-retired",
+  "provider": "slack",
+  "title": "files.upload Web API method sunset on 2025-11-12",
+  "summary": "Slack deprecated files.upload. Apps created on or after 2024-05-16 could not use it, and Slack's reference page says the method stops working and is sunset on 2025-11-12 for existing apps too (the date was moved from 2025-03-11). Code that still uploads through files.upload fails with method_deprecated or deprecated_endpoint errors.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/api/files.upload"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2025-03-17",
+    "url": "https://docs.slack.dev/changelog/2025/03/17/files-upload-extension"
+  },
+  "effectiveDate": "2025-11-12",
+  "severity": "critical",
+  "migrationNote": "Replace files.upload with the two-step flow: call files.getUploadURLExternal (filename, length) to get an upload_url and file_id, POST the file bytes to upload_url, then call files.completeUploadExternal with the file_id(s) and the channel_id, initial_comment or thread_ts you used to pass to files.upload. The official Slack SDKs wrap this as files_upload_v2 / filesUploadV2 / uploadV2.",
+  "sources": [
+    "https://docs.slack.dev/reference/methods/files.upload",
+    "https://docs.slack.dev/changelog/2025/03/17/files-upload-extension",
+    "https://docs.slack.dev/changelog/2024-04-a-better-way-to-upload-files-is-here-to-stay"
+  ],
+  "status": "verified"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "meta-graph-marketing-api-v25-sunset",
+  "provider": "meta-graph",
+  "title": "Marketing API v25.0 available until 2027-02-23",
+  "summary": "Marketing API v25.0 is available until 2027-02-23 (Graph API v25.0 itself runs to 2028). After that, ads calls pinned to v25.0 fail or are auto-upgraded, and endpoints that changed in v26.0 fail. Meta also says the explicit targeting_automation.advantage_audience flag becomes mandatory on all versions once v25.0 is deprecated.",
+  "endpoint": {
+    "method": "*",
+    "path": "/v25.0/act_*/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": null,
+    "url": "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/"
+  },
+  "effectiveDate": "2027-02-23",
+  "severity": "high",
+  "migrationNote": "Upgrade Marketing API calls to v26.0, set targeting_automation.advantage_audience to 1 or 0 explicitly on ad set targeting, and review the v26.0 changelog (poll ads, Messenger Stories, Explore placement, delivery estimate fields) before 2027-02-23.",
+  "sources": [
+    "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/",
+    "https://developers.facebook.com/documentation/ads-commerce/marketing-api/overview/versioning",
+    "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+  ],
+  "status": "verified"
+}

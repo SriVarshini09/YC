@@ -1,0 +1,30 @@
+{
+  "id": "salesforce-soap-login-disabled-when-unused",
+  "provider": "salesforce",
+  "title": "SOAP login() turned off in orgs with no use in six months, from 2026-12-15",
+  "summary": "In a one-time check on 2026-12-15 (sandboxes) and 2027-01-31 (production), Salesforce disables SOAP API login() in orgs that had no SOAP login() call in the previous six months; after that, login() fails in that org. Rarely run jobs (annual, seasonal, disaster recovery) can look inactive and then break. One call by any user in the window keeps login() on.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/services/Soap/*/*",
+    "hosts": [
+      "login.salesforce.com",
+      "test.salesforce.com"
+    ]
+  },
+  "changeClass": "auth",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2025-08-25",
+    "url": "https://help.salesforce.com/s/articleView?id=005132110&type=1"
+  },
+  "effectiveDate": "2026-12-15",
+  "severity": "critical",
+  "migrationNote": "Check Login History (API Type SOAP Enterprise/Partner) and the API Total Usage event log (API_FAMILY SOAP, API_RESOURCE login) for every integration that uses SOAP login(), including rarely run jobs, and move them to an External Client App with OAuth 2.0 before 2026-12-15 (sandbox) / 2027-01-31 (production).",
+  "sources": [
+    "https://help.salesforce.com/s/articleView?id=005132110&type=1"
+  ],
+  "status": "verified"
+}

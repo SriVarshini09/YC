@@ -1,0 +1,27 @@
+{
+  "id": "google-ads-api-v22-sunset",
+  "provider": "google",
+  "title": "Google Ads API v22 sunset on 2026-10-07",
+  "summary": "Google Ads API v22 was sunset on 2026-10-07; from that date all v22 requests fail. Code still pinned to /v22/ paths, or to client library versions that only speak v22, is broken.",
+  "endpoint": {
+    "method": "*",
+    "path": "/v22/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-09-02",
+    "url": "https://ads-developers.googleblog.com/2026/09/google-ads-api-v22-sunset-reminder.html"
+  },
+  "effectiveDate": "2026-10-07",
+  "severity": "critical",
+  "migrationNote": "Change the version segment of googleads.googleapis.com paths to a supported version (v24 or later is safest, since v23 sunsets in February 2027), upgrade the client library, and work through each skipped version's breaking-changes list. The Google Ads API metrics page in the Cloud Console shows which versioned methods your project still calls.",
+  "sources": [
+    "https://ads-developers.googleblog.com/2026/09/google-ads-api-v22-sunset-reminder.html",
+    "https://developers.google.com/google-ads/api/docs/sunset-dates"
+  ],
+  "status": "verified"
+}

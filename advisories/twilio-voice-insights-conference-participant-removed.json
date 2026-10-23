@@ -1,0 +1,28 @@
+{
+  "id": "twilio-voice-insights-conference-participant-removed",
+  "provider": "twilio",
+  "title": "Twilio Voice Insights Call Summary drops attributes.conference_participant on 2026-08-01",
+  "summary": "On August 1, 2026 Twilio removed the conference_participant attribute from the Voice Insights Call Summary (GET /v1/Voice/{CallSid}/Summary on insights.twilio.com) and the matching Event Streams event; attributes now returns null for every call. Code that reads attributes.conference_participant gets nothing, and code that dereferences attributes can throw.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/v1/Voice/{CallSid}/Summary"
+  },
+  "changeClass": "field-rename",
+  "trigger": {
+    "fields": ["attributes.conference_participant"]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-07-01",
+    "url": "https://www.twilio.com/en-us/changelog/voice-insights-removal-conference-participant-field"
+  },
+  "effectiveDate": "2026-08-01",
+  "severity": "medium",
+  "migrationNote": "Stop reading attributes.conference_participant and treat attributes as nullable. Get conference data from the Conference Insights API or Conference Insights Event Streams instead.",
+  "sources": [
+    "https://www.twilio.com/en-us/changelog/voice-insights-removal-conference-participant-field",
+    "https://www.twilio.com/docs/voice/voice-insights/api/call/details-call-summary",
+    "https://www.twilio.com/docs/voice/voice-insights/api/call/call-summary-resource"
+  ],
+  "status": "verified"
+}

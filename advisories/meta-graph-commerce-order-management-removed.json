@@ -1,0 +1,26 @@
+{
+  "id": "meta-graph-commerce-order-management-removed",
+  "provider": "meta-graph",
+  "title": "Commerce Order Management API removed on all versions on 2026-10-27",
+  "summary": "Meta deprecated the Commerce Order Management API (47 endpoints, including GET /{page-id}/commerce_orders and GET /{commerce-merchant-settings-id}/commerce_orders) with no replacement. Calls on v26.0+ are blocked since 2026-07-29, and the endpoints are removed from all remaining versions on 2026-10-27. Order sub-resources (items, shipments, refunds, cancellations, payments, tax_settings) by object id go too, but only the commerce_orders list edge is matched here.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/*/*/commerce_orders"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-07-29",
+    "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+  },
+  "effectiveDate": "2026-10-27",
+  "severity": "critical",
+  "migrationNote": "There is no replacement API. Stop calling commerce_orders, commerce_returns, tax_settings and the order, shipment, refund and cancellation object reads, and handle orders in Commerce Manager or your own order system. Guard any remaining calls so the error does not break sync jobs.",
+  "sources": [
+    "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+  ],
+  "status": "verified"
+}

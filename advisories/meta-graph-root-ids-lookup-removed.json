@@ -1,0 +1,30 @@
+{
+  "id": "meta-graph-root-ids-lookup-removed",
+  "provider": "meta-graph",
+  "title": "Root GET /?ids= multi-object lookup returns an error from 2026-10-27",
+  "summary": "Graph API dropped legacy protocol features: root requests of the form GET /?ids=a,b (or /{version}/?ids=) return an error on v26.0+ since 2026-07-29 and on all supported versions from 2026-10-27. Meta does not state the error code.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/*"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "query": [
+      {
+        "name": "ids"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-07-29",
+    "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+  },
+  "effectiveDate": "2026-10-27",
+  "severity": "critical",
+  "migrationNote": "Replace each GET /?ids=... call with one request per object, or send the per-object requests in a single batch request (POST / with a batch parameter), and merge the results in your code.",
+  "sources": [
+    "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+  ],
+  "status": "verified"
+}

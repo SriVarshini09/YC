@@ -8,6 +8,7 @@ import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgr
 import { loadConfig, syncAdvisoriesFromGitHub } from "../src/index";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const bundled = readdirSync(path.join(root, "advisories")).filter((f) => f.endsWith(".json")).length;
 let pg: TestPostgres;
 let db: Db;
 
@@ -35,7 +36,7 @@ describe("advisory sync from the public repository", () => {
   it("syncs every advisory in advisories/, unauthenticated, and only rewrites what changed", async () => {
     const gh = advisoryRepo();
     const first = await syncAdvisoriesFromGitHub(db, "SriVarshini09/shapi-advisories", { fetch: gh.fetch });
-    expect(first).toEqual({ written: 7, advisories: 7, invalid: [] });
+    expect(first).toEqual({ written: bundled, advisories: bundled, invalid: [] });
     expect((await listAdvisories(db)).map((a) => a.id)).toContain("github-workflow-dispatch-204-to-200");
     expect(gh.github.calls.some((c) => c.path === "/repos/SriVarshini09/shapi-advisories/tarball/main")).toBe(true);
     expect(gh.github.calls.some((c) => c.path.endsWith("/access_tokens"))).toBe(false);
@@ -45,10 +46,10 @@ describe("advisory sync from the public repository", () => {
     expect((await syncAdvisoriesFromGitHub(db, "SriVarshini09/shapi-advisories", { fetch: gh.fetch })).written).toBe(0);
   });
 
-  it("skips and reports a bad file without blocking the rest", async () => {
-    const gh = advisoryRepo({ "advisories/broken.json": '{"id": "broken"}', "advisories/not-json.json": "{oops", "advisories/drafts/x.json": "{}" });
+  it("skips and reports a bad file without blocking the rest, and ignores drafts/ and pending/", async () => {
+    const gh = advisoryRepo({ "advisories/broken.json": '{"id": "broken"}', "advisories/not-json.json": "{oops", "advisories/drafts/x.json": "{}", "advisories/pending/y.json": "{}" });
     const result = await syncAdvisoriesFromGitHub(db, "SriVarshini09/shapi-advisories", { fetch: gh.fetch });
-    expect(result.advisories).toBe(7);
+    expect(result.advisories).toBe(bundled);
     expect(result.invalid.map((i) => i.file)).toEqual(["advisories/broken.json", "advisories/not-json.json"]);
   });
 

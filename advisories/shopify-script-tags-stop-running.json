@@ -1,0 +1,27 @@
+{
+  "id": "shopify-script-tags-stop-running",
+  "provider": "shopify",
+  "title": "Shopify script tags stop running on storefronts on 2027-03-01",
+  "summary": "Script tags are deprecated in every Admin API version. Since October 1, 2026 the REST ScriptTag resource rejects POST and PUT and the GraphQL scriptTagCreate and scriptTagUpdate mutations return a user error; on March 1, 2027 Shopify stops injecting existing script tags into storefronts, so their JavaScript no longer loads. Listing and deleting script tags keeps working.",
+  "endpoint": {
+    "method": "*",
+    "path": "/admin/api/{version}/script_tags**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-08-24",
+    "url": "https://shopify.dev/changelog/online-store-script-tags-deprecation"
+  },
+  "effectiveDate": "2027-03-01",
+  "severity": "high",
+  "migrationNote": "Stop creating or updating script tags (POST /admin/api/{version}/script_tags.json and PUT .../script_tags/{script_tag_id}.json already fail). Move storefront scripts to app embed blocks in a theme app extension, and analytics or conversion scripts to a web pixel; then delete the old script tags. Pinning an older API version does not delay this.",
+  "sources": [
+    "https://shopify.dev/changelog/online-store-script-tags-deprecation",
+    "https://shopify.dev/docs/api/admin-rest/latest/resources/scripttag"
+  ],
+  "status": "verified"
+}

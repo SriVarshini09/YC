@@ -1,0 +1,32 @@
+{
+  "id": "xero-invoices-email-daily-limit-429",
+  "provider": "xero",
+  "title": "Invoice email daily limit returns 429 instead of 500 from 2027-01-14",
+  "summary": "From 2027-01-14, POST Invoices/{InvoiceID}/Email returns 429 Too Many Requests instead of a generic 500 when the organisation reaches its daily invoice-email limit. The 429 has no Retry-After header. Code that treats 500 as a retryable server error, or retries a 429 at once with a short backoff, will mishandle the limit.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/api.xro/2.0/Invoices/{InvoiceID}/Email"
+  },
+  "changeClass": "status-code",
+  "trigger": {
+    "statusCodes": [
+      500
+    ],
+    "newStatusCodes": [
+      429
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-10-15",
+    "url": "https://developer.xero.com/changelog"
+  },
+  "effectiveDate": "2027-01-14",
+  "severity": "medium",
+  "migrationNote": "Handle a 429 from the invoice Email endpoint separately from the per-minute rate limit. It is a daily limit with no Retry-After header, so don't retry immediately. Queue the send for after the daily reset, or tell the user sending was delayed. Stop relying on a 500 to detect this case.",
+  "sources": [
+    "https://developer.xero.com/changelog",
+    "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml"
+  ],
+  "status": "verified"
+}

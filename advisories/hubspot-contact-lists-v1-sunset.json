@@ -1,0 +1,28 @@
+{
+  "id": "hubspot-contact-lists-v1-sunset",
+  "provider": "hubspot",
+  "title": "Contact Lists API v1 retired on 2026-04-30; endpoints return 404",
+  "summary": "HubSpot sunset the v1 Contact Lists API on 2026-04-30 (moved from 2025-09-30). Since then the /contacts/v1/lists endpoints for creating, updating, deleting and reading lists and list contacts return HTTP 404. The replacement is the Lists API (2026-03 or v3), which uses a new listId instead of the v1 legacyListId.",
+  "endpoint": {
+    "method": "*",
+    "path": "/contacts/v1/lists/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2025-09-12",
+    "url": "https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026"
+  },
+  "effectiveDate": "2026-04-30",
+  "severity": "critical",
+  "migrationNote": "Map each stored legacyListId to the new listId with GET /crm/lists/2026-03/idmapping?legacyListId=... (or POST /crm/lists/2026-03/idmapping for up to 10,000 ids; ids in missingLegacyListIds no longer exist), then move reads to GET /crm/lists/2026-03/{listId} and /crm/lists/2026-03/{listId}/memberships, and membership writes to PUT /crm/lists/2026-03/{listId}/memberships/add, /remove or /add-and-remove. The legacy GET /v1/lists/{legacyListId}/sizeAndEditsHistory/between endpoint was retired too and is not covered by this path pattern.",
+  "sources": [
+    "https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026",
+    "https://developers.hubspot.com/docs/api-reference/legacy/crm/lists/v1-list-api-migration-guide",
+    "https://developers.hubspot.com/docs/api-reference/latest/deprecated-apis"
+  ],
+  "status": "verified"
+}

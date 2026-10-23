@@ -1,0 +1,27 @@
+{
+  "id": "openai-evals-api-shutdown",
+  "provider": "openai",
+  "title": "Evals API shuts down on 2026-11-30",
+  "summary": "OpenAI is retiring the Evals platform: existing evals become read-only on 2026-10-31, and the Evals dashboard and API shut down on 2026-11-30. After that, calls to /v1/evals and its runs fail.",
+  "endpoint": {
+    "method": "*",
+    "path": "/v1/evals/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-06-03",
+    "url": "https://developers.openai.com/api/docs/deprecations"
+  },
+  "effectiveDate": "2026-11-30",
+  "severity": "critical",
+  "migrationNote": "Export the eval definitions and results you need before 2026-11-30, stop creating or updating evals (they are read-only from 2026-10-31), and move eval runs to Promptfoo following OpenAI's \"Moving from OpenAI Evals to Promptfoo\" guide.",
+  "sources": [
+    "https://developers.openai.com/api/docs/deprecations",
+    "https://developers.openai.com/api/reference/resources/evals"
+  ],
+  "status": "verified"
+}

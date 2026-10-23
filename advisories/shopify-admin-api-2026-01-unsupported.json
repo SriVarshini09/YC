@@ -1,0 +1,24 @@
+{
+  "id": "shopify-admin-api-2026-01-unsupported",
+  "provider": "shopify",
+  "title": "Shopify Admin API version 2026-01 becomes unsupported on 2027-01-16",
+  "summary": "Admin API version 2026-01 is accessible until January 16, 2027 15:00 UTC. After that, requests to /admin/api/2026-01/... (REST and GraphQL) and webhooks pinned to 2026-01 fall forward to the oldest accessible stable version without an error, so responses can change shape silently. Every app still pinned to 2026-01 is hit.",
+  "endpoint": {
+    "method": "*",
+    "path": "/admin/api/2026-01/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": null,
+    "url": "https://shopify.dev/docs/api/usage/versioning"
+  },
+  "effectiveDate": "2027-01-16",
+  "severity": "critical",
+  "migrationNote": "Move the version segment in your Admin API URLs and webhook subscriptions to a supported version (2026-04 or later; 2026-10 is the latest stable), work through the release notes for every version in between, and check the X-Shopify-API-Version response header to confirm Shopify is not falling forward.",
+  "sources": ["https://shopify.dev/docs/api/usage/versioning"],
+  "status": "verified"
+}

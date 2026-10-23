@@ -1,0 +1,27 @@
+{
+  "id": "x-self-serve-like-writes-removed",
+  "provider": "x",
+  "title": "Liking Posts removed from X API self-serve tiers",
+  "summary": "X's 2026-04-16 changelog says Following, Likes and Quote-Posts via the API have been removed from all self-serve tiers (Free, Basic, Pro, pay-per-use), leaving them to Enterprise. POST /2/users/{id}/likes calls with self-serve credentials are rejected; X does not document the status code. Quote-Posts (POST /2/tweets with quote_tweet_id) are also removed but cannot be matched by path.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/2/users/{id}/likes"
+  },
+  "changeClass": "scope-change",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-04-16",
+    "url": "https://docs.x.com/changelog"
+  },
+  "effectiveDate": "2026-04-16",
+  "severity": "critical",
+  "migrationNote": "Remove or feature-flag like actions for self-serve apps and surface a clear error to users, or move to an Enterprise agreement. Also drop quote_tweet_id from POST /2/tweets on self-serve keys.",
+  "sources": [
+    "https://docs.x.com/changelog",
+    "https://opentweet.io/how-to/fix-x-api-like-follow-endpoint-removed"
+  ],
+  "status": "verified"
+}

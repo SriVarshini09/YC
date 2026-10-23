@@ -1,0 +1,27 @@
+{
+  "id": "twilio-conference-list-default-in-progress",
+  "provider": "twilio",
+  "title": "Twilio Conference list returns only in-progress conferences by default from 2026-09-30",
+  "summary": "Starting September 30, 2026 (rollout delayed from July 13, 2026), GET /2010-04-01/Accounts/{AccountSid}/Conferences.json without a Status filter returns only in-progress conferences instead of in-progress and completed ones. Code that lists conferences without Status and expects completed ones gets silently incomplete results.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/2010-04-01/Accounts/{AccountSid}/Conferences.json"
+  },
+  "changeClass": "required-field",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-09-23",
+    "url": "https://www.twilio.com/en-us/changelog/conference-list-endpoint-july-2026"
+  },
+  "effectiveDate": "2026-09-30",
+  "severity": "critical",
+  "migrationNote": "Pass Status=completed explicitly when you need completed conferences (reporting, billing or cleanup jobs), and make a second request without it for in-progress ones if you need both; do not rely on the unfiltered list containing completed conferences.",
+  "sources": [
+    "https://www.twilio.com/en-us/changelog/conference-list-endpoint-july-2026",
+    "https://www.twilio.com/en-us/changelog/conference-list-endpoint-rollout-extended"
+  ],
+  "status": "verified"
+}
