@@ -22,6 +22,7 @@ import {
 import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
 import { completeCheckout, portalUrl, setQuantity, startCheckout, type BillingDeps } from "../billing/stripe";
 import { SLACK_WEBHOOK, postSlack, slackTestMessage } from "../notify/slack";
+import { APPLE_TOUCH_ICON, FAVICON_ICO, FAVICON_SVG } from "./brand";
 import { DOCS_URL, STYLES, html, page, shortSha, timeAgo, type Html } from "./html";
 
 export interface WebConfig extends OAuthConfig {
@@ -106,6 +107,10 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
     const installLink = deps.config?.appSlug ? `https://github.com/apps/${deps.config.appSlug}/installations/new` : undefined;
 
     scope.get("/static/app.css", async (_req, reply) => reply.type("text/css; charset=utf-8").header("cache-control", "public, max-age=3600").send(STYLES));
+    const cached = "public, max-age=86400";
+    scope.get("/favicon.svg", async (_req, reply) => reply.type("image/svg+xml").header("cache-control", cached).send(FAVICON_SVG));
+    scope.get("/favicon.ico", async (_req, reply) => reply.type("image/x-icon").header("cache-control", cached).send(FAVICON_ICO));
+    scope.get("/apple-touch-icon.png", async (_req, reply) => reply.type("image/png").header("cache-control", cached).send(APPLE_TOUCH_ICON));
 
     scope.get("/", async (req, reply) => {
       const { session } = await sessionOf(req);

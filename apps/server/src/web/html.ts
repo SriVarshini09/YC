@@ -1,3 +1,5 @@
+import { LOGO_SVG } from "./brand";
+
 /** Markup that is already safe. Everything else placed in an `html` template is escaped. */
 export class Html {
   constructor(readonly value: string) {}
@@ -42,10 +44,13 @@ export function page(title: string, body: Html, user?: PageUser): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title} · SHAPI</title>
 <link rel="stylesheet" href="/static/app.css">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/">SHAPI</a>
+  <a class="brand" href="/" aria-label="SHAPI home">${new Html(LOGO_SVG)}</a>
   ${
     user
       ? html`<form method="post" action="/logout" class="signout"><input type="hidden" name="csrf" value="${user.csrf}"><span>${user.login}</span><button type="submit">Sign out</button></form>`
@@ -86,7 +91,8 @@ export const STYLES = `
 body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
 a { color: var(--accent); }
 header.top { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; border-bottom: 1px solid var(--line); }
-.brand { font-weight: 700; color: var(--fg); text-decoration: none; letter-spacing: .02em; }
+.brand { display: inline-flex; color: var(--fg); text-decoration: none; }
+.brand svg { display: block; height: 28px; width: auto; }
 .signout { display: flex; gap: 12px; align-items: center; color: var(--muted); }
 main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
 footer.foot { max-width: 1040px; margin: 0 auto; padding: 0 16px 32px; font-size: 13px; color: var(--muted); }
