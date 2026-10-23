@@ -7,5 +7,7 @@ allowBuilds:
   esbuild: true
   "@embedded-postgres/windows-x64": true
   "@embedded-postgres/linux-x64": true
+  # only the prebuilt tree-sitter-python.wasm is used, not the native binding
+  tree-sitter-python: false
 minimumReleaseAgeExclude:
   - '@anthropic-ai/sdk@1.1.0'

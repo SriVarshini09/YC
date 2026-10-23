@@ -2,7 +2,9 @@
 
 ## Which languages does SHAPI support?
 
-TypeScript and JavaScript today, with the usual HTTP clients (`fetch`, axios, got, undici, ky, node-fetch) and the official SDKs of the providers it knows. More languages are planned.
+TypeScript and JavaScript, with the usual HTTP clients (`fetch`, axios, got, undici, ky, node-fetch) and the official SDKs of the providers it knows.
+
+Python is scanned too: `requests`, `httpx`, `aiohttp`, and the OpenAI, Anthropic, Stripe, Slack, Twilio and HubSpot SDKs. SHAPI finds the affected call sites in Python, but proposes fixes only for TypeScript and JavaScript for now.
 
 ## Which APIs does it know?
 

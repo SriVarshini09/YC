@@ -42,7 +42,30 @@
       "refunds.create": "POST /v1/refunds"
     },
     "docsUrl": "https://docs.stripe.com/api",
-    "changelogUrl": "https://docs.stripe.com/changelog"
+    "changelogUrl": "https://docs.stripe.com/changelog",
+    "python": {
+      "packages": [
+        { "pypi": "stripe", "module": "stripe" }
+      ],
+      "methods": {
+        "checkout.Session.create": "POST /v1/checkout/sessions",
+        "checkout.Session.retrieve": "GET /v1/checkout/sessions/{session}",
+        "PaymentIntent.create": "POST /v1/payment_intents",
+        "PaymentIntent.retrieve": "GET /v1/payment_intents/{intent}",
+        "PaymentIntent.confirm": "POST /v1/payment_intents/{intent}/confirm",
+        "SetupIntent.create": "POST /v1/setup_intents",
+        "Customer.create": "POST /v1/customers",
+        "Customer.list": "GET /v1/customers",
+        "Subscription.create": "POST /v1/subscriptions",
+        "Balance.retrieve": "GET /v1/balance",
+        "checkout.sessions.create": "POST /v1/checkout/sessions",
+        "checkout.sessions.retrieve": "GET /v1/checkout/sessions/{session}",
+        "payment_intents.create": "POST /v1/payment_intents",
+        "payment_intents.retrieve": "GET /v1/payment_intents/{intent}",
+        "customers.create": "POST /v1/customers",
+        "customers.list": "GET /v1/customers"
+      }
+    }
   },
   {
     "id": "twilio",
@@ -54,7 +77,18 @@
       "calls.create": "POST /2010-04-01/Accounts/{AccountSid}/Calls.json"
     },
     "docsUrl": "https://www.twilio.com/docs/usage/api",
-    "changelogUrl": "https://www.twilio.com/en-us/changelog"
+    "changelogUrl": "https://www.twilio.com/en-us/changelog",
+    "python": {
+      "packages": [
+        { "pypi": "twilio", "module": "twilio" }
+      ],
+      "methods": {
+        "messages.create": "POST /2010-04-01/Accounts/{AccountSid}/Messages.json",
+        "messages.list": "GET /2010-04-01/Accounts/{AccountSid}/Messages.json",
+        "calls.create": "POST /2010-04-01/Accounts/{AccountSid}/Calls.json",
+        "conferences.list": "GET /2010-04-01/Accounts/{AccountSid}/Conferences.json"
+      }
+    }
   },
   {
     "id": "shopify",
@@ -86,7 +120,18 @@
     "hosts": ["api.hubapi.com", "api.hubspot.com"],
     "sdkPackages": ["@hubspot/api-client"],
     "docsUrl": "https://developers.hubspot.com/docs/api/overview",
-    "changelogUrl": "https://developers.hubspot.com/changelog"
+    "changelogUrl": "https://developers.hubspot.com/changelog",
+    "python": {
+      "packages": [
+        { "pypi": "hubspot-api-client", "module": "hubspot" }
+      ],
+      "methods": {
+        "crm.contacts.basic_api.get_page": "GET /crm/v3/objects/contacts",
+        "crm.contacts.basic_api.create": "POST /crm/v3/objects/contacts",
+        "crm.deals.basic_api.get_page": "GET /crm/v3/objects/deals",
+        "crm.pipelines.pipelines_api.get_all": "GET /crm/v3/pipelines/{objectType}"
+      }
+    }
   },
   {
     "id": "slack",
@@ -102,7 +147,12 @@
       "files.uploadV2": "POST /api/files.uploadV2"
     },
     "docsUrl": "https://api.slack.com/methods",
-    "changelogUrl": "https://api.slack.com/changelog"
+    "changelogUrl": "https://api.slack.com/changelog",
+    "python": {
+      "packages": [
+        { "pypi": "slack-sdk", "module": "slack_sdk" }
+      ]
+    }
   },
   {
     "id": "openai",
@@ -120,7 +170,27 @@
       "files.create": "POST /v1/files"
     },
     "docsUrl": "https://platform.openai.com/docs/api-reference",
-    "changelogUrl": "https://platform.openai.com/docs/changelog"
+    "changelogUrl": "https://platform.openai.com/docs/changelog",
+    "python": {
+      "packages": [
+        { "pypi": "openai", "module": "openai" }
+      ],
+      "methods": {
+        "chat.completions.create": "POST /v1/chat/completions",
+        "responses.create": "POST /v1/responses",
+        "models.list": "GET /v1/models",
+        "embeddings.create": "POST /v1/embeddings",
+        "audio.translations.create": "POST /v1/audio/translations",
+        "audio.transcriptions.create": "POST /v1/audio/transcriptions",
+        "images.generate": "POST /v1/images/generations",
+        "beta.assistants.create": "POST /v1/assistants",
+        "beta.assistants.list": "GET /v1/assistants",
+        "beta.threads.create": "POST /v1/threads",
+        "beta.threads.runs.create": "POST /v1/threads/{thread_id}/runs",
+        "evals.create": "POST /v1/evals",
+        "evals.list": "GET /v1/evals"
+      }
+    }
   },
   {
     "id": "anthropic",
@@ -134,7 +204,19 @@
       "models.list": "GET /v1/models"
     },
     "docsUrl": "https://docs.claude.com/en/api",
-    "changelogUrl": "https://docs.claude.com/en/release-notes/api"
+    "changelogUrl": "https://docs.claude.com/en/release-notes/api",
+    "python": {
+      "packages": [
+        { "pypi": "anthropic", "module": "anthropic" }
+      ],
+      "methods": {
+        "messages.create": "POST /v1/messages",
+        "messages.stream": "POST /v1/messages",
+        "messages.count_tokens": "POST /v1/messages/count_tokens",
+        "messages.batches.create": "POST /v1/messages/batches",
+        "models.list": "GET /v1/models"
+      }
+    }
   },
   {
     "id": "salesforce",

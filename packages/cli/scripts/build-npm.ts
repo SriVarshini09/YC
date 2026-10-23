@@ -2,7 +2,8 @@
 //   node packages/cli/scripts/build-npm.ts
 // SHAPI's own workspace packages are bundled in; only the third-party npm packages the bundle
 // actually imports become dependencies. The reviewed advisories and the recordings ship inside.
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "tsup";
@@ -52,6 +53,11 @@ for (const output of Object.values(metafile.outputs)) {
   }
 }
 rmSync(path.join(out, "dist", "metafile-esm.json"));
+// The Python grammar ships as a file next to the bundle, not as the tree-sitter-python package (whose
+// install script builds a native binding the scanner never uses).
+const extractorRequire = createRequire(path.join(root, "packages", "extractor", "package.json"));
+copyFileSync(extractorRequire.resolve("tree-sitter-python/tree-sitter-python.wasm"), path.join(out, "dist", "tree-sitter-python.wasm"));
+imported.delete("tree-sitter-python");
 const unknown = [...imported].filter((d) => !declared.has(d) && !isBuiltin(d));
 if (unknown.length) throw new Error(`bundle imports undeclared packages: ${unknown.join(", ")}`);
 // `fix` runs contract tests with vitest when the repository has none; it is resolved at runtime, so the bundler cannot see it.

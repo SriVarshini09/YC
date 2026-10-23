@@ -55,6 +55,9 @@ const PROTECTED = new Set([".git", "node_modules", "dist", "coverage", ".shapi"]
 export async function repairCallSite(input: RepairInput): Promise<RepairResult> {
   const { advisory, callSite } = input;
   if (!input.workspace && !input.repoDir) throw new Error("repairCallSite needs a workspace or a repoDir");
+  if (!/\.(c|m)?[jt]sx?$/.test(callSite.file)) {
+    return { status: "unsupported", changes: [], attempts: [], reason: `fixes support TypeScript and JavaScript; ${callSite.file} is scanned only` };
+  }
   const ws = input.workspace ?? localWorkspace(input.repoDir!);
   const original = await ws.read(callSite.file);
   if (original === undefined) return { status: "unsupported", sandbox: ws.location, changes: [], attempts: [], reason: `${callSite.file} is not in the repository` };

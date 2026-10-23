@@ -19,6 +19,7 @@ export function renderText(o: ScanOutcome, color: boolean): string {
       [plural(o.filesScanned, "file"), plural(lock.callSites.length, "call site"), plural(providers.length, "provider"), `${o.elapsedMs} ms`].join(" · "),
     ),
   );
+  if (o.skipped.length) out.push(paint("dim", `${plural(o.skipped.length, "file")} not scanned: ${[...new Set(o.skipped.map((s) => s.reason))].join("; ")}`));
   out.push("");
 
   out.push(paint("bold", "Providers"));
