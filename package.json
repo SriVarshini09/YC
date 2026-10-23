@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepare": "pnpm -r build",
-    "canary": "shapi-canary"
+    "canary": "shapi-canary",
+    "pack:cli": "node packages/cli/scripts/build-npm.ts && node packages/cli/scripts/smoke-npm.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
