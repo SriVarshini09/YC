@@ -250,7 +250,7 @@ describe("triggers", () => {
     const boss = await startWorker({
       databaseUrl: pg.url,
       db,
-      config: { CANARY_CRON: "", SHAPI_ADVISORIES: ADVISORIES, WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14, SHAPI_RECORDINGS: RECORDINGS, FANOUT_CRON: "", githubApp },
+      config: { CANARY_CRON: "", SHAPI_ADVISORIES: ADVISORIES, WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14, SHAPI_RECORDINGS: RECORDINGS, FANOUT_CRON: "", ADVISORIES_SYNC_CRON: "", githubApp },
       env: { SHAPI_SHAPE_SECRET: "test" },
       log: { info: (_o, m) => logs.push(m ?? ""), error: (o, m) => logs.push(`ERROR ${m} ${String((o as { err?: unknown }).err)}`) },
       fetch: t.fetch,

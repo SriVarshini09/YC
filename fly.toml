@@ -14,6 +14,8 @@ primary_region = "iad"
   NODE_ENV = "production"
   PORT = "8080"
   LOG_LEVEL = "info"
+  # The public advisory database; the worker syncs it hourly and on start.
+  SHAPI_ADVISORIES_REPO = "SriVarshini09/shapi-advisories"
 
 [processes]
   web = "node dist/web.js"

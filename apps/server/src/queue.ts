@@ -7,7 +7,7 @@ import { stripeClient, syncQuantity, type BillingDeps } from "./billing/stripe";
 import type { Config } from "./config";
 import { githubClients } from "./github/clients";
 import { processDelivery, type ScanRequest } from "./github/events";
-import { syncAdvisoriesJob } from "./jobs/advisories";
+import { syncAdvisoriesFromGitHub, syncAdvisoriesJob } from "./jobs/advisories";
 import { runCanaryJob } from "./jobs/canary";
 import { runAdvisoryFanout } from "./jobs/fanout";
 import { runFixJob, sandboxRunner, type WorkspaceRunner } from "./jobs/fix";
@@ -77,7 +77,7 @@ export interface WorkerDeps {
   db: Db;
   config: Pick<
     Config,
-    "CANARY_CRON" | "SHAPI_ADVISORIES" | "canaryProviders" | "githubApp" | "WEBHOOK_SWEEP_CRON" | "WEBHOOK_RETENTION_DAYS" | "SHAPI_RECORDINGS" | "FANOUT_CRON" | "billing"
+    "CANARY_CRON" | "SHAPI_ADVISORIES" | "SHAPI_ADVISORIES_REPO" | "ADVISORIES_SYNC_CRON" | "canaryProviders" | "githubApp" | "WEBHOOK_SWEEP_CRON" | "WEBHOOK_RETENTION_DAYS" | "SHAPI_RECORDINGS" | "FANOUT_CRON" | "billing"
   >;
   env: Record<string, string | undefined>;
   log: Logger;
@@ -114,10 +114,15 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
   const billingEnforced = Boolean(billing);
 
   await boss.work(QUEUES.advisoriesSync, async () => {
-    const written = await syncAdvisoriesJob(deps.db, deps.config.SHAPI_ADVISORIES);
-    deps.log.info({ written }, "advisories synced");
-    await boss.send(QUEUES.advisoryFanout, {});
-    return { written };
+    const repo = deps.config.SHAPI_ADVISORIES_REPO;
+    const result = repo
+      ? await syncAdvisoriesFromGitHub(deps.db, repo, { fetch: deps.fetch })
+      : { written: await syncAdvisoriesJob(deps.db, deps.config.SHAPI_ADVISORIES), invalid: [] };
+    if (result.invalid.length) deps.log.error({ err: new Error("invalid advisories skipped"), invalid: result.invalid }, "advisory sync skipped invalid files");
+    deps.log.info({ source: repo ?? "folder", written: result.written }, "advisories synced");
+    // Re-matching only does work when something changed (see upsertAdvisories).
+    if (result.written) await boss.send(QUEUES.advisoryFanout, {});
+    return { written: result.written };
   });
   await boss.work(QUEUES.canaryRun, async () => {
     const result = await runCanaryJob({ db: deps.db, env: deps.env, providers: deps.config.canaryProviders, fetch: deps.fetch });
@@ -193,6 +198,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     [QUEUES.webhookSweep, deps.config.WEBHOOK_SWEEP_CRON],
     [QUEUES.advisoryFanout, deps.config.FANOUT_CRON],
     [QUEUES.billingSync, billing ? "23 4 * * *" : ""],
+    [QUEUES.advisoriesSync, deps.config.SHAPI_ADVISORIES_REPO ? deps.config.ADVISORIES_SYNC_CRON : ""],
   ];
   for (const [queue, cron] of schedules) {
     if (cron) await boss.schedule(queue, cron);

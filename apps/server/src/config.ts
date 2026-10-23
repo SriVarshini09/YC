@@ -17,6 +17,10 @@ const ConfigSchema = z.object({
   /** Secret behind per-provider shape salts. Required in production so shapes are not hashed with a public value. */
   SHAPI_SHAPE_SECRET: z.string().optional(),
   SHAPI_ADVISORIES: z.string().default(DEFAULT_ADVISORIES),
+  /** Public advisory repository (owner/name) to sync from instead of the local folder, for example SriVarshini09/shapi-advisories. */
+  SHAPI_ADVISORIES_REPO: z.string().regex(/^[\w.-]+\/[\w.-]+$/, "owner/name").optional(),
+  /** Cron for syncing the advisory repository (only when SHAPI_ADVISORIES_REPO is set). Default: hourly at minute 41. */
+  ADVISORIES_SYNC_CRON: z.string().default("41 * * * *"),
   /** Cron for the canary run; empty disables it. Default: every hour at minute 7. */
   CANARY_CRON: z.string().default("7 * * * *"),
   /** Comma-separated providers the canary runs (default: all with credentials). */

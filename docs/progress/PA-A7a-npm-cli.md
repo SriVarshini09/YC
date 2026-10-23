@@ -17,7 +17,7 @@ A new CI job, `npm-package`, runs both scripts on every PR.
 
 Verified: the smoke test passes locally, and 220 tests pass.
 License: Apache-2.0, in `packages/cli/LICENSE`. It covers the package (the CLI and the libraries it bundles), not the rest of the repository; the build refuses to run without it.
-Not done: publishing, which needs an npm account and `npm login`.
+Published: **shapi-cli@0.1.0** on 2026-10-23 by `tulasi_padamata`, after a clean build from main passed the smoke test (13 files, 43.6 kB, no secrets). `npx shapi-cli@0.1.0 scan` from the public registry, in an empty folder, found the demo's GitHub breakage. https://www.npmjs.com/package/shapi-cli
 
 ```
 pnpm pack:cli
