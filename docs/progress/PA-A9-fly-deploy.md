@@ -18,6 +18,9 @@ Verified on the live server (first deploy from this branch, `flyctl deploy --rem
 - The worker logged `worker started`, then `advisories synced` with 7 advisories written from `SriVarshini09/shapi-advisories`, then the fan-out (0 repositories so far).
 - Before the GitHub App, `POST /github/webhook` answered 503. With it, an unsigned request gets 401, the home page links to `github.com/apps/shapi-by-srivarshini/installations/new`, and the worker logs `githubApp: true`.
 
+- **Live install on `shapi-demo`:** the `installation.created` webhook saved the account and repository and queued a scan. The scan succeeded in about 4 seconds (5 call sites, 2 affected, 1 exposed). The `SHAPI` check from `shapi-by-srivarshini` is on the latest commit, neutral, titled "2 call sites affected by 2 API changes", with 3 annotations. Dashboard issue #8 is open. The fix job ran; neither change (QuickBooks minorversion, HubSpot pipelines v1) has a recipe, so it opened no PR, which is correct.
+- **Live sign-in:** `/login` → GitHub → `/auth/github/callback` → `/a/1`. The account page shows `shapi-demo`, its scan and the 2 affected call sites. The footer links to the docs and legal pages.
+
 pg prints a warning that `sslmode=require` is treated as `verify-full`. That is the stricter behavior, so nothing needs to change now.
 
 ```
