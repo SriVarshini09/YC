@@ -1,0 +1,14 @@
+{
+  "name": "@shapi/site",
+  "private": true,
+  "description": "SHAPI documentation site (VitePress), published to GitHub Pages",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "1.6.4"
+  }
+}

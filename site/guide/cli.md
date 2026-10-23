@@ -1,0 +1,42 @@
+# CLI reference
+
+Installed as `shapi` (`npm install -g shapi-cli`), or run without installing: `npx shapi-cli <command>`.
+
+## `shapi scan [path]`
+
+Maps the third-party API call sites in a repository (default: the current directory) and matches them against the advisories.
+
+| Option | What it does |
+|---|---|
+| `--json` | Print a JSON report, including the full api.lock. |
+| `--out <file>` | Write the api.lock to this file. |
+| `--repo <url>` | Shallow-clone a git repository into a temporary folder and scan it. |
+| `--advisories <dir>` | Use this advisory folder instead of the bundled one. |
+| `--fail-on <severity>` | Exit `1` when an affected call site is at least this severe: `critical`, `high`, `medium`, `low` or `none`. Default: `critical`. |
+| `--no-color` | Plain output. |
+
+Exit codes: `0` nothing at or above `--fail-on`, `1` affected call sites found, `2` an error such as an unreadable path.
+
+## `shapi fix [path]`
+
+Repairs affected call sites test-first. Without `--write` or `--pr` it only reports.
+
+| Option | What it does |
+|---|---|
+| `--advisory <id>` | Only this advisory. |
+| `--write` | Write the fix and its contract test into the repository. |
+| `--pr` | Open a pull request with the fix and the contract test. Uses `GITHUB_TOKEN`, `GH_TOKEN` or your `gh` login. |
+| `--repo <url>` | Shallow-clone a GitHub repository and fix it; with `--pr` the PR goes to that repository. |
+| `--llm` | When no recipe fixes a call site, ask Claude (needs `ANTHROPIC_API_KEY`). The change is still kept only if the contract test passes. |
+| `--advisories <dir>` | Use this advisory folder. |
+| `--recordings <dir>` | Recorded before/after responses (default: the bundled recordings). |
+| `--db <file>` | A shape store with canary observations, checked before the recordings. Default: `.shapi/shapes.db`. |
+
+Exit codes: `0` every affected call site was fixed or already handles the new response, `1` at least one could not be fixed, `2` an error.
+
+## Environment
+
+| Variable | Used for |
+|---|---|
+| `GITHUB_TOKEN`, `GH_TOKEN` | `fix --pr` (otherwise your `gh` login). |
+| `ANTHROPIC_API_KEY` | `fix --llm`. |

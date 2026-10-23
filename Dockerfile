@@ -19,6 +19,7 @@ COPY packages/mcp/bin packages/mcp/bin
 COPY packages/db/package.json packages/db/
 COPY packages/sandbox/package.json packages/sandbox/
 COPY apps/server/package.json apps/server/
+COPY site/package.json site/
 RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY . .
 # Rebuild native modules (better-sqlite3) for this platform, then build every package.
