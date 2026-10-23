@@ -76,6 +76,41 @@ export interface FixPrsTable {
   created_at: ColumnType<Date, string | Date | undefined, string | Date>;
   updated_at: Timestamp;
   closed_at: Timestamp | null;
+  /** What the PR changed and how it was verified (a FixRepair), for the web app. Null for PRs recorded before 0007. */
+  repair: JSONColumnType<FixRepair> | null;
+}
+
+/** One contract test run, as kept for the web app: the verdict, vitest's one-line count, and the tail of the output. */
+export interface FixTestRun {
+  passed: boolean;
+  /** For example "1 failed" or "2 passed", from vitest's summary line. */
+  tests: string;
+  /** The last lines of the output, trimmed. */
+  output: string;
+}
+
+/** What a fix PR changed and how it was verified, stored on the PR's row. */
+export interface FixRepair {
+  method: "recipe" | "llm";
+  recipeId?: string;
+  /** Where the tests ran: a local folder, or "<provider>:<sandbox id>". */
+  sandbox?: string;
+  verifiedAt: string;
+  /** Every affected call site of the advisory and what happened to it. */
+  sites: {
+    file: string;
+    line: number;
+    method: string | null;
+    endpoint: string | null;
+    status: "fixed" | "rejected" | "already-handled" | "unsupported";
+    reason?: string;
+    /** The contract test written for this site, and its run before the change (red) and after it (green). */
+    test?: string;
+    before?: FixTestRun;
+    after?: FixTestRun;
+  }[];
+  /** Unified diff per changed or added file, cut at a line limit. */
+  changes: { file: string; kind: "modified" | "added"; diff: string; truncated: boolean }[];
 }
 
 /** Global, not per tenant: the advisory database. */

@@ -237,6 +237,15 @@ const migrations: Record<string, Migration> = {
       await sql`drop table if exists billing, stripe_events`.execute(db);
     },
   },
+  "0007_fix_pr_repair": {
+    // What the fix PR changed and how it was verified (diff per file, contract test before and after), for the web app's finding page.
+    async up(db: Kysely<unknown>) {
+      await sql`alter table fix_prs add column repair jsonb`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`alter table fix_prs drop column if exists repair`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };

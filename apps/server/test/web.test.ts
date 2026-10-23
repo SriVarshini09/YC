@@ -1,5 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { createDb, migrateToLatest, withService, type Db } from "@shapi/db";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { loadAdvisories } from "@shapi/core";
+import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { buildApp, loadConfig } from "../src/index";
 
@@ -12,6 +15,8 @@ beforeAll(async () => {
   owner = createDb({ connectionString: pg.url, appRole: false });
   await migrateToLatest(owner);
   db = createDb({ connectionString: pg.url });
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+  await upsertAdvisories(owner, loadAdvisories(path.join(root, "advisories")), { reviewed: true, source: "repo" });
 }, 120_000);
 
 afterAll(async () => {
@@ -140,9 +145,12 @@ describe("web sign-in", () => {
     expect(JSON.stringify(rows)).not.toContain("ghu_user_token");
     expect(rows[0]).toMatchObject({ login: "octo", installation_ids: ["4242", "5555"] });
 
+    // one account: straight to its overview; the picker is still there under /?all
     const home = await app.inject({ url: "/", headers: { cookie } });
-    expect(home.body).toContain(`href="/a/${mine.account}"`);
-    expect(home.body).not.toContain("rival");
+    expect(home.headers.location).toBe(`/a/${mine.account}`);
+    const picker = await app.inject({ url: "/?all", headers: { cookie } });
+    expect(picker.body).toContain(`href="/a/${mine.account}"`);
+    expect(picker.body).not.toContain("rival");
     await app.close();
   });
 
@@ -160,7 +168,7 @@ describe("web sign-in", () => {
   it("signs out: the session is deleted, and a tampered cookie counts as signed out", async () => {
     const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
     const { cookie } = await signIn(app);
-    const home = await app.inject({ url: "/", headers: { cookie } });
+    const home = await app.inject({ url: `/a/${mine.account}`, headers: { cookie } });
     const out = await app.inject({ method: "POST", url: "/logout", headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(home.body)}` });
     expect(out.statusCode).toBe(302);
     expect(await withService(db, (tx) => tx.selectFrom("sessions").selectAll().execute())).toEqual([]);
@@ -171,14 +179,36 @@ describe("web sign-in", () => {
 });
 
 describe("web pages", () => {
-  it("shows the account's repositories, findings and fix PRs, escaping everything", async () => {
+  it("shows the account's overview, repositories, findings and fix PRs, escaping everything", async () => {
     const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
     const { cookie } = await signIn(app);
     const account = await app.inject({ url: `/a/${mine.account}`, headers: { cookie } });
     expect(account.statusCode).toBe(200);
     expect(account.body).toContain("acme/api");
     expect(account.body).toContain("1 affected");
-    expect(account.body).toContain('name="hourly" min="1" max="20" value="2"');
+    expect(account.body).toContain('class="nav"');
+    expect(account.body).not.toContain("<script");
+    expect(account.body).toContain("Affected call sites");
+    const settings = await app.inject({ url: `/a/${mine.account}/settings`, headers: { cookie } });
+    expect(settings.body).toContain('name="hourly" min="1" max="20" value="2"');
+    for (const path of ["repositories", "findings", "fixes", "deadlines", "advisories", "billing"]) {
+      const res = await app.inject({ url: `/a/${mine.account}/${path}`, headers: { cookie } });
+      expect(res.statusCode, path).toBe(200);
+      expect(res.body).not.toContain("<script");
+      expect(res.body, path).not.toContain(' style="');
+    }
+    const findings = await app.inject({ url: `/a/${mine.account}/findings`, headers: { cookie } });
+    expect(findings.body).toContain("src/deploy.ts:13");
+    expect(findings.body).toContain('href="https://github.com/acme/api/pull/7"');
+    const findingId = /\/f\/(\d+)/.exec(findings.body)![1]!;
+    const finding = await app.inject({ url: `/a/${mine.account}/f/${findingId}`, headers: { cookie } });
+    expect(finding.statusCode).toBe(200);
+    expect(finding.body).toContain("Expected by the code");
+    expect(finding.body).toContain("204 No Content");
+    expect(finding.body).toContain("200 OK");
+    expect(finding.body).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    expect(finding.body).not.toContain("<img");
+    expect(finding.body).toContain('href="https://github.com/acme/api/pull/7"');
 
     const repo = await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } });
     expect(repo.statusCode).toBe(200);
@@ -231,7 +261,7 @@ describe("web pages", () => {
     }) as typeof globalThis.fetch;
     const app = buildApp({ db, config, fetch });
     const { cookie } = await signIn(app);
-    const pageBody = async () => (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+    const pageBody = async () => (await app.inject({ url: `/a/${mine.account}/settings`, headers: { cookie } })).body;
     const csrf = csrfFrom(await pageBody());
     const form = { cookie, "content-type": "application/x-www-form-urlencoded" };
     const save = (extra: string) => app.inject({ method: "POST", url: `/a/${mine.account}/settings`, headers: form, payload: `csrf=${csrf}&hourly=2&open=10${extra}` });
@@ -250,17 +280,47 @@ describe("web pages", () => {
     expect((await stored()).slackWebhookUrl).toBe(hook);
 
     const test = await app.inject({ method: "POST", url: `/a/${mine.account}/slack/test`, headers: form, payload: `csrf=${csrf}` });
-    expect(test.headers.location).toBe(`/a/${mine.account}?slack=sent`);
+    expect(test.headers.location).toBe(`/a/${mine.account}/settings?slack=sent`);
     expect(slack).toEqual([{ url: hook, body: expect.objectContaining({ text: expect.stringContaining("SHAPI is connected") }) }]);
     slackStatus = 404;
     const failed = await app.inject({ method: "POST", url: `/a/${mine.account}/slack/test`, headers: form, payload: `csrf=${csrf}` });
-    expect(failed.headers.location).toBe(`/a/${mine.account}?slack=failed`);
-    body = (await app.inject({ url: `/a/${mine.account}?slack=failed`, headers: { cookie } })).body;
+    expect(failed.headers.location).toBe(`/a/${mine.account}/settings?slack=failed`);
+    body = (await app.inject({ url: `/a/${mine.account}/settings?slack=failed`, headers: { cookie } })).body;
     expect(body).toContain("Slack did not accept the test message");
 
     expect((await save("&slackRemove=on")).statusCode).toBe(303);
     expect((await stored()).slackWebhookUrl).toBeUndefined();
     expect(await pageBody()).not.toContain("Send a test message");
+    await app.close();
+  });
+
+  it("remembers the theme in a cookie, only with the CSRF token, and never shows another account's finding", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const home = await app.inject({ url: `/a/${mine.account}`, headers: { cookie } });
+    expect(home.body).not.toContain("data-theme");
+    const form = { cookie, "content-type": "application/x-www-form-urlencoded" };
+    expect((await app.inject({ method: "POST", url: "/theme", headers: form, payload: "csrf=nope&theme=dark" })).statusCode).toBe(403);
+    const set = await app.inject({ method: "POST", url: "/theme", headers: form, payload: `csrf=${csrfFrom(home.body)}&theme=dark&back=/a/${mine.account}/findings` });
+    expect(set.statusCode).toBe(303);
+    expect(set.headers.location).toBe(`/a/${mine.account}/findings`);
+    const theme = set.cookies.find((c) => c.name === "shapi_theme")!;
+    expect(theme).toMatchObject({ value: "dark", httpOnly: true });
+    const dark = await app.inject({ url: `/a/${mine.account}`, headers: { cookie: `${cookie}; shapi_theme=dark` } });
+    expect(dark.body).toContain('<html lang="en" data-theme="dark">');
+    const back = await app.inject({ method: "POST", url: "/theme", headers: form, payload: `csrf=${csrfFrom(home.body)}&theme=auto&back=https://evil.example/` });
+    expect(back.headers.location).toBe("/");
+
+    const rivalRepo = await owner.selectFrom("repositories").select("id").where("full_name", "=", "rival/secret").executeTakeFirstOrThrow();
+    const rivalScan = await owner.insertInto("scans").values({ account_id: other.account, repository_id: rivalRepo.id, sha: "f".repeat(40), status: "succeeded" }).returning("id").executeTakeFirstOrThrow();
+    const rivalFinding = await owner
+      .insertInto("findings")
+      .values({ account_id: other.account, repository_id: rivalRepo.id, scan_id: rivalScan.id, advisory_id: "github-workflow-dispatch-204-to-200", kind: "affected", call_site: JSON.stringify({ file: "secret.ts", line: 1 }), reasons: JSON.stringify(["rival-only-reason"]) })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+    const res = await app.inject({ url: `/a/${mine.account}/f/${rivalFinding.id}`, headers: { cookie } });
+    expect(res.statusCode).toBe(404);
+    expect(res.body).not.toContain("rival-only-reason");
     await app.close();
   });
 

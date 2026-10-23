@@ -1,0 +1,287 @@
+import { sql } from "kysely";
+import { ApiLockSchema, SEVERITY_RANK, type Advisory, type ApiLock, type LockedCallSite } from "@shapi/core";
+import { withTenant, type Db, type FixRepair } from "@shapi/db";
+import type { Health } from "./views";
+
+/**
+ * Everything the account pages read, loaded in one tenant transaction: repositories with their latest
+ * scan, the findings of each repository's latest successful scan, every fix PR, the advisory database,
+ * and recent scans. One account's data is small enough to load whole; the pages derive their views from it.
+ */
+
+export interface RepoRow {
+  id: string;
+  full_name: string;
+  default_branch: string;
+  private: boolean;
+  enabled: boolean;
+  created_at: Date;
+  dashboard_issue: number | null;
+  paused: boolean;
+  pausedFromWeb: boolean;
+  /** The latest scan of any status. */
+  scan?: ScanRow;
+  /** From the latest successful scan's api.lock: its providers and call-site count (every page), and the lock itself (repository page). */
+  providers: ApiLock["providers"];
+  callSites: number;
+  lock?: ApiLock;
+  lockSha?: string;
+  affected: number;
+  exposed: number;
+  openPrs: number;
+  mergedPrs: number;
+}
+
+export interface ScanRow {
+  id: string;
+  repository_id: string;
+  sha: string;
+  status: string;
+  error: string | null;
+  created_at: Date;
+  finished_at: Date | null;
+}
+
+export interface FindingRow {
+  id: string;
+  repository_id: string;
+  repo: string;
+  sha: string;
+  advisory_id: string;
+  kind: "affected" | "exposed";
+  site: Pick<LockedCallSite, "file" | "line" | "method" | "endpoint"> & Partial<LockedCallSite>;
+  reasons: string[];
+  created_at: Date;
+  advisory?: Advisory;
+}
+
+export interface PrRow {
+  id: string;
+  repository_id: string;
+  repo: string;
+  advisory_id: string;
+  advisory?: Advisory;
+  branch: string;
+  number: number | null;
+  url: string | null;
+  state: "open" | "closed" | "merged";
+  stopped: boolean;
+  created_at: Date;
+  updated_at: Date;
+  closed_at: Date | null;
+  repair: FixRepair | null;
+}
+
+export interface BillingRow {
+  status: string;
+  quantity: number;
+  stripe_customer_id: string | null;
+  current_period_end: Date | null;
+}
+
+export interface AccountData {
+  account: { id: string; login: string; type: string; settings: Record<string, unknown> };
+  repos: RepoRow[];
+  findings: FindingRow[];
+  prs: PrRow[];
+  advisories: Map<string, Advisory>;
+  scans: (ScanRow & { repo: string })[];
+  billing?: BillingRow;
+  now: Date;
+}
+
+export async function loadAccount(db: Db, accountId: string, opts: { locks?: boolean; now?: Date } = {}): Promise<AccountData> {
+  const now = opts.now ?? new Date();
+  return withTenant(db, accountId, async (tx) => {
+    const account = await tx.selectFrom("accounts").select(["id", "login", "type", "settings"]).where("id", "=", accountId).executeTakeFirstOrThrow();
+    const repoRows = await tx.selectFrom("repositories").selectAll().orderBy("full_name").execute();
+    const latest = await tx
+      .selectFrom("scans")
+      .select(["id", "repository_id", "sha", "status", "finished_at", "created_at", "error"])
+      .distinctOn("repository_id")
+      .orderBy("repository_id")
+      .orderBy("created_at", "desc")
+      .execute();
+    const lastGood = await tx
+      .selectFrom("scans")
+      .select(["id", "repository_id", "sha", sql<unknown>`api_lock->'providers'`.as("providers"), sql<number | null>`jsonb_array_length(api_lock->'callSites')`.as("call_sites"), ...(opts.locks ? (["api_lock"] as const) : [])])
+      .distinctOn("repository_id")
+      .where("status", "=", "succeeded")
+      .orderBy("repository_id")
+      .orderBy("created_at", "desc")
+      .execute();
+    const findingRows = lastGood.length
+      ? await tx
+          .selectFrom("findings")
+          .select(["id", "repository_id", "scan_id", "advisory_id", "kind", "call_site", "reasons", "created_at"])
+          .where("scan_id", "in", lastGood.map((s) => s.id))
+          .execute()
+      : [];
+    const prRows = await tx.selectFrom("fix_prs").selectAll().orderBy("updated_at", "desc").execute();
+    const advisoryRows = await tx.selectFrom("advisories").select("data").where("reviewed", "=", true).execute();
+    const recent = await tx.selectFrom("scans").select(["id", "repository_id", "sha", "status", "finished_at", "created_at", "error"]).orderBy("created_at", "desc").limit(25).execute();
+    const billing = await tx.selectFrom("billing").select(["status", "quantity", "stripe_customer_id", "current_period_end"]).executeTakeFirst();
+
+    const advisories = new Map<string, Advisory>();
+    for (const r of advisoryRows) {
+      const a = r.data as Advisory;
+      if (a?.id) advisories.set(a.id, a);
+    }
+    const repoName = new Map(repoRows.map((r) => [r.id, r.full_name]));
+    const goodByRepo = new Map(lastGood.map((s) => [s.repository_id, s]));
+    const findings: FindingRow[] = findingRows
+      .map((f) => ({
+        id: f.id,
+        repository_id: f.repository_id,
+        repo: repoName.get(f.repository_id) ?? "",
+        sha: lastGood.find((s) => s.id === f.scan_id)?.sha ?? "",
+        advisory_id: f.advisory_id,
+        kind: f.kind,
+        site: f.call_site as FindingRow["site"],
+        reasons: f.reasons,
+        created_at: f.created_at,
+        advisory: advisories.get(f.advisory_id),
+      }))
+      .sort(byFinding);
+    const prs: PrRow[] = prRows.map((p) => ({ ...p, repo: repoName.get(p.repository_id) ?? "", advisory: advisories.get(p.advisory_id), repair: p.repair }));
+    const repos: RepoRow[] = repoRows.map((r) => {
+      const good = goodByRepo.get(r.id) as { sha: string; providers: unknown; call_sites: number | null; api_lock?: unknown } | undefined;
+      const settings = r.settings as { paused?: boolean; pausedFromWeb?: boolean };
+      const lockParsed = good?.api_lock ? ApiLockSchema.safeParse(good.api_lock) : undefined;
+      const providers = good?.providers ? ApiLockSchema.shape.providers.safeParse(good.providers) : undefined;
+      return {
+        id: r.id,
+        full_name: r.full_name,
+        default_branch: r.default_branch,
+        private: r.private,
+        enabled: r.enabled,
+        created_at: r.created_at,
+        dashboard_issue: r.dashboard_issue,
+        paused: settings.paused === true,
+        pausedFromWeb: settings.pausedFromWeb === true,
+        scan: latest.find((s) => s.repository_id === r.id),
+        providers: providers?.success ? providers.data : [],
+        callSites: Number(good?.call_sites ?? 0),
+        lock: lockParsed?.success ? lockParsed.data : undefined,
+        lockSha: good?.sha,
+        affected: findings.filter((f) => f.repository_id === r.id && f.kind === "affected").length,
+        exposed: findings.filter((f) => f.repository_id === r.id && f.kind === "exposed").length,
+        openPrs: prs.filter((p) => p.repository_id === r.id && p.state === "open").length,
+        mergedPrs: prs.filter((p) => p.repository_id === r.id && p.state === "merged").length,
+      };
+    });
+    return { account, repos, findings, prs, advisories, scans: recent.map((s) => ({ ...s, repo: repoName.get(s.repository_id) ?? "" })), billing, now };
+  });
+}
+
+function byFinding(a: FindingRow, b: FindingRow): number {
+  const rank = (f: FindingRow) => (f.advisory ? SEVERITY_RANK[f.advisory.severity] : 9);
+  return (a.kind === b.kind ? 0 : a.kind === "affected" ? -1 : 1) || rank(a) - rank(b) || a.repo.localeCompare(b.repo) || a.site.file.localeCompare(b.site.file) || a.site.line - b.site.line;
+}
+
+/** One finding with what its page needs: the repository, the advisory, the call site's surface, and the fix PR for it. */
+export async function loadFinding(db: Db, accountId: string, findingId: string) {
+  return withTenant(db, accountId, async (tx) => {
+    const f = await tx
+      .selectFrom("findings")
+      .innerJoin("scans", "scans.id", "findings.scan_id")
+      .innerJoin("repositories", "repositories.id", "findings.repository_id")
+      .leftJoin("advisories", "advisories.id", "findings.advisory_id")
+      .select([
+        "findings.id",
+        "findings.kind",
+        "findings.call_site",
+        "findings.reasons",
+        "findings.advisory_id",
+        "findings.created_at",
+        "scans.sha",
+        "scans.api_lock",
+        "scans.finished_at",
+        "repositories.id as repository_id",
+        "repositories.full_name",
+        "repositories.default_branch",
+        "advisories.data as advisory",
+      ])
+      .where("findings.id", "=", findingId)
+      .executeTakeFirst();
+    if (!f) return undefined;
+    const pr = await tx.selectFrom("fix_prs").selectAll().where("repository_id", "=", f.repository_id).where("advisory_id", "=", f.advisory_id).executeTakeFirst();
+    const site = f.call_site as FindingRow["site"];
+    const lock = f.api_lock ? ApiLockSchema.safeParse(f.api_lock) : undefined;
+    const locked = lock?.success ? lock.data.callSites.find((c) => c.file === site.file && c.line === site.line) : undefined;
+    return { ...f, site, locked, advisory: (f.advisory as Advisory | null) ?? undefined, pr: pr ? { ...pr, repair: pr.repair } : undefined };
+  });
+}
+
+/* ---------- derived views ---------- */
+
+const DAY = 86_400_000;
+export const daysUntil = (date: string, now: Date) => Math.round((Date.parse(date) - Math.floor(now.getTime() / DAY) * DAY) / DAY);
+
+/** Providers in the account's code (from the latest api.lock of each repository), with how they stand. */
+export function providersOf(data: AccountData) {
+  const map = new Map<string, { id: string; callSites: number; repos: number; affected: number; exposed: number; nextDeadline?: number }>();
+  for (const r of data.repos) {
+    for (const p of r.providers) {
+      const e = map.get(p.id) ?? { id: p.id, callSites: 0, repos: 0, affected: 0, exposed: 0 };
+      e.callSites += p.callSites;
+      e.repos += 1;
+      map.set(p.id, e);
+    }
+  }
+  for (const f of data.findings) {
+    const id = f.advisory?.provider ?? f.site.provider;
+    if (!id) continue;
+    const e = map.get(id) ?? { id, callSites: 0, repos: 0, affected: 0, exposed: 0 };
+    if (f.kind === "affected") e.affected++;
+    else e.exposed++;
+    map.set(id, e);
+  }
+  for (const d of deadlinesOf(data)) {
+    const e = map.get(d.advisory.provider);
+    if (e && d.daysUntil >= 0 && (e.nextDeadline === undefined || d.daysUntil < e.nextDeadline)) e.nextDeadline = d.daysUntil;
+  }
+  return [...map.values()].sort((a, b) => b.affected - a.affected || b.exposed - a.exposed || b.callSites - a.callSites || a.id.localeCompare(b.id));
+}
+
+/**
+ * The advisories that matter to this account: every upcoming one for a provider in its code, and any
+ * in effect that still hits a call site. Sorted by date.
+ */
+export function deadlinesOf(data: AccountData) {
+  const present = new Set(data.repos.flatMap((r) => r.providers.map((p) => p.id)));
+  for (const f of data.findings) if (f.advisory) present.add(f.advisory.provider);
+  const hits = new Map<string, { affected: number; exposed: number }>();
+  for (const f of data.findings) {
+    const h = hits.get(f.advisory_id) ?? { affected: 0, exposed: 0 };
+    h[f.kind]++;
+    hits.set(f.advisory_id, h);
+  }
+  return [...data.advisories.values()]
+    .filter((a) => present.has(a.provider))
+    .map((a) => ({ advisory: a, daysUntil: daysUntil(a.effectiveDate, data.now), ...(hits.get(a.id) ?? { affected: 0, exposed: 0 }) }))
+    .filter((d) => d.daysUntil >= 0 || d.affected || d.exposed)
+    .sort((a, b) => a.daysUntil - b.daysUntil || SEVERITY_RANK[a.advisory.severity] - SEVERITY_RANK[b.advisory.severity]);
+}
+
+const SEVERITY_COST: Record<string, number> = { critical: 8, high: 5, medium: 3, low: 1 };
+
+/**
+ * One number for the account: the share of third-party call sites that still work (100 when none is
+ * affected), less a little per affected call site by severity (at most 15) and 5 per repository whose
+ * last scan failed. Exposed call sites cost nothing: they call a changed endpoint without depending on the change.
+ */
+export function healthOf(data: AccountData): Health {
+  const scanned = data.repos.filter((r) => r.lockSha);
+  if (!scanned.length) return { score: null, verdict: "No scan yet", why: "The score appears after the first push to a default branch." };
+  const affected = data.findings.filter((f) => f.kind === "affected");
+  const failed = data.repos.filter((r) => r.scan?.status === "failed").length;
+  const callSites = Math.max(1, scanned.reduce((n, r) => n + r.callSites, 0));
+  const share = 100 * (1 - Math.min(affected.length, callSites) / callSites);
+  const severity = Math.min(15, affected.reduce((n, f) => n + (SEVERITY_COST[f.advisory?.severity ?? "medium"] ?? 3), 0));
+  const score = Math.max(0, Math.round(share - severity - failed * 5));
+  const parts = [`${affected.length} of ${callSites} call sites affected`];
+  if (failed) parts.push(`${failed} scan${failed === 1 ? "" : "s"} failed`);
+  const verdict = !affected.length && !failed ? "Healthy" : score >= 55 ? "Needs attention" : "At risk";
+  return { score, verdict, why: parts.join(" · ") };
+}
