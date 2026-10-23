@@ -158,6 +158,9 @@ describe("billing in the web app", () => {
     expect(page.body.match(/not covered by plan/g)).toHaveLength(2);
     expect(page.body).toContain("Upgrade to cover 2 more private repositories");
 
+    // The browser follows the 303 to Stripe only if the page's CSP allows it as a form target.
+    const csp = String(page.headers["content-security-policy"]);
+    expect(csp).toMatch(/form-action 'self' https:\/\/checkout\.stripe\.com https:\/\/billing\.stripe\.com;/);
     const res = await app.inject({ method: "POST", url: `/a/${accountId}/billing/checkout`, headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(page.body)}` });
     expect(res.statusCode).toBe(303);
     expect(res.headers.location).toMatch(/^https:\/\/checkout\.stripe\.test\//);

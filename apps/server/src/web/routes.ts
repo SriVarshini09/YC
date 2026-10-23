@@ -39,7 +39,8 @@ export interface WebDeps {
   billing?: BillingDeps;
 }
 
-const CSP = "default-src 'none'; style-src 'self'; img-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+// form-action also governs where a submitted form may redirect: the billing buttons go on to Stripe.
+const CSP = "default-src 'none'; style-src 'self'; img-src 'self'; form-action 'self' https://checkout.stripe.com https://billing.stripe.com; base-uri 'none'; frame-ancestors 'none'";
 
 const SettingsSchema = z.object({
   csrf: z.string(),
