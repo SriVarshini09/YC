@@ -18,7 +18,27 @@
   },
   "effectiveDate": "2026-12-04",
   "severity": "high",
-  "migrationNote": "Migrate to the Pipelines API 2026-09 (or 2026-03 or newer) endpoints before 2026-12-04.",
-  "sources": ["https://developers.hubspot.com/changelog/pipelines-api-v1-sunset"],
+  "migrationNote": "Call GET /crm/pipelines/2026-09/{objectType} (HubSpot's OpenAPI spec for the 2026-09 Pipelines API) instead of /crm-pipelines/v1/pipelines/{objectType} before 2026-12-04. The response keeps results[] and stages[], but pipelines and stages are identified by id instead of pipelineId and stageId.",
+  "recipeId": "apply-fix",
+  "fix": {
+    "path": {
+      "from": "/crm-pipelines/v1/pipelines/",
+      "to": "/crm/pipelines/2026-09/"
+    },
+    "fields": [
+      {
+        "from": "results[].pipelineId",
+        "to": "results[].id"
+      },
+      {
+        "from": "results[].stages[].stageId",
+        "to": "results[].stages[].id"
+      }
+    ]
+  },
+  "sources": [
+    "https://developers.hubspot.com/docs/api-reference/latest/crm/pipelines/guide",
+    "https://github.com/HubSpot/HubSpot-public-api-spec-collection/blob/main/PublicApiSpecs/CRM/Pipelines/Rollouts/145896/2026-09/pipelines.json"
+  ],
   "status": "verified"
 }

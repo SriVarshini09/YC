@@ -21,6 +21,9 @@ const NOT_FIELDS = new Set([
   "then", "catch", "finally", "valueOf", "toJSON",
 ]);
 
+/** Array methods whose callback receives the array's items, and which parameter is the item. */
+const ITEM_CALLBACKS: Record<string, number> = { map: 0, flatMap: 0, filter: 0, forEach: 0, find: 0, findIndex: 0, some: 0, every: 0, reduce: 1 };
+
 const MAX_DEPTH = 4;
 
 class Collector {
@@ -166,7 +169,7 @@ function use(ref: Node, loc: Location, env: Envelope, c: Collector, depth: numbe
 function interpret(env: Envelope, loc: Location, access: string[], top: Node, c: Collector, depth: number, compare: boolean): void {
   const full = [...loc.path, ...access];
   if (loc.space === "body" || env === "body") {
-    body(full, top, c, compare);
+    body(full, top, c, compare, env, depth);
     return;
   }
   const [first, ...rest] = full;
@@ -193,8 +196,8 @@ function interpret(env: Envelope, loc: Location, access: string[], top: Node, c:
     } else if (h && h !== "get") c.responseHeaders.add(h.toLowerCase());
     return;
   }
-  if (env === "axios" && first === "data") return body(rest, top, c, compare);
-  if (env === "got" && first === "body") return body(rest, top, c, compare);
+  if (env === "axios" && first === "data") return body(rest, top, c, compare, env, depth);
+  if (env === "got" && first === "body") return body(rest, top, c, compare, env, depth);
   // res.json() / got(...).json() / undici body.json()
   const bodyCall =
     ((env === "fetch" || env === "got") && rest.length === 0 && (first === "json" || first === "text")) ||
@@ -204,13 +207,33 @@ function interpret(env: Envelope, loc: Location, access: string[], top: Node, c:
   }
 }
 
-function body(path: string[], top: Node, c: Collector, compare: boolean): void {
+function body(path: string[], top: Node, c: Collector, compare: boolean, env: Envelope, depth: number): void {
   const cut = path.findIndex((p) => NOT_FIELDS.has(p));
   const fieldPath = cut >= 0 ? path.slice(0, cut) : path;
   if (fieldPath.length === 0) return;
   const field = fieldPath.join(".").replace(/\.\[\]/g, "[]");
   c.fields.add(field);
   if (compare && cut < 0) for (const s of comparedLiterals(top).strs) c.addEnum(field, s);
+  if (depth >= MAX_DEPTH) return;
+  const items: Location = { space: "body", path: [...fieldPath, "[]"] };
+
+  // body.results.map((item) => item.id), and const first = body.results.find(...)
+  const method = cut >= 0 && cut === path.length - 1 ? path[cut]! : undefined;
+  const call = top.getParent();
+  if (method && method in ITEM_CALLBACKS && Node.isCallExpression(call) && call.getExpression() === top) {
+    const cb = call.getArguments()[0];
+    const param = cb && (Node.isArrowFunction(cb) || Node.isFunctionExpression(cb)) ? cb.getParameters()[ITEM_CALLBACKS[method]!] : undefined;
+    if (param) bindName(param.getNameNode(), items, param, env, c, depth + 1);
+    if (method === "find") bindFrom(call, items, env, c, depth + 1);
+    return;
+  }
+  // for (const item of body.results) { item.id }
+  const loop = top.getParent();
+  if (cut < 0 && Node.isForOfStatement(loop) && loop.getExpression() === top) {
+    const list = loop.getInitializer();
+    const decl = Node.isVariableDeclarationList(list) ? list.getDeclarations()[0] : undefined;
+    if (decl) bindName(decl.getNameNode(), items, decl, env, c, depth + 1);
+  }
 }
 
 /** Literals an expression is compared to: ===, !==, ==, !=, switch cases, [a, b].includes(x). */

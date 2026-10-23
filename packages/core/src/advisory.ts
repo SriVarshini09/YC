@@ -58,6 +58,26 @@ export const TriggerSchema = z
   .refine((t) => Object.values(t).some((v) => v !== undefined && v !== false), "trigger needs at least one condition");
 export type Trigger = z.infer<typeof TriggerSchema>;
 
+/**
+ * The deterministic change that fixes an affected call site, applied by the `apply-fix` recipe.
+ * Request parts change what the code sends; `fields` and `enums` change how it reads the response.
+ */
+export const FixSchema = z
+  .object({
+    /** Replace this part of the request path, for example "/v21.0/" with "/v26.0/". */
+    path: z.object({ from: z.string().min(1), to: z.string().min(1) }).optional(),
+    /** Send this query parameter with this value, for example minorversion=75. */
+    query: z.object({ name: z.string().min(1), value: z.string() }).optional(),
+    /** Send this request header with this value, for example Stripe-Version. */
+    header: z.object({ name: z.string().min(1), value: z.string() }).optional(),
+    /** Response fields that were renamed: the code reads the new name, falling back to the old one. */
+    fields: z.array(z.object({ from: z.string().min(1), to: z.string().min(1) })).optional(),
+    /** Enum values that were renamed: comparisons with an old value also accept the new one. */
+    enums: z.array(z.object({ field: z.string().min(1), values: z.array(z.object({ from: z.string(), to: z.string() })).min(1) })).optional(),
+  })
+  .refine((f) => Object.values(f).some((v) => v !== undefined), "fix needs at least one change");
+export type Fix = z.infer<typeof FixSchema>;
+
 export const AdvisorySchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   provider: z.string(),
@@ -75,6 +95,8 @@ export const AdvisorySchema = z.object({
   severity: z.enum(SEVERITIES),
   migrationNote: z.string().min(1),
   recipeId: z.string().optional(),
+  /** What `recipeId: "apply-fix"` changes. */
+  fix: FixSchema.optional(),
   sources: z.array(z.url()).min(1),
   /** "verified": checked against a primary or two independent sources. "unverified": secondary reports only. */
   status: z.enum(["verified", "unverified"]),

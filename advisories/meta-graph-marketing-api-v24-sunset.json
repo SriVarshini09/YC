@@ -19,6 +19,13 @@
   "effectiveDate": "2026-11-10",
   "severity": "critical",
   "migrationNote": "Move all Marketing API calls (ad accounts, campaigns, ad sets, ads, creatives, insights) to v25.0 or, better, v26.0, and re-test against the v25.0 and v26.0 changelogs (for example the Advantage+ campaign and targeting_automation changes) before 2026-11-10.",
+  "recipeId": "apply-fix",
+  "fix": {
+    "path": {
+      "from": "/v24.0/",
+      "to": "/v26.0/"
+    }
+  },
   "sources": [
     "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/",
     "https://developers.facebook.com/documentation/ads-commerce/marketing-api/overview/versioning"

@@ -1,3 +1,5 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -51,7 +53,8 @@ describe("dependency surface", () => {
 
     const hubspot = site("src/others.ts", "/crm/v3/objects/contacts");
     expect(hubspot.statusCodes).toEqual([200]);
-    expect(hubspot.fields).toEqual(["results"]);
+    // the .map callback reads each item's id
+    expect(hubspot.fields).toEqual(["results", "results[].id"]);
     expect(hubspot.query).toEqual([{ name: "limit", value: "10" }]);
 
     const twilio = site("src/others.ts", "/2010-04-01/Accounts/AC1/Messages.json");
@@ -63,5 +66,31 @@ describe("dependency surface", () => {
       { name: "query", value: "select" },
       { name: "minorversion", value: "65" },
     ]);
+  });
+});
+
+describe("array items", () => {
+  it("follows map/find callbacks, find results and for-of loops into item fields", () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), "shapi-items-"));
+    try {
+      mkdirSync(path.join(dir, "src"));
+      writeFileSync(
+        path.join(dir, "src", "app.ts"),
+        `export async function f(t: string) {
+  const res = await fetch("https://api.hubapi.com/crm-pipelines/v1/pipelines/deals", { headers: { Authorization: t } });
+  const body = await res.json();
+  const ids = body.results.map((p: { pipelineId: string; stages: { stageId: string }[] }) => p.stages.map((s) => s.stageId));
+  const first = body.results.find((p: { label: string }) => p.label === "Sales");
+  for (const p of body.results) console.log(p.displayOrder);
+  return [ids, first.pipelineId];
+}
+`,
+      );
+      const [site] = extractCallSites(dir).callSites;
+      expect(site!.surface.fields).toEqual(["results", "results[].displayOrder", "results[].label", "results[].pipelineId", "results[].stages", "results[].stages[].stageId"]);
+      expect(site!.surface.enums).toEqual([{ field: "results[].label", values: ["Sales"] }]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

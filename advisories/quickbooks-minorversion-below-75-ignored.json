@@ -9,7 +9,12 @@
   },
   "changeClass": "version-sunset",
   "trigger": {
-    "query": [{ "name": "minorversion", "below": 75 }]
+    "query": [
+      {
+        "name": "minorversion",
+        "below": 75
+      }
+    ]
   },
   "firstObserved": "2025-08-01",
   "publishedNotice": {
@@ -19,6 +24,13 @@
   "effectiveDate": "2025-08-01",
   "severity": "high",
   "migrationNote": "Set minorversion=75 (or remove it) and re-test parsing against minor version 75 responses.",
+  "recipeId": "apply-fix",
+  "fix": {
+    "query": {
+      "name": "minorversion",
+      "value": "75"
+    }
+  },
   "sources": [
     "https://blogs.intuit.com/?p=34635",
     "https://www.apideck.com/blog/ai-built-accounting-integrations-maintenance",
