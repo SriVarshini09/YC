@@ -2,6 +2,8 @@
 
 Self-maintaining APIs. SHAPI maps the third-party APIs a codebase depends on (`api.lock`: every call site, and the status codes, fields, enums, headers and query params each one relies on) and flags the call sites that a known breaking change actually hits.
 
+Documentation: https://srivarshini09.github.io/YC/
+
 ## Try it
 
 Requires Node 22+ and pnpm.
@@ -50,6 +52,7 @@ Canary probes call provider APIs (GitHub public endpoints; the workflow_dispatch
 - `packages/cli`: `shapi` command
 - `advisories/`: seeded advisories (open JSON format)
 - `fixtures/demo-ts`: demo service
+- `site/`: documentation site (VitePress, published to GitHub Pages)
 - `docs/progress/`: one summary per task
 
 ## License

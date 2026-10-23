@@ -37,3 +37,4 @@ One line per task: task, summary file, PR, status.
 - Billing redirect fix (missed the #35 merge): [summary](PA-followup-advisory-sync.md) · PR: [#36](https://github.com/SriVarshini09/YC/pull/36) · open
 - PA-A7a shapi-cli on npm: [summary](PA-A7a-npm-cli.md) · PR: [#37](https://github.com/SriVarshini09/YC/pull/37) · open
 - PA-A7b public advisory database: [summary](PA-A7b-advisory-repo.md) · PR: [#38](https://github.com/SriVarshini09/YC/pull/38) · open
+- PA-A7c docs site: [summary](PA-A7c-docs-site.md) · PR: pending · open
