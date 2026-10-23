@@ -120,6 +120,19 @@ describe("advisories", () => {
     expect((await listAdvisories(app)).map((a) => a.id)).toEqual(seeded.map((a) => a.id).sort());
   });
 
+  it("re-syncing an unchanged advisory changes nothing, so it does not look new", async () => {
+    const advisory = loadAdvisories(path.join(root, "advisories"))[0]!;
+    await upsertAdvisories(app, [advisory], { reviewed: true, source: "repo" });
+    const first = await app.selectFrom("advisories").select("modified").where("id", "=", advisory.id).executeTakeFirstOrThrow();
+    expect(await upsertAdvisories(app, [advisory], { reviewed: true, source: "repo" })).toBe(0);
+    const again = await app.selectFrom("advisories").select("modified").where("id", "=", advisory.id).executeTakeFirstOrThrow();
+    expect(again.modified.getTime()).toBe(first.modified.getTime());
+    expect(await upsertAdvisories(app, [{ ...advisory, title: `${advisory.title} (edited)` }], { reviewed: true, source: "repo" })).toBe(1);
+    const changed = await app.selectFrom("advisories").select("modified").where("id", "=", advisory.id).executeTakeFirstOrThrow();
+    expect(changed.modified.getTime()).toBeGreaterThan(first.modified.getTime());
+    await upsertAdvisories(app, [advisory], { reviewed: true, source: "repo" });
+  });
+
   it("never lets a machine draft overwrite a reviewed advisory, and hides drafts by default", async () => {
     const reviewed = seeded[0]!;
     const draft = { ...seeded[1]!, id: "github-draft-1", status: "unverified" as const };
