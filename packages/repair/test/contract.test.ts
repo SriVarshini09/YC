@@ -59,7 +59,7 @@ describe("generateContractTest on fixtures/demo-ts", () => {
     expect(test.file).toBe("test/shapi/github-workflow-dispatch-204-to-200.test.ts");
     expect(test.functionName).toBe("triggerDeploy");
     expect(test.content).toContain('import { triggerDeploy } from "../../src/deploy";');
-    expect(test.content).toContain('await triggerDeploy({ "owner": "shapi-owner", "repo": "shapi-repo", "workflow": "shapi-workflow", "ref": "shapi-ref" }, "shapi-token");');
+    expect(test.content).toContain('return triggerDeploy({ "owner": "shapi-owner", "repo": "shapi-repo", "workflow": "shapi-workflow", "ref": "shapi-ref" }, "shapi-token");');
     expect(test.content).toContain('{ name: "before (204)", status: 204, headers: {}, body: null }');
     expect(test.content).toContain('"workflow_run_id":1');
   });
@@ -83,7 +83,10 @@ describe("generateContractTest on fixtures/demo-ts", () => {
   }, 120_000);
 
   it("explains call sites it cannot test", () => {
-    expect(generateContractTest({ callSite: { ...site, client: "axios" }, advisory, before, after, sourceText })).toMatchObject({ status: "unsupported" });
+    expect(generateContractTest({ callSite: { ...site, client: "superagent" }, advisory, before, after, sourceText })).toMatchObject({
+      status: "unsupported",
+      reason: "contract tests support fetch, node-fetch, ky, axios, got and SDK call sites; this one uses superagent",
+    });
     const internal = sourceText.replace("export async function triggerDeploy", "async function triggerDeploy");
     expect(generateContractTest({ callSite: site, advisory, before, after, sourceText: internal })).toEqual({
       status: "unsupported",

@@ -43,3 +43,4 @@ One line per task: task, summary file, PR, status.
 - Production GitHub App (missed the #41 merge): [summary](PA-A9-fly-deploy.md) · PR: [#42](https://github.com/SriVarshini09/YC/pull/42) · open
 - PB-1 advisories 7 → 54: [summary](PB-1-advisories.md) · PR: [#43](https://github.com/SriVarshini09/YC/pull/43) · open
 - PB-2 fix recipes: [summary](PB-2-fix-recipes.md) · PR: [#44](https://github.com/SriVarshini09/YC/pull/44) · open
+- PB-3 contract tests beyond fetch: [summary](PB-3-contract-clients.md) · PR: [#45](https://github.com/SriVarshini09/YC/pull/45) · open

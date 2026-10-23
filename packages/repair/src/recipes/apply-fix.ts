@@ -5,7 +5,8 @@ import type { Edit, Recipe, RecipeContext } from "../recipe";
 /**
  * The change an advisory's `fix` describes, applied to one call site:
  * - `path`, `query`, `header`: rewrite what the call sends, in its URL argument, the same-file
- *   constants that URL is built from, an axios `baseURL`, and `params` / `headers` objects;
+ *   constants that URL is built from, an axios `baseURL`, and `params` (axios), `searchParams` (got)
+ *   and `headers` objects;
  * - `fields`: read the renamed response field, falling back to the old name (`(x.new ?? x.old)`);
  * - `enums`: comparisons with a renamed value also accept the new value.
  * Response reads are only changed inside the function that makes the call.
@@ -49,7 +50,7 @@ function requestEdits(call: CallExpression, sf: SourceFile, fix: Fix, where: Whe
     if (after !== before) edits.push({ start: node.getStart(), end: node.getEnd(), text: after, note: `${where(node)} \`${before}\` → \`${after}\`` });
   }
   if (fix.query) {
-    for (const prop of objectProperties(call, "params")) {
+    for (const prop of [...objectProperties(call, "params"), ...objectProperties(call, "searchParams")]) {
       if (propName(prop) !== fix.query.name || !Node.isPropertyAssignment(prop)) continue;
       const init = prop.getInitializer();
       if (!init || !(Node.isNumericLiteral(init) || Node.isStringLiteral(init))) continue;

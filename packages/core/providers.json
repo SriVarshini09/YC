@@ -38,6 +38,7 @@
       "subscriptions.update": "POST /v1/subscriptions/{id}",
       "invoices.create": "POST /v1/invoices",
       "checkout.sessions.create": "POST /v1/checkout/sessions",
+      "checkout.sessions.retrieve": "GET /v1/checkout/sessions/{session}",
       "refunds.create": "POST /v1/refunds"
     },
     "docsUrl": "https://docs.stripe.com/api",
