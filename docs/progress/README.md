@@ -40,3 +40,4 @@ One line per task: task, summary file, PR, status.
 - PA-A7c docs site: [summary](PA-A7c-docs-site.md) · PR: [#39](https://github.com/SriVarshini09/YC/pull/39) · open
 - PA-A8 trust basics: [summary](PA-A8-trust.md) · PR: [#40](https://github.com/SriVarshini09/YC/pull/40) · open
 - PA-A9 deploy to Fly.io: [summary](PA-A9-fly-deploy.md) · PR: [#41](https://github.com/SriVarshini09/YC/pull/41) · open
+- Production GitHub App (missed the #41 merge): [summary](PA-A9-fly-deploy.md) · PR: [#42](https://github.com/SriVarshini09/YC/pull/42) · open
