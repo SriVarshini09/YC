@@ -106,6 +106,7 @@ form.settings label { display: grid; gap: 4px; }
 form.settings input[type=number] { width: 120px; font: inherit; padding: 4px 8px; }
 .check { display: flex !important; grid-template-columns: none; gap: 8px; align-items: flex-start; }
 .note { font-size: 13px; color: var(--muted); }
+form.inline { display: inline; }
 .notice { border-left: 3px solid var(--warn); padding: 8px 12px; background: var(--card); margin: 16px 0; }
 @media (max-width: 640px) { th:nth-child(n+4), td:nth-child(n+4) { display: none; } header.top { padding: 12px 16px; } }
 `;

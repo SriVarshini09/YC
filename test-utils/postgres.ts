@@ -21,8 +21,24 @@ async function freePort(): Promise<number> {
   });
 }
 
-/** Start a throwaway real Postgres (no Docker) in a temp folder, with one fresh database. */
+/**
+ * Start a throwaway real Postgres (no Docker) in a temp folder, with one fresh database. Test files
+ * start these in parallel, and a port found free can be taken before Postgres binds it, so a failed
+ * start is retried on a new port.
+ */
 export async function startTestPostgres(database = "shapi_test"): Promise<TestPostgres> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await startOnce(database);
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError;
+}
+
+async function startOnce(database: string): Promise<TestPostgres> {
   const dir = mkdtempSync(path.join(os.tmpdir(), "shapi-pg-"));
   const port = await freePort();
   const pg = new EmbeddedPostgres({
@@ -36,9 +52,15 @@ export async function startTestPostgres(database = "shapi_test"): Promise<TestPo
     onLog: () => {},
     onError: () => {},
   });
-  await pg.initialise();
-  await pg.start();
-  await pg.createDatabase(database);
+  try {
+    await pg.initialise();
+    await pg.start();
+    await pg.createDatabase(database);
+  } catch (err) {
+    await pg.stop().catch(() => {});
+    rmSync(dir, { recursive: true, force: true });
+    throw err;
+  }
   return {
     url: `postgres://postgres:postgres@127.0.0.1:${port}/${database}`,
     async stop() {

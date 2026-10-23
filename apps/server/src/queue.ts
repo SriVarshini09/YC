@@ -2,6 +2,8 @@ import { PgBoss } from "pg-boss";
 import type { Db } from "@shapi/db";
 import { claudeFixer, type LlmFixer } from "@shapi/repair";
 import { sandboxFromEnv } from "@shapi/sandbox";
+import { withService } from "@shapi/db";
+import { stripeClient, syncQuantity, type BillingDeps } from "./billing/stripe";
 import type { Config } from "./config";
 import { githubClients } from "./github/clients";
 import { processDelivery, type ScanRequest } from "./github/events";
@@ -21,6 +23,7 @@ export const QUEUES = {
   repoScan: "repo-scan",
   repoFix: "repo-fix",
   advisoryFanout: "advisory-fanout",
+  billingSync: "billing-sync",
 } as const;
 
 export interface Logger {
@@ -38,6 +41,7 @@ export async function createQueues(boss: PgBoss): Promise<void> {
   // One fix job running and one waiting per repository (keyed by repository id), so PR deliveries never race.
   await boss.createQueue(QUEUES.repoFix, { policy: "stately", retryLimit: 2, retryDelay: 120, retryBackoff: true, expireInSeconds: 30 * 60 });
   await boss.createQueue(QUEUES.advisoryFanout, { retryLimit: 2, retryDelay: 60, expireInSeconds: 15 * 60 });
+  await boss.createQueue(QUEUES.billingSync, { policy: "short", retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 10 * 60 });
 }
 
 /** pg-boss for the database owner: creates its `pgboss` schema and the queues. Used by migrate. */
@@ -73,7 +77,7 @@ export interface WorkerDeps {
   db: Db;
   config: Pick<
     Config,
-    "CANARY_CRON" | "SHAPI_ADVISORIES" | "canaryProviders" | "githubApp" | "WEBHOOK_SWEEP_CRON" | "WEBHOOK_RETENTION_DAYS" | "SHAPI_RECORDINGS" | "FANOUT_CRON"
+    "CANARY_CRON" | "SHAPI_ADVISORIES" | "canaryProviders" | "githubApp" | "WEBHOOK_SWEEP_CRON" | "WEBHOOK_RETENTION_DAYS" | "SHAPI_RECORDINGS" | "FANOUT_CRON" | "billing"
   >;
   env: Record<string, string | undefined>;
   log: Logger;
@@ -104,6 +108,10 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
   let workspace = deps.workspace;
   const requireWorkspace = () => (workspace ??= sandboxRunner(sandboxFromEnv(deps.env)));
   const llm: LlmFixer | undefined = deps.env.ANTHROPIC_API_KEY ? claudeFixer() : undefined;
+  const billing: BillingDeps | undefined = deps.config.billing
+    ? { db: deps.db, stripe: stripeClient(deps.config.billing, { fetch: deps.fetch }), config: deps.config.billing }
+    : undefined;
+  const billingEnforced = Boolean(billing);
 
   await boss.work(QUEUES.advisoriesSync, async () => {
     const written = await syncAdvisoriesJob(deps.db, deps.config.SHAPI_ADVISORIES);
@@ -121,12 +129,14 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     const result = await processDelivery({ db: deps.db, github: requireGithub() }, job.data.deliveryId);
     // Committed: now the scans it asked for can start.
     for (const scan of result.scans) await sendScan(boss, scan);
+    // Repositories came or went: a paid plan may now be larger than needed.
+    if (billing && ["installation", "installation_repositories"].includes(result.event)) await boss.send(QUEUES.billingSync, {});
     deps.log.info(result, "webhook processed");
     return result;
   });
   await boss.work<ScanRequest>(QUEUES.repoScan, { batchSize: 1 }, async ([job]) => {
     if (!job) return;
-    const report = await runScanJob({ db: deps.db, github: requireGithub() }, job.data);
+    const report = await runScanJob({ db: deps.db, github: requireGithub(), billingEnforced }, job.data);
     if (report.fix && report.scanId && report.repositoryId) await sendFix(boss, report.scanId, report.repositoryId);
     deps.log.info(report, "scan finished");
     return report;
@@ -141,6 +151,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
         recordingsDir: deps.config.SHAPI_RECORDINGS,
         shapeSecret: deps.env.SHAPI_SHAPE_SECRET ?? "shapi-dev-secret",
         llm,
+        billingEnforced,
       },
       job.data,
     );
@@ -152,6 +163,17 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     for (const f of report.fixScans) await sendFix(boss, f.scanId, f.repositoryId);
     deps.log.info(report, "advisory fan-out finished");
     return report;
+  });
+  await boss.work(QUEUES.billingSync, async () => {
+    if (!billing) return { synced: 0 };
+    const accounts = await withService(deps.db, (tx) => tx.selectFrom("billing").select("account_id").where("stripe_subscription_id", "is not", null).where("status", "!=", "canceled").execute());
+    const changes = [];
+    for (const a of accounts) {
+      const change = await syncQuantity(billing, a.account_id);
+      if (change) changes.push({ accountId: a.account_id, ...change });
+    }
+    deps.log.info({ accounts: accounts.length, changes }, "billing synced");
+    return { synced: accounts.length, changes };
   });
   await boss.work(QUEUES.webhookSweep, async () => {
     const result = await sweepWebhooks({
@@ -170,6 +192,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     [QUEUES.canaryRun, deps.config.CANARY_CRON],
     [QUEUES.webhookSweep, deps.config.WEBHOOK_SWEEP_CRON],
     [QUEUES.advisoryFanout, deps.config.FANOUT_CRON],
+    [QUEUES.billingSync, billing ? "23 4 * * *" : ""],
   ];
   for (const [queue, cron] of schedules) {
     if (cron) await boss.schedule(queue, cron);

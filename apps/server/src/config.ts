@@ -39,6 +39,10 @@ const ConfigSchema = z.object({
   SHAPI_GITHUB_APP_SLUG: z.string().optional(),
   SHAPI_PUBLIC_URL: z.string().default("http://localhost:8080"),
   SHAPI_SESSION_SECRET: z.string().optional(),
+  /** Stripe billing (all three, or none: without them every repository is covered). The price is created in Stripe. */
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRICE_ID: z.string().optional(),
 });
 
 export interface GitHubAppConfig {
@@ -55,7 +59,14 @@ export interface WebAppConfig {
   appSlug?: string;
 }
 
-export type Config = z.infer<typeof ConfigSchema> & { canaryProviders?: string[]; githubApp?: GitHubAppConfig; webApp?: WebAppConfig };
+export interface BillingSettings {
+  secretKey: string;
+  webhookSecret: string;
+  priceId: string;
+  publicUrl: string;
+}
+
+export type Config = z.infer<typeof ConfigSchema> & { canaryProviders?: string[]; githubApp?: GitHubAppConfig; webApp?: WebAppConfig; billing?: BillingSettings };
 
 export function loadConfig(env: Record<string, string | undefined> = process.env): Config {
   const parsed = ConfigSchema.safeParse(env);
@@ -83,5 +94,11 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
       appSlug: c.SHAPI_GITHUB_APP_SLUG,
     };
   }
-  return { ...c, canaryProviders: c.CANARY_PROVIDERS?.split(",").map((s) => s.trim()).filter(Boolean), githubApp, webApp };
+  const stripe = [c.STRIPE_SECRET_KEY, c.STRIPE_WEBHOOK_SECRET, c.STRIPE_PRICE_ID];
+  if (stripe.some(Boolean) && !stripe.every(Boolean)) throw new Error("set all of STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and STRIPE_PRICE_ID, or none");
+  if (c.NODE_ENV !== "production" && c.STRIPE_SECRET_KEY?.startsWith("sk_live_")) throw new Error("a live Stripe key outside production: use a test key (sk_test_)");
+  const billing = c.STRIPE_SECRET_KEY
+    ? { secretKey: c.STRIPE_SECRET_KEY, webhookSecret: c.STRIPE_WEBHOOK_SECRET!, priceId: c.STRIPE_PRICE_ID!, publicUrl: c.SHAPI_PUBLIC_URL.replace(/\/+$/, "") }
+    : undefined;
+  return { ...c, canaryProviders: c.CANARY_PROVIDERS?.split(",").map((s) => s.trim()).filter(Boolean), githubApp, webApp, billing };
 }

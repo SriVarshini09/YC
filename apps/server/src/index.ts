@@ -12,3 +12,5 @@ export { runFixJob, sandboxRunner, type FixDeps, type FixReport, type WorkspaceR
 export { runAdvisoryFanout, type FanoutReport } from "./jobs/fanout";
 export { shapesFor, type AdvisoryShapes } from "./jobs/shapes";
 export type { ScanRequest } from "./github/events";
+export { FREE_PRIVATE_REPOS, coverage, requiredQuantity, repositoryCovered, type Coverage } from "./billing/plan";
+export { applySubscription, completeCheckout, handleStripeEvent, portalUrl, setQuantity, startCheckout, stripeClient, syncQuantity, type BillingConfig, type BillingDeps } from "./billing/stripe";

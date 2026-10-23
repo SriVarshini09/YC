@@ -4,6 +4,7 @@ import { fetchRepoSnapshot, prTitle, renderPrBody } from "@shapi/github-app";
 import { RECIPES, repairCallSite, withSandboxWorkspace, type InstallReport, type LlmFixer, type RepairResult, type Workspace } from "@shapi/repair";
 import type { SandboxProvider, SnapshotFile } from "@shapi/sandbox";
 import type { GitHubClients } from "../github/clients";
+import { repositoryCovered } from "../billing/plan";
 import { deliverRepoFixes, type DeliveryReport, type FixCandidate } from "../github/fixes";
 import { reviewedAdvisories, storedLock } from "./scan";
 import { shapesFor } from "./shapes";
@@ -23,11 +24,14 @@ export interface FixDeps {
   shapeSecret: string;
   /** Only used for accounts that turned on LLM fixes: it sends the affected file to the model provider. */
   llm?: LlmFixer;
+  /** Billing is configured: private repositories beyond the plan get no fixes. */
+  billingEnforced?: boolean;
   now?: () => Date;
 }
 
 export interface FixReport {
   scanId: string;
+  skipped?: string;
   repairs: { advisoryId: string; status: RepairResult["status"] | "no-shapes" | "no-fix"; reason?: string }[];
   delivery?: DeliveryReport;
 }
@@ -50,6 +54,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
         "scans.status",
         "scans.api_lock",
         "scans.repository_id",
+        "scans.account_id",
         "repositories.full_name",
         "repositories.github_repo_id",
         "accounts.github_installation_id",
@@ -62,6 +67,8 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
   });
   const { scan } = ctx;
   if (!scan || scan.status !== "succeeded" || !scan.api_lock || !scan.github_installation_id) return { scanId: job.scanId, repairs: [] };
+  const plan = await repositoryCovered(deps.db, scan.account_id, scan.repository_id, deps.billingEnforced ?? false);
+  if (!plan.covered) return { scanId: job.scanId, repairs: [], skipped: `not covered by the plan: ${plan.reason}` };
 
   const advisories = new Map((await reviewedAdvisories(deps.db)).map((a) => [a.advisory.id, a.advisory]));
   const lock = storedLock(scan.api_lock);

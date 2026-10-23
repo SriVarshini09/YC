@@ -103,6 +103,25 @@ export interface ObservationsTable {
   shape: JSONColumnType<object>;
 }
 
+/** An account's Stripe subscription: how many private repositories beyond the free one are paid for. */
+export interface BillingTable {
+  account_id: string;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  /** Stripe's subscription status, or "none" before the first checkout. */
+  status: Generated<string>;
+  quantity: Generated<number>;
+  current_period_end: Timestamp | null;
+  updated_at: Timestamp;
+}
+
+/** Internal: Stripe webhook events already applied, so a redelivery is a no-op. */
+export interface StripeEventsTable {
+  id: string;
+  type: string;
+  received_at: CreatedAt;
+}
+
 /** Internal: a signed-in web session. The cookie holds the token; this row holds its SHA-256. */
 export interface SessionsTable {
   token_hash: string;
@@ -137,7 +156,9 @@ export interface Database {
   observations: ObservationsTable;
   webhook_deliveries: WebhookDeliveriesTable;
   sessions: SessionsTable;
+  billing: BillingTable;
+  stripe_events: StripeEventsTable;
 }
 
 /** Tables holding one customer's data; row-level security keeps each customer to its own rows. */
-export const TENANT_TABLES = ["accounts", "repositories", "scans", "findings", "fix_prs"] as const;
+export const TENANT_TABLES = ["accounts", "repositories", "scans", "findings", "fix_prs", "billing"] as const;

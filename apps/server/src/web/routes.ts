@@ -19,6 +19,8 @@ import {
   type OAuthConfig,
   type Session,
 } from "./auth";
+import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
+import { completeCheckout, portalUrl, setQuantity, startCheckout, type BillingDeps } from "../billing/stripe";
 import { STYLES, html, page, shortSha, timeAgo, type Html } from "./html";
 
 export interface WebConfig extends OAuthConfig {
@@ -33,6 +35,8 @@ export interface WebDeps {
   /** Unset: the pages explain that sign-in is not configured yet. */
   config?: WebConfig;
   fetch?: typeof globalThis.fetch;
+  /** Unset: no billing, every repository is covered. */
+  billing?: BillingDeps;
 }
 
 const CSP = "default-src 'none'; style-src 'self'; img-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
@@ -161,6 +165,10 @@ ${installLink && accounts.length ? html`<p class="note"><a href="${installLink}"
     scope.get("/a/:accountId", async (req, reply) => {
       const ctx = await accountFor(req, reply);
       if (!ctx) return;
+      const { billing: returned, session: checkoutSession } = req.query as { billing?: string; session?: string };
+      if (deps.billing && returned === "done" && checkoutSession) {
+        await completeCheckout(deps.billing, ctx.account.id, checkoutSession).catch((err) => req.log.warn({ err }, "could not read the checkout session; waiting for the webhook"));
+      }
       const data = await withTenant(deps.db, ctx.account.id, async (tx) => {
         const account = await tx.selectFrom("accounts").select(["login", "settings"]).executeTakeFirstOrThrow();
         const repos = await tx.selectFrom("repositories").selectAll().orderBy("full_name").execute();
@@ -181,17 +189,22 @@ ${installLink && accounts.length ? html`<p class="note"><a href="${installLink}"
               .execute()
           : [];
         const openPrs = await tx.selectFrom("fix_prs").select(["repository_id", (eb) => eb.fn.countAll<string>().as("n")]).where("state", "=", "open").groupBy("repository_id").execute();
-        return { account, repos, latest, affected, openPrs };
+        const billing = await tx.selectFrom("billing").selectAll().executeTakeFirst();
+        return { account, repos, latest, affected, openPrs, billing };
       });
       const settings = data.account.settings as { prLimits?: { hourly?: number; open?: number }; failOnAffected?: boolean; llmFixes?: boolean };
       const limits = { ...DEFAULT_PR_LIMITS, ...(settings.prLimits ?? {}) };
+      const covered = coverage(data.repos, data.billing, Boolean(deps.billing));
       const rows = data.repos.map((r) => {
         const scan = data.latest.find((s) => s.repository_id === r.id);
         const affected = Number(data.affected.find((a) => a.scan_id === scan?.id)?.n ?? 0);
         const prs = Number(data.openPrs.find((p) => p.repository_id === r.id)?.n ?? 0);
         const paused = (r.settings as { paused?: boolean; pausedFromWeb?: boolean }).paused || (r.settings as { pausedFromWeb?: boolean }).pausedFromWeb;
         return html`<tr>
-<td><a href="/a/${ctx.account.id}/r/${r.id}">${r.full_name}</a>${paused ? html` <span class="tag warn">paused</span>` : ""}${r.enabled ? "" : html` <span class="tag">archived</span>`}</td>
+<td><a href="/a/${ctx.account.id}/r/${r.id}">${r.full_name}</a>${paused ? html` <span class="tag warn">paused</span>` : ""}${r.enabled ? "" : html` <span class="tag">archived</span>`}${(() => {
+          const c = covered.get(r.id);
+          return c && !c.covered && r.enabled ? html` <span class="tag warn" title="${c.reason}">not covered by plan</span>` : "";
+        })()}</td>
 <td>${scan ? html`${statusTag(scan.status)} <span class="mono">${shortSha(scan.sha)}</span> <span class="muted">${timeAgo(scan.finished_at ?? scan.created_at)}</span>` : html`<span class="muted">not scanned yet</span>`}</td>
 <td>${affected ? html`<span class="tag bad">${affected} affected</span>` : scan?.status === "succeeded" ? html`<span class="tag ok">none</span>` : ""}</td>
 <td>${prs || ""}</td>
@@ -205,6 +218,7 @@ ${installLink && accounts.length ? html`<p class="note"><a href="${installLink}"
 <h1>${data.account.login}</h1>
 <p class="lead">${data.repos.length} repositor${data.repos.length === 1 ? "y" : "ies"}. SHAPI scans each push to the default branch.</p>
 <table><thead><tr><th>Repository</th><th>Last scan</th><th>Affected call sites</th><th>Open SHAPI PRs</th></tr></thead><tbody>${rows}</tbody></table>
+${planSection(ctx.account.id, ctx.session.csrf, data.repos, data.billing, Boolean(deps.billing), (req.query as { billing?: string }).billing)}
 <h2>Settings</h2>
 <form class="settings card" method="post" action="/a/${ctx.account.id}/settings">
 <input type="hidden" name="csrf" value="${ctx.session.csrf}">
@@ -233,6 +247,28 @@ ${installLink && accounts.length ? html`<p class="note"><a href="${installLink}"
         await tx.updateTable("accounts").set({ settings: JSON.stringify(next) }).where("id", "=", ctx.account.id).execute();
       });
       return reply.redirect(`/a/${ctx.account.id}`, 303);
+    });
+
+    const billingAction = (path: string, run: (billing: BillingDeps, account: { id: string; login: string }) => Promise<string>) =>
+      scope.post(`/a/:accountId/billing/${path}`, async (req, reply) => {
+        const ctx = await accountFor(req, reply);
+        if (!ctx) return;
+        if (!csrfOk(ctx.session, req.body)) return send(reply, page("Error", html`<h1>Form expired</h1><p class="lead">Go back and try again.</p>`, ctx.session), 403);
+        if (!deps.billing) return send(reply, page("Billing", html`<h1>Billing is not configured</h1>`, ctx.session), 503);
+        try {
+          return reply.redirect(await run(deps.billing, ctx.account), 303);
+        } catch (err) {
+          req.log.error({ err }, "billing action failed");
+          return send(reply, page("Billing", html`<h1>Billing is unavailable</h1><p class="lead">Stripe could not be reached. Nothing was charged. Please try again.</p>`, ctx.session), 502);
+        }
+      });
+    billingAction("checkout", (billing, account) => startCheckout(billing, account));
+    billingAction("portal", (billing, account) => portalUrl(billing, account));
+    // Raising the paid quantity is always an explicit click; it is prorated by Stripe.
+    billingAction("add-repos", async (billing, account) => {
+      const repos = await withTenant(deps.db, account.id, (tx) => tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at"]).execute());
+      await setQuantity(billing, account.id, Math.max(1, requiredQuantity(repos)));
+      return `/a/${account.id}?billing=updated`;
     });
 
     scope.get("/a/:accountId/r/:repoId", async (req, reply) => {
@@ -311,6 +347,41 @@ ${scanRows.length ? html`<table><thead><tr><th>Commit</th><th>Status</th><th>Whe
       return reply.redirect(`/a/${ctx.account.id}/r/${repoId.data}`, 303);
     });
   });
+}
+
+/** The account's plan: what is covered, and the one action that fits (upgrade, add repositories, manage). */
+function planSection(
+  accountId: string,
+  csrf: string,
+  repos: { id: string; private: boolean; enabled: boolean; created_at: Date }[],
+  billing: { status: string; quantity: number; stripe_customer_id: string | null; current_period_end: Date | null } | undefined,
+  enabled: boolean,
+  notice: string | undefined,
+): Html {
+  if (!enabled) return html``;
+  const privates = repos.filter((r) => r.private && r.enabled).length;
+  const needed = requiredQuantity(repos);
+  const paying = billing && ["active", "trialing", "past_due"].includes(billing.status);
+  const paid = paying ? billing.quantity : 0;
+  const form = (action: string, label: string, primary = false) =>
+    html`<form method="post" action="/a/${accountId}/billing/${action}" class="inline"><input type="hidden" name="csrf" value="${csrf}"><button type="submit" class="${primary ? "primary" : ""}">${label}</button></form>`;
+  const notices: Record<string, string> = {
+    done: "Thanks. Your plan updates as soon as Stripe confirms the payment.",
+    updated: "Your plan now covers every private repository.",
+    cancelled: "Checkout was cancelled. Nothing was charged.",
+  };
+  return html`<h2>Plan</h2>
+<div class="card">
+${notice && notices[notice] ? html`<p class="notice">${notices[notice]}</p>` : ""}
+<p>${paying ? html`<b>Paid plan</b>: ${paid} private repositor${paid === 1 ? "y" : "ies"} plus ${FREE_PRIVATE_REPOS} free` : html`<b>Free plan</b>: public repositories and ${FREE_PRIVATE_REPOS} private repository`}${billing?.status === "past_due" ? html` <span class="tag warn">payment past due</span>` : ""}</p>
+<p class="muted">${privates} private repositor${privates === 1 ? "y" : "ies"} installed.${paying && billing?.current_period_end ? html` Renews ${billing.current_period_end.toISOString().slice(0, 10)}.` : ""}</p>
+<p>
+${!paying && needed > 0 ? form("checkout", `Upgrade to cover ${needed} more private repositor${needed === 1 ? "y" : "ies"}`, true) : ""}
+${paying && needed > paid ? form("add-repos", `Add ${needed - paid} repositor${needed - paid === 1 ? "y" : "ies"} to the plan`, true) : ""}
+${billing?.stripe_customer_id ? form("portal", "Manage billing and invoices") : ""}
+</p>
+<p class="note">Prices and invoices come from Stripe. Removing private repositories lowers the plan automatically; adding them never raises it without this button.</p>
+</div>`;
 }
 
 function statusTag(status: string): Html {
