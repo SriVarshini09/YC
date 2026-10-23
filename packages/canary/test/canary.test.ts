@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { ShapeStore } from "@shapi/shapes";
-import { githubWorker, run, runEvery, runOnce, stripeWorker, type Env } from "@shapi/canary";
+import { anthropicWorker, githubWorker, hubspotWorker, openaiWorker, run, runEvery, runOnce, slackWorker, stripeWorker, twilioWorker, type Env } from "@shapi/canary";
 
 const env: Env = { SHAPI_SHAPE_SECRET: "test" };
 const json = (status: number, body: unknown, headers: Record<string, string> = {}) =>
@@ -173,5 +173,73 @@ describe("shapi-canary CLI", () => {
     const code = await run(["node", "shapi-canary", "status", "--db", db], { stdout: (s) => (out += s), stderr: () => {} }, env);
     expect(code).toBe(0);
     expect(out).toContain("canary:github:anonymous  GET /repos/{owner}/{repo}  1 observations, 1 distinct shapes");
+  });
+});
+
+describe("more providers", () => {
+  const sid = `AC${"0".repeat(32)}`;
+  const keys: Env = {
+    SHAPI_SLACK_BOT_TOKEN: "xoxb-test",
+    SHAPI_OPENAI_API_KEY: "sk-test",
+    SHAPI_ANTHROPIC_API_KEY: "sk-ant-test",
+    SHAPI_TWILIO_TEST_ACCOUNT_SID: sid,
+    SHAPI_TWILIO_TEST_AUTH_TOKEN: "test-token",
+    SHAPI_HUBSPOT_TOKEN: "pat-test",
+  };
+
+  it("runs Slack's api.test without a token, and skips everything else until its key is set", () => {
+    expect(slackWorker.probes({}).probes.map((p) => [p.id, p.auth])).toEqual([["slack:api-test", "anonymous"]]);
+    for (const w of [slackWorker, openaiWorker, anthropicWorker, twilioWorker, hubspotWorker]) {
+      expect(w.probes({}).skipped.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("builds read-only probes (and Twilio's test-credential message) from the keys", () => {
+    const all = [slackWorker, openaiWorker, anthropicWorker, twilioWorker, hubspotWorker].flatMap((w) => w.probes(keys).probes);
+    expect(all.map((p) => `${p.method} ${p.url}`)).toEqual([
+      "GET https://slack.com/api/api.test",
+      "GET https://slack.com/api/auth.test",
+      "GET https://slack.com/api/conversations.list?limit=1&exclude_archived=true",
+      "GET https://api.openai.com/v1/models",
+      "GET https://api.anthropic.com/v1/models?limit=20",
+      `POST https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+      "GET https://api.hubapi.com/crm/v3/objects/contacts?limit=1",
+      "GET https://api.hubapi.com/crm/v3/pipelines/deals",
+    ]);
+    const twilio = all.find((p) => p.provider === "twilio")!;
+    expect(twilio.body).toBe("From=%2B15005550006&To=%2B15005550006&Body=SHAPI+canary+%28Twilio+test+credentials%29");
+    expect(twilio.headers).toMatchObject({ "Content-Type": "application/x-www-form-urlencoded", Authorization: `Basic ${Buffer.from(`${sid}:test-token`).toString("base64")}` });
+    expect(all.find((p) => p.provider === "anthropic")!.headers).toMatchObject({ "x-api-key": "sk-ant-test", "anthropic-version": "2023-06-01" });
+  });
+
+  it("refuses a Slack token that is not a bot token, and a malformed Twilio SID", () => {
+    expect(() => slackWorker.probes({ SHAPI_SLACK_BOT_TOKEN: "xoxp-user" })).toThrow(/bot token/);
+    expect(() => twilioWorker.probes({ ...keys, SHAPI_TWILIO_TEST_ACCOUNT_SID: "nope" })).toThrow(/account SID/);
+  });
+
+  it("stores a shape for every new provider's probes", async () => {
+    const store = ShapeStore.open(path.join(dir, "more.db"));
+    const routes: Record<string, () => Response> = {
+      "GET /api/api.test": () => json(200, { ok: true }),
+      "GET /api/auth.test": () => json(200, { ok: true, team: "shapi", user_id: "U1" }),
+      "GET /api/conversations.list": () => json(200, { ok: true, channels: [{ id: "C1", name: "general" }] }),
+      "GET /v1/models": () => json(200, { object: "list", data: [{ id: "m", object: "model" }] }),
+      [`POST /2010-04-01/Accounts/${sid}/Messages.json`]: () => json(201, { sid: "SM1", status: "queued" }),
+      "GET /crm/v3/objects/contacts": () => json(200, { results: [{ id: "1", properties: {} }] }),
+      "GET /crm/v3/pipelines/deals": () => json(200, { results: [{ id: "default", label: "Sales", stages: [] }] }),
+    };
+    const report = await runOnce({ store, env: { ...env, ...keys }, fetch: fakeFetch(routes).fn, providers: ["slack", "openai", "anthropic", "twilio", "hubspot"] });
+    expect(report.results.filter((r) => r.error)).toEqual([]);
+    expect(report.results.map((r) => `${r.id} ${r.status}`)).toEqual([
+      "slack:api-test 200",
+      "slack:auth-test 200",
+      "slack:conversations-list 200",
+      "openai:list-models 200",
+      "anthropic:list-models 200",
+      "twilio:create-message 201",
+      "hubspot:list-contacts 200",
+      "hubspot:list-deal-pipelines 200",
+    ]);
+    store.close();
   });
 });
