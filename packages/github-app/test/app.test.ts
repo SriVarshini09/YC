@@ -74,6 +74,13 @@ describe("app registration and auth", () => {
     expect(m.hook_attributes).toEqual({ url: "https://hooks.example/x", active: true });
     expect(Object.keys(APP_PERMISSIONS)).not.toContain("administration");
     expect(APP_EVENTS).not.toContain("issue_comment");
+    expect(m).not.toHaveProperty("callback_urls");
+  });
+
+  it("adds the web app's sign-in callback when given", () => {
+    const m = appManifest({ name: "SHAPI", url: "https://shapi.dev", webhookUrl: "https://hooks.example/x", redirectUrl: "http://localhost:3999/callback", public: true, callbackUrls: ["https://shapi.example/auth/github/callback"] });
+    expect(m.callback_urls).toEqual(["https://shapi.example/auth/github/callback"]);
+    expect(m.public).toBe(true);
   });
 
   it("restores PEM newlines from env vars", () => {
