@@ -47,4 +47,4 @@ One line per task: task, summary file, PR, status.
 - PB-4 canaries for five more providers: [summary](PB-4-canaries.md) · PR: [#46](https://github.com/SriVarshini09/YC/pull/46) · open
 - PB-5 Python scanning: [summary](PB-5-python.md) · PR: [#47](https://github.com/SriVarshini09/YC/pull/47) · open
 - PB-6 Slack alerts: [summary](PB-6-slack-alerts.md) · PR: [#48](https://github.com/SriVarshini09/YC/pull/48) · open
-- PB-7 known gaps (one PR per advisory, deleted advisories, cancels on): [summary](PB-7-known-gaps.md) · PR: pending · open
+- PB-7 known gaps (one PR per advisory, deleted advisories, cancels on): [summary](PB-7-known-gaps.md) · PR: [#49](https://github.com/SriVarshini09/YC/pull/49) · open
