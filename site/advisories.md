@@ -33,6 +33,27 @@ The real files have more fields: a summary, when the change was first observed, 
 - **`status`**: `verified` means checked against a primary source or two independent ones; `unverified` means secondary reports only.
 - **`recipeId`**: the deterministic fix SHAPI applies, when there is one.
 
+## All advisories
+
+<script setup>
+import { data } from "./.vitepress/advisories.data";
+</script>
+
+{{ data.total }} advisories: {{ data.verified }} verified, and {{ data.withFix }} with a fix SHAPI can apply automatically.
+
+<table>
+  <thead><tr><th>Effective</th><th>Provider</th><th>Change</th><th>Severity</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr v-for="a in data.all" :key="a.id">
+      <td style="white-space: nowrap">{{ a.effectiveDate }}</td>
+      <td>{{ a.provider }}</td>
+      <td><a :href="a.url">{{ a.title }}</a><span v-if="a.fix"> · automatic fix</span></td>
+      <td>{{ a.severity }}</td>
+      <td>{{ a.status }}</td>
+    </tr>
+  </tbody>
+</table>
+
 ## Contribute
 
 Found an API change that broke your code? Open a pull request in the advisory repository. Its [contribution guide](https://github.com/SriVarshini09/shapi-advisories/blob/main/CONTRIBUTING.md) explains the evidence an advisory needs. Corrections to existing advisories are as welcome as new ones.

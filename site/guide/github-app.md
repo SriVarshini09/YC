@@ -1,7 +1,7 @@
 # GitHub App
 
 ::: info Early access
-The hosted GitHub App is not open for public installation yet. Everything on this page is built and tested end to end; the CLI works for everyone today.
+Anyone can [install the GitHub App](https://github.com/apps/shapi-by-srivarshini/installations/new). It's free during early access, and SHAPI asks before anything is charged. Tell us what breaks: [open an issue](https://github.com/SriVarshini09/YC/issues).
 :::
 
 ## What it does
