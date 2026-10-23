@@ -11,6 +11,7 @@ export { probeSource, type Env, type Probe, type Worker } from "./probe";
 export { draftAdvisory, writeDraft, type DraftInput } from "./draft";
 export { githubWorker } from "./workers/github";
 export { stripeWorker } from "./workers/stripe";
+export { anthropicWorker, hubspotWorker, openaiWorker, slackWorker, twilioWorker } from "./workers/more";
 export { RecordingSchema, loadRecording, replay, type Recording, type ReplayResult } from "./replay";
 export { DEFAULT_DB, DEV_SECRET, WORKERS, runEvery, runOnce, type ProbeResult, type RunOptions, type RunReport } from "./scheduler";
 

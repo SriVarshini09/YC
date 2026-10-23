@@ -3,9 +3,10 @@ import { diffShapes, inferShape, providerSalt, type ShapeDiff, type ShapeReposit
 import { draftAdvisory } from "./draft";
 import { probeSource, type Env, type Probe, type Worker } from "./probe";
 import { githubWorker } from "./workers/github";
+import { anthropicWorker, hubspotWorker, openaiWorker, slackWorker, twilioWorker } from "./workers/more";
 import { stripeWorker } from "./workers/stripe";
 
-export const WORKERS: Worker[] = [githubWorker, stripeWorker];
+export const WORKERS: Worker[] = [githubWorker, stripeWorker, slackWorker, openaiWorker, anthropicWorker, twilioWorker, hubspotWorker];
 
 /** Default store location, relative to the working directory (gitignored). */
 export const DEFAULT_DB = ".shapi/shapes.db";
