@@ -64,7 +64,7 @@ mkdirSync(path.join(out, "advisories"), { recursive: true });
 for (const f of readdirSync(path.join(root, "advisories")).filter((f) => f.endsWith(".json"))) cpSync(path.join(root, "advisories", f), path.join(out, "advisories", f));
 cpSync(path.join(root, "fixtures/recordings"), path.join(out, "recordings"), { recursive: true });
 cpSync(path.join(cliDir, "README.npm.md"), path.join(out, "README.md"));
-if (existsSync(path.join(root, "LICENSE"))) cpSync(path.join(root, "LICENSE"), path.join(out, "LICENSE"));
+cpSync(path.join(cliDir, "LICENSE"), path.join(out, "LICENSE"));
 
 const pkg = {
   name: "shapi-cli",
@@ -73,7 +73,7 @@ const pkg = {
   keywords: ["api", "breaking-changes", "api-lock", "dependabot", "github", "stripe", "codemod", "contract-test"],
   type: "module",
   bin: { shapi: "bin/shapi.js" },
-  files: ["bin", "dist", "advisories", "recordings", "README.md", ...(existsSync(path.join(out, "LICENSE")) ? ["LICENSE"] : [])],
+  files: ["bin", "dist", "advisories", "recordings", "README.md", "LICENSE"],
   engines: cliPkg.engines,
   license,
   homepage: "https://github.com/SriVarshini09/YC#readme",
@@ -84,9 +84,10 @@ const pkg = {
 writeFileSync(path.join(out, "package.json"), `${JSON.stringify(pkg, null, 2)}\n`);
 console.log(`built shapi-cli@${pkg.version} in ${path.relative(root, out)} (${Object.keys(dependencies).length} dependencies: ${Object.keys(dependencies).join(", ")})`);
 
+/** The CLI package's own license (packages/cli/LICENSE); the rest of the repository is not covered by it. */
 function readLicense(): string {
-  const file = path.join(root, "LICENSE");
-  if (!existsSync(file)) return "UNLICENSED";
+  const file = path.join(cliDir, "LICENSE");
+  if (!existsSync(file)) throw new Error("packages/cli/LICENSE is missing: the package cannot be published without a license");
   const text = readFileSync(file, "utf8");
   if (/Apache License\s+Version 2\.0/.test(text)) return "Apache-2.0";
   if (/^MIT License/m.test(text)) return "MIT";

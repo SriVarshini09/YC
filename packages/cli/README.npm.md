@@ -43,3 +43,7 @@ Node.js 22 or later.
 
 - The GitHub App watches your repositories, posts a check on each push, and opens verified fix pull requests: https://github.com/SriVarshini09/YC
 - Report a problem: https://github.com/SriVarshini09/YC/issues
+
+## License
+
+Apache-2.0. The advisories in `advisories/` are also published, under CC BY 4.0, at https://github.com/SriVarshini09/shapi-advisories.

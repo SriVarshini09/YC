@@ -16,7 +16,8 @@ What exists: `packages/cli/scripts/build-npm.ts` builds the publishable **`shapi
 A new CI job, `npm-package`, runs both scripts on every PR.
 
 Verified: the smoke test passes locally, and 220 tests pass.
-Not done: a `LICENSE` (to be chosen; the package's license field follows the file), and publishing, which needs an npm account and `npm login`.
+License: Apache-2.0, in `packages/cli/LICENSE`. It covers the package (the CLI and the libraries it bundles), not the rest of the repository; the build refuses to run without it.
+Not done: publishing, which needs an npm account and `npm login`.
 
 ```
 pnpm pack:cli
