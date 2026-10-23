@@ -1,3 +1,5 @@
+<p align="center"><a href="https://srivarshini09.github.io/YC/"><img src="https://raw.githubusercontent.com/SriVarshini09/YC/main/brand/shapi-icon-256.png" alt="SHAPI" width="96" height="96"></a></p>
+
 # shapi-cli
 
 **Find the code that breaks when a third-party API changes, and fix it test-first.**

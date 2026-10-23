@@ -17,3 +17,5 @@ docs/PLAN.md
 docs/private/
 # the publishable shapi-cli package, built by packages/cli/scripts/build-npm.ts
 packages/cli/npm/
+# logo generator (brand/): dependencies are installed there on demand, see brand/README.md
+brand/package-lock.json

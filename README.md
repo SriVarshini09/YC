@@ -1,4 +1,11 @@
-# SHAPI
+<p align="center">
+  <a href="https://srivarshini09.github.io/YC/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="brand/shapi-logo-dark.svg">
+      <img src="brand/shapi-logo-light.svg" alt="SHAPI" height="80">
+    </picture>
+  </a>
+</p>
 
 Self-maintaining APIs. SHAPI maps the third-party APIs a codebase depends on (`api.lock`: every call site, and the status codes, fields, enums, headers and query params each one relies on) and flags the call sites that a known breaking change actually hits.
 
