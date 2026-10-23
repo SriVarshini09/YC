@@ -134,7 +134,11 @@ export async function upsertAdvisories(db: Db, advisories: Advisory[], opts: { r
           reviewed: (eb) => eb.ref("excluded.reviewed"),
           source: (eb) => eb.ref("excluded.source"),
           modified: (eb) => eb.ref("excluded.modified"),
-        }).where(opts.reviewed ? sql<boolean>`true` : sql<boolean>`advisories.reviewed = false`),
+        })
+          // Only a real change counts: re-syncing the same advisory must not bump `modified`, or every
+          // worker start would look like new advisories and re-run fix jobs for every repository.
+          .where(sql<boolean>`(advisories.data, advisories.reviewed, advisories.source) is distinct from (excluded.data, excluded.reviewed, excluded.source)`)
+          .where(opts.reviewed ? sql<boolean>`true` : sql<boolean>`advisories.reviewed = false`),
       )
       .executeTakeFirst();
     written += Number(res.numInsertedOrUpdatedRows ?? 0);

@@ -52,9 +52,10 @@ const log = {
 const db = createDb({ connectionString: url });
 const sender = await startSender(url, log);
 const app = buildApp({ db, config: { ...config, LOG_LEVEL: "warn" }, enqueueWebhook: sender.enqueueWebhook });
-await app.listen({ port: config.PORT, host: "127.0.0.1" });
+// "localhost" binds both 127.0.0.1 and ::1, so a browser on either reaches this server.
+await app.listen({ port: config.PORT, host: "localhost" });
 const boss = await startWorker({ databaseUrl: url, db, config, env: process.env, log });
-console.log(`web on http://127.0.0.1:${config.PORT}, worker running, GitHub App ${config.githubApp ? config.githubApp.appId : "not configured"}`);
+console.log(`web on ${config.webApp?.publicUrl ?? `http://localhost:${config.PORT}`}, worker running, GitHub App ${config.githubApp ? config.githubApp.appId : "not configured"}`);
 
 const source = process.env.SHAPI_GITHUB_WEBHOOK_URL;
 let smee: SmeeClient | undefined;
