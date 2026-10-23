@@ -38,3 +38,4 @@ One line per task: task, summary file, PR, status.
 - PA-A7a shapi-cli on npm: [summary](PA-A7a-npm-cli.md) · PR: [#37](https://github.com/SriVarshini09/YC/pull/37) · open
 - PA-A7b public advisory database: [summary](PA-A7b-advisory-repo.md) · PR: [#38](https://github.com/SriVarshini09/YC/pull/38) · open
 - PA-A7c docs site: [summary](PA-A7c-docs-site.md) · PR: [#39](https://github.com/SriVarshini09/YC/pull/39) · open
+- PA-A8 trust basics: [summary](PA-A8-trust.md) · PR: pending · open

@@ -45,12 +45,23 @@ export default defineConfig({
           { text: "FAQ", link: "/faq" },
         ],
       },
+      {
+        text: "Legal",
+        items: [
+          { text: "Privacy policy", link: "/legal/privacy" },
+          { text: "Terms of service", link: "/legal/terms" },
+          { text: "Data processing agreement", link: "/legal/dpa" },
+          { text: "Subprocessors", link: "/legal/subprocessors" },
+        ],
+      },
     ],
     socialLinks: [{ icon: "github", link: "https://github.com/SriVarshini09/YC" }],
     search: { provider: "local" },
     editLink: { pattern: "https://github.com/SriVarshini09/YC/edit/main/site/:path", text: "Edit this page on GitHub" },
     footer: {
-      message: "shapi-cli is Apache-2.0. Advisories are CC BY 4.0.",
+      // Raw HTML: VitePress doesn't add the base to these links.
+      message:
+        'shapi-cli is Apache-2.0. Advisories are CC BY 4.0. <a href="/YC/legal/privacy">Privacy</a> · <a href="/YC/legal/terms">Terms</a> · <a href="/YC/security">Security</a>',
       copyright: "SHAPI",
     },
   },
