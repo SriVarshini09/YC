@@ -106,6 +106,8 @@ export interface ManifestInput {
   redirectUrl: string;
   /** Public apps can be installed by anyone; private ones only by the owner. */
   public: boolean;
+  /** Where GitHub sends users back after signing in to the web app (`/auth/github/callback`). */
+  callbackUrls?: string[];
 }
 
 /** A GitHub App manifest (https://docs.github.com/apps/sharing-github-apps/registering-a-github-app-from-a-manifest). */
@@ -116,6 +118,7 @@ export function appManifest(input: ManifestInput) {
     description: "Finds code that breaks when a third-party API changes, and opens verified fix pull requests.",
     hook_attributes: { url: input.webhookUrl, active: true },
     redirect_url: input.redirectUrl,
+    ...(input.callbackUrls?.length ? { callback_urls: input.callbackUrls } : {}),
     public: input.public,
     default_permissions: APP_PERMISSIONS,
     default_events: [...APP_EVENTS],

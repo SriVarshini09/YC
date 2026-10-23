@@ -9,7 +9,7 @@ import { appManifest, convertManifestCode } from "@shapi/github-app";
 /**
  * Register the SHAPI GitHub App through GitHub's manifest flow, once per environment:
  *
- *   pnpm --filter @shapi/server github:register [--webhook-url URL] [--org ORG] [--name NAME] [--public]
+ *   pnpm --filter @shapi/server github:register [--webhook-url URL] [--callback-url URL] [--org ORG] [--name NAME] [--public] [--out DIR]
  *
  * Open the printed local page, confirm on GitHub, and GitHub sends the browser back here with a
  * one-time code. The app's private key and webhook secret are written to .shapi/github-app.env
@@ -18,6 +18,8 @@ import { appManifest, convertManifestCode } from "@shapi/github-app";
 const { values } = parseArgs({
   options: {
     "webhook-url": { type: "string" },
+    /** The web app's sign-in callback, for example https://shapi-app.fly.dev/auth/github/callback. */
+    "callback-url": { type: "string" },
     org: { type: "string" },
     name: { type: "string", default: "SHAPI" },
     homepage: { type: "string", default: "https://github.com/SriVarshini09/YC" },
@@ -44,6 +46,7 @@ const manifest = appManifest({
   webhookUrl,
   redirectUrl: `http://localhost:${port}/callback`,
   public: values.public,
+  callbackUrls: values["callback-url"] ? [values["callback-url"]] : undefined,
 });
 const target = values.org
   ? `https://github.com/organizations/${encodeURIComponent(values.org)}/settings/apps/new?state=${state}`
