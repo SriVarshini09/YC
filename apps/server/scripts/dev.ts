@@ -18,6 +18,9 @@ process.loadEnvFile(envFile);
 // Fixes are verified in E2B when a key is saved locally; otherwise in a local folder (your own code only).
 const e2bEnv = path.join(shapiDir, "e2b.env");
 if (existsSync(e2bEnv)) process.loadEnvFile(e2bEnv);
+// Stripe test-mode billing, when a test key, price and webhook secret are saved locally.
+const stripeEnv = path.join(shapiDir, "stripe.env");
+if (existsSync(stripeEnv)) process.loadEnvFile(stripeEnv);
 
 const dataDir = path.join(shapiDir, "dev-postgres");
 const port = Number(process.env.SHAPI_DEV_PG_PORT ?? 54329);
