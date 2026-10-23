@@ -19,6 +19,13 @@
   "effectiveDate": "2027-02-23",
   "severity": "high",
   "migrationNote": "Upgrade Marketing API calls to v26.0, set targeting_automation.advantage_audience to 1 or 0 explicitly on ad set targeting, and review the v26.0 changelog (poll ads, Messenger Stories, Explore placement, delivery estimate fields) before 2027-02-23.",
+  "recipeId": "apply-fix",
+  "fix": {
+    "path": {
+      "from": "/v25.0/",
+      "to": "/v26.0/"
+    }
+  },
   "sources": [
     "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/",
     "https://developers.facebook.com/documentation/ads-commerce/marketing-api/overview/versioning",

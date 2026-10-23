@@ -9,7 +9,10 @@
   },
   "changeClass": "field-rename",
   "trigger": {
-    "fields": ["folderId"]
+    "fields": [
+      "folderId",
+      "results[].folderId"
+    ]
   },
   "firstObserved": null,
   "publishedNotice": {
@@ -19,6 +22,15 @@
   "effectiveDate": "2026-01-28",
   "severity": "high",
   "migrationNote": "Read folderIdV2 instead of folderId from /marketing/v3/emails responses and re-key any stored folder index on folderIdV2 (list emails with folderId__not_null to rebuild it); old folderId values no longer match anything the API returns.",
+  "recipeId": "apply-fix",
+  "fix": {
+    "fields": [
+      {
+        "from": "folderId",
+        "to": "folderIdV2"
+      }
+    ]
+  },
   "sources": [
     "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration",
     "https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/marketing-emails/get-marketing-v3-emails-"

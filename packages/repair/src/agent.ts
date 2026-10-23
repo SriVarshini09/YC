@@ -16,9 +16,9 @@ export interface RepairInput {
   repoDir?: string;
   advisory: Advisory;
   callSite: LockedCallSite;
-  /** The response the code was written against, and the one the provider sends now. */
-  before: ResponseShape;
-  after: ResponseShape;
+  /** The response the code was written against, and the one the provider sends now (not needed with an advisory `fix`). */
+  before?: ResponseShape;
+  after?: ResponseShape;
   recipes: Record<string, Recipe>;
   /** Used when no recipe applies, or the recipe's change does not make the test pass. */
   llm?: LlmFixer;

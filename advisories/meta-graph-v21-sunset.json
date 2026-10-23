@@ -19,6 +19,15 @@
   "effectiveDate": "2027-01-21",
   "severity": "high",
   "migrationNote": "Move the version segment to a supported version (v22.0 or later) and re-test the fields you read.",
-  "sources": ["https://developers.facebook.com/docs/graph-api/changelog/versions"],
+  "recipeId": "apply-fix",
+  "fix": {
+    "path": {
+      "from": "/v21.0/",
+      "to": "/v26.0/"
+    }
+  },
+  "sources": [
+    "https://developers.facebook.com/docs/graph-api/changelog/versions"
+  ],
   "status": "verified"
 }

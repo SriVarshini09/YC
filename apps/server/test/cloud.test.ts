@@ -157,17 +157,22 @@ describe("cloud scan", () => {
 });
 
 describe("cloud fix", () => {
-  it("repairs the fixable advisory test-first and opens a PR; the rest go on the dashboard as manual fixes", async () => {
+  it("repairs the fixable advisories test-first and opens a PR for each; the rest go on the dashboard as manual fixes", async () => {
     const t = setup();
     const scanId = await queueScan(t.github.refs.get("main")!);
     await runScanJob({ db, github: t.githubClients }, { scanId });
     const report = await runFixJob(t.fixDeps, { scanId });
 
     expect(report.repairs.find((r) => r.advisoryId === "github-workflow-dispatch-204-to-200")).toMatchObject({ status: "fixed" });
-    expect(report.repairs.filter((r) => r.status === "no-fix").length).toBeGreaterThanOrEqual(2);
+    // fixed from the advisory's fix alone, without recorded responses
+    expect(report.repairs.find((r) => r.advisoryId === "quickbooks-minorversion-below-75-ignored")).toMatchObject({ status: "fixed" });
+    // the HubSpot call site uses axios, which contract tests don't cover yet
+    expect(report.repairs.find((r) => r.advisoryId === "hubspot-pipelines-v1-sunset")).toMatchObject({ status: "unsupported" });
     expect(t.runs).toEqual(["acme/demo"]);
+    expect(t.github.pulls.map((p) => p.head.ref).sort()).toEqual(["shapi/github-workflow-dispatch-204-to-200", "shapi/quickbooks-minorversion-below-75-ignored"]);
+    expect(t.github.fileAt("shapi/quickbooks-minorversion-below-75-ignored", "src/accounting.ts")).toContain("&minorversion=75`");
 
-    const pr = t.github.pulls[0]!;
+    const pr = t.github.pulls.find((p) => p.head.ref === "shapi/github-workflow-dispatch-204-to-200")!;
     expect(pr).toMatchObject({ head: { ref: "shapi/github-workflow-dispatch-204-to-200" }, labels: [{ name: "shapi" }] });
     expect(pr.body).toContain("### Contract test");
     expect(t.github.fileAt(pr.head.ref, "src/deploy.ts")).toContain("![200, 204].includes(res.status)");
@@ -265,7 +270,7 @@ describe("triggers", () => {
       while (!logs.includes("fix job finished") && Date.now() < deadline) await new Promise((r) => setTimeout(r, 250));
       expect(logs.filter((l) => l.startsWith("ERROR"))).toEqual([]);
       expect(logs).toEqual(expect.arrayContaining(["webhook processed", "scan finished", "fix job finished"]));
-      expect(t.github.pulls.map((p) => p.head.ref)).toEqual(["shapi/github-workflow-dispatch-204-to-200"]);
+      expect(t.github.pulls.map((p) => p.head.ref).sort()).toEqual(["shapi/github-workflow-dispatch-204-to-200", "shapi/quickbooks-minorversion-below-75-ignored"]);
       expect(t.github.checkRuns[0]).toMatchObject({ head_sha: sha, status: "completed" });
     } finally {
       await boss.stop({ graceful: false, timeout: 5_000 });

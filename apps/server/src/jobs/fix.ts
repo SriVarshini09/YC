@@ -7,6 +7,7 @@ import type { GitHubClients } from "../github/clients";
 import { repositoryCovered } from "../billing/plan";
 import { deliverRepoFixes, type DeliveryReport, type FixCandidate } from "../github/fixes";
 import { reviewedAdvisories, storedLock } from "./scan";
+import type { ResponseShape } from "@shapi/shapes";
 import { shapesFor } from "./shapes";
 
 /** Run `fn` in a workspace holding `files`. Production: a fresh E2B sandbox per job. */
@@ -87,7 +88,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
   const llm = (scan.settings as { llmFixes?: boolean }).llmFixes === true ? deps.llm : undefined;
   const report: FixReport = { scanId: scan.id, repairs: [] };
   const manual: { advisory: Advisory; callSites: number }[] = [];
-  const todo: { advisory: Advisory; callSite: LockedCallSite; count: number; shapes: NonNullable<Awaited<ReturnType<typeof shapesFor>>> }[] = [];
+  const todo: { advisory: Advisory; callSite: LockedCallSite; count: number; shapes: { before?: ResponseShape; after?: ResponseShape; source: string } }[] = [];
   for (const entry of byAdvisory.values()) {
     const fixable = (entry.advisory.recipeId && RECIPES[entry.advisory.recipeId]) || llm;
     if (!fixable) {
@@ -95,7 +96,10 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
       manual.push({ advisory: entry.advisory, callSites: entry.count });
       continue;
     }
-    const shapes = await shapesFor(deps.db, entry.advisory, deps.recordingsDir, deps.shapeSecret);
+    // With an advisory fix the contract test is built from the fix itself; otherwise it needs recorded responses.
+    const shapes = entry.advisory.fix
+      ? { source: "built from the advisory's fix and the fields the code reads" }
+      : await shapesFor(deps.db, entry.advisory, deps.recordingsDir, deps.shapeSecret);
     if (!shapes) {
       report.repairs.push({ advisoryId: entry.advisory.id, status: "no-shapes", reason: "no before/after responses recorded for this endpoint" });
       manual.push({ advisory: entry.advisory, callSites: entry.count });

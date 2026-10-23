@@ -71,3 +71,44 @@ function sampleString(classes: string[]): string {
   if (classes.includes("token")) return "shapi_value";
   return "shapi text";
 }
+
+/**
+ * A JSON body with every field path the code reads (from the call site's surface). Leaves are
+ * strings unless `values` sets them, so a field that goes missing reads differently from one that
+ * is present. `values` maps a field path to the value to put there (array paths use the first item).
+ */
+export function bodyFromPaths(paths: string[], values: Record<string, unknown> = {}): unknown {
+  const all = [...new Set([...paths, ...Object.keys(values)])];
+  const isLeaf = (p: string) => !all.some((o) => o !== p && (o.startsWith(`${p}.`) || o.startsWith(`${p}[]`)));
+  const shape: ResponseShape = {
+    status: 200,
+    headers: {},
+    headerNames: [],
+    body: {
+      kind: "json",
+      rootType: all.some((p) => p.startsWith("[]")) ? "array" : "object",
+      fields: all.map((path) => ({ path, pathHash: path, types: isLeaf(path) ? ["string"] : [], classes: [], occurrences: 1, nullRate: 0 })),
+    },
+  };
+  const body = synthesizeBody(shape);
+  for (const [path, value] of Object.entries(values)) setPath(body, tokens(path), value);
+  return body;
+}
+
+function setPath(target: unknown, path: string[], value: unknown): void {
+  let cur = target as Record<string, unknown> | unknown[];
+  for (let i = 0; i < path.length; i++) {
+    const t = path[i]!;
+    const last = i === path.length - 1;
+    if (t === "[]") {
+      const arr = cur as unknown[];
+      if (last) arr[0] = value;
+      else cur = arr[0] as Record<string, unknown>;
+    } else {
+      const obj = cur as Record<string, unknown>;
+      if (last) obj[t] = value;
+      else cur = obj[t] as Record<string, unknown>;
+    }
+    if (cur === undefined || cur === null) return;
+  }
+}

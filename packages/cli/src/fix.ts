@@ -67,7 +67,8 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
     for (const finding of affected) {
       const { advisory, callSite } = finding;
       const where = `${callSite.file}:${callSite.line}`;
-      const shapes = findShapes(advisory, opts);
+      // With an advisory fix the contract test is built from the fix itself; otherwise it needs recorded responses.
+      const shapes: { before?: ResponseShape; after?: ResponseShape; source: string } | undefined = advisory.fix ? { source: FIX_SOURCE } : findShapes(advisory, opts);
       if (!shapes) {
         const skipped = "no before/after shapes for this endpoint (record them with the canary, or add a recording)";
         deps.log(`SKIP  ${where}  ${advisory.id}: ${skipped}`);
@@ -126,6 +127,9 @@ async function deliverToGitHub(
   if (outcome.action === "skipped") throw new Error(`not delivered: ${outcome.reason}${outcome.url ? ` (${outcome.url})` : ""}`);
   return { url: outcome.url, number: outcome.number, branch: outcome.branch, commit: outcome.commit };
 }
+
+/** Shown as the shape source when the contract test is built from the advisory's `fix`. */
+export const FIX_SOURCE = "built from the advisory's fix and the fields the code reads";
 
 /** Before/after shapes for an advisory: the shape store first (live canary data), then the recordings folder. */
 function findShapes(advisory: Advisory, opts: FixOptions): { before: ResponseShape; after: ResponseShape; source: string } | undefined {

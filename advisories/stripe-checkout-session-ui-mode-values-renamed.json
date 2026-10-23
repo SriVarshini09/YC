@@ -9,7 +9,11 @@
   },
   "changeClass": "enum-added",
   "trigger": {
-    "enums": [{ "field": "ui_mode" }]
+    "enums": [
+      {
+        "field": "ui_mode"
+      }
+    ]
   },
   "firstObserved": null,
   "publishedNotice": {
@@ -19,6 +23,28 @@
   "effectiveDate": "2026-03-25",
   "severity": "high",
   "migrationNote": "When moving to 2026-03-25.dahlia or later, send ui_mode hosted_page instead of hosted, embedded_page instead of embedded and elements instead of custom, and update every comparison of session.ui_mode (including checkout.session webhook handlers) to the new values; handle the new form value too.",
+  "recipeId": "apply-fix",
+  "fix": {
+    "enums": [
+      {
+        "field": "ui_mode",
+        "values": [
+          {
+            "from": "hosted",
+            "to": "hosted_page"
+          },
+          {
+            "from": "embedded",
+            "to": "embedded_page"
+          },
+          {
+            "from": "custom",
+            "to": "elements"
+          }
+        ]
+      }
+    ]
+  },
   "sources": [
     "https://docs.stripe.com/changelog/dahlia/2026-03-25/updates-available-checkout-session-ui-modes",
     "https://docs.stripe.com/api/checkout/sessions/create"

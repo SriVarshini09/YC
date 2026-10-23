@@ -122,7 +122,8 @@
       "resolved": true,
       "surface": {
         "fields": [
-          "results"
+          "results",
+          "results[].stages"
         ],
         "statusCodes": [],
         "checksOk": false,
