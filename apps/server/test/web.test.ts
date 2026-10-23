@@ -111,6 +111,7 @@ describe("web sign-in", () => {
     expect(res.body).toContain('href="/login"');
     expect(res.body).toContain("https://github.com/apps/shapi-test/installations/new");
     expect(res.body).not.toContain("<script");
+    expect(res.body).toContain('<a href="https://srivarshini09.github.io/YC/legal/privacy">Privacy</a>');
     expect(res.headers["content-security-policy"]).toContain("default-src 'none'");
     expect(res.headers["x-frame-options"]).toBe("DENY");
     await app.close();

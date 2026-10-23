@@ -21,7 +21,7 @@ import {
 } from "./auth";
 import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
 import { completeCheckout, portalUrl, setQuantity, startCheckout, type BillingDeps } from "../billing/stripe";
-import { STYLES, html, page, shortSha, timeAgo, type Html } from "./html";
+import { DOCS_URL, STYLES, html, page, shortSha, timeAgo, type Html } from "./html";
 
 export interface WebConfig extends OAuthConfig {
   /** Signs the session cookie. */
@@ -381,7 +381,7 @@ ${!paying && needed > 0 ? form("checkout", `Upgrade to cover ${needed} more priv
 ${paying && needed > paid ? form("add-repos", `Add ${needed - paid} repositor${needed - paid === 1 ? "y" : "ies"} to the plan`, true) : ""}
 ${billing?.stripe_customer_id ? form("portal", "Manage billing and invoices") : ""}
 </p>
-<p class="note">Prices and invoices come from Stripe. Removing private repositories lowers the plan automatically; adding them never raises it without this button.</p>
+<p class="note">Prices and invoices come from Stripe. Removing private repositories lowers the plan automatically; adding them never raises it without this button.${!paying && needed > 0 ? html` Upgrading means you accept the <a href="${DOCS_URL}/legal/terms">terms of service</a>.` : ""}</p>
 </div>`;
 }
 

@@ -35,6 +35,8 @@ SHAPI reads your code in order to fix it. This page says exactly what that invol
 
 Uninstalling the GitHub App deletes the account and its repositories, scans, findings, fix PR records and billing record at once. Webhook payloads expire on their 14-day schedule. A paid subscription is managed in Stripe: cancel it under *Manage billing* before uninstalling.
 
+The [privacy policy](/legal/privacy) covers the same data in more detail, and the [subprocessors](/legal/subprocessors) page lists every outside service that receives any of it.
+
 ### Isolation between customers
 
 Every customer table in Postgres uses **row-level security** keyed to the account. The app's database role cannot bypass it, so a query that forgets a filter still sees only one customer's rows. The web app only opens accounts your GitHub user can access.

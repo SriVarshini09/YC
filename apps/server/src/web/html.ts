@@ -31,6 +31,9 @@ export interface PageUser {
   csrf: string;
 }
 
+/** The public documentation site, where the security page and the legal terms live. */
+export const DOCS_URL = "https://srivarshini09.github.io/YC";
+
 /** The page shell: no scripts at all, one stylesheet, and a sign-out form when signed in. */
 export function page(title: string, body: Html, user?: PageUser): string {
   return `<!doctype html>${html`<html lang="en">
@@ -50,6 +53,7 @@ export function page(title: string, body: Html, user?: PageUser): string {
   }
 </header>
 <main>${body}</main>
+<footer class="foot"><a href="${DOCS_URL}/">Docs</a> · <a href="${DOCS_URL}/security">Security</a> · <a href="${DOCS_URL}/legal/privacy">Privacy</a> · <a href="${DOCS_URL}/legal/terms">Terms</a></footer>
 </body>
 </html>`}`;
 }
@@ -85,6 +89,7 @@ header.top { display: flex; justify-content: space-between; align-items: center;
 .brand { font-weight: 700; color: var(--fg); text-decoration: none; letter-spacing: .02em; }
 .signout { display: flex; gap: 12px; align-items: center; color: var(--muted); }
 main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+footer.foot { max-width: 1040px; margin: 0 auto; padding: 0 16px 32px; font-size: 13px; color: var(--muted); }
 h1 { font-size: 24px; margin: 0 0 4px; }
 h2 { font-size: 17px; margin: 32px 0 8px; }
 p.lead { color: var(--muted); margin: 0 0 24px; }

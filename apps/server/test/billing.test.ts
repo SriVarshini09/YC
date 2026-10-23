@@ -157,6 +157,7 @@ describe("billing in the web app", () => {
     expect(page.body).toContain("Free plan");
     expect(page.body.match(/not covered by plan/g)).toHaveLength(2);
     expect(page.body).toContain("Upgrade to cover 2 more private repositories");
+    expect(page.body).toContain('Upgrading means you accept the <a href="https://srivarshini09.github.io/YC/legal/terms">terms of service</a>');
 
     // The browser follows the 303 to Stripe only if the page's CSP allows it as a form target.
     const csp = String(page.headers["content-security-policy"]);
