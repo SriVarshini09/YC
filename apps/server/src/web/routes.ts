@@ -393,7 +393,7 @@ function planSection(
   accountId: string,
   csrf: string,
   repos: { id: string; private: boolean; enabled: boolean; created_at: Date }[],
-  billing: { status: string; quantity: number; stripe_customer_id: string | null; current_period_end: Date | null } | undefined,
+  billing: { status: string; quantity: number; stripe_customer_id: string | null; current_period_end: Date | null; cancel_at: Date | null } | undefined,
   enabled: boolean,
   notice: string | undefined,
 ): Html {
@@ -413,7 +413,13 @@ function planSection(
 <div class="card">
 ${notice && notices[notice] ? html`<p class="notice">${notices[notice]}</p>` : ""}
 <p>${paying ? html`<b>Paid plan</b>: ${paid} private repositor${paid === 1 ? "y" : "ies"} plus ${FREE_PRIVATE_REPOS} free` : html`<b>Free plan</b>: public repositories and ${FREE_PRIVATE_REPOS} private repository`}${billing?.status === "past_due" ? html` <span class="tag warn">payment past due</span>` : ""}</p>
-<p class="muted">${privates} private repositor${privates === 1 ? "y" : "ies"} installed.${paying && billing?.current_period_end ? html` Renews ${billing.current_period_end.toISOString().slice(0, 10)}.` : ""}</p>
+<p class="muted">${privates} private repositor${privates === 1 ? "y" : "ies"} installed.${
+    paying && billing?.cancel_at
+      ? html` <span class="tag warn">Cancels on ${billing.cancel_at.toISOString().slice(0, 10)}</span> After that, only public repositories and ${FREE_PRIVATE_REPOS} private repository are scanned.`
+      : paying && billing?.current_period_end
+        ? html` Renews ${billing.current_period_end.toISOString().slice(0, 10)}.`
+        : ""
+  }</p>
 <p>
 ${!paying && needed > 0 ? form("checkout", `Upgrade to cover ${needed} more private repositor${needed === 1 ? "y" : "ies"}`, true) : ""}
 ${paying && needed > paid ? form("add-repos", `Add ${needed - paid} repositor${needed - paid === 1 ? "y" : "ies"} to the plan`, true) : ""}

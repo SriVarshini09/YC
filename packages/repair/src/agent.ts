@@ -22,6 +22,8 @@ export interface RepairInput {
   recipes: Record<string, Recipe>;
   /** Used when no recipe applies, or the recipe's change does not make the test pass. */
   llm?: LlmFixer;
+  /** Where to write the contract test; default test/shapi/<advisory id>.test.ts. */
+  testFile?: string;
 }
 
 export interface Attempt {
@@ -61,7 +63,7 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
   const ws = input.workspace ?? localWorkspace(input.repoDir!);
   const original = await ws.read(callSite.file);
   if (original === undefined) return { status: "unsupported", sandbox: ws.location, changes: [], attempts: [], reason: `${callSite.file} is not in the repository` };
-  const test = generateContractTest({ callSite, advisory, before: input.before, after: input.after, sourceText: original });
+  const test = generateContractTest({ callSite, advisory, before: input.before, after: input.after, sourceText: original, file: input.testFile });
   if (test.status !== "generated") return { status: "unsupported", changes: [], attempts: [], reason: test.reason };
 
   await ws.write(test.file, test.content);
@@ -159,4 +161,73 @@ function rejected(ws: Workspace, test: { file: string; content: string }, baseli
 /** Put LLM-written files back to their content before the attempt. */
 async function restore(ws: Workspace, changes: FileChange[]): Promise<void> {
   for (const c of changes) await ws.write(c.file, c.before);
+}
+
+export interface AdvisoryRepairInput extends Omit<RepairInput, "callSite" | "testFile"> {
+  /** Every affected call site of the advisory in the repository. */
+  callSites: LockedCallSite[];
+}
+
+export interface SiteRepair {
+  callSite: LockedCallSite;
+  result: RepairResult;
+}
+
+export interface AdvisoryRepair {
+  /** "fixed": every call site that needed a change got one; "partial": some did; "none": none did. */
+  status: "fixed" | "partial" | "none";
+  /** One entry per call site, in the order they were repaired. */
+  sites: SiteRepair[];
+  /** The combined change of the fixed sites: each source file once (from its original text), then every contract test. */
+  changes: FileChange[];
+  method?: "recipe" | "llm";
+  sandbox?: string;
+}
+
+/**
+ * Repair every affected call site of one advisory in one workspace, so a single pull request covers
+ * them all. Each site is repaired test-first like repairCallSite, on top of the fixes before it.
+ * Within a file the sites go bottom-up, so an edit never moves the lines of a site still to come.
+ * Each site gets its own contract test: test/shapi/<id>.test.ts, then <id>.2.test.ts, …
+ */
+export async function repairAdvisory(input: AdvisoryRepairInput): Promise<AdvisoryRepair> {
+  if (!input.workspace && !input.repoDir) throw new Error("repairAdvisory needs a workspace or a repoDir");
+  const ws = input.workspace ?? localWorkspace(input.repoDir!);
+  const seen = new Set<string>();
+  const order = input.callSites
+    .filter((s) => {
+      const key = `${s.file}:${s.line}:${s.column}`;
+      return !seen.has(key) && Boolean(seen.add(key));
+    })
+    .sort((a, b) => a.file.localeCompare(b.file) || b.line - a.line || b.column - a.column);
+
+  const originals = new Map<string, string>();
+  const sites: SiteRepair[] = [];
+  for (const [i, callSite] of order.entries()) {
+    if (!originals.has(callSite.file)) originals.set(callSite.file, (await ws.read(callSite.file)) ?? "");
+    const testFile = `test/shapi/${input.advisory.id}${i === 0 ? "" : `.${i + 1}`}.test.ts`;
+    const result = await repairCallSite({ ...input, workspace: ws, callSite, testFile });
+    for (const c of result.changes) if (c.before && !originals.has(c.file)) originals.set(c.file, c.before);
+    sites.push({ callSite, result });
+  }
+
+  const fixed = sites.filter((s) => s.result.status === "fixed");
+  const needed = sites.filter((s) => s.result.status !== "already-handled");
+  const tests = new Set(fixed.map((s) => s.result.test?.file));
+  const sourceFiles = [...new Set(fixed.flatMap((s) => s.result.changes.filter((c) => !tests.has(c.file)).map((c) => c.file)))].sort();
+  const changes: FileChange[] = [];
+  for (const file of sourceFiles) {
+    const notes = fixed.flatMap((s) => s.result.changes.filter((c) => c.file === file).flatMap((c) => c.notes));
+    changes.push({ file, before: originals.get(file) ?? "", after: (await ws.read(file)) ?? "", notes });
+  }
+  for (const s of fixed) if (s.result.test) changes.push({ file: s.result.test.file, before: "", after: s.result.test.content, notes: ["generated contract test"] });
+
+  const methods = new Set(fixed.map((s) => s.result.method));
+  return {
+    status: fixed.length === 0 ? "none" : fixed.length === needed.length ? "fixed" : "partial",
+    sites,
+    changes,
+    ...(fixed.length ? { method: methods.has("llm") ? ("llm" as const) : ("recipe" as const) } : {}),
+    sandbox: ws.location,
+  };
 }

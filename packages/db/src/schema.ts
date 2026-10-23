@@ -112,6 +112,8 @@ export interface BillingTable {
   status: Generated<string>;
   quantity: Generated<number>;
   current_period_end: Timestamp | null;
+  /** Set when the subscription is cancelled but still running: the day it ends. */
+  cancel_at: ColumnType<Date | null, string | Date | null | undefined, string | Date | null>;
   updated_at: Timestamp;
 }
 

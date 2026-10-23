@@ -237,6 +237,15 @@ const migrations: Record<string, Migration> = {
       await sql`drop table if exists billing, stripe_events`.execute(db);
     },
   },
+  "0007_billing_cancel_at": {
+    // When a cancelled subscription ends (Stripe's cancel_at, or the period end with cancel_at_period_end).
+    async up(db: Kysely<unknown>) {
+      await sql`alter table billing add column cancel_at timestamptz`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`alter table billing drop column if exists cancel_at`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };
