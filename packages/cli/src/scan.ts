@@ -2,7 +2,6 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   SEVERITIES,
   SEVERITY_RANK,
@@ -16,11 +15,12 @@ import {
   type Severity,
 } from "@shapi/core";
 import { extractCallSites } from "@shapi/extractor";
+import { bundledDir } from "./paths";
 
 export const VERSION = "0.1.0";
 
-/** Repo-level advisories directory: packages/cli/{src,dist}/ → ../../../advisories. */
-export const DEFAULT_ADVISORIES = fileURLToPath(new URL("../../../advisories", import.meta.url));
+/** Advisories shipped with SHAPI (the published package's advisories/, or the repository root's in the monorepo). */
+export const DEFAULT_ADVISORIES = bundledDir("advisories", "advisories");
 
 export interface ScanOptions {
   json?: boolean;

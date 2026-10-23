@@ -15,3 +15,5 @@ research_notes/
 reports/
 docs/PLAN.md
 docs/private/
+# the publishable shapi-cli package, built by packages/cli/scripts/build-npm.ts
+packages/cli/npm/

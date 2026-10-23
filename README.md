@@ -51,3 +51,7 @@ Canary probes call provider APIs (GitHub public endpoints; the workflow_dispatch
 - `advisories/`: seeded advisories (open JSON format)
 - `fixtures/demo-ts`: demo service
 - `docs/progress/`: one summary per task
+
+## License
+
+The `shapi-cli` package, `packages/cli` and the libraries it bundles, is licensed under [Apache-2.0](packages/cli/LICENSE). The rest of this repository, including the hosted service in `apps/server`, is not licensed for reuse.

@@ -35,3 +35,4 @@ One line per task: task, summary file, PR, status.
 - PA-A6b billing: [summary](PA-A6b-billing.md) · PR: [#34](https://github.com/SriVarshini09/YC/pull/34) · open
 - Follow-up: advisory sync and A6a leftovers: [summary](PA-followup-advisory-sync.md) · PR: [#35](https://github.com/SriVarshini09/YC/pull/35) · open
 - Billing redirect fix (missed the #35 merge): [summary](PA-followup-advisory-sync.md) · PR: [#36](https://github.com/SriVarshini09/YC/pull/36) · open
+- PA-A7a shapi-cli on npm: [summary](PA-A7a-npm-cli.md) · PR: [#37](https://github.com/SriVarshini09/YC/pull/37) · open

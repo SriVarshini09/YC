@@ -2,7 +2,6 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { createApiLock, loadAdvisories, matchAdvisories, pathMatches, type Advisory, type Finding } from "@shapi/core";
 import { extractCallSites } from "@shapi/extractor";
 import { ShapeStore, type ResponseShape } from "@shapi/shapes";
@@ -10,9 +9,10 @@ import { loadRecording, replay } from "@shapi/canary";
 import { RECIPES, claudeFixer, repairCallSite, type RepairResult } from "@shapi/repair";
 import { authFromEnv, octokitFor, prBranch, prTitle, renderPrBody, repoFromUrl, upsertFixPr, type OpenedPullRequest } from "@shapi/github-app";
 import { DEFAULT_ADVISORIES } from "./scan";
+import { bundledDir } from "./paths";
 
-/** Recorded response sequences shipped with SHAPI: packages/cli/{src,dist}/ → ../../../fixtures/recordings. */
-export const DEFAULT_RECORDINGS = fileURLToPath(new URL("../../../fixtures/recordings", import.meta.url));
+/** Recorded response sequences shipped with SHAPI (the published package's recordings/, or fixtures/recordings in the monorepo). */
+export const DEFAULT_RECORDINGS = bundledDir("recordings", "fixtures/recordings");
 
 export interface FixOptions {
   repo?: string;
