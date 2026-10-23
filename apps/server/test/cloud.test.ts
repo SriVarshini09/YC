@@ -157,7 +157,7 @@ describe("cloud scan", () => {
 });
 
 describe("cloud fix", () => {
-  it("repairs the fixable advisories test-first and opens a PR for each; the rest go on the dashboard as manual fixes", async () => {
+  it("repairs all three demo findings test-first; two PRs open now and the third waits for the hourly limit", async () => {
     const t = setup();
     const scanId = await queueScan(t.github.refs.get("main")!);
     await runScanJob({ db, github: t.githubClients }, { scanId });
@@ -166,11 +166,15 @@ describe("cloud fix", () => {
     expect(report.repairs.find((r) => r.advisoryId === "github-workflow-dispatch-204-to-200")).toMatchObject({ status: "fixed" });
     // fixed from the advisory's fix alone, without recorded responses
     expect(report.repairs.find((r) => r.advisoryId === "quickbooks-minorversion-below-75-ignored")).toMatchObject({ status: "fixed" });
-    // the HubSpot call site uses axios, which contract tests don't cover yet
-    expect(report.repairs.find((r) => r.advisoryId === "hubspot-pipelines-v1-sunset")).toMatchObject({ status: "unsupported" });
+    // the HubSpot call site uses axios: its contract test replaces axios with a fake
+    expect(report.repairs.find((r) => r.advisoryId === "hubspot-pipelines-v1-sunset")).toMatchObject({ status: "fixed" });
     expect(t.runs).toEqual(["acme/demo"]);
-    expect(t.github.pulls.map((p) => p.head.ref).sort()).toEqual(["shapi/github-workflow-dispatch-204-to-200", "shapi/quickbooks-minorversion-below-75-ignored"]);
-    expect(t.github.fileAt("shapi/quickbooks-minorversion-below-75-ignored", "src/accounting.ts")).toContain("&minorversion=75`");
+    // at most 2 new PRs per hour, most urgent first: the critical GitHub fix, then one of the two high ones
+    const refs = t.github.pulls.map((p) => p.head.ref);
+    expect(refs).toHaveLength(2);
+    expect(refs).toContain("shapi/github-workflow-dispatch-204-to-200");
+    const [waiting] = ["quickbooks-minorversion-below-75-ignored", "hubspot-pipelines-v1-sunset"].filter((id) => !refs.includes(`shapi/${id}`));
+    expect(waiting).toBeDefined();
 
     const pr = t.github.pulls.find((p) => p.head.ref === "shapi/github-workflow-dispatch-204-to-200")!;
     expect(pr).toMatchObject({ head: { ref: "shapi/github-workflow-dispatch-204-to-200" }, labels: [{ name: "shapi" }] });
@@ -180,7 +184,9 @@ describe("cloud fix", () => {
     expect(t.github.commits.get(t.github.refs.get(pr.head.ref)!)!.message).toContain("verified in");
 
     const dashboard = t.github.issues[0]!;
-    expect(dashboard.body).toContain("## Needs a manual fix");
+    expect(dashboard.body).toContain("## Waiting");
+    expect(dashboard.body).toContain(`<!-- shapi:create:${waiting} -->`);
+    expect(dashboard.body).not.toContain("## Needs a manual fix");
     expect(dashboard.body).toContain(`[#${pr.number}]`);
 
     // a rerun of the same fix job changes nothing on GitHub

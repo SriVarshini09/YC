@@ -261,7 +261,9 @@ function fetchStyle(
     if (opts) method = methodFrom(ctx, propertyValue(opts, "method")) ?? (propertyValue(opts, "method") ? null : "GET");
     else method = null;
   }
-  return httpSite(ctx, call, lib, joinUrl(baseURL, evalString(ctx, urlArg)), method, opts ? optsArg : undefined);
+  // got and ky take query parameters as `searchParams: { … }`.
+  const params = opts && (lib === "got" || lib === "ky") ? resolveObject(ctx, propertyValue(opts, "searchParams")) : undefined;
+  return httpSite(ctx, call, lib, joinUrl(baseURL, evalString(ctx, urlArg)), method, opts ? optsArg : undefined, params);
 }
 
 /** axios(config) | axios(url, config) | axios.get(url, config) | axios.post(url, data, config) | axios.request(config) */
