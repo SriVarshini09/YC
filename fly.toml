@@ -1,5 +1,5 @@
-# Fly.io deployment for SHAPI. Set `app` to the name you create with `fly apps create`.
-app = "shapi"
+# Fly.io deployment for SHAPI ("shapi" was taken on Fly, so the app is shapi-app).
+app = "shapi-app"
 primary_region = "iad"
 
 [build]
@@ -16,6 +16,8 @@ primary_region = "iad"
   LOG_LEVEL = "info"
   # The public advisory database; the worker syncs it hourly and on start.
   SHAPI_ADVISORIES_REPO = "SriVarshini09/shapi-advisories"
+  # Where GitHub sign-in and Stripe send people back to.
+  SHAPI_PUBLIC_URL = "https://shapi-app.fly.dev"
 
 [processes]
   web = "node dist/web.js"
