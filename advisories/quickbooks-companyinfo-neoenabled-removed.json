@@ -1,0 +1,29 @@
+{
+  "id": "quickbooks-companyinfo-neoenabled-removed",
+  "provider": "quickbooks",
+  "title": "CompanyInfo no longer returns the NeoEnabled NameValue",
+  "summary": "Since 2026-01-27 in production (2025-12-10 in sandbox), the CompanyInfo entity no longer includes the NeoEnabled attribute in its NameValue list. Code that looks up NeoEnabled gets no entry, while the API reference samples still show it.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/v3/company/{realmId}/companyinfo/{companyId}"
+  },
+  "changeClass": "field-rename",
+  "trigger": {
+    "fields": [
+      "NeoEnabled"
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2025-12-01",
+    "url": "https://medium.com/intuitdev/upcoming-changes-to-apis-and-tools-that-may-impact-your-application-df4680ae3535"
+  },
+  "effectiveDate": "2026-01-27",
+  "severity": "low",
+  "migrationNote": "Treat a missing NeoEnabled entry in CompanyInfo.NameValue as normal, and stop deciding behavior from it. The same applies to CompanyInfo returned by the query endpoint.",
+  "sources": [
+    "https://medium.com/intuitdev/upcoming-changes-to-apis-and-tools-that-may-impact-your-application-df4680ae3535",
+    "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/most-commonly-used/companyinfo"
+  ],
+  "status": "verified"
+}

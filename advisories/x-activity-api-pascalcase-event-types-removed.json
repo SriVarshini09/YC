@@ -1,0 +1,31 @@
+{
+  "id": "x-activity-api-pascalcase-event-types-removed",
+  "provider": "x",
+  "title": "X Activity API event types renamed from PascalCase to dot-separated lowercase",
+  "summary": "From 2026-03-18 the X Activity API (XAA) uses dot-separated lowercase event_type values such as profile.update.bio instead of PascalCase names such as ProfileBioUpdate. Subscriptions created with, or event handlers that switch on, the old names stop matching.",
+  "endpoint": {
+    "method": "*",
+    "path": "/2/activity/**"
+  },
+  "changeClass": "enum-added",
+  "trigger": {
+    "enums": [
+      {
+        "field": "event_type"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-03-13",
+    "url": "https://docs.x.com/changelog"
+  },
+  "effectiveDate": "2026-03-18",
+  "severity": "high",
+  "migrationNote": "Send the new lowercase names (for example profile.update.bio, follow.follow, post.create) in POST /2/activity/subscriptions and update every filter, switch statement and deserializer that reads event_type from the activity stream or webhook payloads.",
+  "sources": [
+    "https://docs.x.com/changelog",
+    "https://docs.x.com/x-api/activity/introduction"
+  ],
+  "status": "verified"
+}

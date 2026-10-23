@@ -1,0 +1,27 @@
+{
+  "id": "hubspot-marketing-emails-folderid-removed",
+  "provider": "hubspot",
+  "title": "Marketing Email v3 stopped returning folderId on 2026-01-28",
+  "summary": "HubSpot moved marketing email folders to a v2 folder system and added folderIdV2 to Marketing Email v3 responses. Both fields were returned side by side until folderId was removed on 2026-01-28; since then only folderIdV2 is returned, so code keyed on folderId gets no folder value.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/marketing/v3/emails/**"
+  },
+  "changeClass": "field-rename",
+  "trigger": {
+    "fields": ["folderId"]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2025-10-30",
+    "url": "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration"
+  },
+  "effectiveDate": "2026-01-28",
+  "severity": "high",
+  "migrationNote": "Read folderIdV2 instead of folderId from /marketing/v3/emails responses and re-key any stored folder index on folderIdV2 (list emails with folderId__not_null to rebuild it); old folderId values no longer match anything the API returns.",
+  "sources": [
+    "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration",
+    "https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/marketing-emails/get-marketing-v3-emails-"
+  ],
+  "status": "verified"
+}

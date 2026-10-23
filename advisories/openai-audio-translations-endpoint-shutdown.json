@@ -1,0 +1,27 @@
+{
+  "id": "openai-audio-translations-endpoint-shutdown",
+  "provider": "openai",
+  "title": "/v1/audio/translations shuts down on 2027-02-26",
+  "summary": "OpenAI deprecated the audio translations endpoint on 2026-08-26 and shuts it down on 2027-02-26, together with whisper-1 and the gpt-4o transcribe models. After that date every call to POST /v1/audio/translations fails.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/v1/audio/translations"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-08-26",
+    "url": "https://developers.openai.com/api/docs/deprecations"
+  },
+  "effectiveDate": "2027-02-26",
+  "severity": "high",
+  "migrationNote": "Replace calls to POST /v1/audio/translations with the Realtime translations interface (v1/realtime/translations) that OpenAI names as the replacement, and move transcription off whisper-1 to gpt-live-transcribe or gpt-transcribe before 2027-02-26.",
+  "sources": [
+    "https://developers.openai.com/api/docs/deprecations",
+    "https://developers.openai.com/api/reference/resources/audio"
+  ],
+  "status": "verified"
+}

@@ -141,6 +141,12 @@
               },
               "below": {
                 "type": "number"
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "required": [

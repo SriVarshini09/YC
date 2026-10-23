@@ -58,7 +58,7 @@
   {
     "id": "shopify",
     "name": "Shopify",
-    "hosts": ["*.myshopify.com"],
+    "hosts": ["*.myshopify.com", "discover.shopifyapps.com"],
     "sdkPackages": ["@shopify/shopify-api", "@shopify/admin-api-client", "shopify-api-node"],
     "docsUrl": "https://shopify.dev/docs/api/admin",
     "changelogUrl": "https://shopify.dev/changelog"

@@ -1,0 +1,31 @@
+{
+  "id": "xero-organisation-class-ultra-enum",
+  "provider": "xero",
+  "title": "Organisation Class enum gains ULTRA",
+  "summary": "Since 2026-06-30 the Organisation endpoint can return Class ULTRA for Australian organisations on the new Xero Ultra plan. Xero warns that integrations assuming only the existing values may fail to keep their connection to Xero. Strict enum parsing, including older SDK enums, can throw on the new value.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/api.xro/2.0/Organisation"
+  },
+  "changeClass": "enum-added",
+  "trigger": {
+    "enums": [
+      {
+        "field": "Class"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-06-30",
+    "url": "https://developer.xero.com/changelog"
+  },
+  "effectiveDate": "2026-06-30",
+  "severity": "medium",
+  "migrationNote": "Accept unknown Organisation Class values instead of failing, and map ULTRA wherever you branch on plan type. If you use a generated SDK, upgrade to a version whose Class enum includes ULTRA, or deserialize Class as a plain string.",
+  "sources": [
+    "https://developer.xero.com/changelog",
+    "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml"
+  ],
+  "status": "verified"
+}

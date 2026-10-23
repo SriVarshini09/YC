@@ -1,0 +1,30 @@
+{
+  "id": "salesforce-soap-login-broad-ip-range-token-required",
+  "provider": "salesforce",
+  "title": "SOAP login() from a broad IP range needs a security token from 2026-12-15",
+  "summary": "Starting 2026-12-15 in sandboxes and 2027-01-31 in production, SOAP API login() for a user whose org or profile login IP range is broad (larger than /8 IPv4 or /29 IPv6) fails without a security token (or mTLS); username and password alone fail with TOKEN_REQUIRED (Login History result 1502). It applies to login() on /services/Soap/c/{v} and /services/Soap/u/{v} in API 31.0-64.0.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/services/Soap/*/*",
+    "hosts": [
+      "login.salesforce.com",
+      "test.salesforce.com"
+    ]
+  },
+  "changeClass": "auth",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2025-08-25",
+    "url": "https://help.salesforce.com/s/articleView?id=005132110&type=1"
+  },
+  "effectiveDate": "2026-12-15",
+  "severity": "critical",
+  "migrationNote": "Preferably switch the integration to an External Client App with OAuth 2.0 before 2026-12-15 (sandbox) / 2027-01-31 (production). As a stopgap, append the user's security token to the password in the login() call, or narrow the org Network Access or profile Login IP Ranges so they are no longer broad; test with the 'SOAP API login() Security Remediation' release update.",
+  "sources": [
+    "https://help.salesforce.com/s/articleView?id=005132110&type=1"
+  ],
+  "status": "verified"
+}

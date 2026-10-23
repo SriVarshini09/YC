@@ -1,0 +1,30 @@
+{
+  "id": "meta-graph-delivery-estimate-fields-removed",
+  "provider": "meta-graph",
+  "title": "Delivery Estimate drops daily_outcomes_curve, budget_guardrail and estimate_dau",
+  "summary": "The daily_outcomes_curve, budget_guardrail and estimate_dau fields are removed from GET /{ad-account-id}/delivery_estimate and GET /{adset-id}/delivery_estimate responses because the service behind them was shut down. The removal applies to Marketing API v26.0 and to all remaining versions on 2026-10-27; the calls still succeed but the fields are missing.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/*/*/delivery_estimate"
+  },
+  "changeClass": "field-rename",
+  "trigger": {
+    "fields": [
+      "daily_outcomes_curve",
+      "budget_guardrail",
+      "estimate_dau"
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-07-29",
+    "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+  },
+  "effectiveDate": "2026-10-27",
+  "severity": "critical",
+  "migrationNote": "Stop requesting and reading daily_outcomes_curve, budget_guardrail and estimate_dau; treat them as absent. Meta offers no replacement, so remove any forecasting or budget UI that depends on them or derive it from the remaining estimate fields.",
+  "sources": [
+    "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+  ],
+  "status": "verified"
+}

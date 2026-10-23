@@ -1,0 +1,31 @@
+{
+  "id": "salesforce-soap-login-use-any-api-auth-required",
+  "provider": "salesforce",
+  "title": "SOAP login() requires the Use Any API Auth permission from 2026-12-01",
+  "summary": "Salesforce enforces a new control on SOAP API login() in all orgs on 2026-12-01: login() succeeds only for users with the Use Any API Auth user permission, and otherwise is rejected with INSUFFICIENT_ACCESS. It is already the default in new orgs. It applies to login() on the Enterprise (/services/Soap/c/{v}) and Partner (/services/Soap/u/{v}) endpoints in API 31.0-64.0; login() is already unavailable in 65.0 and later.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/services/Soap/*/*",
+    "hosts": [
+      "login.salesforce.com",
+      "test.salesforce.com"
+    ]
+  },
+  "changeClass": "auth",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2025-08-25",
+    "url": "https://help.salesforce.com/s/articleView?id=005132110&type=1"
+  },
+  "effectiveDate": "2026-12-01",
+  "severity": "critical",
+  "migrationNote": "Assign the Use Any API Auth permission (permission set or profile) to every integration user that still calls SOAP login(), and test with the 'Assign Use Any API Auth Permission for SOAP login()' release update. Plan the real fix at the same time: authenticate through an External Client App with OAuth 2.0 (JWT bearer or client credentials for server-to-server, web server flow for user-driven apps), because login() is retired in Summer '27.",
+  "sources": [
+    "https://help.salesforce.com/s/articleView?id=005132110&type=1",
+    "https://developer.salesforce.com/docs/platform/api/guide/api-eol-soap.html"
+  ],
+  "status": "verified"
+}

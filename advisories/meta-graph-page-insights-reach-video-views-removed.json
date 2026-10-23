@@ -1,0 +1,57 @@
+{
+  "id": "meta-graph-page-insights-reach-video-views-removed",
+  "provider": "meta-graph",
+  "title": "Page Insights reach and 3-second video viewer metrics removed on 2026-06-15",
+  "summary": "By 2026-06-15, on all API versions, the Page/post reach metrics (page_impressions_unique, post_impressions_unique and their paid, viral, nonviral, organic and fan variants, the page_posts_impressions family, page_posts_served_impressions_organic_unique) and the 3-second viewer metrics (page_video_views_unique, post_video_views_unique) return an invalid metric error. SHAPI flags calls that request one of these metrics.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/*/*/insights"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "query": [
+      {
+        "name": "metric",
+        "values": [
+          "page_impressions_unique",
+          "page_impressions_paid_unique",
+          "page_impressions_viral_unique",
+          "page_impressions_nonviral_unique",
+          "page_posts_impressions",
+          "page_posts_impressions_unique",
+          "page_posts_impressions_paid",
+          "page_posts_impressions_paid_unique",
+          "page_posts_impressions_organic_unique",
+          "page_posts_served_impressions_organic_unique",
+          "page_posts_impressions_viral",
+          "page_posts_impressions_viral_unique",
+          "page_posts_impressions_nonviral",
+          "page_posts_impressions_nonviral_unique",
+          "post_impressions_unique",
+          "post_impressions_paid_unique",
+          "post_impressions_fan_unique",
+          "post_impressions_organic_unique",
+          "post_impressions_viral_unique",
+          "post_impressions_nonviral_unique",
+          "page_video_views_unique",
+          "post_video_views_unique"
+        ]
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-02-18",
+    "url": "https://developers.facebook.com/blog/post/2026/02/18/introducing-graph-api-v25-and-marketing-api-v25/"
+  },
+  "effectiveDate": "2026-06-15",
+  "severity": "critical",
+  "migrationNote": "Switch reach and unique-viewer reporting to page_total_media_view_unique and post_total_media_view_unique (and page_media_view/post_media_view with is_from_ads for paid vs organic). The numbers use a different method, so do not splice them onto historical reach series, and drop metrics that have no replacement (viral/nonviral reach).",
+  "sources": [
+    "https://developers.facebook.com/docs/graph-api/reference/v22.0/insights",
+    "https://developers.facebook.com/blog/post/2026/02/18/introducing-graph-api-v25-and-marketing-api-v25/",
+    "https://developers.facebook.com/docs/platforminsights/page/deprecated-metrics",
+    "https://docs.supermetrics.com/docs/facebook-insights-field-changes-june-30-2026.md"
+  ],
+  "status": "verified"
+}

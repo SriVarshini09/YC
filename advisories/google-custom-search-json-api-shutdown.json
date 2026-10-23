@@ -1,0 +1,27 @@
+{
+  "id": "google-custom-search-json-api-shutdown",
+  "provider": "google",
+  "title": "Custom Search JSON API discontinued on 2027-01-01",
+  "summary": "The Custom Search JSON API is closed to new customers, and existing customers have until 2027-01-01 to move off it; Google calls that date the service discontinuation. After that, calls to /customsearch/v1 stop working.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/customsearch/v1/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": null,
+    "url": "https://developers.google.com/custom-search/v1/overview"
+  },
+  "effectiveDate": "2027-01-01",
+  "severity": "critical",
+  "migrationNote": "Replace calls to www.googleapis.com/customsearch/v1 before 2027-01-01: Google points to Vertex AI Search for searching up to 50 domains, and to its interest form for full-web search. Expect a different request format, response shape and pricing.",
+  "sources": [
+    "https://developers.google.com/custom-search/v1/overview",
+    "https://developers.google.com/custom-search/v1/using_rest"
+  ],
+  "status": "verified"
+}

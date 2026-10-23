@@ -1,0 +1,27 @@
+{
+  "id": "xero-allocations-contact-mismatch-rejected",
+  "provider": "xero",
+  "title": "Allocations between documents of different contacts are rejected",
+  "summary": "Xero now requires a credit note, prepayment or overpayment to belong to the same contact as the invoice or bill it is allocated to. Allocation requests with a contact mismatch return a validation error. The notice is dated 2026-10-08 and gives no separate enforcement date.",
+  "endpoint": {
+    "method": "PUT",
+    "path": "/api.xro/2.0/*/{id}/Allocations"
+  },
+  "changeClass": "status-code",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-10-08",
+    "url": "https://developer.xero.com/changelog"
+  },
+  "effectiveDate": "2026-10-08",
+  "severity": "medium",
+  "migrationNote": "Before calling PUT /CreditNotes/{CreditNoteID}/Allocations, /Prepayments/{PrepaymentID}/Allocations or /Overpayments/{OverpaymentID}/Allocations, check that Contact.ContactID is the same on the source document and on the target invoice or bill. On a validation error, show the user the mismatch instead of retrying, because the unchanged request keeps failing.",
+  "sources": [
+    "https://developer.xero.com/changelog",
+    "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml"
+  ],
+  "status": "unverified"
+}

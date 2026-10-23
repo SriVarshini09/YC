@@ -1,0 +1,28 @@
+{
+  "id": "xero-finance-accounting-activities-decommissioned",
+  "provider": "xero",
+  "title": "Finance API Accounting Activities endpoints decommissioned",
+  "summary": "On 2026-05-04 Xero decommissioned the Finance API's Accounting Activities API: Account Usage, Lock History, Report History and User Activities. All of these endpoints now return errors. Xero suggests the Bank Statements API for cash flow and financial analysis.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/finance.xro/1.0/AccountingActivities/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-05-04",
+    "url": "https://developer.xero.com/changelog"
+  },
+  "effectiveDate": "2026-05-04",
+  "severity": "critical",
+  "migrationNote": "Remove calls to /finance.xro/1.0/AccountingActivities/AccountUsage, LockHistory, ReportHistory and UserActivities, along with the features built on them. For cash-flow or transaction analysis, move to the Finance API Bank Statements endpoint (/finance.xro/1.0/BankStatementsPlus/statements). Lock history and user activity data have no direct replacement.",
+  "sources": [
+    "https://developer.xero.com/changelog",
+    "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/2.29.1/xero-finance.yaml",
+    "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero-finance.yaml"
+  ],
+  "status": "verified"
+}

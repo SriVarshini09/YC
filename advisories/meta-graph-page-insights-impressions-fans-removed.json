@@ -1,0 +1,51 @@
+{
+  "id": "meta-graph-page-insights-impressions-fans-removed",
+  "provider": "meta-graph",
+  "title": "Page Insights impressions and page fans metrics removed on 2025-11-15",
+  "summary": "Since 2025-11-15, on all API versions, requesting the Page and post impressions metrics (page_impressions, page_impressions_paid, page_impressions_viral, page_impressions_nonviral, post_impressions, post_impressions_paid, post_impressions_fan, post_impressions_organic, post_impressions_viral, post_impressions_nonviral) or the fans metrics (page_fans, page_fans_locale, page_fans_city, page_fans_country, page_fan_adds, page_fan_adds_unique, page_fan_removes, page_fan_removes_unique) returns an invalid metric error. SHAPI flags calls that request one of these metrics.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/*/*/insights"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "query": [
+      {
+        "name": "metric",
+        "values": [
+          "page_fans",
+          "page_fans_locale",
+          "page_fans_city",
+          "page_fans_country",
+          "page_fan_adds",
+          "page_fan_adds_unique",
+          "page_fan_removes",
+          "page_fan_removes_unique",
+          "page_impressions",
+          "page_impressions_paid",
+          "page_impressions_viral",
+          "page_impressions_nonviral",
+          "post_impressions",
+          "post_impressions_paid",
+          "post_impressions_fan",
+          "post_impressions_organic",
+          "post_impressions_viral",
+          "post_impressions_nonviral"
+        ]
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2025-08-15",
+    "url": "https://developers.facebook.com/blog/post/2025/08/15/page-insights-api-updates/"
+  },
+  "effectiveDate": "2025-11-15",
+  "severity": "critical",
+  "migrationNote": "Replace page_impressions with page_media_view and post_impressions with post_media_view (use the is_from_ads or is_from_followers breakdowns for the paid, organic and fan splits), and replace page_fans/page_fans_city/page_fans_country with page_follows/page_follows_city/page_follows_country. Remove the other listed metrics; one invalid metric fails the whole insights request.",
+  "sources": [
+    "https://developers.facebook.com/blog/post/2025/08/15/page-insights-api-updates/",
+    "https://developers.facebook.com/docs/platforminsights/page/deprecated-metrics"
+  ],
+  "status": "verified"
+}

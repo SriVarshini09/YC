@@ -1,0 +1,24 @@
+{
+  "id": "hubspot-marketing-emails-v1-sunset",
+  "provider": "hubspot",
+  "title": "Marketing Email API v1 sunset (reported as 2025-11-01)",
+  "summary": "HubSpot replaced the v1 Marketing Email API (/marketing-emails/v1/...) with the Marketing Email v3 API. HubSpot's own folder-ID post calls v1 \"being sunset\" and CData reports the endpoint as sunset; search snippets of HubSpot's (now 404) changelog post put the sunset on 2025-11-01, but that date could not be read on an open page.",
+  "endpoint": {
+    "method": "*",
+    "path": "/marketing-emails/v1/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": null,
+  "effectiveDate": "2025-11-01",
+  "severity": "critical",
+  "migrationNote": "Move email calls from /marketing-emails/v1/emails to the Marketing Email v3 API (POST /marketing/v3/emails to create, GET /marketing/v3/emails to list, GET /marketing/v3/emails/{emailId} to read one) and read folders from folderIdV2. Search snippets say other legacy email APIs, such as email analytics, were not part of this sunset.",
+  "sources": [
+    "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration",
+    "https://cdn.cdata.com/help/DHN/ado/pg_deprecationnotices.htm"
+  ],
+  "status": "unverified"
+}

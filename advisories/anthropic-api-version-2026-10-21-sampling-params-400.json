@@ -1,0 +1,35 @@
+{
+  "id": "anthropic-api-version-2026-10-21-sampling-params-400",
+  "provider": "anthropic",
+  "title": "anthropic-version 2026-10-21 rejects temperature, top_p and top_k with 400",
+  "summary": "API version 2026-10-21 (released 2026-10-21 and sent by default by the new major SDK versions) removes temperature, top_p and top_k from the Messages API: any request that sends one of them returns 400, even at the default value. The same version also returns 400 for document blocks in assistant messages and for citations on user text blocks. Requests that stay on 2023-06-01 are unchanged.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/v1/messages"
+  },
+  "changeClass": "status-code",
+  "trigger": {
+    "headers": [
+      {
+        "name": "anthropic-version",
+        "values": [
+          "2026-10-21"
+        ]
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-10-21",
+    "url": "https://platform.claude.com/docs/en/release-notes/overview"
+  },
+  "effectiveDate": "2026-10-21",
+  "severity": "high",
+  "migrationNote": "Before sending anthropic-version: 2026-10-21 or upgrading to the new SDK majors (Python 2.0.0, TypeScript 1.0.0, Go 2.0.0, Java 3.0.0, Ruby 2.0.0, PHP 1.0.0, C# 13.0.0), remove temperature, top_p and top_k from Messages, token-counting and batch requests, move document blocks into user messages, and drop citations from user text blocks. If a request depends on a non-default temperature, keep that request on 2023-06-01.",
+  "sources": [
+    "https://platform.claude.com/docs/en/api/migration-2026-10-21",
+    "https://platform.claude.com/docs/en/api/versioning",
+    "https://platform.claude.com/docs/en/release-notes/overview"
+  ],
+  "status": "verified"
+}

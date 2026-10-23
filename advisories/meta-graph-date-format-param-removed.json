@@ -1,0 +1,30 @@
+{
+  "id": "meta-graph-date-format-param-removed",
+  "provider": "meta-graph",
+  "title": "date_format query parameter returns an error from 2026-10-27",
+  "summary": "Requests that include the legacy date_format parameter return an error on Graph API v26.0+ since 2026-07-29 and on all supported versions from 2026-10-27. The same change makes pretty and debug ignored and removes ETag/304 Not Modified behaviour.",
+  "endpoint": {
+    "method": "*",
+    "path": "/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "query": [
+      {
+        "name": "date_format"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-07-29",
+    "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+  },
+  "effectiveDate": "2026-10-27",
+  "severity": "critical",
+  "migrationNote": "Remove date_format from every Graph API request and parse the default ISO 8601 timestamps in your own code. While you are there, drop any reliance on If-None-Match/304 caching and on pretty or debug output.",
+  "sources": [
+    "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+  ],
+  "status": "verified"
+}

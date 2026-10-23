@@ -124,8 +124,12 @@ function triggerReasons(site: LockedCallSite, trigger: Trigger): string[] {
   for (const q of trigger.query ?? []) {
     const p = s.query.find((x) => x.name === q.name);
     if (!p) continue;
-    if (q.below === undefined) reasons.push(`sends ${p.name}=${p.value ?? "(dynamic)"}`);
-    else if (p.value !== null && Number(p.value) < q.below) reasons.push(`sends ${p.name}=${p.value} (below ${q.below})`);
+    if (q.below !== undefined) {
+      if (p.value !== null && Number(p.value) < q.below) reasons.push(`sends ${p.name}=${p.value} (below ${q.below})`);
+    } else if (q.values) {
+      const hit = p.value === null ? [] : p.value.split(",").map((v) => v.trim()).filter((v) => q.values!.includes(v));
+      if (hit.length) reasons.push(`sends ${p.name}=${hit.join(",")}`);
+    } else reasons.push(`sends ${p.name}=${p.value ?? "(dynamic)"}`);
   }
   if (trigger.any) reasons.push(`calls ${describe(site)}`);
   return reasons;

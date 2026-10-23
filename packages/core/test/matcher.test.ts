@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { createApiLock, loadAdvisories, matchAdvisories, pathMatches, type CallSite, type Surface } from "@shapi/core";
+import { createApiLock, loadAdvisories, matchAdvisories, pathMatches, type Advisory, type CallSite, type Surface } from "@shapi/core";
 
 const advisories = loadAdvisories(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "advisories"));
 const now = new Date("2026-10-21T12:00:00Z");
@@ -88,5 +88,36 @@ describe("matchAdvisories", () => {
   it("lists deadlines within 90 days for providers present in the repo", () => {
     expect(result.upcoming.map((u) => [u.advisory.id, u.daysUntil, u.callSites])).toEqual([["hubspot-pipelines-v1-sunset", 44, 0]]);
     expect(matchAdvisories(lock, advisories, { now, horizonDays: 30 }).upcoming).toEqual([]);
+  });
+});
+
+describe("query value triggers", () => {
+  const insights: Advisory = {
+    id: "meta-graph-insights-metrics-removed",
+    provider: "meta-graph",
+    title: "Insights metrics removed",
+    summary: "Some metric values return an error.",
+    endpoint: { method: "GET", path: "/*/*/insights" },
+    changeClass: "field-rename",
+    trigger: { query: [{ name: "metric", values: ["page_impressions", "page_fans"] }] },
+    firstObserved: null,
+    publishedNotice: null,
+    effectiveDate: "2025-11-15",
+    severity: "critical",
+    migrationNote: "Use the replacement metrics.",
+    sources: ["https://developers.facebook.com/docs/graph-api/reference/insights"],
+    status: "verified",
+  };
+  const meta = (value: string | null) =>
+    site({ provider: "meta-graph", host: "graph.facebook.com", method: "GET", endpoint: "/v24.0/{page}/insights", surface: { query: [{ name: "metric", value }] } });
+  const lock = createApiLock({ callSites: [meta("page_views_total,page_fans"), meta("page_views_total"), meta(null)], declared: [] }, "test");
+  const result = matchAdvisories(lock, [insights], { now });
+
+  it("is affected only when the parameter is set to a listed value, including inside a comma-separated list", () => {
+    expect(result.affected.map((f) => [f.callSite.line, f.reasons])).toEqual([[lock.callSites[0]!.line, ["sends metric=page_fans"]]]);
+  });
+
+  it("reports other or unknown values as exposed", () => {
+    expect(result.exposed.map((f) => f.callSite.line)).toEqual([lock.callSites[1]!.line, lock.callSites[2]!.line]);
   });
 });

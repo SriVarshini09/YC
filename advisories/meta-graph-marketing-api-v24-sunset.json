@@ -1,0 +1,27 @@
+{
+  "id": "meta-graph-marketing-api-v24-sunset",
+  "provider": "meta-graph",
+  "title": "Marketing API v24.0 available until 2026-11-10",
+  "summary": "Marketing API v24.0 is available until 2026-11-10, much earlier than Graph API v24.0. After that, ads calls pinned to v24.0 either fail or are auto-upgraded to the next version; endpoints that changed between versions fail. This matches ad account edges (/v24.0/act_{id}/...); calls to campaign, ad set and ad objects by numeric id on v24.0 are affected too but cannot be told apart from other Graph calls by path.",
+  "endpoint": {
+    "method": "*",
+    "path": "/v24.0/act_*/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": null,
+    "url": "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/"
+  },
+  "effectiveDate": "2026-11-10",
+  "severity": "critical",
+  "migrationNote": "Move all Marketing API calls (ad accounts, campaigns, ad sets, ads, creatives, insights) to v25.0 or, better, v26.0, and re-test against the v25.0 and v26.0 changelogs (for example the Advantage+ campaign and targeting_automation changes) before 2026-11-10.",
+  "sources": [
+    "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/",
+    "https://developers.facebook.com/documentation/ads-commerce/marketing-api/overview/versioning"
+  ],
+  "status": "verified"
+}

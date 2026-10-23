@@ -1,0 +1,27 @@
+{
+  "id": "xero-nz-payroll-employee-tax-kiwisaverstatus-required",
+  "provider": "xero",
+  "title": "NZ Payroll employee tax requests without KiwiSaverStatus return 400 from 2026-11-05",
+  "summary": "From 2026-11-05, KiwiSaverStatus is required when creating or updating employee tax details in NZ Payroll, for every tax code except WT and NSW. Requests that omit it return 400 Bad Request. Xero says it will not provide test instances or workarounds.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/payroll.xro/2.0/Employees/{EmployeeID}/Tax"
+  },
+  "changeClass": "required-field",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-08-06",
+    "url": "https://developer.xero.com/changelog"
+  },
+  "effectiveDate": "2026-11-05",
+  "severity": "critical",
+  "migrationNote": "Send KiwiSaverStatus explicitly in every POST to /payroll.xro/2.0/Employees/{EmployeeID}/Tax whose tax code is not WT or NSW. Get it from your own employee record or read the current tax details with a GET before updating. Treat a 400 on this call as a data error to show the user, not a reason to retry.",
+  "sources": [
+    "https://developer.xero.com/changelog",
+    "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero-payroll-nz.yaml"
+  ],
+  "status": "verified"
+}
