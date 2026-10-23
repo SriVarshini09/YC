@@ -49,4 +49,4 @@ One line per task: task, summary file, PR, status.
 - PB-6 Slack alerts: [summary](PB-6-slack-alerts.md) · PR: [#48](https://github.com/SriVarshini09/YC/pull/48) · open
 - PB-7 known gaps (one PR per advisory, deleted advisories, cancels on): [summary](PB-7-known-gaps.md) · PR: [#49](https://github.com/SriVarshini09/YC/pull/49) · open
 - PB-8 landing page: [summary](PB-8-landing.md) · PR: [#50](https://github.com/SriVarshini09/YC/pull/50) · open
-- shapi-cli 0.2.0 on npm: [summary](PB-release-cli-0-2-0.md) · PR: pending · open
+- shapi-cli 0.2.0 on npm: [summary](PB-release-cli-0-2-0.md) · PR: [#51](https://github.com/SriVarshini09/YC/pull/51) · open
