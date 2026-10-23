@@ -8,6 +8,7 @@ import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } fro
 import { loadAdvisories } from "@shapi/core";
 import { localWorkspace } from "@shapi/repair";
 import { fakeRepoGitHub } from "../../../test-utils/fake-github";
+import { slackMessage, slackNotifier, type FindingsNotice } from "../src/notify/slack";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import {
   QUEUES,
@@ -261,7 +262,7 @@ describe("triggers", () => {
     const boss = await startWorker({
       databaseUrl: pg.url,
       db,
-      config: { CANARY_CRON: "", SHAPI_ADVISORIES: ADVISORIES, WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14, SHAPI_RECORDINGS: RECORDINGS, FANOUT_CRON: "", ADVISORIES_SYNC_CRON: "", githubApp },
+      config: { CANARY_CRON: "", SHAPI_ADVISORIES: ADVISORIES, WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14, SHAPI_RECORDINGS: RECORDINGS, FANOUT_CRON: "", ADVISORIES_SYNC_CRON: "", SHAPI_PUBLIC_URL: "https://shapi.test", githubApp },
       env: { SHAPI_SHAPE_SECRET: "test" },
       log: { info: (_o, m) => logs.push(m ?? ""), error: (o, m) => logs.push(`ERROR ${m} ${String((o as { err?: unknown }).err)}`) },
       fetch: t.fetch,
@@ -282,4 +283,96 @@ describe("triggers", () => {
       await boss.stop({ graceful: false, timeout: 5_000 });
     }
   }, 150_000);
+});
+
+describe("slack alerts", () => {
+  const notices: FindingsNotice[] = [];
+  const notify = async (n: FindingsNotice) => void notices.push(n);
+
+  it("alerts once per new affected call site: the first scan, not a rescan with the same findings", async () => {
+    const t = setup();
+    notices.length = 0;
+    const sha = t.github.refs.get("main")!;
+    await runScanJob({ db, github: t.githubClients, notify }, { scanId: await queueScan(sha) });
+    expect(notices).toHaveLength(1);
+    expect(notices[0]).toMatchObject({ repositoryId, sha, reason: "push" });
+    expect(notices[0]!.findings.map((f) => f.advisory.id).sort()).toEqual(["github-workflow-dispatch-204-to-200", "hubspot-pipelines-v1-sunset", "quickbooks-minorversion-below-75-ignored"]);
+
+    await runScanJob({ db, github: t.githubClients, notify }, { scanId: await queueScan(sha) });
+    expect(notices).toHaveLength(1);
+  });
+
+  it("alerts when a new advisory hits code that was already scanned", async () => {
+    const t = setup();
+    await runScanJob({ db, github: t.githubClients }, { scanId: await queueScan(t.github.refs.get("main")!) });
+    notices.length = 0;
+    const base = loadAdvisories(ADVISORIES).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
+    await upsertAdvisories(db, [{ ...base, id: "github-dispatch-copy-for-slack", title: "Another change on the same endpoint" }], { reviewed: true, source: "repo" });
+    await runAdvisoryFanout(db, { notify });
+    expect(notices).toHaveLength(1);
+    expect(notices[0]).toMatchObject({ reason: "advisory", repositoryId });
+    expect(notices[0]!.findings.map((f) => f.advisory.id)).toEqual(["github-dispatch-copy-for-slack"]);
+  });
+
+  it("posts to the account's Slack incoming webhook only, and never throws", async () => {
+    const t = setup();
+    await runScanJob({ db, github: t.githubClients }, { scanId: await queueScan(t.github.refs.get("main")!) });
+    const hook = "https://hooks.slack.com/services/T000/B000/xyz";
+    const posted: { url: string; body: { text: string; blocks: { text?: { text: string } }[] } }[] = [];
+    let fail = false;
+    const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+      posted.push({ url: String(input), body: JSON.parse(String(init?.body)) });
+      return fail ? new Response("invalid_token", { status: 403 }) : new Response("ok");
+    }) as typeof globalThis.fetch;
+    const errors: string[] = [];
+    const notifier = slackNotifier({ db, fetch, publicUrl: "https://shapi.test", advisoriesRepo: "SriVarshini09/shapi-advisories", log: { info: () => {}, error: (o, m) => void errors.push(`${m}: ${String((o as { err?: unknown }).err)}`) }, now: () => new Date("2026-10-23") });
+    const account = await withService(db, (tx) => tx.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow());
+    const setHook = (url: string | undefined) =>
+      withService(db, (tx) => tx.updateTable("accounts").set({ settings: JSON.stringify(url ? { slackWebhookUrl: url } : {}) }).where("id", "=", account.account_id).execute());
+    const findings = await withService(db, (tx) => tx.selectFrom("findings").select(["advisory_id", "call_site", "reasons"]).where("kind", "=", "affected").where("repository_id", "=", repositoryId).where("advisory_id", "=", "github-workflow-dispatch-204-to-200").limit(1).execute());
+    const advisory = loadAdvisories(ADVISORIES).find((a) => a.id === findings[0]!.advisory_id)!;
+    const notice: FindingsNotice = { accountId: account.account_id, repositoryId, sha: "a".repeat(40), reason: "push", findings: [{ advisory, callSite: findings[0]!.call_site as never, reasons: [] }] };
+
+    await setHook(undefined);
+    await notifier(notice);
+    await setHook("http://169.254.169.254/latest");
+    await notifier(notice);
+    expect(posted).toEqual([]);
+
+    await setHook(hook);
+    await notifier(notice);
+    expect(posted).toHaveLength(1);
+    expect(posted[0]!.url).toBe(hook);
+    expect(posted[0]!.body.text).toBe("SHAPI: 1 new affected call site in acme/demo");
+    expect(posted[0]!.body.blocks[1]!.text!.text).toContain(`<https://github.com/acme/demo/blob/${"a".repeat(40)}/`);
+    expect(posted[0]!.body.blocks[1]!.text!.text).toContain(`*${advisory.severity.toUpperCase()}* <https://github.com/SriVarshini09/shapi-advisories/blob/main/advisories/${advisory.id}.json|`);
+
+    fail = true;
+    await expect(notifier(notice)).resolves.toBeUndefined();
+    expect(errors).toEqual(["slack alert failed: Error: Slack answered 403: invalid_token"]);
+    await setHook(undefined);
+  });
+});
+
+describe("slack message", () => {
+  it("lists the most severe first, links each line, shows deadlines, and counts what it leaves out", () => {
+    const base = loadAdvisories(ADVISORIES);
+    const site = (file: string, line: number) => ({ file, line, column: 1, provider: "x", kind: "http" as const, client: "fetch", method: "GET" as const, host: null, endpoint: "/", resolved: true, id: "000000000000", surface: { fields: [], statusCodes: [], checksOk: false, enums: [], headers: [], query: [], responseHeaders: [] } });
+    const hubspot = base.find((a) => a.id === "hubspot-pipelines-v1-sunset")!;
+    const github = base.find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
+    const findings = [
+      { advisory: hubspot, callSite: site("src/crm.ts", 6), reasons: [] },
+      { advisory: github, callSite: site("src/deploy.ts", 13), reasons: [] },
+      ...Array.from({ length: 10 }, (_, i) => ({ advisory: hubspot, callSite: site(`src/more${i}.ts`, 1), reasons: [] })),
+    ];
+    const msg = slackMessage({ accountId: "7", repositoryId: "1", sha: "abc1234def", reason: "push", findings, repository: "acme/demo", publicUrl: "https://shapi.test/", now: new Date("2026-10-23T00:00:00Z") }) as { text: string; blocks: { text?: { text: string }; elements?: { text: string }[] }[] };
+    expect(msg.text).toBe("SHAPI: 12 new affected call sites in acme/demo");
+    expect(msg.blocks[0]!.text!.text).toBe("*SHAPI:* 12 new affected call sites in <https://github.com/acme/demo|acme/demo>, after the push of `abc1234`.");
+    const lines = msg.blocks[1]!.text!.text.split("\n");
+    expect(lines[0]).toBe("• *CRITICAL* workflow_dispatch returns 200 with a body instead of 204");
+    expect(lines[1]).toBe("   <https://github.com/acme/demo/blob/abc1234def/src/deploy.ts#L13|src/deploy.ts:13>");
+    expect(lines[3]).toBe("   <https://github.com/acme/demo/blob/abc1234def/src/crm.ts#L6|src/crm.ts:6> · deadline 2026-12-04 (in 42 days)");
+    expect(lines.at(-1)).toBe("…and 2 more.");
+    expect(msg.blocks[2]!.elements![0]!.text).toContain("<https://shapi.test/a/7|Open in SHAPI>");
+  });
 });
