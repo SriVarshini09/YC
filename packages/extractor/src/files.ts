@@ -1,19 +1,26 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { providerForPackage } from "@shapi/core";
+import { providerForPackage, providerForPythonPackage } from "@shapi/core";
 
 const SOURCE_FILE = /\.(c|m)?[jt]sx?$/;
-const SKIP_DIRS = new Set(["node_modules", "dist", "build", "out", "coverage", "vendor", "bower_components"]);
+const PYTHON_FILE = /\.py$/;
+const SKIP_DIRS = new Set(["node_modules", "dist", "build", "out", "coverage", "vendor", "bower_components", "venv", "__pycache__", "site-packages"]);
+/** Python dependency manifests: requirements*.txt and pyproject.toml. */
+const PYTHON_MANIFEST = /^(requirements[\w.-]*\.txt|pyproject\.toml)$/;
 
 export interface RepoFiles {
   sources: string[];
   manifests: string[];
+  python: string[];
+  pythonManifests: string[];
 }
 
 /** Walk a repository for source files and package.json manifests, skipping dependencies and build output. */
 export function listRepoFiles(root: string): RepoFiles {
   const sources: string[] = [];
   const manifests: string[] = [];
+  const python: string[] = [];
+  const pythonManifests: string[] = [];
   const walk = (dir: string) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       if (entry.name.startsWith(".")) continue;
@@ -23,11 +30,13 @@ export function listRepoFiles(root: string): RepoFiles {
       } else if (entry.isFile()) {
         if (entry.name === "package.json") manifests.push(full);
         else if (SOURCE_FILE.test(entry.name) && !entry.name.endsWith(".d.ts")) sources.push(full);
+        else if (PYTHON_FILE.test(entry.name)) python.push(full);
+        else if (PYTHON_MANIFEST.test(entry.name)) pythonManifests.push(full);
       }
     }
   };
   walk(root);
-  return { sources: sources.sort(), manifests: manifests.sort() };
+  return { sources: sources.sort(), manifests: manifests.sort(), python: python.sort(), pythonManifests: pythonManifests.sort() };
 }
 
 export interface DeclaredProvider {
@@ -61,4 +70,46 @@ export function declaredProviders(root: string, manifests: string[]): DeclaredPr
 
 export function toPosix(p: string): string {
   return p.split(path.sep).join("/");
+}
+
+/** Providers whose Python SDKs are declared in requirements*.txt or pyproject.toml. */
+export function declaredPythonProviders(root: string, manifests: string[]): DeclaredProvider[] {
+  const found: DeclaredProvider[] = [];
+  for (const manifest of manifests) {
+    let text: string;
+    try {
+      text = readFileSync(manifest, "utf8");
+    } catch {
+      continue;
+    }
+    const names = new Set<string>();
+    if (manifest.endsWith(".txt")) {
+      for (const line of text.split(/\r?\n/)) {
+        const m = /^\s*([A-Za-z0-9][A-Za-z0-9._-]*)/.exec(line.replace(/#.*/, ""));
+        if (m && !line.trim().startsWith("-")) names.add(m[1]!);
+      }
+    } else {
+      // pyproject.toml: "pkg>=1" items in a dependencies list, or pkg = "^1" in a [...dependencies] table
+      let inTable = false;
+      let inList = false;
+      for (const line of text.split(/\r?\n/)) {
+        const t = line.replace(/#.*/, "").trim();
+        if (/^\[/.test(t)) {
+          inTable = /dependencies\]$/.test(t);
+          inList = false;
+          continue;
+        }
+        if (/^(dependencies|optional-dependencies|dev-dependencies)\s*=\s*\[/.test(t) || /^[\w-]+\s*=\s*\[/.test(t)) inList = true;
+        if (inList) for (const m of t.matchAll(/["']([A-Za-z0-9][A-Za-z0-9._-]*)/g)) names.add(m[1]!);
+        if (inList && t.includes("]")) inList = false;
+        const kv = inTable ? /^([A-Za-z0-9][A-Za-z0-9._-]*)\s*=/.exec(t) : null;
+        if (kv) names.add(kv[1]!);
+      }
+    }
+    for (const name of [...names].sort()) {
+      const provider = providerForPythonPackage(name);
+      if (provider) found.push({ provider: provider.id, package: name, manifest: toPosix(path.relative(root, manifest)) });
+    }
+  }
+  return found;
 }

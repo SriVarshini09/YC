@@ -18,7 +18,7 @@ hero:
 
 features:
   - title: Maps what your code depends on
-    details: SHAPI reads your TypeScript and JavaScript and lists every third-party API call, the endpoint it hits, and what the code relies on in the response, such as a status code, a field or an enum. The result is your api.lock.
+    details: SHAPI reads your TypeScript, JavaScript and Python and lists every third-party API call, the endpoint it hits, and what the code relies on in the response, such as a status code, a field or an enum. The result is your api.lock.
   - title: Knows what changed
     details: An open advisory database of real API behavior changes, including silent ones like GitHub's workflow_dispatch answering 200 instead of 204, says which call sites are affected and which are only exposed.
   - title: Fixes it test-first

@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { AdvisorySchema, ApiLockSchema, createApiLock, matchAdvisories, type ApiLock, type Finding, type MatchResult } from "@shapi/core";
 import { withService, type Db, type Tx } from "@shapi/db";
-import { extractCallSites } from "@shapi/extractor";
+import { extractCallSites, loadPythonParser } from "@shapi/extractor";
 import { checkRunOutput, completeCheckRun, fetchRepoSnapshot, startCheckRun } from "@shapi/github-app";
 import type { SnapshotFile } from "@shapi/sandbox";
 import { repositoryCovered } from "../billing/plan";
@@ -129,6 +129,7 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
   try {
     const readOnly = await deps.github.readOnly(installation, scan.github_repo_id);
     const files = await fetchRepoSnapshot(readOnly, { owner, repo, ref: scan.sha });
+    await loadPythonParser();
     const lock = lockFromSnapshot(files);
     const advisories = await reviewedAdvisories(deps.db);
     const match = matchAdvisories(lock, advisories.map((a) => a.advisory), { now: now() });

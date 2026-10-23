@@ -14,7 +14,7 @@ import {
   type MatchResult,
   type Severity,
 } from "@shapi/core";
-import { extractCallSites } from "@shapi/extractor";
+import { extractCallSites, loadPythonParser } from "@shapi/extractor";
 import { bundledDir } from "./paths";
 
 export const VERSION = "0.1.0";
@@ -35,10 +35,20 @@ export interface ScanOptions {
 export interface ScanOutcome {
   label: string;
   filesScanned: number;
+  /** Files that could not be scanned, with why. */
+  skipped: { file: string; reason: string }[];
   lock: ApiLock;
   match: MatchResult;
   elapsedMs: number;
   exitCode: number;
+}
+
+/**
+ * Load the Python grammar so scans include Python files. Call once before scan() or fix(); when it
+ * cannot load, TypeScript and JavaScript are still scanned and Python files are listed as skipped.
+ */
+export async function preparePython(): Promise<void> {
+  await loadPythonParser().catch(() => undefined);
 }
 
 export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome {
@@ -68,6 +78,7 @@ export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome
     return {
       label,
       filesScanned: extracted.filesScanned,
+      skipped: extracted.skipped,
       lock,
       match,
       elapsedMs: Math.round(performance.now() - started),

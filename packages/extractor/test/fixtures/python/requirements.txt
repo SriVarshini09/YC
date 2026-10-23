@@ -1,0 +1,6 @@
+requests==2.32.3
+httpx>=0.27
+openai>=1.40  # LLM
+stripe[async]==11.1.0
+slack-sdk==3.33.0
+twilio

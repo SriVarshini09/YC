@@ -38,6 +38,9 @@ try {
   const json = shapi("scan", "demo", "--json");
   const report = JSON.parse(json.out) as { lock?: { callSites?: unknown[] } };
   check("scan --json includes the api.lock", (report.lock?.callSites?.length ?? 0) > 0, json.out.slice(0, 500));
+  cpSync(path.join(root, "packages/extractor/test/fixtures/python"), path.join(tmp, "demo-py"), { recursive: true });
+  const py = shapi("scan", "demo-py");
+  check("scan reads Python with the bundled grammar", py.out.includes("quickbooks-minorversion-below-75-ignored") && !py.out.includes("not scanned"), py.out);
   const fix = shapi("fix", "demo", "--advisory", "github-workflow-dispatch-204-to-200");
   check("fix repairs it test-first with the recipe (exit 0)", fix.code === 0 && /FIXED.*via recipe/.test(fix.out), fix.out);
   console.log(`shapi-cli smoke test passed (${tarball})`);

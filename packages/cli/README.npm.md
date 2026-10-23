@@ -27,7 +27,7 @@ shapi scan path/to/repo
 
 ## What it checks
 
-- **Languages:** TypeScript and JavaScript (`fetch`, axios, got, undici, ky, node-fetch, and the official SDKs of the providers it knows).
+- **Languages:** TypeScript and JavaScript (`fetch`, axios, got, undici, ky, node-fetch, and the official SDKs of the providers it knows), and Python (`requests`, `httpx`, `aiohttp`, and the OpenAI, Anthropic, Stripe, Slack, Twilio and HubSpot SDKs). Fixes are for TypeScript and JavaScript; Python is scanned.
 - **Providers:** GitHub, Stripe, QuickBooks, Xero, HubSpot, Slack, OpenAI, Meta Graph and more.
 - **Advisories:** reviewed, open JSON advisories ship inside this package. Each one names the endpoint, what changed, when, and the evidence.
 

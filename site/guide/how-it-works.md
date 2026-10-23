@@ -9,6 +9,13 @@ SHAPI parses your TypeScript and JavaScript with the TypeScript compiler (throug
 - **HTTP clients:** `fetch`, axios, got, undici, ky, node-fetch
 - **official SDKs** of the providers it knows, for example `@octokit/rest`, `stripe` and `@hubspot/api-client`.
 
+Python files are parsed with tree-sitter, and the same things are recorded for them:
+
+- **HTTP clients:** `requests` (including `Session`), `httpx` (including `Client` and `AsyncClient` with `base_url`) and `aiohttp`;
+- **SDKs:** OpenAI, Anthropic, Stripe, Slack (`WebClient`), Twilio and HubSpot.
+
+Python call sites are matched against the same advisories. Fixes are proposed for TypeScript and JavaScript only, for now.
+
 For each call site it records the provider, the HTTP method and endpoint (with dynamic segments such as `{owner}`), the file and line, and the **dependency surface**: what the code does with the response. That means the status codes it compares against, the fields it reads, the enum values it switches on, and the headers and query parameters it sends.
 
 The result is the **api.lock**: a reviewable map of your third-party API surface. It is static analysis only; nothing is executed.

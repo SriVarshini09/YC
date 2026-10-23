@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { SEVERITY_RANK, loadAdvisories, type Advisory, type Finding } from "@shapi/core";
 import { createTwoFilesPatch } from "diff";
-import { DEFAULT_ADVISORIES, VERSION, fix, scan, type FixOutcome } from "shapi";
+import { DEFAULT_ADVISORIES, VERSION, fix, preparePython, scan, type FixOutcome } from "shapi";
 import { z } from "zod";
 
 export interface ServerOptions {
@@ -227,5 +227,6 @@ function outcomeView(o: FixOutcome) {
 
 /** Serve over stdio (how Claude Code, Cursor and other editors launch MCP servers). */
 export async function startStdio(opts: ServerOptions = {}): Promise<void> {
+  await preparePython();
   await createServer(opts).connect(new StdioServerTransport());
 }

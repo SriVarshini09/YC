@@ -18,6 +18,13 @@ export const ProviderSchema = z.object({
   sdkMethods: z.record(z.string(), EndpointRefSchema).optional(),
   docsUrl: z.url(),
   changelogUrl: z.url().optional(),
+  /** The provider's Python SDK: PyPI package and import module, and SDK method chain → HTTP endpoint. */
+  python: z
+    .object({
+      packages: z.array(z.object({ pypi: z.string().min(1), module: z.string().min(1) })),
+      methods: z.record(z.string(), EndpointRefSchema).optional(),
+    })
+    .optional(),
 });
 export type Provider = z.infer<typeof ProviderSchema>;
 
@@ -57,6 +64,18 @@ export function providerForHost(host: string): Provider | undefined {
 
 export function providerForPackage(name: string): Provider | undefined {
   return loadProviders().find((p) => p.sdkPackages.includes(name));
+}
+
+/** The provider whose Python SDK is imported as `module` (the top-level name: "slack_sdk", "openai"). */
+export function providerForPythonModule(module: string): Provider | undefined {
+  const top = module.split(".")[0]!;
+  return loadProviders().find((p) => p.python?.packages.some((pkg) => pkg.module === top));
+}
+
+/** The provider whose Python SDK is the PyPI package `name` (case and -/_ insensitive). */
+export function providerForPythonPackage(name: string): Provider | undefined {
+  const norm = (s: string) => s.toLowerCase().replace(/[-_.]+/g, "-");
+  return loadProviders().find((p) => p.python?.packages.some((pkg) => norm(pkg.pypi) === norm(name)));
 }
 
 /** Map an SDK method chain like "rest.actions.createWorkflowDispatch" to "POST /repos/...". */

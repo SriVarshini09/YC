@@ -1,9 +1,9 @@
 import { Command, CommanderError, Option } from "commander";
 import { fix, type FixDeps, type FixOptions } from "./fix";
 import { renderText } from "./report";
-import { VERSION, scan, toJsonReport, type ScanOptions } from "./scan";
+import { VERSION, preparePython, scan, toJsonReport, type ScanOptions } from "./scan";
 
-export { DEFAULT_ADVISORIES, VERSION, scan, toJsonReport, type ScanOptions, type ScanOutcome } from "./scan";
+export { DEFAULT_ADVISORIES, VERSION, preparePython, scan, toJsonReport, type ScanOptions, type ScanOutcome } from "./scan";
 export { DEFAULT_RECORDINGS, fix, type FixDeps, type FixOptions, type FixOutcome } from "./fix";
 export { renderText } from "./report";
 
@@ -23,6 +23,7 @@ const processIo: Io = {
 /** Run the CLI with `argv` (as in process.argv) and return the exit code. */
 export async function run(argv: string[], io: Io = processIo, fixDeps: Partial<FixDeps> = {}): Promise<number> {
   let exitCode = 0;
+  await preparePython();
   const program = new Command()
     .name("shapi")
     .description("Map the third-party APIs a codebase depends on and flag the breaking changes that hit it.")
