@@ -45,4 +45,4 @@ One line per task: task, summary file, PR, status.
 - PB-2 fix recipes: [summary](PB-2-fix-recipes.md) · PR: [#44](https://github.com/SriVarshini09/YC/pull/44) · open
 - PB-3 contract tests beyond fetch: [summary](PB-3-contract-clients.md) · PR: [#45](https://github.com/SriVarshini09/YC/pull/45) · open
 - PB-4 canaries for five more providers: [summary](PB-4-canaries.md) · PR: [#46](https://github.com/SriVarshini09/YC/pull/46) · open
-- PB-5 Python scanning: [summary](PB-5-python.md) · PR: pending · open
+- PB-5 Python scanning: [summary](PB-5-python.md) · PR: [#47](https://github.com/SriVarshini09/YC/pull/47) · open
