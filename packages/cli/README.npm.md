@@ -1,4 +1,4 @@
-<p align="center"><a href="https://srivarshini09.github.io/YC/"><img src="https://raw.githubusercontent.com/SriVarshini09/YC/main/brand/shapi-icon-256.png" alt="SHAPI" width="96" height="96"></a></p>
+<p align="center"><a href="https://srivarshini09.github.io/YC/"><img src="https://raw.githubusercontent.com/SriVarshini09/YC/main/brand/png/shapi-lockup-horizontal-light-on-bg-1024.png" alt="SHAPI" width="320"></a></p>
 
 # shapi-cli
 

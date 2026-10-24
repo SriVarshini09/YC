@@ -1,4 +1,4 @@
-import { LOGO_SVG } from "./brand";
+import { LOGO_SVG, MOTION_CSS } from "./brand";
 
 /** Markup that is already safe. Everything else placed in an `html` template is escaped. */
 export class Html {
@@ -92,7 +92,9 @@ body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system
 a { color: var(--accent); }
 header.top { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; border-bottom: 1px solid var(--line); }
 .brand { display: inline-flex; color: var(--fg); text-decoration: none; }
-.brand svg { display: block; height: 28px; width: auto; }
+.brand svg { display: block; height: 26px; width: auto; }
+h1.logo { margin: 8px 0 12px; }
+h1.logo svg { display: block; height: 52px; width: auto; }
 .signout { display: flex; gap: 12px; align-items: center; color: var(--muted); }
 main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
 footer.foot { max-width: 1040px; margin: 0 auto; padding: 0 16px 32px; font-size: 13px; color: var(--muted); }
@@ -120,4 +122,5 @@ form.settings input[type=number] { width: 120px; font: inherit; padding: 4px 8px
 form.inline { display: inline; }
 .notice { border-left: 3px solid var(--warn); padding: 8px 12px; background: var(--card); margin: 16px 0; }
 @media (max-width: 640px) { th:nth-child(n+4), td:nth-child(n+4) { display: none; } header.top { padding: 12px 16px; } }
+${MOTION_CSS}
 `;
