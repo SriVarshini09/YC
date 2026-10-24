@@ -1,8 +1,8 @@
 <p align="center">
   <a href="https://srivarshini09.github.io/YC/">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="brand/shapi-logo-dark.svg">
-      <img src="brand/shapi-logo-light.svg" alt="SHAPI" height="80">
+      <source media="(prefers-color-scheme: dark)" srcset="brand/motion/shapi-logo-animated-dark.svg">
+      <img src="brand/motion/shapi-logo-animated-light.svg" alt="SHAPI" height="64">
     </picture>
   </a>
 </p>

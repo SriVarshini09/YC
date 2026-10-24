@@ -7,9 +7,6 @@ hero:
   name: SHAPI
   text: Your code, when the API changes
   tagline: Stripe renames a value, Meta retires a version, GitHub answers 200 instead of 204. SHAPI finds the lines in your code that break, and opens a pull request that fixes them, with a test that proves it.
-  image:
-    src: /shapi-icon.svg
-    alt: SHAPI
   actions:
     - theme: brand
       text: Install the GitHub App

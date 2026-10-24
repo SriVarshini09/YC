@@ -22,8 +22,8 @@ import {
 import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
 import { completeCheckout, portalUrl, setQuantity, startCheckout, type BillingDeps } from "../billing/stripe";
 import { SLACK_WEBHOOK, postSlack, slackTestMessage } from "../notify/slack";
-import { APPLE_TOUCH_ICON, FAVICON_ICO, FAVICON_SVG } from "./brand";
-import { DOCS_URL, STYLES, html, page, shortSha, timeAgo, type Html } from "./html";
+import { APPLE_TOUCH_ICON, FAVICON_ICO, FAVICON_SVG, LOGO_INTRO_SVG } from "./brand";
+import { DOCS_URL, Html, STYLES, html, page, shortSha, timeAgo } from "./html";
 
 export interface WebConfig extends OAuthConfig {
   /** Signs the session cookie. */
@@ -119,7 +119,7 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
           reply,
           page(
             "Sign in",
-            html`<h1>SHAPI</h1>
+            html`<h1 class="logo">${new Html(LOGO_INTRO_SVG)}</h1>
 <p class="lead">Finds code that breaks when a third-party API changes, and opens verified fix pull requests.</p>
 ${deps.config ? html`<p><a class="button primary" href="/login">Sign in with GitHub</a></p>` : html`<div class="notice">Sign-in is not configured on this server yet.</div>`}
 ${installLink ? html`<p class="note">New here? <a href="${installLink}">Install the SHAPI GitHub App</a> on your repositories first.</p>` : ""}`,

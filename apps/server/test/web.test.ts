@@ -122,10 +122,18 @@ describe("web sign-in", () => {
     const home = await app.inject("/");
     expect(home.body).toContain('<a class="brand" href="/" aria-label="SHAPI home"><svg');
     expect(home.body).toContain('<link rel="icon" href="/favicon.svg" type="image/svg+xml">');
+    // The header logo moves on hover; the sign-in page plays the intro once. No style attributes, so the CSP holds.
+    expect(home.body).toContain('<a class="brand" href="/" aria-label="SHAPI home"><svg xmlns="http://www.w3.org/2000/svg" class="sp-logo sp-hover"');
+    expect(home.body).toContain('<h1 class="logo"><svg xmlns="http://www.w3.org/2000/svg" class="sp-logo sp-join"');
+    expect(home.body).not.toContain(" style=");
+    const css = await app.inject("/static/app.css");
+    expect(css.body).toContain("@keyframes sp-in-left");
+    expect(css.body).toContain("prefers-reduced-motion");
     const svg = await app.inject("/favicon.svg");
     expect(svg.statusCode).toBe(200);
     expect(svg.headers["content-type"]).toBe("image/svg+xml");
     expect(svg.body).toContain("<svg");
+    expect(svg.body).toContain("prefers-color-scheme:dark");
     const ico = await app.inject("/favicon.ico");
     expect(ico.statusCode).toBe(200);
     expect(ico.headers["content-type"]).toBe("image/x-icon");
