@@ -72,7 +72,7 @@ export interface PrRow {
   repair: FixRepair | null;
 }
 
-export interface BillingRow {
+interface BillingRow {
   status: string;
   quantity: number;
   stripe_customer_id: string | null;
@@ -251,17 +251,23 @@ export function providersOf(data: AccountData) {
 export function deadlinesOf(data: AccountData) {
   const present = new Set(data.repos.flatMap((r) => r.providers.map((p) => p.id)));
   for (const f of data.findings) if (f.advisory) present.add(f.advisory.provider);
-  const hits = new Map<string, { affected: number; exposed: number }>();
-  for (const f of data.findings) {
-    const h = hits.get(f.advisory_id) ?? { affected: 0, exposed: 0 };
-    h[f.kind]++;
-    hits.set(f.advisory_id, h);
-  }
+  const hits = hitsByAdvisory(data.findings);
   return [...data.advisories.values()]
     .filter((a) => present.has(a.provider))
     .map((a) => ({ advisory: a, daysUntil: daysUntil(a.effectiveDate, data.now), ...(hits.get(a.id) ?? { affected: 0, exposed: 0 }) }))
     .filter((d) => d.daysUntil >= 0 || d.affected || d.exposed)
     .sort((a, b) => a.daysUntil - b.daysUntil || SEVERITY_RANK[a.advisory.severity] - SEVERITY_RANK[b.advisory.severity]);
+}
+
+/** Affected and exposed call sites per advisory. */
+export function hitsByAdvisory(findings: FindingRow[]): Map<string, { affected: number; exposed: number }> {
+  const hits = new Map<string, { affected: number; exposed: number }>();
+  for (const f of findings) {
+    const h = hits.get(f.advisory_id) ?? { affected: 0, exposed: 0 };
+    h[f.kind]++;
+    hits.set(f.advisory_id, h);
+  }
+  return hits;
 }
 
 const SEVERITY_COST: Record<string, number> = { critical: 8, high: 5, medium: 3, low: 1 };

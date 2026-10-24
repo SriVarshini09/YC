@@ -2,7 +2,7 @@ import type { Advisory, LockedCallSite } from "@shapi/core";
 import { DEFAULT_PR_LIMITS, STOP_LABEL } from "@shapi/github-app";
 import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
 import { DOCS_URL, EMPTY, ICONS, LOGO, html, initials, isoDay, navFor, plural, shortSha, timeAgo, type Html, type NavKey, type Shell, type Theme } from "./html";
-import { daysUntil, deadlinesOf, healthOf, providersOf, type AccountData, type FindingRow, type PrRow, type RepoRow, type ScanRow } from "./queries";
+import { daysUntil, deadlinesOf, healthOf, hitsByAdvisory, providersOf, type AccountData, type FindingRow, type PrRow, type RepoRow, type ScanRow } from "./queries";
 import {
   activityFeed,
   callSiteText,
@@ -13,10 +13,12 @@ import {
   deadlineRow,
   deadlineTimeline,
   diffView,
+  dueTag,
   empty,
   fileUrl,
   healthRing,
   kindTag,
+  prLink,
   providerGrid,
   providerMark,
   providerName,
@@ -118,14 +120,14 @@ export function overviewPage(data: AccountData): Html {
   </div>
 </div>
 <div class="grid cols-3">
-  <div class="span-2">${section(
+  <div class="span-2 column">${section(
     "Deadline timeline",
     html`<div class="card">${deadlineTimeline(deadlines, data.now)}${deadlines.slice(0, 4).map((d) => deadlineRow(d, `${b}/advisories?advisory=${encodeURIComponent(d.advisory.id)}`))}</div>`,
     { label: "All deadlines", href: `${b}/deadlines` },
-  )}</div>
-  <div>${section("Recent activity", html`<div class="card">${activityFeed(activityOf(data), data.now)}</div>`)}</div>
+  )}
+  ${section("Providers", providerGrid(providers, (id) => `${b}/advisories?provider=${encodeURIComponent(id)}`))}</div>
+  <div class="column">${section("Recent activity", html`<div class="card">${activityFeed(activityOf(data), data.now)}</div>`)}</div>
 </div>
-${section("Providers", providerGrid(providers, (id) => `${b}/advisories?provider=${encodeURIComponent(id)}`))}
 ${section("Repositories", repoTable(data, data.repos.slice(0, 6)), data.repos.length > 6 ? { label: `All ${data.repos.length}`, href: `${b}/repositories` } : undefined)}`;
 }
 
@@ -134,7 +136,7 @@ function head(title: string, lead: string, actions: Html = EMPTY): Html {
 }
 
 /** Scans, PRs and new affected call sites, newest first. */
-export function activityOf(data: AccountData, limit = 12): ActivityEvent[] {
+function activityOf(data: AccountData, limit = 8): ActivityEvent[] {
   const events: ActivityEvent[] = [];
   for (const s of data.scans) {
     if (!s.finished_at && s.status !== "failed") continue;
@@ -149,7 +151,7 @@ export function activityOf(data: AccountData, limit = 12): ActivityEvent[] {
   }
   for (const p of data.prs) {
     const title = p.advisory?.title ?? p.advisory_id;
-    const link = p.url && p.number ? html`<a href="${p.url}">#${p.number}</a>` : html`<span class="mono">${p.branch}</span>`;
+    const link = prLink(p);
     events.push({ at: p.created_at, kind: "pr", tone: "info", text: html`Fix PR ${link} opened in ${p.repo}`, sub: title });
     if (p.state !== "open" && p.closed_at) events.push({ at: p.closed_at, kind: p.state === "merged" ? "merged" : "closed", tone: p.state === "merged" ? "ok" : "", text: html`Fix PR ${link} ${p.state} in ${p.repo}`, sub: title });
   }
@@ -191,7 +193,7 @@ function repoTable(data: AccountData, repos: RepoRow[], billingEnabled = false):
 
 /* ---------- one repository ---------- */
 
-export interface RepoDetail {
+interface RepoDetail {
   scans: ScanRow[];
 }
 
@@ -270,7 +272,7 @@ function callSitesByProvider(data: AccountData, repo: RepoRow, findings: Finding
 <td><span class="mono">${callSiteText(s)}</span></td>
 <td>${kindTag(worst?.kind ?? "ok")}</td>
 <td>${worst ? html`<a href="${findingHref(data, worst.id)}">${worst.advisory?.title ?? worst.advisory_id}</a>${hits.length > 1 ? html` <span class="muted small">+${hits.length - 1} more</span>` : EMPTY}<span class="sub">${worst.reasons.join("; ")}</span>` : html`<span class="muted">—</span>`}</td>
-<td>${pr ? html`${pr.url && pr.number ? html`<a href="${pr.url}">#${pr.number}</a>` : html`<span class="mono">${pr.branch}</span>`} ${stateTag(pr.state)}` : worst?.kind === "affected" ? html`<span class="muted small">${worst.advisory?.recipeId ? "pending" : "manual fix"}</span>` : EMPTY}</td>
+<td>${fixPrCell(pr, worst)}</td>
 </tr>`;
     });
     return html`<div class="group-head">${providerMark(id, "sm")}${id === "unknown" ? "Unknown host" : providerName(id)}<span class="meta">${affected ? tag(`${affected} affected`, "bad") : EMPTY}${exposed ? tag(`${exposed} exposed`, "warn") : EMPTY}<span>${plural(list.length, "call site")}</span></span></div>
@@ -283,6 +285,13 @@ function scanTable(repo: RepoRow, scans: ScanRow[], now: Date): Html {
   return html`<div class="card tight"><table><thead><tr><th>Commit</th><th>Status</th><th>When</th></tr></thead><tbody>${scans.map(
     (s) => html`<tr><td><a class="mono" href="${commitUrl(repo.full_name, s.sha)}">${shortSha(s.sha)}</a>${s.error ? html`<span class="sub">${s.error}</span>` : EMPTY}</td><td>${stateTag(s.status)}</td><td class="muted">${timeAgo(s.finished_at ?? s.created_at, now)}</td></tr>`,
   )}</tbody></table></div>`;
+}
+
+/** The fix PR for a finding: its link and state, "pending" while a fixable one waits, "manual fix" when no recipe fits. */
+function fixPrCell(pr: PrRow | undefined, finding: FindingRow | undefined): Html {
+  if (pr) return html`${prLink(pr)} ${stateTag(pr.state)}`;
+  if (finding?.kind === "affected") return html`<span class="muted small">${finding.advisory?.recipeId ? "pending" : "manual fix"}</span>`;
+  return html`<span class="muted">—</span>`;
 }
 
 /* ---------- findings ---------- */
@@ -311,8 +320,8 @@ function findingTable(data: AccountData, rows: FindingRow[]): Html {
 <td>${kindTag(f.kind)}<span class="sub">${f.advisory ? severityTag(f.advisory.severity) : EMPTY}</span></td>
 <td><a href="${findingHref(data, f.id)}"><b>${f.advisory?.title ?? f.advisory_id}</b></a><span class="sub">${f.advisory ? html`${providerMark(f.advisory.provider, "sm")} ` : EMPTY}${f.advisory ? providerName(f.advisory.provider) : ""} · <span class="mono">${f.advisory ? `${f.advisory.endpoint.method} ${f.advisory.endpoint.path}` : callSiteText(f.site)}</span></span></td>
 <td><a class="mono" href="${fileUrl(f.repo, f.sha, f.site.file, f.site.line)}">${f.site.file}:${f.site.line}</a><span class="sub">${f.repo}</span></td>
-<td>${days === undefined ? html`<span class="muted">—</span>` : days < 0 ? tag("in effect", "bad") : tag(`in ${plural(days, "day")}`, days <= 30 ? "bad" : days <= 90 ? "warn" : "ok")}<span class="sub">${f.advisory ? isoDay(f.advisory.effectiveDate) : ""}</span></td>
-<td>${pr ? html`${pr.url && pr.number ? html`<a href="${pr.url}">#${pr.number}</a>` : html`<span class="mono">${pr.branch}</span>`} ${stateTag(pr.state)}` : f.kind === "affected" ? html`<span class="muted small">${f.advisory?.recipeId ? "pending" : "manual fix"}</span>` : html`<span class="muted">—</span>`}</td>
+<td>${days === undefined ? html`<span class="muted">—</span>` : dueTag(days)}<span class="sub">${f.advisory ? isoDay(f.advisory.effectiveDate) : ""}</span></td>
+<td>${fixPrCell(pr, f)}</td>
 </tr>`;
   })}</tbody></table></div>`;
 }
@@ -336,7 +345,7 @@ function prTable(data: AccountData, prs: PrRow[], opts: { repo: boolean }): Html
     const f = findingFor(p);
     const fixed = p.repair?.sites.filter((s) => s.status === "fixed").length ?? 0;
     return html`<tr>
-<td>${p.url && p.number ? html`<a href="${p.url}"><b>#${p.number}</b></a>` : html`<span class="mono">${p.branch}</span>`}${opts.repo ? html`<span class="sub">${p.repo}</span>` : EMPTY}</td>
+<td><b>${prLink(p)}</b>${opts.repo ? html`<span class="sub">${p.repo}</span>` : EMPTY}</td>
 <td>${f ? html`<a href="${findingHref(data, f.id)}">${p.advisory?.title ?? p.advisory_id}</a>` : html`${p.advisory?.title ?? p.advisory_id}`}<span class="sub">${p.advisory ? `${providerName(p.advisory.provider)} · ` : ""}<span class="mono">${p.advisory_id}</span></span></td>
 <td>${stateTag(p.state)}${p.stopped ? html` ${tag("stopped", "warn")}` : EMPTY}</td>
 <td>${p.repair ? html`${tag(`${fixed} of ${p.repair.sites.length} fixed`, fixed === p.repair.sites.length ? "ok" : "warn")}<span class="sub">${p.repair.method === "llm" ? "Claude, verified by contract tests" : `recipe ${p.repair.recipeId ?? ""}`}</span>` : html`<span class="muted small">details on the PR</span>`}</td>
@@ -363,12 +372,7 @@ ${section("Coming up", ahead.length ? html`<div class="card">${ahead.map((d) => 
 export function advisoriesPage(data: AccountData, filter: { provider?: string; advisory?: string }): Html {
   const b = base(data);
   const present = new Set(providersOf(data).map((p) => p.id));
-  const hits = new Map<string, { affected: number; exposed: number }>();
-  for (const f of data.findings) {
-    const h = hits.get(f.advisory_id) ?? { affected: 0, exposed: 0 };
-    h[f.kind]++;
-    hits.set(f.advisory_id, h);
-  }
+  const hits = hitsByAdvisory(data.findings);
   const all = [...data.advisories.values()];
   const providers = [...new Set(all.map((a) => a.provider))].sort((x, y) => Number(present.has(y)) - Number(present.has(x)) || x.localeCompare(y));
   let rows = filter.provider ? all.filter((a) => a.provider === filter.provider) : all;
@@ -390,7 +394,7 @@ ${filter.advisory ? html`<div class="filters"><a class="on" href="${b}/advisorie
     return html`<tr class="${h?.affected ? "affected" : h?.exposed ? "exposed" : ""}">
 <td><b>${a.title}</b><span class="sub">${providerMark(a.provider, "sm")} ${providerName(a.provider)} · <span class="mono">${a.endpoint.method} ${a.endpoint.path}</span> · ${a.changeClass} · <a href="${a.sources[0]}">source</a></span></td>
 <td>${severityTag(a.severity)}</td>
-<td>${days < 0 ? tag("in effect", "bad") : tag(`in ${plural(days, "day")}`, days <= 30 ? "bad" : days <= 90 ? "warn" : "ok")}<span class="sub">${isoDay(a.effectiveDate)}</span></td>
+<td>${dueTag(days)}<span class="sub">${isoDay(a.effectiveDate)}</span></td>
 <td>${h?.affected ? html`<a href="${b}/findings?advisory=${encodeURIComponent(a.id)}">${tag(`${h.affected} affected`, "bad")}</a>` : EMPTY}${h?.exposed ? html` <a href="${b}/findings?kind=exposed&advisory=${encodeURIComponent(a.id)}">${tag(`${h.exposed} exposed`, "warn")}</a>` : EMPTY}${
       !h ? html`<span class="muted small">${present.has(a.provider) ? "not called" : "provider not used"}</span>` : EMPTY
     }</td>
@@ -401,7 +405,7 @@ ${filter.advisory ? html`<div class="filters"><a class="on" href="${b}/advisorie
 
 /* ---------- one finding ---------- */
 
-export interface FindingDetail {
+interface FindingDetail {
   id: string;
   kind: "affected" | "exposed";
   site: FindingRow["site"];
@@ -413,7 +417,7 @@ export interface FindingDetail {
   full_name: string;
   repository_id: string;
   finished_at: Date | null;
-  pr?: PrRow | (Omit<PrRow, "repo" | "advisory"> & { repo?: string });
+  pr?: Pick<PrRow, "url" | "number" | "branch" | "state" | "stopped" | "repair">;
 }
 
 export function findingPage(account: { id: string }, f: FindingDetail, now: Date): Html {
@@ -429,7 +433,7 @@ export function findingPage(account: { id: string }, f: FindingDetail, now: Date
 <table class="kv-table"><tbody>
 ${kvRow("Endpoint", html`<span class="mono">${a.endpoint.method} ${a.endpoint.path}</span>`)}
 ${kvRow("Change class", a.changeClass)}
-${kvRow("Takes effect", html`${isoDay(a.effectiveDate)} ${days! < 0 ? tag("in effect", "bad") : tag(`in ${plural(days!, "day")}`, days! <= 30 ? "bad" : days! <= 90 ? "warn" : "ok")}`)}
+${kvRow("Takes effect", html`${isoDay(a.effectiveDate)} ${dueTag(days!)}`)}
 ${kvRow("First observed", a.firstObserved ?? "unknown")}
 ${kvRow("Provider notice", a.publishedNotice ? html`<a href="${a.publishedNotice.url}">${a.publishedNotice.date ?? "notice"}</a>` : "none (undocumented change)")}
 ${kvRow("Sources", html`${a.sources.map((s, i) => html`${i ? " · " : ""}<a href="${s}">${new URL(s).hostname}</a>`)}`)}
@@ -459,9 +463,9 @@ function fixSection(f: FindingDetail, b: string): Html {
     if (a && !a.recipeId) return html`<div class="card stack"><p><b>Manual fix.</b> SHAPI has no deterministic recipe for this change, so no PR is opened unless the account turns on Claude fixes in <a href="${b}/settings">Settings</a>.</p><div class="notice">${a.migrationNote}</div></div>`;
     return html`<div class="card"><p>A fix PR has not been opened yet. SHAPI opens it after the next fix run, within the account's PR limits, unless the repository is paused.</p></div>`;
   }
-  const prLink = pr.url && pr.number ? html`<a class="button" href="${pr.url}">${ICONS.external} Pull request #${pr.number}</a>` : html`<span class="mono">${pr.branch}</span>`;
+  const button = prLink(pr, "button");
   const r = pr.repair;
-  if (!r) return html`<div class="card stack"><p>${stateTag(pr.state)}${pr.stopped ? html` ${tag("stopped", "warn")}` : EMPTY} The diff and the test results are on the pull request.</p><div>${prLink}</div></div>`;
+  if (!r) return html`<div class="card stack"><p>${stateTag(pr.state)}${pr.stopped ? html` ${tag("stopped", "warn")}` : EMPTY} The diff and the test results are on the pull request.</p><div>${button}</div></div>`;
   const site = r.sites.find((s) => s.file === f.site.file && s.line === f.site.line) ?? r.sites.find((s) => s.status === "fixed") ?? r.sites[0];
   const fixed = r.sites.filter((s) => s.status === "fixed").length;
   const steps = html`<div class="steps">
@@ -471,7 +475,7 @@ function fixSection(f: FindingDetail, b: string): Html {
 <div class="step"><span class="n ${site?.after?.passed ? "ok" : "bad"}">4</span><div>${site?.after?.passed ? "The same test passes after the change. Only then was the PR opened." : site?.status === "already-handled" ? "No change was kept for this call site." : `The change was not kept: ${site?.reason ?? site?.status ?? "unknown"}.`}</div></div>
 </div>`;
   return html`<div class="card stack">
-<div class="head"><div>${stateTag(pr.state)}${pr.stopped ? html` ${tag("stopped", "warn")}` : EMPTY} ${tag(`${fixed} of ${r.sites.length} call sites fixed`, fixed === r.sites.length ? "ok" : "warn")} <span class="note">verified ${isoDay(r.verifiedAt)}</span></div><div class="actions">${prLink}</div></div>
+<div class="head"><div>${stateTag(pr.state)}${pr.stopped ? html` ${tag("stopped", "warn")}` : EMPTY} ${tag(`${fixed} of ${r.sites.length} call sites fixed`, fixed === r.sites.length ? "ok" : "warn")} <span class="note">verified ${isoDay(r.verifiedAt)}</span></div><div class="actions">${button}</div></div>
 ${steps}
 <h2>Test result</h2>
 <div class="compare">${testRunBox(site?.before, "before", site?.test)}<div class="arrow">${ICONS.arrow}</div>${testRunBox(site?.after, "after", site?.test)}</div>
@@ -522,7 +526,7 @@ export function billingPage(data: AccountData, enabled: boolean, notice: string 
   if (!enabled) return html`${head("Billing", "Billing is not configured on this server; every repository is covered.")}`;
   const privates = data.repos.filter((r) => r.private && r.enabled).length;
   const needed = requiredQuantity(data.repos);
-  const billing = data.billing as (AccountData["billing"] & { cancel_at?: Date | null }) | undefined;
+  const billing = data.billing;
   const paying = billing && ["active", "trialing", "past_due"].includes(billing.status);
   const paid = paying ? billing.quantity : 0;
   const form = (action: string, label: string, primary = false) =>
@@ -539,17 +543,11 @@ ${notice && notices[notice] ? html`<div class="notice">${notices[notice]}</div>`
 <div class="grid cols-3">
 ${statCard({ label: "Plan", value: paying ? "Paid" : "Free", sub: paying ? `${paid} paid private ${paid === 1 ? "repository" : "repositories"} plus ${FREE_PRIVATE_REPOS} free` : `public repositories and ${FREE_PRIVATE_REPOS} private repository` })}
 ${statCard({ label: "Private repositories", value: privates, sub: uncovered.length ? `${uncovered.length} not covered` : "all covered", tone: uncovered.length ? "bad" : "" })}
-${statCard({ label: paying && billing?.cancel_at ? "Cancels on" : "Renews", value: paying && billing?.cancel_at ? isoDay(billing.cancel_at) : paying && billing?.current_period_end ? isoDay(billing.current_period_end) : "—", sub: billing?.status === "past_due" ? "payment past due" : paying ? "billed by Stripe" : "no subscription" })}
+${statCard({ label: "Renews", value: paying && billing?.current_period_end ? isoDay(billing.current_period_end) : "—", sub: billing?.status === "past_due" ? "payment past due" : paying ? "billed by Stripe" : "no subscription" })}
 </div>
 <div class="card stack">
 <p>${paying ? html`<b>Paid plan</b>: ${paid} private repositor${paid === 1 ? "y" : "ies"} plus ${FREE_PRIVATE_REPOS} free` : html`<b>Free plan</b>: public repositories and ${FREE_PRIVATE_REPOS} private repository`}${billing?.status === "past_due" ? html` ${tag("payment past due", "warn")}` : EMPTY}</p>
-<p class="muted">${privates} private repositor${privates === 1 ? "y" : "ies"} installed.${
-    paying && billing?.cancel_at
-      ? html` ${tag(`Cancels on ${isoDay(billing.cancel_at)}`, "warn")} After that, only public repositories and ${FREE_PRIVATE_REPOS} private repository are scanned.`
-      : paying && billing?.current_period_end
-        ? html` Renews ${isoDay(billing.current_period_end)}.`
-        : ""
-  }</p>
+<p class="muted">${privates} private repositor${privates === 1 ? "y" : "ies"} installed.${paying && billing?.current_period_end ? html` Renews ${isoDay(billing.current_period_end)}.` : ""}</p>
 <div class="btn-row">
 ${!paying && needed > 0 ? form("checkout", `Upgrade to cover ${needed} more private repositor${needed === 1 ? "y" : "ies"}`, true) : EMPTY}
 ${paying && needed > paid ? form("add-repos", `Add ${needed - paid} repositor${needed - paid === 1 ? "y" : "ies"} to the plan`, true) : EMPTY}

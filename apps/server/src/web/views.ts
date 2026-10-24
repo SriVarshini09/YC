@@ -4,7 +4,7 @@ import { EMPTY, ICONS, html, isoDay, plural, timeAgo, type Html } from "./html";
 
 /* ---------- small pieces ---------- */
 
-export type Tone = "ok" | "warn" | "bad" | "info" | "";
+type Tone = "ok" | "warn" | "bad" | "info" | "";
 
 export function tag(text: string, tone: Tone | string = "", title?: string): Html {
   return html`<span class="tag ${tone}"${title ? html` title="${title}"` : EMPTY}>${text}</span>`;
@@ -22,6 +22,15 @@ export const kindTag = (kind: "affected" | "exposed" | "ok") => (kind === "affec
 
 export const empty = (text: string) => html`<div class="empty">${text}</div>`;
 
+/** "in effect" once a change applies, otherwise "in N days" colored by urgency. */
+export const dueTag = (daysUntil: number) => (daysUntil < 0 ? tag("in effect", "bad") : tag(`in ${plural(daysUntil, "day")}`, urgency(daysUntil)));
+
+/** A fix PR's number linked to GitHub, or its branch while it has no number; `button` for the finding page. */
+export function prLink(pr: { url: string | null; number: number | null; branch: string }, style: "text" | "button" = "text"): Html {
+  if (!pr.url || !pr.number) return html`<span class="mono">${pr.branch}</span>`;
+  return style === "button" ? html`<a class="button" href="${pr.url}">${ICONS.external} Pull request #${pr.number}</a>` : html`<a href="${pr.url}">#${pr.number}</a>`;
+}
+
 export function crumbs(items: { label: string; href?: string }[]): Html {
   return html`<nav class="crumbs">${items.map((c, i) => html`${i ? html`<span>/</span>` : EMPTY}${c.href ? html`<a href="${c.href}">${c.label}</a>` : html`<span>${c.label}</span>`}`)}</nav>`;
 }
@@ -30,7 +39,7 @@ export function section(title: string, body: Html, more?: { label: string; href:
   return html`<section class="section"><div class="title"><h2>${title}</h2>${more ? html`<a class="more" href="${more.href}">${more.label} ${ICONS.arrow}</a>` : EMPTY}</div>${body}</section>`;
 }
 
-export interface StatCard {
+interface StatCard {
   label: string;
   value: string | number;
   sub?: string;
@@ -102,7 +111,7 @@ export function providerMark(id: string, size: "" | "sm" = ""): Html {
   return html`<svg class="mark-logo ${size}" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="${fill}"/><text x="20" y="25.5" text-anchor="middle" font-size="${letters.length > 1 ? 15 : 17}" font-weight="700" fill="#fff" font-family="Inter Variable, Inter, system-ui, sans-serif">${letters}</text></svg>`;
 }
 
-export interface ProviderStatus {
+interface ProviderStatus {
   id: string;
   callSites: number;
   repos: number;
@@ -112,7 +121,7 @@ export interface ProviderStatus {
   nextDeadline?: number;
 }
 
-export function providerTone(p: ProviderStatus): Tone {
+function providerTone(p: ProviderStatus): Tone {
   if (p.affected) return "bad";
   if (p.exposed || (p.nextDeadline !== undefined && p.nextDeadline <= 90)) return "warn";
   return "ok";
@@ -137,7 +146,7 @@ export interface Deadline {
   exposed: number;
 }
 
-export function urgency(daysUntil: number): Tone {
+function urgency(daysUntil: number): Tone {
   return daysUntil <= 30 ? "bad" : daysUntil <= 90 ? "warn" : "ok";
 }
 
@@ -219,7 +228,7 @@ export const callSiteText = (site: Pick<LockedCallSite, "method" | "endpoint">) 
 const STATUS_TEXT: Record<number, string> = { 200: "OK", 201: "Created", 202: "Accepted", 204: "No Content", 400: "Bad Request", 401: "Unauthorized", 403: "Forbidden", 404: "Not Found", 410: "Gone", 429: "Too Many Requests" };
 const statusText = (codes: number[]) => codes.map((c) => `${c}${STATUS_TEXT[c] ? ` ${STATUS_TEXT[c]}` : ""}`).join(" or ");
 
-export interface Comparison {
+interface Comparison {
   expected: { value: string; caption: string };
   actual: { value: string; caption: string };
 }

@@ -9,7 +9,7 @@ export const DIFF_LINE_LIMIT = 400;
 /** Characters of test output kept per run. */
 const OUTPUT_LIMIT = 4_000;
 
-export interface RepairedSite {
+interface RepairedSite {
   callSite: Pick<LockedCallSite, "file" | "line" | "method" | "endpoint">;
   result: RepairResult;
 }
@@ -41,7 +41,7 @@ export function summarizeRepair(input: { advisory: Advisory; sites: RepairedSite
   };
 }
 
-export function testRun(run: TestRun): FixTestRun {
+function testRun(run: TestRun): FixTestRun {
   const m = /Tests\s+([^\n]+?)\s*\(\d+\)/.exec(run.output);
   const output = run.output.trim();
   return { passed: run.passed, tests: m ? m[1]!.trim() : run.passed ? "passed" : "failed", output: output.length > OUTPUT_LIMIT ? `…${output.slice(-OUTPUT_LIMIT)}` : output };

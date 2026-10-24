@@ -45,7 +45,7 @@ export const DOCS_URL = "https://srivarshini09.github.io/YC";
 
 export type NavKey = "overview" | "repositories" | "findings" | "fixes" | "deadlines" | "advisories" | "settings" | "billing";
 
-export interface NavItem {
+interface NavItem {
   key: NavKey;
   label: string;
   href: string;
@@ -91,7 +91,6 @@ export const ICONS = {
   cross: icon('<path d="M6 6l12 12M18 6 6 18"/>'),
   arrow: icon('<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>'),
   external: icon('<path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/>'),
-  code: icon('<path d="m8 7-5 5 5 5M16 7l5 5-5 5"/><path d="m14 4-4 16"/>'),
   providers: icon('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'),
 };
 
@@ -190,6 +189,6 @@ export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n ==
 export const isoDay = (d: Date | string) => new Date(d).toISOString().slice(0, 10);
 
 /** Changes with the stylesheet, so browsers refetch it after a deploy despite the cache header. */
-export const STYLES_VERSION = createHash("sha256").update(STYLES).digest("hex").slice(0, 10);
+const STYLES_VERSION = createHash("sha256").update(STYLES).digest("hex").slice(0, 10);
 
 export { STYLES };

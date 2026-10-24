@@ -10,7 +10,8 @@ import { createApiLock, loadAdvisories, type CallSite } from "@shapi/core";
 import { createDb, migrateToLatest, upsertAdvisories, type Db, type FixRepair } from "@shapi/db";
 import { startTestPostgres } from "../../../test-utils/postgres.ts";
 import { summarizeRepair } from "../src/jobs/repair-summary.ts";
-import { SESSION_COOKIE, buildApp, createSession } from "../dist/index.js";
+import { SESSION_COOKIE, createSession } from "../src/web/auth.ts";
+import { buildApp } from "../dist/index.js";
 
 const root = fileURLToPath(new URL("../../..", import.meta.url));
 const port = Number(process.env.PORT ?? 8788);

@@ -14,4 +14,3 @@ export { shapesFor, type AdvisoryShapes } from "./jobs/shapes";
 export type { ScanRequest } from "./github/events";
 export { FREE_PRIVATE_REPOS, coverage, requiredQuantity, repositoryCovered, type Coverage } from "./billing/plan";
 export { applySubscription, completeCheckout, handleStripeEvent, portalUrl, setQuantity, startCheckout, stripeClient, syncQuantity, type BillingConfig, type BillingDeps } from "./billing/stripe";
-export { SESSION_COOKIE, createSession, type GitHubIdentity } from "./web/auth";
