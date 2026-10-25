@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { LOGO_SVG } from "./brand";
+import { FAVICON_SVG, LOGO_SVG } from "./brand";
 import { STYLES } from "./styles";
 
 /** Markup that is already safe. Everything else placed in an `html` template is escaped. */
@@ -101,9 +101,12 @@ export const ICONS = {
 
 /** The SHAPI lockup from brand.ts (mark and wordmark); the wordmark takes the surrounding text colour. */
 export const LOGO = new Html(LOGO_SVG);
-/** The mark alone: the same artwork with its view box cropped to the 64-unit icon. */
-export const MARK = new Html(LOGO_SVG.replace('viewBox="0 0 196 64"', 'viewBox="0 0 64 64"'));
-if (MARK.value === LOGO_SVG) throw new Error("brand.ts changed its view box: update MARK");
+/**
+ * The mark alone: the lockup with its view box cropped to the square icon at its left. If brand.ts
+ * draws the lockup differently, the favicon stands in, so a new logo never breaks the pages.
+ */
+const cropped = LOGO_SVG.replace('viewBox="0 0 196 64"', 'viewBox="0 0 64 64"');
+export const MARK = new Html(cropped !== LOGO_SVG ? cropped : FAVICON_SVG);
 
 /** The sidebar entries for one account, in order. Counts are filled in by the page. */
 export function navFor(accountId: string, counts: Partial<Record<NavKey, { count: number; bad?: boolean }>> = {}): NavItem[] {
