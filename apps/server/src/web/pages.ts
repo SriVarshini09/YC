@@ -2,9 +2,9 @@ import type { Advisory, LockedCallSite } from "@shapi/core";
 import { DEFAULT_PR_LIMITS, STOP_LABEL } from "@shapi/github-app";
 import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
 import { DOCS_URL, EMPTY, ICONS, LOGO, html, initials, isoDay, navFor, plural, shortSha, timeAgo, type Html, type NavKey, type Shell, type Theme } from "./html";
-import { daysUntil, deadlinesOf, healthOf, hitsByAdvisory, providersOf, type AccountData, type FindingRow, type PrRow, type RepoRow, type ScanRow } from "./queries";
+import { daysUntil, deadlinesOf, hitsByAdvisory, providersOf, type AccountData, type FindingRow, type PrRow, type RepoRow, type ScanRow } from "./queries";
 import {
-  activityFeed,
+  accountHref,
   callSiteText,
   commitUrl,
   comparison,
@@ -16,19 +16,19 @@ import {
   dueTag,
   empty,
   fileUrl,
-  healthRing,
+  findingHref,
+  head,
   kindTag,
   prLink,
-  providerGrid,
   providerMark,
   providerName,
+  repoHref,
   section,
   severityTag,
   statCard,
   stateTag,
   tag,
   testRunBox,
-  type ActivityEvent,
 } from "./views";
 
 export interface PageContext {
@@ -54,22 +54,8 @@ export function shellFor(data: AccountData, ctx: PageContext, active: NavKey): S
   };
 }
 
-const base = (data: AccountData) => `/a/${data.account.id}`;
-const repoHref = (data: AccountData, repoId: string) => `${base(data)}/r/${repoId}`;
-const findingHref = (data: { account: { id: string } }, id: string) => `/a/${data.account.id}/f/${id}`;
 
-/* ---------- sign-in and account picker (no sidebar) ---------- */
-
-export function signInPage(opts: { configured: boolean; installLink?: string }): Html {
-  return html`<div class="card">
-<span class="logo">${LOGO}</span>
-<h1>SHAPI</h1>
-<p class="lead">Finds code that breaks when a third-party API changes, and opens verified fix pull requests.</p>
-${opts.configured ? html`<a class="button primary" href="/login">Sign in with GitHub</a>` : html`<div class="notice warn">Sign-in is not configured on this server yet.</div>`}
-${opts.installLink ? html`<p class="foot">New here? <a href="${opts.installLink}">Install the SHAPI GitHub App</a> on your repositories first.</p>` : EMPTY}
-<p class="foot"><a href="${DOCS_URL}">Docs</a> · <a href="${DOCS_URL}/security">Security</a> · <a href="${DOCS_URL}/legal/privacy">Privacy</a> · <a href="${DOCS_URL}/legal/terms">Terms</a></p>
-</div>`;
-}
+/* ---------- account picker and messages (no sidebar) ---------- */
 
 export function accountsPage(accounts: { id: string; login: string; type: string; suspended_at: Date | null }[], installLink: string | undefined, user: { login: string; csrf: string }): Html {
   return html`<div class="card">
@@ -90,80 +76,6 @@ ${installLink && accounts.length ? html`<p class="foot"><a href="${installLink}"
 
 export function messagePage(title: string, text: string, link?: { href: string; label: string }): Html {
   return html`<div class="card"><span class="logo">${LOGO}</span><h1>${title}</h1><p class="lead">${text}</p>${link ? html`<a class="button" href="${link.href}">${link.label}</a>` : EMPTY}</div>`;
-}
-
-/* ---------- overview ---------- */
-
-export function overviewPage(data: AccountData): Html {
-  const health = healthOf(data);
-  const affected = data.findings.filter((f) => f.kind === "affected");
-  const merged = data.prs.filter((p) => p.state === "merged").length;
-  const open = data.prs.filter((p) => p.state === "open").length;
-  const deadlines = deadlinesOf(data);
-  const soon = deadlines.filter((d) => d.daysUntil >= 0 && d.daysUntil <= 90);
-  const providers = providersOf(data);
-  const callSites = data.repos.reduce((n, r) => n + r.callSites, 0);
-  const reposHit = new Set(affected.map((f) => f.repository_id)).size;
-  const lastScan = data.scans.find((s) => s.finished_at);
-  const b = base(data);
-  return html`${head(
-    "Overview",
-    `${plural(data.repos.length, "repository", "repositories")} · ${plural(callSites, "third-party call")} · last scan ${lastScan ? timeAgo(lastScan.finished_at, data.now) : "pending"}`,
-  )}
-<div class="overview-top">
-  <div class="card">${healthRing(health)}</div>
-  <div class="grid cols-2">
-    ${statCard({ label: "Affected call sites", value: affected.length, sub: affected.length ? `in ${plural(reposHit, "repository", "repositories")}` : "nothing breaks today", icon: ICONS.findings, tone: affected.length ? "bad" : "ok", href: `${b}/findings` })}
-    ${statCard({ label: "Fixes merged", value: merged, sub: open ? `${plural(open, "PR")} open now` : "no open fix PRs", icon: ICONS.fixes, href: `${b}/fixes` })}
-    ${statCard({ label: "Deadlines in 90 days", value: soon.length, sub: soon[0] ? `nearest in ${plural(soon[0].daysUntil, "day")}` : "nothing due this quarter", icon: ICONS.deadlines, tone: soon.some((d) => d.affected) ? "bad" : "", href: `${b}/deadlines` })}
-    ${statCard({ label: "Providers watched", value: providers.length, sub: `${plural(data.advisories.size, "advisory", "advisories")} tracked`, icon: ICONS.providers, href: `${b}/advisories` })}
-  </div>
-</div>
-<div class="grid cols-3">
-  <div class="span-2 column">${section(
-    "Deadline timeline",
-    html`<div class="card">${deadlineTimeline(deadlines, data.now)}${deadlines.slice(0, 4).map((d) => deadlineRow(d, `${b}/advisories?advisory=${encodeURIComponent(d.advisory.id)}`))}</div>`,
-    { label: "All deadlines", href: `${b}/deadlines` },
-  )}
-  ${section("Providers", providerGrid(providers, (id) => `${b}/advisories?provider=${encodeURIComponent(id)}`))}</div>
-  <div class="column">${section("Recent activity", html`<div class="card">${activityFeed(activityOf(data), data.now)}</div>`)}</div>
-</div>
-${section("Repositories", repoTable(data, data.repos.slice(0, 6)), data.repos.length > 6 ? { label: `All ${data.repos.length}`, href: `${b}/repositories` } : undefined)}`;
-}
-
-function head(title: string, lead: string, actions: Html = EMPTY): Html {
-  return html`<div class="head"><div><h1>${title}</h1><p class="lead">${lead}</p></div><div class="actions">${actions}</div></div>`;
-}
-
-/** Scans, PRs and new affected call sites, newest first. */
-function activityOf(data: AccountData, limit = 8): ActivityEvent[] {
-  const events: ActivityEvent[] = [];
-  for (const s of data.scans) {
-    if (!s.finished_at && s.status !== "failed") continue;
-    const at = s.finished_at ?? s.created_at;
-    events.push({
-      at,
-      kind: "scan",
-      tone: s.status === "succeeded" ? "ok" : s.status === "failed" ? "bad" : "",
-      text: html`Scan of <a href="${repoHref(data, s.repository_id)}">${s.repo}</a> ${s.status} at <span class="mono">${shortSha(s.sha)}</span>`,
-      ...(s.error ? { sub: s.error } : {}),
-    });
-  }
-  for (const p of data.prs) {
-    const title = p.advisory?.title ?? p.advisory_id;
-    const link = prLink(p);
-    events.push({ at: p.created_at, kind: "pr", tone: "info", text: html`Fix PR ${link} opened in ${p.repo}`, sub: title });
-    if (p.state !== "open" && p.closed_at) events.push({ at: p.closed_at, kind: p.state === "merged" ? "merged" : "closed", tone: p.state === "merged" ? "ok" : "", text: html`Fix PR ${link} ${p.state} in ${p.repo}`, sub: title });
-  }
-  const newFindings = new Map<string, { at: Date; repo: string; repository_id: string; n: number }>();
-  for (const f of data.findings.filter((f) => f.kind === "affected")) {
-    const key = `${f.repository_id}:${f.created_at.toISOString().slice(0, 16)}`;
-    const e = newFindings.get(key) ?? { at: f.created_at, repo: f.repo, repository_id: f.repository_id, n: 0 };
-    e.n++;
-    newFindings.set(key, e);
-  }
-  for (const e of newFindings.values()) events.push({ at: e.at, kind: "finding", tone: "bad", text: html`${plural(e.n, "affected call site")} found in <a href="${repoHref(data, e.repository_id)}">${e.repo}</a>` });
-  return events.sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, limit);
 }
 
 /* ---------- repositories ---------- */
@@ -198,7 +110,7 @@ interface RepoDetail {
 }
 
 export function repositoryPage(data: AccountData, repo: RepoRow, detail: RepoDetail, csrf: string): Html {
-  const b = base(data);
+  const b = accountHref(data);
   const prs = data.prs.filter((p) => p.repository_id === repo.id);
   const findings = data.findings.filter((f) => f.repository_id === repo.id);
   const pause = html`<form method="post" action="${repoHref(data, repo.id)}/pause" class="inline"><input type="hidden" name="csrf" value="${csrf}">${
@@ -297,7 +209,7 @@ function fixPrCell(pr: PrRow | undefined, finding: FindingRow | undefined): Html
 /* ---------- findings ---------- */
 
 export function findingsPage(data: AccountData, filter: { kind?: string; advisory?: string }): Html {
-  const b = base(data);
+  const b = accountHref(data);
   const kind = filter.kind === "affected" || filter.kind === "exposed" ? filter.kind : "all";
   let rows = kind === "all" ? data.findings : data.findings.filter((f) => f.kind === kind);
   if (filter.advisory) rows = rows.filter((f) => f.advisory_id === filter.advisory);
@@ -329,7 +241,7 @@ function findingTable(data: AccountData, rows: FindingRow[]): Html {
 /* ---------- fix PRs ---------- */
 
 export function fixesPage(data: AccountData, filter: { state?: string }): Html {
-  const b = base(data);
+  const b = accountHref(data);
   const state = filter.state === "open" || filter.state === "merged" || filter.state === "closed" ? filter.state : "all";
   const rows = state === "all" ? data.prs : data.prs.filter((p) => p.state === state);
   const count = (s: string) => (s === "all" ? data.prs.length : data.prs.filter((p) => p.state === s).length);
@@ -357,7 +269,7 @@ function prTable(data: AccountData, prs: PrRow[], opts: { repo: boolean }): Html
 /* ---------- deadlines ---------- */
 
 export function deadlinesPage(data: AccountData): Html {
-  const b = base(data);
+  const b = accountHref(data);
   const deadlines = deadlinesOf(data);
   const inEffect = deadlines.filter((d) => d.daysUntil < 0);
   const ahead = deadlines.filter((d) => d.daysUntil >= 0);
@@ -370,7 +282,7 @@ ${section("Coming up", ahead.length ? html`<div class="card">${ahead.map((d) => 
 /* ---------- advisories ---------- */
 
 export function advisoriesPage(data: AccountData, filter: { provider?: string; advisory?: string }): Html {
-  const b = base(data);
+  const b = accountHref(data);
   const present = new Set(providersOf(data).map((p) => p.id));
   const hits = hitsByAdvisory(data.findings);
   const all = [...data.advisories.values()];
@@ -487,7 +399,7 @@ ${r.changes.length ? r.changes.map(diffView) : html`<p class="muted">No file cha
 /* ---------- settings ---------- */
 
 export function settingsPage(data: AccountData, notice: string | undefined, csrf: string): Html {
-  const b = base(data);
+  const b = accountHref(data);
   const settings = data.account.settings as { prLimits?: { hourly?: number; open?: number }; failOnAffected?: boolean; llmFixes?: boolean; slackWebhookUrl?: string };
   const limits = { ...DEFAULT_PR_LIMITS, ...(settings.prLimits ?? {}) };
   return html`${head("Settings", `How SHAPI opens pull requests for ${data.account.login}.`)}
@@ -522,7 +434,7 @@ ${
 /* ---------- billing ---------- */
 
 export function billingPage(data: AccountData, enabled: boolean, notice: string | undefined, csrf: string): Html {
-  const b = base(data);
+  const b = accountHref(data);
   if (!enabled) return html`${head("Billing", "Billing is not configured on this server; every repository is covered.")}`;
   const privates = data.repos.filter((r) => r.private && r.enabled).length;
   const needed = requiredQuantity(data.repos);

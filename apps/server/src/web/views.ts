@@ -2,6 +2,23 @@ import { getProvider, type Advisory, type LockedCallSite } from "@shapi/core";
 import type { FixRepair, FixTestRun } from "@shapi/db";
 import { EMPTY, ICONS, html, isoDay, plural, timeAgo, type Html } from "./html";
 
+/* ---------- links and page head ---------- */
+
+type AccountRef = { account: { id: string } };
+export const accountHref = (data: AccountRef) => `/a/${data.account.id}`;
+export const repoHref = (data: AccountRef, repoId: string) => `${accountHref(data)}/r/${repoId}`;
+export const findingHref = (data: AccountRef, id: string) => `${accountHref(data)}/f/${id}`;
+
+export function head(title: string, lead: string, actions: Html = EMPTY): Html {
+  return html`<div class="head"><div><h1>${title}</h1><p class="lead">${lead}</p></div><div class="actions">${actions}</div></div>`;
+}
+
+/** A bar for "n of total" as inline SVG: the CSP allows no inline style to set a width. */
+export function progressBar(done: number, total: number): Html {
+  const pct = total ? Math.round((Math.min(done, total) / total) * 100) : 0;
+  return html`<svg class="progress" viewBox="0 0 100 8" preserveAspectRatio="none" role="img" aria-label="${done} of ${total}"><rect class="track" width="100" height="8"/><rect class="fill" width="${pct}" height="8"/></svg>`;
+}
+
 /* ---------- small pieces ---------- */
 
 type Tone = "ok" | "warn" | "bad" | "info" | "";

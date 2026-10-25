@@ -4,7 +4,7 @@ import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
-import { withTenant, type Db } from "@shapi/db";
+import { withService, withTenant, type Db } from "@shapi/db";
 import {
   SESSION_COOKIE,
   SESSION_HOURS,
@@ -33,15 +33,15 @@ import {
   findingsPage,
   fixesPage,
   messagePage,
-  overviewPage,
   repositoriesPage,
   repositoryPage,
   settingsPage,
   shellFor,
-  signInPage,
   type PageContext,
 } from "./pages";
-import { loadAccount, loadFinding } from "./queries";
+import { landingPage } from "./landing";
+import { overviewPage } from "./overview";
+import { firstScanPending, loadAccount, loadFinding } from "./queries";
 
 export interface WebConfig extends OAuthConfig {
   /** Signs the session cookie. */
@@ -144,7 +144,12 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
 
     scope.get("/", async (req, reply) => {
       const { session } = await sessionOf(req);
-      if (!session) return send(reply, page("Sign in", signInPage({ configured: Boolean(deps.config), installLink }), bare(req)));
+      if (!session) {
+        const advisories = await withService(deps.db, (tx) => tx.selectFrom("advisories").select((eb) => eb.fn.countAll<string>().as("n")).where("reviewed", "=", true).executeTakeFirst())
+          .then((r) => Number(r?.n ?? 0) || undefined)
+          .catch(() => undefined);
+        return send(reply, page("Third-party API changes, caught and fixed", landingPage({ configured: Boolean(deps.config), installLink, advisories }), { theme: themeOf(req), landing: true }));
+      }
       const accounts = await sessionAccounts(deps.db, session);
       if (accounts.length === 1 && !("all" in (req.query as object))) return reply.redirect(`/a/${accounts[0]!.id}`);
       return send(reply, page("Accounts", accountsPage(accounts, installLink, session), bare(req, session)));
@@ -203,7 +208,8 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       const ctx = await accountFor(req, reply);
       if (!ctx) return;
       const data = await loadAccount(deps.db, ctx.account.id);
-      return send(reply, page(`${data.account.login} · Overview`, overviewPage(data), shellFor(data, ctx.ctx, "overview")));
+      // While the first scan runs, the page reloads itself to show progress.
+      return send(reply, page(`${data.account.login} · Overview`, overviewPage(data, { installLink }), { ...shellFor(data, ctx.ctx, "overview"), ...(firstScanPending(data) ? { refresh: 10 } : {}) }));
     });
 
     scope.get("/a/:accountId/repositories", async (req, reply) => {

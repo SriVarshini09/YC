@@ -263,6 +263,26 @@ async function seed(db: Db) {
 }
 
 const accountId = await seed(owner);
+
+/** Two first-run accounts: one whose first scan is running (account 2), one with nothing installed yet (account 3). */
+async function seedFirstRun(db: Db) {
+  const scanning = await db.insertInto("accounts").values({ github_installation_id: 999002, login: "newco", type: "Organization", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
+  const repos = [
+    { name: "newco/api", status: "running" as const },
+    { name: "newco/web", status: "queued" as const },
+    { name: "newco/worker", status: "queued" as const },
+  ];
+  let repoId = 5100;
+  for (const r of repos) {
+    const repo = await db.insertInto("repositories").values({ account_id: scanning.id, github_repo_id: repoId++, full_name: r.name, default_branch: "main", private: true }).returning("id").executeTakeFirstOrThrow();
+    await db
+      .insertInto("scans")
+      .values({ account_id: scanning.id, repository_id: repo.id, sha: `${repoId}`.padEnd(40, "a"), status: r.status, created_at: hours(0.02), ...(r.status === "running" ? { started_at: hours(0.01) } : {}) })
+      .execute();
+  }
+  await db.insertInto("accounts").values({ github_installation_id: 999003, login: "fresh-start", type: "User", settings: JSON.stringify({}) }).execute();
+}
+await seedFirstRun(owner);
 const db = createDb({ connectionString: pg.url });
 const app = buildApp({
   db,
@@ -277,7 +297,7 @@ const app = buildApp({
 });
 await app.register(cookie, { secret: sessionSecret });
 app.get("/preview/login", async (req, reply) => {
-  const { token } = await createSession(db, { id: "1", login: "octocat", installationIds: ["999001"] });
+  const { token } = await createSession(db, { id: "1", login: "octocat", installationIds: ["999001", "999002", "999003"] });
   reply.setCookie(SESSION_COOKIE, token, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 8 * 3600, signed: true });
   const theme = (req.query as { theme?: string }).theme;
   if (theme === "dark" || theme === "light") reply.setCookie("shapi_theme", theme, { httpOnly: true, sameSite: "lax", path: "/" });

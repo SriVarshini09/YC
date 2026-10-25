@@ -1,6 +1,7 @@
 import { sql } from "kysely";
 import { ApiLockSchema, SEVERITY_RANK, type Advisory, type ApiLock, type LockedCallSite } from "@shapi/core";
 import { withTenant, type Db, type FixRepair } from "@shapi/db";
+import { plural } from "./html";
 import type { Health } from "./views";
 
 /**
@@ -290,4 +291,119 @@ export function healthOf(data: AccountData): Health {
   if (failed) parts.push(`${failed} scan${failed === 1 ? "" : "s"} failed`);
   const verdict = !affected.length && !failed ? "Healthy" : score >= 55 ? "Needs attention" : "At risk";
   return { score, verdict, why: parts.join(" · ") };
+}
+
+/* ---------- what the overview leads with ---------- */
+
+const pairKey = (repositoryId: string, advisoryId: string) => `${repositoryId}:${advisoryId}`;
+
+/**
+ * What SHAPI found and did, counted once per repository and API change: every change that affects a
+ * call site now or got a fix PR, how many fixes merged, how many PRs wait for review, and how many
+ * affected changes have neither an open nor a merged PR.
+ */
+export function valueOf(data: AccountData): { caught: number; merged: number; review: number; open: number } {
+  const caught = new Set<string>();
+  for (const f of data.findings) if (f.kind === "affected") caught.add(pairKey(f.repository_id, f.advisory_id));
+  for (const p of data.prs) caught.add(pairKey(p.repository_id, p.advisory_id));
+  const handled = new Set(data.prs.filter((p) => p.state !== "closed").map((p) => pairKey(p.repository_id, p.advisory_id)));
+  const open = new Set(data.findings.filter((f) => f.kind === "affected").map((f) => pairKey(f.repository_id, f.advisory_id)).filter((k) => !handled.has(k)));
+  return { caught: caught.size, merged: data.prs.filter((p) => p.state === "merged").length, review: data.prs.filter((p) => p.state === "open").length, open: open.size };
+}
+
+export type AttentionItem =
+  | { kind: "review"; pr: PrRow }
+  | { kind: "manual" | "pending"; finding: FindingRow }
+  | { kind: "closed"; finding: FindingRow; pr: PrRow }
+  | { kind: "scan-failed"; repo: RepoRow }
+  | { kind: "deadline"; deadline: ReturnType<typeof deadlinesOf>[number] };
+
+const ATTENTION_ORDER: Record<AttentionItem["kind"], number> = { review: 0, manual: 1, closed: 2, "scan-failed": 3, deadline: 4, pending: 5 };
+
+/**
+ * What needs a person, most pressing first: fix PRs to review, affected changes with no automatic fix,
+ * fixes that were closed unmerged, failed scans, changes due within 30 days that touch the code, and
+ * last the fixes SHAPI will still open by itself.
+ */
+export function attentionOf(data: AccountData): AttentionItem[] {
+  const rank = (a?: Advisory) => (a ? SEVERITY_RANK[a.severity] : 9);
+  const items: AttentionItem[] = data.prs
+    .filter((p) => p.state === "open")
+    .sort((a, b) => rank(a.advisory) - rank(b.advisory))
+    .map((pr) => ({ kind: "review" as const, pr }));
+  const seen = new Set<string>();
+  for (const f of data.findings) {
+    const key = pairKey(f.repository_id, f.advisory_id);
+    if (f.kind !== "affected" || seen.has(key)) continue;
+    seen.add(key);
+    const pr = data.prs.find((p) => pairKey(p.repository_id, p.advisory_id) === key);
+    if (pr && pr.state !== "closed") continue;
+    items.push(pr ? { kind: "closed", finding: f, pr } : { kind: f.advisory?.recipeId ? "pending" : "manual", finding: f });
+  }
+  for (const repo of data.repos) if (repo.scan?.status === "failed") items.push({ kind: "scan-failed", repo });
+  for (const deadline of deadlinesOf(data)) if (deadline.daysUntil >= 0 && deadline.daysUntil <= 30 && (deadline.affected || deadline.exposed)) items.push({ kind: "deadline", deadline });
+  return items.sort((a, b) => ATTENTION_ORDER[a.kind] - ATTENTION_ORDER[b.kind]);
+}
+
+export interface LatestCatch {
+  pr?: PrRow;
+  finding?: FindingRow;
+}
+
+/** The newest fix PR with a verified fix and its finding, or else the most severe affected finding. */
+export function latestCatchOf(data: AccountData): LatestCatch | undefined {
+  const pair = (repositoryId: string, advisoryId: string) => (x: { repository_id: string; advisory_id: string }) => x.repository_id === repositoryId && x.advisory_id === advisoryId;
+  const pr = data.prs.filter((p) => p.repair?.sites.some((s) => s.status === "fixed")).sort((a, b) => b.created_at.getTime() - a.created_at.getTime())[0];
+  if (pr) return { pr, finding: data.findings.find(pair(pr.repository_id, pr.advisory_id)) };
+  const finding = data.findings.find((f) => f.kind === "affected");
+  return finding ? { finding, pr: data.prs.find(pair(finding.repository_id, finding.advisory_id)) } : undefined;
+}
+
+/** Repositories are installed but none has finished a scan yet: the overview shows scan progress instead. */
+export const firstScanPending = (data: AccountData) => data.repos.length > 0 && !data.repos.some((r) => r.lockSha);
+
+export interface SetupStep {
+  key: "install" | "scan" | "slack" | "fix";
+  state: "done" | "active" | "todo";
+  label: string;
+  detail: string;
+}
+
+export interface Setup {
+  steps: SetupStep[];
+  done: number;
+  complete: boolean;
+}
+
+/** The first-run checklist: install, first scan, Slack alerts, first merged fix. */
+export function setupOf(data: AccountData): Setup {
+  const total = data.repos.length;
+  const scanned = data.repos.filter((r) => r.lockSha).length;
+  const scanning = data.repos.filter((r) => r.scan?.status === "queued" || r.scan?.status === "running").length;
+  const merged = data.prs.some((p) => p.state === "merged");
+  const open = data.prs.some((p) => p.state === "open");
+  const affected = data.findings.some((f) => f.kind === "affected");
+  const slack = Boolean((data.account.settings as { slackWebhookUrl?: string }).slackWebhookUrl);
+  const steps: SetupStep[] = [
+    total
+      ? { key: "install", state: "done", label: "Install SHAPI on your repositories", detail: `${plural(total, "repository", "repositories")} connected` }
+      : { key: "install", state: "active", label: "Install SHAPI on your repositories", detail: "Pick the repositories SHAPI should watch on GitHub." },
+    scanned
+      ? { key: "scan", state: "done", label: "First scan", detail: `${scanned} of ${plural(total, "repository", "repositories")} scanned` }
+      : scanning
+        ? { key: "scan", state: "active", label: "First scan", detail: `Scanning ${scanning} of ${plural(total, "repository", "repositories")} now` }
+        : { key: "scan", state: "todo", label: "First scan", detail: total ? "Waiting to start. Scans begin when SHAPI is installed and on every push." : "Starts as soon as a repository is connected." },
+    slack
+      ? { key: "slack", state: "done", label: "Turn on Slack alerts", detail: "Alerts go to your Slack channel" }
+      : { key: "slack", state: "todo", label: "Turn on Slack alerts", detail: "Hear about a breaking change the moment it hits your code." },
+    merged
+      ? { key: "fix", state: "done", label: "Merge your first verified fix", detail: "A tested fix is in your code" }
+      : open
+        ? { key: "fix", state: "active", label: "Merge your first verified fix", detail: "A fix PR is ready: its test failed before the change and passes after." }
+        : scanned && !affected
+          ? { key: "fix", state: "done", label: "Merge your first verified fix", detail: "Nothing to fix yet. SHAPI opens a PR when an API change hits your code." }
+          : { key: "fix", state: "todo", label: "Merge your first verified fix", detail: "Appears after a scan finds an affected call site." },
+  ];
+  const done = steps.filter((s) => s.state === "done").length;
+  return { steps, done, complete: done === steps.length };
 }

@@ -68,8 +68,12 @@ export interface Shell {
   user?: PageUser;
   theme?: Theme;
   workspace?: Workspace;
-  /** Hide the sidebar: the sign-in page and the account picker. */
+  /** Hide the sidebar: the account picker and message pages. */
   bare?: boolean;
+  /** The public landing page: full width, its own header and footer. */
+  landing?: boolean;
+  /** Reload the page every this many seconds (while the first scan runs), without a script. */
+  refresh?: number;
 }
 
 // Outline icons (stroke, 24-unit grid), drawn here so no asset leaves this server.
@@ -156,9 +160,10 @@ export function page(title: string, body: Html, shell: Shell = {}): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title} · SHAPI</title>
 <link rel="stylesheet" href="/static/app.css?v=${STYLES_VERSION}">
+${shell.refresh ? html`<meta http-equiv="refresh" content="${shell.refresh}">` : EMPTY}
 </head>
 <body>
-${shell.bare ? html`<main class="hero">${body}</main>` : html`${sidebar(shell)}<main class="main"><div class="wrap">${body}</div></main>`}
+${shell.landing ? body : shell.bare ? html`<main class="hero">${body}</main>` : html`${sidebar(shell)}<main class="main"><div class="wrap">${body}</div></main>`}
 </body>
 </html>`}`;
 }

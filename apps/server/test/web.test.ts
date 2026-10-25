@@ -117,6 +117,10 @@ describe("web sign-in", () => {
     expect(res.body).toContain("https://github.com/apps/shapi-test/installations/new");
     expect(res.body).not.toContain("<script");
     expect(res.body).toContain('<a href="https://srivarshini09.github.io/YC/legal/privacy">Privacy</a>');
+    // the public landing page: what SHAPI does, with numbers read from the server
+    expect(res.body).toContain("Your code shouldn't break.");
+    expect(res.body).toContain('id="how"');
+    expect(res.body).toMatch(/<b>\d+<\/b><span>reviewed API changes<\/span>/);
     expect(res.headers["content-security-policy"]).toContain("default-src 'none'");
     expect(res.headers["x-frame-options"]).toBe("DENY");
     await app.close();
@@ -321,6 +325,33 @@ describe("web pages", () => {
     const res = await app.inject({ url: `/a/${mine.account}/f/${rivalFinding.id}`, headers: { cookie } });
     expect(res.statusCode).toBe(404);
     expect(res.body).not.toContain("rival-only-reason");
+    await app.close();
+  });
+
+  it("welcomes a new account, shows the first scan's progress, then leads with what SHAPI found", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const overview = async () => (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+
+    let body = await overview();
+    expect(body).toContain('SHAPI found <span class="hl">1 breaking API change</span> in your code.');
+    expect(body).toContain("1 fix PR ready for review");
+    expect(body).toContain("Review fix PR #7");
+    expect(body).toContain("Get started"); // Slack is not connected yet
+    expect(body).not.toContain('http-equiv="refresh"');
+
+    await owner.deleteFrom("scans").where("account_id", "=", mine.account).execute();
+    await owner.insertInto("scans").values({ account_id: mine.account, repository_id: mine.repo, sha: "b".repeat(40), status: "running" }).execute();
+    body = await overview();
+    expect(body).toContain("Scanning your repositories");
+    expect(body).toContain('<meta http-equiv="refresh" content="10">');
+    expect(body).not.toContain("breaking API change");
+
+    await owner.deleteFrom("repositories").where("account_id", "=", mine.account).execute();
+    body = await overview();
+    expect(body).toContain("Welcome to SHAPI, acme");
+    expect(body).toContain('href="https://github.com/apps/shapi-test/installations/new"');
+    expect(body).not.toContain(' style="');
     await app.close();
   });
 
