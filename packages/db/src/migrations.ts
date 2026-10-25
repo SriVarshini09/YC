@@ -237,7 +237,16 @@ const migrations: Record<string, Migration> = {
       await sql`drop table if exists billing, stripe_events`.execute(db);
     },
   },
-  "0007_fix_pr_repair": {
+  "0007_billing_cancel_at": {
+    // When a cancelled subscription ends (Stripe's cancel_at, or the period end with cancel_at_period_end).
+    async up(db: Kysely<unknown>) {
+      await sql`alter table billing add column cancel_at timestamptz`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`alter table billing drop column if exists cancel_at`.execute(db);
+    },
+  },
+  "0008_fix_pr_repair": {
     // What the fix PR changed and how it was verified (diff per file, contract test before and after), for the web app's finding page.
     async up(db: Kysely<unknown>) {
       await sql`alter table fix_prs add column repair jsonb`.execute(db);

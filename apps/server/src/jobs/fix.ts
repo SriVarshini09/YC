@@ -1,7 +1,7 @@
 import { matchAdvisories, type Advisory, type LockedCallSite } from "@shapi/core";
 import { withService, type Db } from "@shapi/db";
 import { fetchRepoSnapshot, prTitle, renderPrBody } from "@shapi/github-app";
-import { RECIPES, repairCallSite, withSandboxWorkspace, type InstallReport, type LlmFixer, type RepairResult, type Workspace } from "@shapi/repair";
+import { RECIPES, repairAdvisory, withSandboxWorkspace, type InstallReport, type LlmFixer, type RepairResult, type Workspace } from "@shapi/repair";
 import type { SandboxProvider, SnapshotFile } from "@shapi/sandbox";
 import type { GitHubClients } from "../github/clients";
 import { repositoryCovered } from "../billing/plan";
@@ -34,14 +34,16 @@ export interface FixDeps {
 export interface FixReport {
   scanId: string;
   skipped?: string;
-  repairs: { advisoryId: string; status: RepairResult["status"] | "no-shapes" | "no-fix"; reason?: string }[];
+  /** One entry per advisory; `sites` counts its call sites fixed out of those affected. */
+  repairs: { advisoryId: string; status: RepairResult["status"] | "no-shapes" | "no-fix"; reason?: string; sites?: { fixed: number; total: number } }[];
   delivery?: DeliveryReport;
 }
 
 /**
  * For one scan's affected call sites: repair each fixable advisory test-first inside one sandbox
- * (dependencies installed with only the npm registry reachable, then no network), and hand the
- * verified fixes to the PR engine. Advisories SHAPI cannot fix go on the dashboard as manual fixes.
+ * (dependencies installed with only the npm registry reachable, then no network), every affected call
+ * site of an advisory into one change, and hand the verified fixes to the PR engine: one PR per
+ * advisory. Call sites SHAPI cannot fix go on the dashboard as manual fixes.
  */
 export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise<FixReport> {
   const now = deps.now ?? (() => new Date());
@@ -76,25 +78,25 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
   const lock = storedLock(scan.api_lock);
   const { upcoming } = matchAdvisories(lock, [...advisories.values()], { now: now() });
 
-  // One repair per advisory (its first affected call site); the PR names how many sites it affects.
-  const byAdvisory = new Map<string, { advisory: Advisory; callSite: LockedCallSite; count: number }>();
+  // Every affected call site, grouped by advisory: one repair (and one PR) per advisory.
+  const byAdvisory = new Map<string, { advisory: Advisory; callSites: LockedCallSite[] }>();
   for (const f of ctx.findings) {
     const advisory = advisories.get(f.advisory_id);
     if (!advisory) continue;
-    const entry = byAdvisory.get(advisory.id);
-    if (entry) entry.count++;
-    else byAdvisory.set(advisory.id, { advisory, callSite: f.call_site as LockedCallSite, count: 1 });
+    const entry = byAdvisory.get(advisory.id) ?? { advisory, callSites: [] };
+    entry.callSites.push(f.call_site as LockedCallSite);
+    byAdvisory.set(advisory.id, entry);
   }
 
   const llm = (scan.settings as { llmFixes?: boolean }).llmFixes === true ? deps.llm : undefined;
   const report: FixReport = { scanId: scan.id, repairs: [] };
   const manual: { advisory: Advisory; callSites: number }[] = [];
-  const todo: { advisory: Advisory; callSite: LockedCallSite; count: number; shapes: { before?: ResponseShape; after?: ResponseShape; source: string } }[] = [];
+  const todo: { advisory: Advisory; callSites: LockedCallSite[]; shapes: { before?: ResponseShape; after?: ResponseShape; source: string } }[] = [];
   for (const entry of byAdvisory.values()) {
     const fixable = (entry.advisory.recipeId && RECIPES[entry.advisory.recipeId]) || llm;
     if (!fixable) {
       report.repairs.push({ advisoryId: entry.advisory.id, status: "no-fix", reason: "no recipe for this change" });
-      manual.push({ advisory: entry.advisory, callSites: entry.count });
+      manual.push({ advisory: entry.advisory, callSites: entry.callSites.length });
       continue;
     }
     // With an advisory fix the contract test is built from the fix itself; otherwise it needs recorded responses.
@@ -103,7 +105,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
       : await shapesFor(deps.db, entry.advisory, deps.recordingsDir, deps.shapeSecret);
     if (!shapes) {
       report.repairs.push({ advisoryId: entry.advisory.id, status: "no-shapes", reason: "no before/after responses recorded for this endpoint" });
-      manual.push({ advisory: entry.advisory, callSites: entry.count });
+      manual.push({ advisory: entry.advisory, callSites: entry.callSites.length });
       continue;
     }
     todo.push({ ...entry, shapes });
@@ -116,21 +118,28 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
     const files = await fetchRepoSnapshot(readOnly, { owner, repo, ref: scan.sha });
     await deps.workspace(files, { scan: scan.id, repository: scan.full_name }, async (ws) => {
       for (const t of todo) {
-        const result = await repairCallSite({ workspace: ws, advisory: t.advisory, callSite: t.callSite, before: t.shapes.before, after: t.shapes.after, recipes: RECIPES, llm });
-        report.repairs.push({ advisoryId: t.advisory.id, status: result.status, reason: result.reason });
+        const repair = await repairAdvisory({ workspace: ws, advisory: t.advisory, callSites: t.callSites, before: t.shapes.before, after: t.shapes.after, recipes: RECIPES, llm });
+        const fixedSites = repair.sites.filter((s) => s.result.status === "fixed");
+        const unfixed = repair.sites.filter((s) => s.result.status !== "fixed" && s.result.status !== "already-handled");
+        const first = unfixed[0]?.result ?? repair.sites[0]?.result;
+        report.repairs.push({
+          advisoryId: t.advisory.id,
+          status: fixedSites.length ? "fixed" : (first?.status ?? "unsupported"),
+          ...(fixedSites.length && !unfixed.length ? {} : { reason: first?.reason }),
+          sites: { fixed: fixedSites.length, total: repair.sites.length },
+        });
         // Leave the workspace as it was, so the next advisory is verified against the original code.
-        for (const c of result.changes) await ws.write(c.file, c.before);
-        if (result.status !== "fixed") {
-          if (result.status !== "already-handled") manual.push({ advisory: t.advisory, callSites: t.count });
-          continue;
-        }
+        for (const c of repair.changes) await ws.write(c.file, c.before);
+        if (unfixed.length) manual.push({ advisory: t.advisory, callSites: unfixed.length });
+        if (!fixedSites.length) continue;
+        const testFiles = fixedSites.map((s) => s.result.test?.file).join(", ");
         fixes.push({
           advisory: t.advisory,
           title: prTitle(t.advisory),
-          body: renderPrBody({ advisory: t.advisory, callSite: t.callSite, result, affectedInRepo: t.count, shapeSource: t.shapes.source }),
-          commitMessage: `fix: ${t.advisory.title}\n\nAdvisory ${t.advisory.id}. Contract test ${result.test?.file} fails before this change and passes after, verified in ${result.sandbox}.`,
-          files: result.changes.map((c) => ({ path: c.file, content: c.after })),
-          repair: summarizeRepair({ advisory: t.advisory, sites: [{ callSite: t.callSite, result }], changes: result.changes, method: result.method, sandbox: result.sandbox }, now()),
+          body: renderPrBody({ advisory: t.advisory, repair, shapeSource: t.shapes.source }),
+          commitMessage: `fix: ${t.advisory.title}\n\nAdvisory ${t.advisory.id}, ${fixedSites.length} of ${repair.sites.length} call sites. Contract tests ${testFiles} fail before this change and pass after, verified in ${repair.sandbox}.`,
+          files: repair.changes.map((c) => ({ path: c.file, content: c.after })),
+          repair: summarizeRepair({ advisory: t.advisory, sites: repair.sites, changes: repair.changes, method: repair.method, sandbox: repair.sandbox }, now()),
         });
       }
     });

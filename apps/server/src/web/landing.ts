@@ -22,7 +22,7 @@ export function landingPage(opts: LandingOptions): Html {
   const install = opts.installLink ? html`<a class="button ghost" href="${opts.installLink}">Install the GitHub App</a>` : EMPTY;
   return html`<div class="landing">
 <header class="lp-nav"><div class="lp-inner">
-  <a class="brand" href="/"><span class="logo">${LOGO}</span>SHAPI</a>
+  <a class="brand" href="/" aria-label="SHAPI home">${LOGO}</a>
   <nav><a href="#how">How it works</a><a href="#providers">APIs</a><a href="#trust">Security</a><a href="#pricing">Pricing</a><a href="${DOCS_URL}">Docs</a></nav>
   ${opts.configured ? html`<a class="button small" href="/login">Sign in</a>` : EMPTY}
 </div></header>
@@ -33,7 +33,7 @@ export function landingPage(opts: LandingOptions): Html {
     <h1>Third-party APIs change.<br><span class="hl">Your code shouldn't break.</span></h1>
     <p class="lp-lead">SHAPI finds every call your code makes to GitHub, Stripe, Slack, OpenAI and ${providers.length - 4} more APIs. It tells you when a change hits your code and opens a pull request with a fix that a test proves.</p>
     <div class="btn-row">${signIn("Sign in with GitHub")}${install}</div>
-    <p class="lp-note">Free for public repositories and one private repository.</p>
+    <p class="lp-note">Free for public repositories and one private repository. Free for everyone during early access.</p>
   </div>
   <div class="lp-shot" aria-label="Example of a catch and its fix">${exampleCatch()}</div>
 </div></section>
@@ -91,7 +91,7 @@ export function landingPage(opts: LandingOptions): Html {
   <h2>Start free. Pay for private repositories as you grow.</h2>
   <div class="lp-pricing">
     <div class="card price"><h3>Free</h3><p class="lead">For open source and trying SHAPI on real code.</p><ul>${["Every public repository", "One private repository", "Scans, alerts and fix pull requests", "Slack alerts"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Start free")}</div>
-    <div class="card price featured"><h3>Team</h3><p class="lead">For companies whose product runs on other people's APIs.</p><ul>${["Everything in Free", "Each private repository beyond the first", "Billed monthly per repository through Stripe", "Cancel any time from the billing portal"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Sign in to upgrade", "")}</div>
+    <div class="card price featured"><h3>Team</h3><p class="lead">For companies whose product runs on other people's APIs.</p><ul>${["Everything in Free", "Each private repository beyond the first", "A monthly price per repository, announced before anyone is charged", "Free during early access", "Cancel any time from the billing portal"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Sign in to upgrade", "")}</div>
   </div>
 </div></section>
 
@@ -102,7 +102,7 @@ export function landingPage(opts: LandingOptions): Html {
 </div></section>
 
 <footer class="lp-foot"><div class="lp-inner">
-  <span class="brand-sm"><span class="logo">${LOGO}</span>SHAPI</span>
+  <span class="brand-sm" aria-label="SHAPI">${LOGO}</span>
   <nav><a href="${DOCS_URL}">Docs</a><a href="${DOCS_URL}/security">Security</a><a href="${DOCS_URL}/legal/privacy">Privacy</a><a href="${DOCS_URL}/legal/terms">Terms</a></nav>
 </div></footer>
 </div>`;

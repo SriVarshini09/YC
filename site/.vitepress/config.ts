@@ -7,8 +7,24 @@ export default defineConfig({
   base: "/YC/",
   cleanUrls: true,
   lastUpdated: true,
-  head: [["meta", { name: "theme-color", content: "#0f766e" }]],
+  // VitePress does not add the base to head entries, so these carry it. The social image must be absolute.
+  head: [
+    ["link", { rel: "icon", href: "/YC/favicon.svg", type: "image/svg+xml" }],
+    ["link", { rel: "icon", href: "/YC/favicon.ico", sizes: "32x32" }],
+    ["link", { rel: "apple-touch-icon", href: "/YC/apple-touch-icon.png" }],
+    ["meta", { name: "theme-color", content: "#0B1F4D" }],
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:site_name", content: "SHAPI" }],
+    ["meta", { property: "og:image", content: "https://srivarshini09.github.io/YC/og.png" }],
+    ["meta", { property: "og:image:width", content: "1200" }],
+    ["meta", { property: "og:image:height", content: "630" }],
+    ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    ["meta", { name: "twitter:image", content: "https://srivarshini09.github.io/YC/og.png" }],
+  ],
   themeConfig: {
+    // Light and dark lockups from brand/; the wordmark replaces the text title.
+    logo: { light: "/shapi-logo-light.svg", dark: "/shapi-logo-dark.svg", alt: "shapi" },
+    siteTitle: false,
     nav: [
       { text: "Quickstart", link: "/guide/quickstart" },
       { text: "How it works", link: "/guide/how-it-works" },

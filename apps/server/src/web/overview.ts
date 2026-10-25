@@ -1,4 +1,4 @@
-import { DOCS_URL, EMPTY, ICONS, LOGO, html, plural, shortSha, timeAgo, type Html } from "./html";
+import { DOCS_URL, EMPTY, ICONS, MARK, html, plural, shortSha, timeAgo, type Html } from "./html";
 import {
   attentionOf,
   deadlinesOf,
@@ -220,7 +220,7 @@ ${progressBar(setup.done, setup.steps.length)}
 function welcomeCard(data: AccountData, installLink: string | undefined): Html {
   const step = (icon: Html, title: string, text: string) => html`<div class="mini-step"><span class="icon info">${icon}</span><b>${title}</b><span class="note">${text}</span></div>`;
   return html`<section class="card welcome">
-<span class="logo big">${LOGO}</span>
+<span class="mark big">${MARK}</span>
 <h1>Welcome to SHAPI, ${data.account.login}</h1>
 <p class="lead">Install the GitHub App on the repositories you want watched. SHAPI maps every call your code makes to a third-party API, checks it against ${plural(data.advisories.size, "reviewed API change")}, and opens a pull request with a tested fix when one breaks your code.</p>
 <div class="btn-row">${installLink ? html`<a class="button primary" href="${installLink}">Install the GitHub App</a>` : EMPTY}<a class="button" href="${DOCS_URL}">How SHAPI works</a></div>

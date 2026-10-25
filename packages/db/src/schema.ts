@@ -76,7 +76,7 @@ export interface FixPrsTable {
   created_at: ColumnType<Date, string | Date | undefined, string | Date>;
   updated_at: Timestamp;
   closed_at: Timestamp | null;
-  /** What the PR changed and how it was verified (a FixRepair), for the web app. Null for PRs recorded before 0007. */
+  /** What the PR changed and how it was verified (a FixRepair), for the web app. Null for PRs recorded before 0008. */
   repair: JSONColumnType<FixRepair> | null;
 }
 
@@ -147,6 +147,8 @@ export interface BillingTable {
   status: Generated<string>;
   quantity: Generated<number>;
   current_period_end: Timestamp | null;
+  /** Set when the subscription is cancelled but still running: the day it ends. */
+  cancel_at: ColumnType<Date | null, string | Date | null | undefined, string | Date | null>;
   updated_at: Timestamp;
 }
 

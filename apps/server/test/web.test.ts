@@ -126,6 +126,25 @@ describe("web sign-in", () => {
     await app.close();
   });
 
+  it("serves the logo in the header and the favicons", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const home = await app.inject("/");
+    expect(home.body).toContain('<a class="brand" href="/" aria-label="SHAPI home"><svg');
+    expect(home.body).toContain('<link rel="icon" href="/favicon.svg" type="image/svg+xml">');
+    const svg = await app.inject("/favicon.svg");
+    expect(svg.statusCode).toBe(200);
+    expect(svg.headers["content-type"]).toBe("image/svg+xml");
+    expect(svg.body).toContain("<svg");
+    const ico = await app.inject("/favicon.ico");
+    expect(ico.statusCode).toBe(200);
+    expect(ico.headers["content-type"]).toBe("image/x-icon");
+    expect(ico.rawPayload.subarray(0, 4)).toEqual(Buffer.from([0, 0, 1, 0]));
+    const touch = await app.inject("/apple-touch-icon.png");
+    expect(touch.statusCode).toBe(200);
+    expect(touch.rawPayload.subarray(1, 4).toString()).toBe("PNG");
+    await app.close();
+  });
+
   it("signs in through GitHub, keeps no user token, and stores only a hash of the session token", async () => {
     const gh = fakeGitHub();
     const app = buildApp({ db, config, fetch: gh.fetch });

@@ -206,11 +206,18 @@ describe("billing in the web app", () => {
     const portal = await app.inject({ method: "POST", url: `/a/${accountId}/billing/portal`, headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(page.body)}` });
     expect(portal.headers.location).toBe("https://billing.stripe.test/portal");
 
+    // cancelled in the portal: still active until the period ends, and the plan card says so
+    const scheduled = { id: "evt_1b", object: "event", type: "customer.subscription.updated", data: { object: { ...stripe.subJson(stripe.subs.get("sub_1")!), cancel_at_period_end: true, cancel_at: 1798761600 } } };
+    expect((await app.inject({ method: "POST", url: "/stripe/webhook", ...signed(scheduled) })).json().outcome).toBe(`subscription active for account ${accountId}`);
+    const cancelling = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
+    expect(cancelling.body).toContain("Cancels on 2027-01-01");
+    expect(cancelling.body).not.toContain("Renews");
+
     stripe.subs.get("sub_1")!.status = "canceled";
     const cancelled = { id: "evt_2", object: "event", type: "customer.subscription.deleted", data: { object: stripe.subJson(stripe.subs.get("sub_1")!) } };
     expect((await app.inject({ method: "POST", url: "/stripe/webhook", ...signed(cancelled) })).json().outcome).toBe(`subscription canceled for account ${accountId}`);
-    const after = await withService(db, (tx) => tx.selectFrom("billing").select(["status", "quantity"]).executeTakeFirstOrThrow());
-    expect(after).toEqual({ status: "canceled", quantity: 0 });
+    const after = await withService(db, (tx) => tx.selectFrom("billing").select(["status", "quantity", "cancel_at"]).executeTakeFirstOrThrow());
+    expect(after).toEqual({ status: "canceled", quantity: 0, cancel_at: null });
     await app.close();
   });
 

@@ -146,6 +146,13 @@ export async function upsertAdvisories(db: Db, advisories: Advisory[], opts: { r
   return written;
 }
 
+/** Delete the advisories that came from `source` and are not in `keep`; returns how many were removed. */
+export async function removeAdvisoriesNotIn(db: Db, source: string, keep: string[]): Promise<string[]> {
+  if (!keep.length) throw new Error("refusing to remove every advisory from a source");
+  const rows = await db.deleteFrom("advisories").where("source", "=", source).where("id", "not in", keep).returning("id").execute();
+  return rows.map((r) => r.id).sort();
+}
+
 /** Advisories as the matcher expects them; reviewed only unless drafts are asked for. */
 export async function listAdvisories(db: Db, opts: { includeDrafts?: boolean } = {}): Promise<Advisory[]> {
   let q = db.selectFrom("advisories").select("data").orderBy("id");

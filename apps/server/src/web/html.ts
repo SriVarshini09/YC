@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { LOGO_SVG } from "./brand";
 import { STYLES } from "./styles";
 
 /** Markup that is already safe. Everything else placed in an `html` template is escaped. */
@@ -98,7 +99,11 @@ export const ICONS = {
   providers: icon('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'),
 };
 
-export const LOGO = new Html('<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 4 6v6c0 4.5 3.3 8.2 8 9.5 4.7-1.3 8-5 8-9.5V6z"/><path d="m13.5 8-4 5.5h5l-4 5.5"/></svg>');
+/** The SHAPI lockup from brand.ts (mark and wordmark); the wordmark takes the surrounding text colour. */
+export const LOGO = new Html(LOGO_SVG);
+/** The mark alone: the same artwork with its view box cropped to the 64-unit icon. */
+export const MARK = new Html(LOGO_SVG.replace('viewBox="0 0 196 64"', 'viewBox="0 0 64 64"'));
+if (MARK.value === LOGO_SVG) throw new Error("brand.ts changed its view box: update MARK");
 
 /** The sidebar entries for one account, in order. Counts are filled in by the page. */
 export function navFor(accountId: string, counts: Partial<Record<NavKey, { count: number; bad?: boolean }>> = {}): NavItem[] {
@@ -126,7 +131,7 @@ function sidebar(shell: Shell): Html {
       )}</form>`
     : EMPTY;
   return html`<aside class="side">
-  <a class="brand" href="/"><span class="logo">${LOGO}</span>SHAPI</a>
+  <a class="brand" href="/" aria-label="SHAPI home">${LOGO}</a>
   ${
     workspace
       ? html`<div class="account"><span class="avatar">${initials(workspace.login)}</span><span class="who"><b>${workspace.login}</b><span>${workspace.type}</span></span><a href="/" title="Switch account">Switch</a></div>
@@ -160,6 +165,9 @@ export function page(title: string, body: Html, shell: Shell = {}): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title} · SHAPI</title>
 <link rel="stylesheet" href="/static/app.css?v=${STYLES_VERSION}">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 ${shell.refresh ? html`<meta http-equiv="refresh" content="${shell.refresh}">` : EMPTY}
 </head>
 <body>

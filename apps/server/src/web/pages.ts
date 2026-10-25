@@ -1,7 +1,7 @@
 import type { Advisory, LockedCallSite } from "@shapi/core";
 import { DEFAULT_PR_LIMITS, STOP_LABEL } from "@shapi/github-app";
 import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
-import { DOCS_URL, EMPTY, ICONS, LOGO, html, initials, isoDay, navFor, plural, shortSha, timeAgo, type Html, type NavKey, type Shell, type Theme } from "./html";
+import { DOCS_URL, EMPTY, ICONS, MARK, html, initials, isoDay, navFor, plural, shortSha, timeAgo, type Html, type NavKey, type Shell, type Theme } from "./html";
 import { daysUntil, deadlinesOf, hitsByAdvisory, providersOf, type AccountData, type FindingRow, type PrRow, type RepoRow, type ScanRow } from "./queries";
 import {
   accountHref,
@@ -59,7 +59,7 @@ export function shellFor(data: AccountData, ctx: PageContext, active: NavKey): S
 
 export function accountsPage(accounts: { id: string; login: string; type: string; suspended_at: Date | null }[], installLink: string | undefined, user: { login: string; csrf: string }): Html {
   return html`<div class="card">
-<span class="logo">${LOGO}</span>
+<span class="mark">${MARK}</span>
 <h1>Choose an account</h1>
 <p class="lead">Where SHAPI is installed and ${user.login} has access on GitHub.</p>
 ${
@@ -75,7 +75,7 @@ ${installLink && accounts.length ? html`<p class="foot"><a href="${installLink}"
 }
 
 export function messagePage(title: string, text: string, link?: { href: string; label: string }): Html {
-  return html`<div class="card"><span class="logo">${LOGO}</span><h1>${title}</h1><p class="lead">${text}</p>${link ? html`<a class="button" href="${link.href}">${link.label}</a>` : EMPTY}</div>`;
+  return html`<div class="card"><span class="mark">${MARK}</span><h1>${title}</h1><p class="lead">${text}</p>${link ? html`<a class="button" href="${link.href}">${link.label}</a>` : EMPTY}</div>`;
 }
 
 /* ---------- repositories ---------- */
@@ -455,11 +455,17 @@ ${notice && notices[notice] ? html`<div class="notice">${notices[notice]}</div>`
 <div class="grid cols-3">
 ${statCard({ label: "Plan", value: paying ? "Paid" : "Free", sub: paying ? `${paid} paid private ${paid === 1 ? "repository" : "repositories"} plus ${FREE_PRIVATE_REPOS} free` : `public repositories and ${FREE_PRIVATE_REPOS} private repository` })}
 ${statCard({ label: "Private repositories", value: privates, sub: uncovered.length ? `${uncovered.length} not covered` : "all covered", tone: uncovered.length ? "bad" : "" })}
-${statCard({ label: "Renews", value: paying && billing?.current_period_end ? isoDay(billing.current_period_end) : "—", sub: billing?.status === "past_due" ? "payment past due" : paying ? "billed by Stripe" : "no subscription" })}
+${statCard({ label: paying && billing?.cancel_at ? "Cancels on" : "Renews", value: paying && billing?.cancel_at ? isoDay(billing.cancel_at) : paying && billing?.current_period_end ? isoDay(billing.current_period_end) : "—", sub: billing?.status === "past_due" ? "payment past due" : paying ? "billed by Stripe" : "no subscription" })}
 </div>
 <div class="card stack">
 <p>${paying ? html`<b>Paid plan</b>: ${paid} private repositor${paid === 1 ? "y" : "ies"} plus ${FREE_PRIVATE_REPOS} free` : html`<b>Free plan</b>: public repositories and ${FREE_PRIVATE_REPOS} private repository`}${billing?.status === "past_due" ? html` ${tag("payment past due", "warn")}` : EMPTY}</p>
-<p class="muted">${privates} private repositor${privates === 1 ? "y" : "ies"} installed.${paying && billing?.current_period_end ? html` Renews ${isoDay(billing.current_period_end)}.` : ""}</p>
+<p class="muted">${privates} private repositor${privates === 1 ? "y" : "ies"} installed.${
+    paying && billing?.cancel_at
+      ? html` ${tag(`Cancels on ${isoDay(billing.cancel_at)}`, "warn")} After that, only public repositories and ${FREE_PRIVATE_REPOS} private repository are scanned.`
+      : paying && billing?.current_period_end
+        ? html` Renews ${isoDay(billing.current_period_end)}.`
+        : ""
+  }</p>
 <div class="btn-row">
 ${!paying && needed > 0 ? form("checkout", `Upgrade to cover ${needed} more private repositor${needed === 1 ? "y" : "ies"}`, true) : EMPTY}
 ${paying && needed > paid ? form("add-repos", `Add ${needed - paid} repositor${needed - paid === 1 ? "y" : "ies"} to the plan`, true) : EMPTY}

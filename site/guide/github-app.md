@@ -1,7 +1,7 @@
 # GitHub App
 
 ::: info Early access
-The hosted GitHub App is not open for public installation yet. Everything on this page is built and tested end to end; the CLI works for everyone today.
+Anyone can [install the GitHub App](https://github.com/apps/shapi-by-srivarshini/installations/new). It's free during early access, and SHAPI asks before anything is charged. Tell us what breaks: [open an issue](https://github.com/SriVarshini09/YC/issues).
 :::
 
 ## What it does
@@ -30,7 +30,7 @@ Paste a Slack [incoming webhook](https://api.slack.com/messaging/webhooks) link 
 ## Noise controls
 
 - At most **2 new PRs per hour** and **10 open at once** per repository, most urgent first. Both are configurable in the web app.
-- **One branch per advisory:** reruns update the same PR instead of opening duplicates.
+- **One PR per advisory:** it fixes every affected call site in the repository, with a contract test for each, and reruns update the same PR instead of opening duplicates. A call site SHAPI can't fix is listed in the PR and on the dashboard.
 - **A PR you close without merging stays closed.** Tick "open it again" on the dashboard if you change your mind.
 - **The `shapi:stop` label** freezes a PR. Pausing a repository, from the dashboard or the web app, stops all changes.
 - **The check is neutral by default** and never blocks a merge, unless you turn on *Fail the SHAPI check*.

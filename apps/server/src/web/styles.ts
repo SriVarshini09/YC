@@ -51,8 +51,9 @@ code, .mono { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhe
 .side { position: fixed; top: 0; bottom: 0; left: 0; width: 248px; background: linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 100%); color: var(--side-fg); display: flex; flex-direction: column; padding: 18px 14px; gap: 18px; overflow-y: auto; }
 .brand { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 700; font-size: 17px; letter-spacing: .01em; padding: 4px 8px; }
 .brand:hover { text-decoration: none; }
-.logo { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, #3b82f6, #60a5fa); display: grid; place-items: center; box-shadow: 0 6px 16px -6px rgba(59,130,246,.8); flex: none; }
-.logo svg { width: 18px; height: 18px; }
+.brand svg { display: block; height: 34px; width: auto; }
+.mark { display: inline-grid; flex: none; } .mark svg { display: block; width: 48px; height: 48px; border-radius: 13px; box-shadow: 0 10px 24px -12px rgba(11,31,77,.8); }
+.mark.big svg { width: 56px; height: 56px; border-radius: 15px; }
 .account { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,.05); border: 1px solid var(--side-line); }
 .avatar { width: 30px; height: 30px; border-radius: 8px; background: #1e3a8a; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; flex: none; }
 .account .who { min-width: 0; flex: 1; }
@@ -277,8 +278,6 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
 .hero { min-height: 100vh; width: 100%; display: grid; place-items: center; padding: 32px 16px; background: radial-gradient(1200px 600px at 20% -10%, var(--accent-soft), transparent 60%), var(--bg); }
 .hero .card { max-width: 460px; width: 100%; padding: 32px; display: grid; gap: 14px; text-align: center; justify-items: center; }
 .hero h1 { font-size: 26px; }
-.hero .logo { width: 48px; height: 48px; border-radius: 14px; }
-.hero .logo svg { width: 26px; height: 26px; }
 .hero .button { width: 100%; justify-content: center; padding: 10px 16px; }
 .hero .foot { font-size: 12px; color: var(--muted); }
 .accounts { display: grid; gap: 10px; width: 100%; text-align: left; }
@@ -364,7 +363,6 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
 .welcome { display: grid; gap: 14px; justify-items: start; padding: 32px; }
 .welcome h1 { font-size: 28px; }
 .welcome .lead { max-width: 640px; font-size: 15px; }
-.logo.big { width: 52px; height: 52px; border-radius: 14px; } .logo.big svg { width: 28px; height: 28px; }
 .mini-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; width: 100%; margin-top: 8px; }
 .mini-step { display: grid; gap: 6px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card-2); }
 .scanning { display: grid; gap: 14px; padding: 28px 32px; }
@@ -433,7 +431,7 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
 .lp-foot nav { display: flex; gap: 18px; }
 .lp-foot a { color: var(--muted); font-size: 13px; }
 .brand-sm { display: flex; align-items: center; gap: 8px; font-weight: 700; }
-.brand-sm .logo { width: 24px; height: 24px; border-radius: 7px; } .brand-sm .logo svg { width: 14px; height: 14px; }
+.brand-sm { color: var(--fg); } .brand-sm svg { display: block; height: 26px; width: auto; }
 @media (max-width: 900px) { .lp-shot { transform: none; } .lp-hero { padding: 40px 0 56px; } .lp-section { padding: 48px 0; } .lp-section h2 { font-size: 24px; } .lp-inner { padding: 0 16px; } }
 
 @media (max-width: 1100px) { .overview-top, .cols-3 { grid-template-columns: minmax(0, 1fr); } .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .span-2 { grid-column: auto; } .value-hero { grid-template-columns: minmax(0, 1fr); } .lp-hero .lp-inner, .lp-proof { grid-template-columns: minmax(0, 1fr); } }

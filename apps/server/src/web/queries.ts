@@ -78,6 +78,8 @@ interface BillingRow {
   quantity: number;
   stripe_customer_id: string | null;
   current_period_end: Date | null;
+  /** Set when the subscription is cancelled but still running: the day it ends. */
+  cancel_at: Date | null;
 }
 
 export interface AccountData {
@@ -121,7 +123,7 @@ export async function loadAccount(db: Db, accountId: string, opts: { locks?: boo
     const prRows = await tx.selectFrom("fix_prs").selectAll().orderBy("updated_at", "desc").execute();
     const advisoryRows = await tx.selectFrom("advisories").select("data").where("reviewed", "=", true).execute();
     const recent = await tx.selectFrom("scans").select(["id", "repository_id", "sha", "status", "finished_at", "created_at", "error"]).orderBy("created_at", "desc").limit(25).execute();
-    const billing = await tx.selectFrom("billing").select(["status", "quantity", "stripe_customer_id", "current_period_end"]).executeTakeFirst();
+    const billing = await tx.selectFrom("billing").select(["status", "quantity", "stripe_customer_id", "current_period_end", "cancel_at"]).executeTakeFirst();
 
     const advisories = new Map<string, Advisory>();
     for (const r of advisoryRows) {
