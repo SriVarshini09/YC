@@ -3,6 +3,8 @@
    sp-join (intro, once), sp-hover (header hover), sp-working (in-progress loop). */
 .sp-logo .sp-left, .sp-logo .sp-right, .sp-logo .sp-right-inner, .sp-logo .sp-word, .sp-logo .sp-bar { transform-box: fill-box; }
 .sp-logo .sp-bar { transform-origin: left center; }
+/* The pieces lift above the view box while they move: let them show instead of clipping. */
+.sp-logo { overflow: visible; }
 
 /* Intro, about 1.6s: your code slides in from the left, the API drops in from above and locks with a
    small settle, the word fades in, and the bar draws under "api". Ends on the static logo. */

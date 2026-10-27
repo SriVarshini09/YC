@@ -246,6 +246,24 @@ const migrations: Record<string, Migration> = {
       await sql`alter table billing drop column if exists cancel_at`.execute(db);
     },
   },
+  "0008_fix_pr_repair": {
+    // What the fix PR changed and how it was verified (diff per file, contract test before and after), for the web app's finding page.
+    async up(db: Kysely<unknown>) {
+      await sql`alter table fix_prs add column repair jsonb`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`alter table fix_prs drop column if exists repair`.execute(db);
+    },
+  },
+  "0009_findings_scan_index": {
+    // Every account page reads the findings of each repository's latest scan by scan id.
+    async up(db: Kysely<unknown>) {
+      await sql`create index if not exists findings_scan on findings (scan_id)`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`drop index if exists findings_scan`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };

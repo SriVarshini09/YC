@@ -153,9 +153,10 @@ describe("billing in the web app", () => {
     const stripe = fakeStripe();
     const app = appWith(stripe);
     const cookie = await signIn(app);
-    const page = await app.inject({ url: `/a/${accountId}`, headers: { cookie } });
+    const repos = await app.inject({ url: `/a/${accountId}/repositories`, headers: { cookie } });
+    expect(repos.body.match(/not covered by plan/g)).toHaveLength(2);
+    const page = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
     expect(page.body).toContain("Free plan");
-    expect(page.body.match(/not covered by plan/g)).toHaveLength(2);
     expect(page.body).toContain("Upgrade to cover 2 more private repositories");
     expect(page.body).toContain('Upgrading means you accept the <a href="https://srivarshini09.github.io/YC/legal/terms">terms of service</a>');
 
@@ -198,9 +199,9 @@ describe("billing in the web app", () => {
     expect([...coverage(repos, billing, true).values()].every((c) => c.covered)).toBe(true);
 
     const cookie = await signIn(app);
-    const page = await app.inject({ url: `/a/${accountId}`, headers: { cookie } });
+    const page = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
     expect(page.body).toContain("Paid plan");
-    expect(page.body).not.toContain("not covered by plan");
+    expect((await app.inject({ url: `/a/${accountId}/repositories`, headers: { cookie } })).body).not.toContain("not covered by plan");
     expect(page.body).toContain("Manage billing and invoices");
     const portal = await app.inject({ method: "POST", url: `/a/${accountId}/billing/portal`, headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(page.body)}` });
     expect(portal.headers.location).toBe("https://billing.stripe.test/portal");
@@ -208,7 +209,7 @@ describe("billing in the web app", () => {
     // cancelled in the portal: still active until the period ends, and the plan card says so
     const scheduled = { id: "evt_1b", object: "event", type: "customer.subscription.updated", data: { object: { ...stripe.subJson(stripe.subs.get("sub_1")!), cancel_at_period_end: true, cancel_at: 1798761600 } } };
     expect((await app.inject({ method: "POST", url: "/stripe/webhook", ...signed(scheduled) })).json().outcome).toBe(`subscription active for account ${accountId}`);
-    const cancelling = await app.inject({ url: `/a/${accountId}`, headers: { cookie } });
+    const cancelling = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
     expect(cancelling.body).toContain("Cancels on 2027-01-01");
     expect(cancelling.body).not.toContain("Renews");
 
@@ -228,13 +229,13 @@ describe("billing in the web app", () => {
     await owner.insertInto("repositories").values({ account_id: accountId, github_repo_id: 200, full_name: "acme/new", default_branch: "main", private: true, created_at: new Date("2026-02-01") }).execute();
 
     const cookie = await signIn(app);
-    const page = await app.inject({ url: `/a/${accountId}`, headers: { cookie } });
+    const page = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
     expect(page.body).toContain("Add 1 repository to the plan");
-    expect(page.body.match(/not covered by plan/g)).toHaveLength(1);
+    expect((await app.inject({ url: `/a/${accountId}/repositories`, headers: { cookie } })).body.match(/not covered by plan/g)).toHaveLength(1);
     expect(stripe.calls.filter((c) => c.method === "POST" && c.path.startsWith("/v1/subscriptions"))).toEqual([]);
 
     const add = await app.inject({ method: "POST", url: `/a/${accountId}/billing/add-repos`, headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(page.body)}` });
-    expect(add.headers.location).toBe(`/a/${accountId}?billing=updated`);
+    expect(add.headers.location).toBe(`/a/${accountId}/billing?billing=updated`);
     const update = stripe.calls.find((c) => c.method === "POST" && c.path === "/v1/subscriptions/sub_2")!;
     expect(update.body.get("items[0][quantity]")).toBe("3");
     expect(update.body.get("proration_behavior")).toBe("create_prorations");
@@ -258,9 +259,9 @@ describe("return from Checkout", () => {
     stripe.sessionsFor.set("cs_mine", accountId);
     const cookie = await signIn(app);
 
-    const other = await app.inject({ url: `/a/${accountId}?billing=done&session=cs_other`, headers: { cookie } });
+    const other = await app.inject({ url: `/a/${accountId}/billing?billing=done&session=cs_other`, headers: { cookie } });
     expect(other.body).toContain("Free plan");
-    const mine = await app.inject({ url: `/a/${accountId}?billing=done&session=cs_mine`, headers: { cookie } });
+    const mine = await app.inject({ url: `/a/${accountId}/billing?billing=done&session=cs_mine`, headers: { cookie } });
     expect(mine.body).toContain("Paid plan");
     expect(mine.body).toContain("Your plan updates as soon as Stripe confirms the payment.");
     const billing = await withService(db, (tx) => tx.selectFrom("billing").select(["status", "quantity", "stripe_subscription_id"]).executeTakeFirstOrThrow());

@@ -68,6 +68,14 @@ const fixes = [candidate(low, "src/c.ts"), candidate(crit, "src/a.ts"), candidat
 
 const rows = () => withService(db, (tx) => tx.selectFrom("fix_prs").select(["advisory_id", "number", "state", "stopped"]).orderBy("advisory_id").execute());
 
+const repairOf = (a: Advisory): NonNullable<FixCandidate["repair"]> => ({
+  method: "recipe",
+  recipeId: a.recipeId,
+  verifiedAt: "2026-10-23T00:00:00.000Z",
+  sites: [{ file: "src/a.ts", line: 1, method: "POST", endpoint: "/x", status: "fixed", test: "test/shapi/a.test.ts", before: { passed: false, tests: "1 failed", output: "" }, after: { passed: true, tests: "1 passed", output: "" } }],
+  changes: [{ file: "src/a.ts", kind: "modified", diff: "@@ -1 +1 @@\n-a\n+fixed", truncated: false }],
+});
+
 /** A webhook as GitHub would send it for this repository, processed by the worker. */
 async function webhook(github: ReturnType<typeof setup>, event: string, payload: object) {
   const id = randomUUID();
@@ -103,6 +111,27 @@ describe("fix delivery", () => {
     expect(second.outcomes.map((o) => o.action)).toEqual(["unchanged", "unchanged", "wait"]);
     expect(second.dashboard!.action).toBe("unchanged");
     expect(t.github.pulls).toHaveLength(2);
+  });
+
+  it("stores how a fix was verified with its PR: kept by a rerun without one, rewritten by any rerun with one", async () => {
+    const t = setup();
+    const now = new Date();
+    const withRepair = { ...candidate(crit, "src/a.ts"), repair: repairOf(crit) };
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [withRepair], now });
+    const stored = () => withService(db, (tx) => tx.selectFrom("fix_prs").select(["advisory_id", "repair"]).executeTakeFirstOrThrow());
+    expect((await stored()).repair).toEqual(repairOf(crit));
+    // an unchanged rerun without the summary leaves the stored one alone
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")], now });
+    expect((await stored()).repair).toEqual(repairOf(crit));
+    // an unchanged rerun with a summary rewrites it: the same code, verified again
+    const again = { ...candidate(crit, "src/a.ts"), repair: { ...repairOf(crit), verifiedAt: "2026-10-23T12:00:00.000Z" } };
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [again], now });
+    expect((await stored()).repair?.verifiedAt).toBe("2026-10-23T12:00:00.000Z");
+    // a changed fix with a new summary replaces it
+    const later = new Date(now.getTime() + 3_600_000);
+    const changed = { ...candidate(crit, "src/a.ts", "changed again\n"), repair: { ...repairOf(crit), verifiedAt: "2026-10-24T00:00:00.000Z" } };
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [changed], now: later });
+    expect((await stored()).repair?.verifiedAt).toBe("2026-10-24T00:00:00.000Z");
   });
 
   it("a ticked box opens a waiting fix now; the next hour opens the rest anyway", async () => {

@@ -51,8 +51,8 @@ export async function startCheckout(deps: BillingDeps, account: { id: string; lo
     line_items: [{ price: deps.config.priceId, quantity }],
     subscription_data: { metadata: { shapi_account_id: account.id } },
     // Stripe fills in {CHECKOUT_SESSION_ID}; the return page reads the session so the plan updates even before the webhook arrives.
-    success_url: `${deps.config.publicUrl}/a/${account.id}?billing=done&session={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${deps.config.publicUrl}/a/${account.id}?billing=cancelled`,
+    success_url: `${deps.config.publicUrl}/a/${account.id}/billing?billing=done&session={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${deps.config.publicUrl}/a/${account.id}/billing?billing=cancelled`,
   });
   if (!session.url) throw new Error("Stripe returned no checkout URL");
   return session.url;
@@ -77,7 +77,7 @@ export async function completeCheckout(deps: BillingDeps, accountId: string, ses
 export async function portalUrl(deps: BillingDeps, account: { id: string }): Promise<string> {
   const row = await withTenant(deps.db, account.id, (tx) => tx.selectFrom("billing").select("stripe_customer_id").executeTakeFirst());
   if (!row?.stripe_customer_id) throw new Error("no Stripe customer yet");
-  const session = await deps.stripe.billingPortal.sessions.create({ customer: row.stripe_customer_id, return_url: `${deps.config.publicUrl}/a/${account.id}` });
+  const session = await deps.stripe.billingPortal.sessions.create({ customer: row.stripe_customer_id, return_url: `${deps.config.publicUrl}/a/${account.id}/billing` });
   return session.url;
 }
 

@@ -9,6 +9,7 @@ import { deliverRepoFixes, type DeliveryReport, type FixCandidate } from "../git
 import { reviewedAdvisories, storedLock } from "./scan";
 import type { ResponseShape } from "@shapi/shapes";
 import { shapesFor } from "./shapes";
+import { summarizeRepair } from "./repair-summary";
 
 /** Run `fn` in a workspace holding `files`. Production: a fresh E2B sandbox per job. */
 export type WorkspaceRunner = <T>(files: SnapshotFile[], labels: Record<string, string>, fn: (ws: Workspace & { install?: InstallReport }) => Promise<T>) => Promise<T>;
@@ -138,6 +139,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
           body: renderPrBody({ advisory: t.advisory, repair, shapeSource: t.shapes.source }),
           commitMessage: `fix: ${t.advisory.title}\n\nAdvisory ${t.advisory.id}, ${fixedSites.length} of ${repair.sites.length} call sites. Contract tests ${testFiles} fail before this change and pass after, verified in ${repair.sandbox}.`,
           files: repair.changes.map((c) => ({ path: c.file, content: c.after })),
+          repair: summarizeRepair({ advisory: t.advisory, sites: repair.sites, changes: repair.changes, method: repair.method, sandbox: repair.sandbox }, now()),
         });
       }
     });
