@@ -35,7 +35,8 @@ export function stateTag(state: string): Html {
   return tag(state, tone);
 }
 
-export const kindTag = (kind: "affected" | "exposed" | "ok") => (kind === "affected" ? tag("affected", "bad") : kind === "exposed" ? tag("exposed", "warn") : tag("ok", "ok"));
+/** How a place in the code stands: it breaks on the change, it uses the changed API but still works, or nothing changed. */
+export const kindTag = (kind: "affected" | "exposed" | "ok") => (kind === "affected" ? tag("breaks", "bad") : kind === "exposed" ? tag("still works", "info") : tag("ok", "ok"));
 
 export const empty = (text: string) => html`<div class="empty">${text}</div>`;
 
@@ -132,15 +133,15 @@ interface ProviderStatus {
   id: string;
   callSites: number;
   repos: number;
-  affected: number;
-  exposed: number;
+  breaking: number;
+  working: number;
   /** Days to the nearest deadline that is still ahead, if any. */
   nextDeadline?: number;
 }
 
 function providerTone(p: ProviderStatus): Tone {
-  if (p.affected) return "bad";
-  if (p.exposed || (p.nextDeadline !== undefined && p.nextDeadline <= 90)) return "warn";
+  if (p.breaking) return "bad";
+  if (p.working || (p.nextDeadline !== undefined && p.nextDeadline <= 90)) return "warn";
   return "ok";
 }
 
@@ -148,19 +149,20 @@ export function providerGrid(providers: ProviderStatus[], href: (id: string) => 
   if (!providers.length) return empty("No third-party API calls found yet. Providers appear after the first scan.");
   return html`<div class="providers">${providers.map((p) => {
     const tone = providerTone(p);
-    const status = tone === "bad" ? `${plural(p.affected, "affected call site")}` : tone === "warn" ? (p.exposed ? `${plural(p.exposed, "exposed call site")}` : `deadline in ${plural(p.nextDeadline!, "day")}`) : "healthy";
-    return html`<a class="provider" href="${href(p.id)}">${providerMark(p.id)}<span><span class="name">${providerName(p.id)}</span><span class="sub"><span class="dot ${tone}"></span>${status} · ${plural(p.callSites, "call")}</span></span></a>`;
+    const status = tone === "bad" ? plural(p.breaking, "problem") : tone === "warn" ? (p.working ? "changed, still works" : p.nextDeadline === 0 ? "changes today" : `changes in ${plural(p.nextDeadline!, "day")}`) : "healthy";
+    return html`<a class="provider" href="${href(p.id)}">${providerMark(p.id)}<span><span class="name">${providerName(p.id)}</span><span class="sub"><span class="dot ${tone}"></span>${status} · ${plural(p.callSites, "API call")}</span></span></a>`;
   })}</div>`;
 }
 
 /* ---------- deadlines ---------- */
 
-export interface Deadline {
+interface Deadline {
   advisory: Advisory;
   /** Negative when the change is already in effect. */
   daysUntil: number;
-  affected: number;
-  exposed: number;
+  /** Repositories where it breaks the code, and where the code uses it but still works. */
+  breaking: number;
+  working: number;
 }
 
 function urgency(daysUntil: number): Tone {
@@ -205,14 +207,6 @@ ${dots}
 </svg>
 ${later ? html`<p class="note">${plural(later, "more deadline")} beyond 180 days.</p>` : EMPTY}
 </div>`;
-}
-
-export function deadlineRow(d: Deadline, href: string): Html {
-  const tone = urgency(d.daysUntil);
-  const days = d.daysUntil < 0 ? html`<div class="days ${tone}">now<small>in effect</small></div>` : html`<div class="days ${tone}">${d.daysUntil}<small>${d.daysUntil === 1 ? "day" : "days"}</small></div>`;
-  return html`<div class="deadline">${days}<div class="what"><a href="${href}"><b>${d.advisory.title}</b></a><div class="sub">${providerName(d.advisory.provider)} · ${d.advisory.endpoint.method} <span class="mono">${d.advisory.endpoint.path}</span> · ${isoDay(d.advisory.effectiveDate)}</div></div><div class="hits">${severityTag(d.advisory.severity)}${
-    d.affected ? tag(`${d.affected} affected`, "bad") : EMPTY
-  }${d.exposed ? tag(`${d.exposed} exposed`, "warn") : EMPTY}</div></div>`;
 }
 
 /* ---------- activity ---------- */
@@ -322,6 +316,6 @@ export function testRunBox(run: FixTestRun | undefined, phase: "before" | "after
   if (!run) return html`<div class="run none"><div class="verdict">${phase === "before" ? "Not run" : "Not reached"}</div><div class="when">${phase === "before" ? "No baseline was recorded." : "The change did not get to a passing run."}</div></div>`;
   const state = run.passed ? "pass" : "fail";
   return html`<div class="run ${state}"><div class="verdict">${run.passed ? ICONS.check : ICONS.cross}${run.passed ? "Passing" : "Failing"} <span class="muted small">· ${run.tests}</span></div><div class="when">${
-    phase === "before" ? "Contract test on the original code" : "Same test after the fix"
+    phase === "before" ? "Test on the original code" : "Same test after the fix"
   }${test ? html` · <span class="mono">${test}</span>` : EMPTY}</div>${run.output ? html`<details><summary>Test output</summary><pre>${run.output}</pre></details>` : EMPTY}</div>`;
 }

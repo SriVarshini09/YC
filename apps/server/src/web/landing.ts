@@ -2,7 +2,7 @@ import { loadProviders } from "@shapi/core";
 import { DOCS_URL, EMPTY, ICONS, LOGO, html, type Html } from "./html";
 import { comparisonView, providerMark } from "./views";
 
-export interface LandingOptions {
+interface LandingOptions {
   /** Sign-in is configured on this server. */
   configured: boolean;
   /** The GitHub App's install page. */

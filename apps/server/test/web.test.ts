@@ -223,24 +223,28 @@ describe("web sign-in", () => {
 });
 
 describe("web pages", () => {
-  it("shows the account's overview, repositories, findings and fix PRs, escaping everything", async () => {
+  it("shows the account's overview, problems, fixes, repositories and API changes, escaping everything", async () => {
     const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
     const { cookie } = await signIn(app);
     const account = await app.inject({ url: `/a/${mine.account}`, headers: { cookie } });
     expect(account.statusCode).toBe(200);
     expect(account.body).toContain("acme/api");
-    expect(account.body).toContain("1 affected");
+    expect(account.body).toContain("Needs your attention");
     expect(account.body).toContain('class="nav"');
     expect(account.body).not.toContain("<script");
-    expect(account.body).toContain("Affected call sites");
+    expect(account.body).toContain("Latest fix");
+    // five monitoring entries in plain words; Deadlines lives inside API changes
+    const labels = [...account.body.matchAll(/<span class="label">([^<]+)<\/span>/g)].map((m) => m[1]);
+    expect(labels).toEqual(["Overview", "Problems", "Fixes", "Repositories", "API changes", "Settings", "Billing"]);
     const settings = await app.inject({ url: `/a/${mine.account}/settings`, headers: { cookie } });
     expect(settings.body).toContain('name="hourly" min="1" max="20" value="2"');
-    for (const path of ["repositories", "findings", "fixes", "deadlines", "advisories", "billing"]) {
+    for (const path of ["repositories", "findings", "fixes", "advisories", "billing"]) {
       const res = await app.inject({ url: `/a/${mine.account}/${path}`, headers: { cookie } });
       expect(res.statusCode, path).toBe(200);
       expect(res.body).not.toContain("<script");
       expect(res.body, path).not.toContain(' style="');
     }
+    expect((await app.inject({ url: `/a/${mine.account}/deadlines`, headers: { cookie } })).headers.location).toBe(`/a/${mine.account}/advisories#timeline`);
     const findings = await app.inject({ url: `/a/${mine.account}/findings`, headers: { cookie } });
     expect(findings.body).toContain("src/deploy.ts:13");
     expect(findings.body).toContain('href="https://github.com/acme/api/pull/7"');
@@ -261,6 +265,30 @@ describe("web pages", () => {
     expect(repo.body).toContain("https://github.com/acme/api/issues/4");
     expect(repo.body).toContain("&lt;img src=x onerror=alert(1)&gt;");
     expect(repo.body).not.toContain("<img");
+    await app.close();
+  });
+
+  it("counts one problem per API change and repository, however many lines it touches", async () => {
+    const scan = await owner.selectFrom("scans").select("id").where("repository_id", "=", mine.repo).executeTakeFirstOrThrow();
+    await owner
+      .insertInto("findings")
+      .values({ account_id: mine.account, repository_id: mine.repo, scan_id: scan.id, advisory_id: "github-workflow-dispatch-204-to-200", kind: "affected", call_site: JSON.stringify({ file: "src/release.ts", line: 40 }), reasons: JSON.stringify(["checks status === 204"]) })
+      .execute();
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const get = async (path: string) => (await app.inject({ url: `/a/${mine.account}${path}`, headers: { cookie } })).body;
+
+    const overview = await get("");
+    expect(overview).toContain('SHAPI found <span class="hl">1 problem</span> in your code.');
+    expect(overview).toContain('<span class="label">Problems</span><span class="count bad">1</span>');
+    const problems = await get("/findings");
+    expect(problems).toContain("Breaks your code · 1");
+    expect(problems).toContain("and 1 more place");
+    expect(problems).toContain('<span class="tag bad">breaks</span>');
+    expect(await get("/repositories")).toContain('<span class="tag bad">1 problem</span>');
+    const findingId = /\/f\/(\d+)/.exec(problems)![1]!;
+    expect(await get(`/f/${findingId}`)).toContain("Same problem, 1 other place");
+    expect(await get("/advisories")).toContain("breaks 1 repo");
     await app.close();
   });
 
@@ -397,8 +425,8 @@ describe("web pages", () => {
     const overview = async () => (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
 
     let body = await overview();
-    expect(body).toContain('SHAPI found <span class="hl">1 breaking API change</span> in your code.');
-    expect(body).toContain("1 fix PR ready for review");
+    expect(body).toContain('SHAPI found <span class="hl">1 problem</span> in your code.');
+    expect(body).toContain("1 fix ready for review");
     expect(body).toContain("Review fix PR #7");
     expect(body).toContain("Get started"); // Slack is not connected yet
     expect(body).not.toContain('http-equiv="refresh"');
@@ -408,7 +436,7 @@ describe("web pages", () => {
     body = await overview();
     expect(body).toContain("Scanning your repositories");
     expect(body).toContain('<meta http-equiv="refresh" content="10">');
-    expect(body).not.toContain("breaking API change");
+    expect(body).not.toContain("SHAPI found");
 
     await owner.deleteFrom("repositories").where("account_id", "=", mine.account).execute();
     body = await overview();
@@ -487,7 +515,7 @@ describe("account pages after review", () => {
     try {
       const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
       const { cookie } = await signIn(app);
-      for (const path of ["", "/deadlines", "/advisories", "/findings"]) expect((await app.inject({ url: `/a/${mine.account}${path}`, headers: { cookie } })).statusCode, path).toBe(200);
+      for (const path of ["", "/advisories", "/findings", "/repositories"]) expect((await app.inject({ url: `/a/${mine.account}${path}`, headers: { cookie } })).statusCode, path).toBe(200);
       await app.close();
     } finally {
       await owner.deleteFrom("advisories").where("id", "=", "broken-row").execute();
