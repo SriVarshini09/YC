@@ -6,13 +6,15 @@ export default defineConfig({
   description: "Find the code that breaks when a third-party API changes, and fix it test-first.",
   base: "/YC/",
   cleanUrls: true,
+  // One light theme: paper and ink (theme/custom.css).
+  appearance: false,
   lastUpdated: true,
   // VitePress does not add the base to head entries, so these carry it. The social image must be absolute.
   head: [
     ["link", { rel: "icon", href: "/YC/favicon.svg", type: "image/svg+xml" }],
     ["link", { rel: "icon", href: "/YC/favicon.ico", sizes: "32x32" }],
     ["link", { rel: "apple-touch-icon", href: "/YC/apple-touch-icon.png" }],
-    ["meta", { name: "theme-color", content: "#0E0F12" }],
+    ["meta", { name: "theme-color", content: "#F7F6F2" }],
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:site_name", content: "SHAPI" }],
     ["meta", { property: "og:image", content: "https://srivarshini09.github.io/YC/og.png" }],
@@ -25,9 +27,9 @@ export default defineConfig({
     // The logo is drawn inline by the theme (theme/index.ts), so it can move; no image logo or text title.
     siteTitle: false,
     nav: [
-      { text: "Quickstart", link: "/guide/quickstart" },
       { text: "How it works", link: "/guide/how-it-works" },
-      { text: "Advisories", link: "/advisories" },
+      { text: "API changes", link: "/advisories" },
+      { text: "Docs", link: "/guide/quickstart" },
       { text: "Security", link: "/security" },
     ],
     sidebar: [

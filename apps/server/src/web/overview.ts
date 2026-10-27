@@ -75,19 +75,25 @@ function valueHero(data: AccountData): Html {
   const parts: string[] = [];
   if (v.merged) parts.push(`${v.merged} fixed`);
   if (v.review) parts.push(`${plural(v.review, "fix", "fixes")} ready for review`);
-  if (v.open) parts.push(`${v.open} need${v.open === 1 ? "s" : ""} you`);
-  const title = v.caught ? html`SHAPI found <span class="hl">${plural(v.caught, "problem")}</span> in your code.` : html`No problems in your code.`;
+  if (v.open) parts.push(`${v.open} with no fix yet`);
+  // One sentence for where things stand: problems with no fix yet plus fixes waiting for review need the user.
+  const needs = v.open + v.review;
+  const tone = v.open ? "bad" : v.review ? "warn" : "ok";
+  const title = needs ? `${plural(needs, "problem")} need${needs === 1 ? "s" : ""} you.` : "All clear.";
+  const watching = `SHAPI watches ${plural(providersOf(data).length, "provider")} across ${plural(callSites, "API call")}`;
   const sub = v.caught
-    ? parts.join(" · ")
-    : `SHAPI watches ${plural(providersOf(data).length, "provider")} across ${plural(callSites, "API call")}, and opens a tested fix the moment an API change breaks your code.`;
+    ? `SHAPI found ${plural(v.caught, "problem")} in your code: ${parts.join(" · ") || "all handled"}.`
+    : `No problems in your code. ${watching}, and opens a tested fix the moment an API change breaks your code.`;
   return html`<section class="value-hero">
 <div class="vh-text">
 <p class="eyebrow">${eyebrow}</p>
+<div class="status"><span class="status-dot ${tone}" aria-hidden="true"></span><div>
 <h1>${title}</h1>
 <p class="vh-sub">${sub}</p>
 <div class="btn-row">${v.review ? html`<a class="button primary" href="${b}/fixes?state=open">${ICONS.fixes} Review ${plural(v.review, "fix", "fixes")}</a>` : EMPTY}${
     v.open ? html`<a class="button ghost" href="#attention">See what needs you</a>` : html`<a class="button ghost" href="${b}/advisories">See what SHAPI watches</a>`
   }</div>
+</div></div>
 </div>
 <div class="vh-ring">${healthRing(healthOf(data))}</div>
 </section>`;

@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SHAPI redesign mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* The signed-off logo colours, plus two signal colours. No gradients. */
+    --paper: #F7F6F2;
+    --paper-2: #EFEDE6;
+    --card: #FFFFFF;
+    --ink: #0E0F12;
+    --ink-2: #55575E;
+    --ink-3: #9A9BA1;
+    --line: #E3E0D7;
+    --break: #C2412D;
+    --break-bg: #FBEDEA;
+    --fixed: #2D7A52;
+    --fixed-bg: #E9F3EC;
+    --soon: #A86A12;
+    --display: "Jost", system-ui, sans-serif;
+    --body: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 400 16px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+
+  /* mockup switcher (not part of the design) */
+  .switch { position: fixed; z-index: 50; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; padding: 4px; background: var(--ink); border-radius: 999px; box-shadow: 0 6px 24px rgba(14,15,18,.18); }
+  .switch button { border: 0; background: transparent; color: #CFCFD2; font: 500 13px var(--body); padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+  .switch button.on { background: var(--paper); color: var(--ink); }
+  .screen { display: none; }
+  .screen.on { display: block; }
+
+  /* ---------- website ---------- */
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  nav.top { position: sticky; top: 0; z-index: 10; background: rgba(247,246,242,.88); backdrop-filter: blur(8px); border-bottom: 1px solid transparent; transition: border-color .3s; }
+  nav.top.scrolled { border-bottom-color: var(--line); }
+  nav.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  nav.top img { height: 26px; display: block; }
+  nav.top .links { display: flex; align-items: center; gap: 28px; font-size: 14px; color: var(--ink-2); }
+  nav.top .links a { text-decoration: none; }
+  nav.top .links a:hover { color: var(--ink); }
+  .pill { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 20px; border-radius: 999px; font: 500 14px var(--body); text-decoration: none; border: 1px solid var(--ink); transition: transform .15s; }
+  .pill:hover { transform: translateY(-1px); }
+  .pill.solid { background: var(--ink); color: var(--paper); }
+  .pill.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .pill.small { height: 36px; padding: 0 16px; font-size: 13px; }
+
+  .eyebrow { display: flex; align-items: center; gap: 14px; font: 500 11px var(--body); letter-spacing: .22em; text-transform: uppercase; color: var(--ink-3); }
+  .eyebrow::before { content: ""; width: 32px; height: 1px; background: var(--ink-3); }
+  .eyebrow.center { justify-content: center; }
+  .eyebrow.center::after { content: ""; width: 32px; height: 1px; background: var(--ink-3); }
+
+  h1, h2 { font-family: var(--display); font-weight: 300; letter-spacing: -.01em; margin: 0; }
+  h1 { font-size: clamp(40px, 6vw, 72px); line-height: 1.04; }
+  h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1.1; }
+  .dim { color: var(--ink-3); }
+  .lede { font-size: 18px; color: var(--ink-2); max-width: 520px; margin: 24px 0 32px; }
+
+  .hero { padding: 88px 0 64px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+  .hero .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .hero .note { margin-top: 16px; font-size: 13px; color: var(--ink-3); }
+
+  /* the story card: the API changes, the line breaks, SHAPI fixes it */
+  .story { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: 0 1px 0 rgba(14,15,18,.03), 0 20px 50px -24px rgba(14,15,18,.18); }
+  .story .bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+  .story .file { font-family: var(--mono); font-size: 12.5px; }
+  .badge { display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 11px; border-radius: 999px; font: 500 12px var(--body); transition: background .4s, color .4s; }
+  .badge i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .badge.ok { background: var(--fixed-bg); color: var(--fixed); }
+  .badge.bad { background: var(--break-bg); color: var(--break); }
+  .badge.wait { background: var(--paper-2); color: var(--ink-2); }
+  .code { font: 13.5px/1.9 var(--mono); padding: 18px 0; color: var(--ink-2); }
+  .code .ln { display: grid; grid-template-columns: 44px 1fr; padding-right: 18px; transition: background .4s; }
+  .code .ln > span:first-child { color: #C4C3BE; text-align: right; padding-right: 16px; user-select: none; }
+  .code .k { color: var(--ink); }
+  .code .hot.bad { background: var(--break-bg); }
+  .code .hot.good { background: var(--fixed-bg); }
+  .code .hot .txt { color: var(--ink); white-space: pre; }
+  .caret { display: inline-block; width: 7px; height: 15px; background: var(--ink); vertical-align: -2px; margin-left: 1px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .event { margin: 0 18px 18px; padding: 12px 14px; border-radius: 12px; background: var(--paper); font-size: 13px; color: var(--ink-2); display: flex; gap: 10px; align-items: flex-start; min-height: 46px; }
+  .event b { color: var(--ink); font-weight: 500; }
+  .event .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: var(--ink-3); transition: background .4s; }
+  .steps { display: flex; gap: 6px; padding: 0 18px 18px; }
+  .steps span { flex: 1; height: 3px; border-radius: 2px; background: var(--paper-2); overflow: hidden; position: relative; }
+  .steps span i { position: absolute; inset: 0; width: 0; background: var(--ink); }
+  .steps span.done i { width: 100%; }
+  .steps span.run i { animation: fill var(--d, 3s) linear forwards; }
+  @keyframes fill { to { width: 100%; } }
+
+  /* deadline ticker */
+  .ticker { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; white-space: nowrap; padding: 14px 0; font-size: 13.5px; color: var(--ink-2); }
+  .ticker .track { display: inline-flex; gap: 48px; padding-left: 48px; animation: slide 60s linear infinite; }
+  .ticker:hover .track { animation-play-state: paused; }
+  .ticker .item b { color: var(--ink); font-weight: 500; }
+  .ticker .days { font-family: var(--mono); font-size: 12px; margin-left: 8px; }
+  .ticker .days.near { color: var(--break); }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  section.block { padding: 120px 0; }
+  .center { text-align: center; }
+
+  /* numbered problems with words that light up as you scroll */
+  .problems { max-width: 760px; margin: 64px auto 0; }
+  .problem { padding: 40px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 80px 1fr; gap: 8px; }
+  .problem .n { font: 300 34px var(--display); color: var(--ink-3); }
+  .problem h3 { font: 400 clamp(24px, 3vw, 32px)/1.2 var(--display); margin: 0 0 12px; }
+  .problem p { margin: 0; color: var(--ink-2); max-width: 560px; }
+  .red { color: var(--break); }
+  .reveal .w { opacity: .14; transition: opacity .5s; }
+  .reveal.in .w { opacity: 1; }
+
+  /* how it works */
+  .how { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; margin-top: 64px; }
+  .how div { background: var(--paper); padding: 32px 26px 36px; transition: background .3s; }
+  .how div:hover { background: var(--card); }
+  .how .n { font: 500 12px var(--mono); color: var(--ink-3); }
+  .how h4 { font: 400 24px var(--display); margin: 18px 0 10px; }
+  .how p { margin: 0; font-size: 14.5px; color: var(--ink-2); }
+
+  .cta { text-align: center; padding: 120px 0 140px; }
+  .cta .actions { display: flex; gap: 10px; justify-content: center; margin-top: 32px; flex-wrap: wrap; }
+
+  .fade { opacity: 0; transform: translateY(14px); transition: opacity .8s ease, transform .8s ease; }
+  .fade.in { opacity: 1; transform: none; }
+
+  /* ---------- dashboard ---------- */
+  .app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+  .side { border-right: 1px solid var(--line); padding: 22px 14px; display: flex; flex-direction: column; gap: 2px; }
+  .side img { height: 22px; margin: 2px 10px 26px; align-self: flex-start; }
+  .side a { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 10px; font-size: 14px; color: var(--ink-2); text-decoration: none; }
+  .side a:hover { background: var(--paper-2); }
+  .side a.on { background: var(--card); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+  .side a .count { font: 500 11.5px var(--mono); color: var(--break); }
+  .side .sep { height: 1px; background: var(--line); margin: 14px 10px; }
+  .side .who { margin-top: auto; padding: 12px; font-size: 13px; color: var(--ink-3); }
+  main.dash { padding: 36px 48px 80px; max-width: 1080px; }
+  .dash-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; font-size: 13px; color: var(--ink-3); }
+  .status { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 40px; }
+  .status .pulse { position: relative; width: 14px; height: 14px; margin-top: 16px; flex: none; }
+  .status .pulse i, .status .pulse::after { position: absolute; inset: 0; border-radius: 50%; background: var(--break); }
+  .status .pulse::after { content: ""; animation: ring 2.4s ease-out infinite; }
+  @keyframes ring { from { transform: scale(1); opacity: .45; } to { transform: scale(2.8); opacity: 0; } }
+  .status h1 { font-size: 44px; }
+  .status p { margin: 8px 0 0; color: var(--ink-2); }
+  .grid2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+  .card .hd { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--line); }
+  .card .hd h3 { margin: 0; font: 500 15px var(--body); }
+  .card .hd a { font-size: 13px; color: var(--ink-3); text-decoration: none; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 16px 22px; border-bottom: 1px solid var(--line); align-items: center; }
+  .row:last-child { border-bottom: 0; }
+  .row .t { font-size: 14.5px; color: var(--ink); }
+  .row .s { font-size: 13px; color: var(--ink-3); margin-top: 3px; }
+  .row .s code { font: 12px var(--mono); color: var(--ink-2); }
+  .when { font: 500 12px var(--mono); color: var(--ink-2); text-align: right; }
+  .when.near { color: var(--break); }
+  .fixcard { margin-top: 20px; padding: 22px; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; }
+  .fixcard .t { font-size: 15px; }
+  .proof { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding-top: 56px; }
+    .how { grid-template-columns: 1fr 1fr; }
+    nav.top .links a:not(.pill) { display: none; }
+    .app { grid-template-columns: 1fr; }
+    .side { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 12px 16px; }
+    .side img, .side .sep, .side .who { display: none; }
+    .side a { white-space: nowrap; }
+    main.dash { padding: 28px 16px 90px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .status h1 { font-size: 32px; }
+  }
+  @media (max-width: 560px) {
+    .wrap { padding: 0 16px; }
+    .how { grid-template-columns: 1fr; }
+    .problem { grid-template-columns: 1fr; }
+    section.block { padding: 80px 0; }
+    .code { font-size: 11.5px; }
+    .code .ln { grid-template-columns: 30px 1fr; }
+    .fixcard { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .fade { opacity: 1; transform: none; }
+    .reveal .w { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="switch" role="tablist">
+  <button class="on" data-s="site">Website</button>
+  <button data-s="dash">Dashboard</button>
+</div>
+
+<!-- ================= WEBSITE ================= -->
+<div class="screen on" id="site">
+  <nav class="top">
+    <div class="wrap">
+      <img src="svg/shapi-lockup-horizontal-light.svg" alt="shapi">
+      <div class="links">
+        <a href="#how">How it works</a>
+        <a href="#">API changes</a>
+        <a href="#">Docs</a>
+        <a href="#">Pricing</a>
+        <a href="#">Sign in</a>
+        <a class="pill solid small" href="#">Install on GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="hero">
+      <div class="fade">
+        <div class="eyebrow">For teams that call other people's APIs</div>
+        <h1 style="margin-top:28px">APIs change.<br><span class="dim">Your code keeps working.</span></h1>
+        <p class="lede">Stripe renames a value. GitHub answers 200 instead of 204. SHAPI finds the exact lines in your code that break, and sends a pull request that fixes them, with a test that proves it.</p>
+        <div class="actions">
+          <a class="pill solid" href="#">Install the GitHub App</a>
+          <a class="pill ghost" href="#">Try it in your terminal</a>
+        </div>
+        <div class="note">Free for public repositories and one private one.</div>
+      </div>
+
+      <div class="story fade" aria-label="Animation: an API change breaks a line, SHAPI fixes it">
+        <div class="bar">
+          <span class="file">src/deploy.ts</span>
+          <span class="badge ok" id="badge"><i></i><span id="badgeText">Works</span></span>
+        </div>
+        <div class="code">
+          <div class="ln"><span>12</span><span><span class="k">const</span> res = <span class="k">await</span> fetch(dispatchUrl, {</span></div>
+          <div class="ln"><span>13</span><span>&nbsp;&nbsp;method: "POST", headers, body</span></div>
+          <div class="ln"><span>14</span><span>});</span></div>
+          <div class="ln hot" id="hot"><span>15</span><span class="txt" id="hotText"><span class="k">if</span> (res.status === 204) {</span></div>
+          <div class="ln"><span>16</span><span>&nbsp;&nbsp;log("deploy started");</span></div>
+          <div class="ln"><span>17</span><span>}</span></div>
+        </div>
+        <div class="event"><span class="dot" id="dot"></span><span id="eventText">Watching <b>GitHub</b> for changes to the endpoints this code uses.</span></div>
+        <div class="steps"><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticker" aria-label="Upcoming API deadlines">
+    <div class="track" id="track"></div>
+  </div>
+
+  <section class="block">
+    <div class="wrap center">
+      <div class="eyebrow center fade">The problem</div>
+      <h2 class="fade" style="margin-top:24px">Your tests pass.<br><span class="dim">The real API already moved on.</span></h2>
+    </div>
+    <div class="wrap">
+      <div class="problems">
+        <div class="problem"><div class="n">01</div><div><h3 class="reveal">Your tests mock the API as it was.</h3><p>They keep passing while the provider changes a status code, renames a field or adds a new value.</p></div></div>
+        <div class="problem"><div class="n">02</div><div><h3 class="reveal">Deadlines hide in changelogs.</h3><p>A version is retired on a date announced months ago, in a post nobody on your team read.</p></div></div>
+        <div class="problem"><div class="n">03</div><div><h3 class="reveal">You find out in <span class="red">production.</span></h3><p>From an error report, a failed payment or an angry customer, not from your own checks.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="how" style="padding-top:0">
+    <div class="wrap">
+      <div class="center">
+        <div class="eyebrow center fade">How it works</div>
+        <h2 class="fade" style="margin-top:24px">Four steps, all automatic.</h2>
+      </div>
+      <div class="how fade">
+        <div><span class="n">01</span><h4>Map</h4><p>Finds every call your code makes to GitHub, Stripe, HubSpot and 13 more, and what each one relies on.</p></div>
+        <div><span class="n">02</span><h4>Match</h4><p>Checks those calls against researched API changes and deadlines, and tells apart code that breaks from code that is fine.</p></div>
+        <div><span class="n">03</span><h4>Fix</h4><p>Writes a test that fails on the change, applies the fix, and keeps it only when the test passes.</p></div>
+        <div><span class="n">04</span><h4>Watch</h4><p>Keeps checking the providers, so the next change reaches you as a pull request, not an incident.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cta wrap">
+    <h2 class="fade">Know before it breaks.</h2>
+    <p class="lede fade" style="margin:20px auto 0">Install it on one repository. It takes a minute and needs no code changes.</p>
+    <div class="actions fade">
+      <a class="pill solid" href="#">Install the GitHub App</a>
+      <a class="pill ghost" href="#">See the API changes</a>
+    </div>
+  </div>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div class="screen" id="dash">
+  <div class="app">
+    <aside class="side">
+      <img src="svg/shapi-lockup-horizontal-light.svg" alt="shapi">
+      <a class="on" href="#">Overview</a>
+      <a href="#">Problems <span class="count">2</span></a>
+      <a href="#">Fixes</a>
+      <a href="#">Repositories</a>
+      <a href="#">API changes</a>
+      <div class="sep"></div>
+      <a href="#">Settings</a>
+      <a href="#">Billing</a>
+      <div class="who">SriVarshini09</div>
+    </aside>
+    <main class="dash">
+      <div class="dash-top"><span>3 repositories · last checked 4 minutes ago</span><a class="pill ghost small" href="#">Add a repository</a></div>
+
+      <div class="status">
+        <div class="pulse"><i></i></div>
+        <div>
+          <h1>2 problems need you.</h1>
+          <p>Everything else is fine. SHAPI is watching 38 API calls across 3 repositories.</p>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="hd"><h3>Needs your attention</h3><a href="#">All problems</a></div>
+          <div class="row"><div><div class="t">HubSpot retires Pipelines API v1</div><div class="s">shapi-demo · <code>src/crm.ts:41</code> · fix ready to open</div></div><span class="badge bad"><i></i>Breaks</span></div>
+          <div class="row"><div><div class="t">QuickBooks ignores minor versions below 75</div><div class="s">shapi-demo · <code>src/books.ts:18</code> · fix PR #9 open</div></div><span class="badge wait"><i></i>Waiting on you</span></div>
+          <div class="row"><div><div class="t">Stripe adds a new payment status</div><div class="s">billing-api · <code>webhooks.ts:77</code> · handled already</div></div><span class="badge ok"><i></i>Still works</span></div>
+        </div>
+        <div class="card">
+          <div class="hd"><h3>Coming up</h3><a href="#">Timeline</a></div>
+          <div class="row"><div><div class="t">Meta Marketing API v24.0</div><div class="s">1 call in ads-sync</div></div><div class="when near">Nov 10<br>14 days</div></div>
+          <div class="row"><div><div class="t">HubSpot Pipelines v1</div><div class="s">1 call in shapi-demo</div></div><div class="when">Dec 4<br>38 days</div></div>
+          <div class="row"><div><div class="t">Salesforce SOAP login()</div><div class="s">no calls affected</div></div><div class="when">Dec 15<br>49 days</div></div>
+        </div>
+      </div>
+
+      <div class="card fixcard">
+        <div>
+          <div class="eyebrow">Latest fix</div>
+          <div class="t" style="margin-top:12px">GitHub workflow_dispatch now answers 200 instead of 204</div>
+          <div class="proof"><span class="badge bad"><i></i>Test failed before</span><span class="badge ok"><i></i>Test passes after</span><span class="badge wait">PR #7 · shapi-demo</span></div>
+        </div>
+        <a class="pill solid small" href="#">Review the fix</a>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  // mockup switcher
+  document.querySelectorAll(".switch button").forEach(b => b.onclick = () => {
+    document.querySelectorAll(".switch button").forEach(x => x.classList.toggle("on", x === b));
+    document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === b.dataset.s));
+    window.scrollTo(0, 0);
+  });
+  if (location.hash === "#dash") document.querySelector('[data-s="dash"]').click();
+
+  // sticky nav border
+  const nav = document.querySelector("nav.top");
+  addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 8));
+
+  // fade in and word-by-word reveal on scroll
+  document.querySelectorAll(".reveal").forEach(el => {
+    el.innerHTML = el.innerHTML.replace(/(<[^>]+>)|([^\s<]+)/g, (m, tag, word) => tag ? tag : `<span class="w">${word}</span>`);
+    el.querySelectorAll(".w").forEach((w, i) => w.style.transitionDelay = `${i * 70}ms`);
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.4 });
+  document.querySelectorAll(".fade, .reveal").forEach(el => io.observe(el));
+
+  // deadline ticker (real advisories)
+  const today = new Date("2026-10-27");
+  const deadlines = [
+    ["Shopify", "Global Catalog REST API stops", "2026-11-02"],
+    ["Xero", "NZ Payroll needs KiwiSaverStatus", "2026-11-05"],
+    ["Meta", "Marketing API v24.0 retired", "2026-11-10"],
+    ["Google", "Gemini 2.5 preview TTS shut down", "2026-11-17"],
+    ["OpenAI", "Evals API shuts down", "2026-11-30"],
+    ["Salesforce", "SOAP login() needs a new permission", "2026-12-01"],
+    ["HubSpot", "Pipelines API v1 retired", "2026-12-04"],
+    ["Salesforce", "SOAP login() needs a security token", "2026-12-15"],
+  ];
+  const items = deadlines.map(([p, t, d]) => {
+    const n = Math.round((new Date(d) - today) / 864e5);
+    return `<span class="item"><b>${p}</b> · ${t}<span class="days ${n <= 14 ? "near" : ""}">in ${n} days</span></span>`;
+  }).join("");
+  document.getElementById("track").innerHTML = items + items;
+
+  // the story: works -> API changes -> breaks -> SHAPI fixes it
+  const hot = document.getElementById("hot"), hotText = document.getElementById("hotText");
+  const badge = document.getElementById("badge"), badgeText = document.getElementById("badgeText");
+  const dot = document.getElementById("dot"), eventText = document.getElementById("eventText");
+  const bars = [...document.querySelectorAll(".steps span")];
+  const BEFORE = '<span class="k">if</span> (res.status === 204) {';
+  const AFTER = "if ([200, 204].includes(res.status)) {";
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  function stage(i, ms) {
+    bars.forEach((b, j) => { b.className = j < i ? "done" : j === i ? "run" : ""; b.style.setProperty("--d", ms + "ms"); });
+  }
+  function set(kind, label, dotColor, text) {
+    badge.className = "badge " + kind; badgeText.textContent = label;
+    dot.style.background = dotColor; eventText.innerHTML = text;
+  }
+  async function typeFix() {
+    hotText.innerHTML = "";
+    for (let i = 0; i <= AFTER.length; i++) {
+      hotText.innerHTML = AFTER.slice(0, i).replace(/^if/, '<span class="k">if</span>') + '<span class="caret"></span>';
+      await sleep(38);
+    }
+    hotText.innerHTML = AFTER.replace(/^if/, '<span class="k">if</span>');
+  }
+  async function loop() {
+    if (reduce) { hot.className = "ln hot good"; hotText.innerHTML = AFTER.replace(/^if/, '<span class="k">if</span>'); set("ok", "Fixed", "var(--fixed)", "<b>Fixed.</b> The test failed before the change and passes after it. Pull request opened."); return; }
+    for (;;) {
+      hot.className = "ln hot"; hotText.innerHTML = BEFORE;
+      stage(0, 2600); set("ok", "Works", "var(--ink-3)", "Watching <b>GitHub</b> for changes to the endpoints this code uses.");
+      await sleep(2600);
+      stage(1, 2800); set("wait", "Changed", "var(--soon)", "<b>GitHub changed.</b> workflow_dispatch now answers <b>200</b> with a body, not 204.");
+      await sleep(2800);
+      stage(2, 2800); hot.className = "ln hot bad"; set("bad", "Breaks", "var(--break)", "<b>Line 15 breaks.</b> It only accepts 204, so every deploy now looks like a failure.");
+      await sleep(2800);
+      stage(3, 4200); hot.className = "ln hot good"; set("wait", "Fixing", "var(--ink)", "<b>SHAPI is fixing it.</b> Writing a test that fails on the change first…");
+      await typeFix();
+      set("ok", "Fixed", "var(--fixed)", "<b>Fixed.</b> The test failed before and passes now. Pull request #12 opened.");
+      await sleep(3600);
+    }
+  }
+  loop();
+</script>
+</body>
+</html>

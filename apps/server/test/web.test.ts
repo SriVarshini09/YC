@@ -121,7 +121,7 @@ describe("web sign-in", () => {
     expect(res.body).not.toContain("<script");
     expect(res.body).toContain('<a href="https://srivarshini09.github.io/YC/legal/privacy">Privacy</a>');
     // the public landing page: what SHAPI does, with numbers read from the server
-    expect(res.body).toContain("Your code shouldn't break.");
+    expect(res.body).toContain("Your code keeps working.");
     expect(res.body).toContain('id="how"');
     expect(res.body).toMatch(/<b>\d+<\/b><span>reviewed API changes<\/span>/);
     expect(res.headers["content-security-policy"]).toContain("default-src 'none'");
@@ -279,7 +279,8 @@ describe("web pages", () => {
     const get = async (path: string) => (await app.inject({ url: `/a/${mine.account}${path}`, headers: { cookie } })).body;
 
     const overview = await get("");
-    expect(overview).toContain('SHAPI found <span class="hl">1 problem</span> in your code.');
+    expect(overview).toContain("1 problem needs you.");
+    expect(overview).toContain("SHAPI found 1 problem in your code");
     expect(overview).toContain('<span class="label">Problems</span><span class="count bad">1</span>');
     const problems = await get("/findings");
     expect(problems).toContain("Breaks your code · 1");
@@ -425,7 +426,8 @@ describe("web pages", () => {
     const overview = async () => (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
 
     let body = await overview();
-    expect(body).toContain('SHAPI found <span class="hl">1 problem</span> in your code.');
+    expect(body).toContain("1 problem needs you.");
+    expect(body).toContain("SHAPI found 1 problem in your code");
     expect(body).toContain("1 fix ready for review");
     expect(body).toContain("Review fix PR #7");
     expect(body).toContain("Get started"); // Slack is not connected yet
