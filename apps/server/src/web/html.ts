@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { FAVICON_SVG, LOGO_SVG } from "./brand";
+import { LOGO_SVG } from "./brand";
 import { STYLES } from "./styles";
 
 /** Markup that is already safe. Everything else placed in an `html` template is escaped. */
@@ -102,11 +102,16 @@ export const ICONS = {
 /** The SHAPI lockup from brand.ts (mark and wordmark); the wordmark takes the surrounding text colour. */
 export const LOGO = new Html(LOGO_SVG);
 /**
- * The mark alone: the lockup with its view box cropped to the square icon at its left. If brand.ts
- * draws the lockup differently, the favicon stands in, so a new logo never breaks the pages.
+ * The mark alone: the lockup's two pieces (its first group, 76 units square at scale 0.63, so 47.88)
+ * in a square view box, with the wordmark and bar removed. Removed, not cropped: the logo's overflow is
+ * visible so its pieces can lift while they move, and a cropped wordmark would show beside the mark.
+ * If brand.ts draws the lockup differently, the whole lockup stands in. Never the favicon: it colours
+ * itself with a <style> element, which the page's CSP blocks.
  */
-const cropped = LOGO_SVG.replace('viewBox="0 0 196 64"', 'viewBox="0 0 64 64"');
-export const MARK = new Html(cropped !== LOGO_SVG ? cropped : FAVICON_SVG);
+const markSvg = LOGO_SVG.replace(/ viewBox="[^"]*"/, ' viewBox="0 0 47.88 47.88"')
+  .replace(/<g class="sp-word">.*?<\/g>/s, "")
+  .replace(/<g class="sp-bar">.*?<\/g>/s, "");
+export const MARK = new Html(markSvg.includes('class="sp-left"') && !markSvg.includes("sp-word") && !markSvg.includes("sp-bar") ? markSvg : LOGO_SVG);
 
 /** The sidebar entries for one account, in order. Counts are filled in by the page. */
 export function navFor(accountId: string, counts: Partial<Record<NavKey, { count: number; bad?: boolean }>> = {}): NavItem[] {

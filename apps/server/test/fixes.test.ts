@@ -113,7 +113,7 @@ describe("fix delivery", () => {
     expect(t.github.pulls).toHaveLength(2);
   });
 
-  it("stores how a fix was verified with its PR, and keeps it when the PR is unchanged", async () => {
+  it("stores how a fix was verified with its PR: kept by a rerun without one, rewritten by any rerun with one", async () => {
     const t = setup();
     const now = new Date();
     const withRepair = { ...candidate(crit, "src/a.ts"), repair: repairOf(crit) };
@@ -123,6 +123,10 @@ describe("fix delivery", () => {
     // an unchanged rerun without the summary leaves the stored one alone
     await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")], now });
     expect((await stored()).repair).toEqual(repairOf(crit));
+    // an unchanged rerun with a summary rewrites it: the same code, verified again
+    const again = { ...candidate(crit, "src/a.ts"), repair: { ...repairOf(crit), verifiedAt: "2026-10-23T12:00:00.000Z" } };
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [again], now });
+    expect((await stored()).repair?.verifiedAt).toBe("2026-10-23T12:00:00.000Z");
     // a changed fix with a new summary replaces it
     const later = new Date(now.getTime() + 3_600_000);
     const changed = { ...candidate(crit, "src/a.ts", "changed again\n"), repair: { ...repairOf(crit), verifiedAt: "2026-10-24T00:00:00.000Z" } };

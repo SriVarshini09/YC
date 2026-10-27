@@ -1,10 +1,13 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadAdvisories } from "@shapi/core";
+import { createApiLock, loadAdvisories } from "@shapi/core";
 import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { buildApp, loadConfig } from "../src/index";
+import { MARK } from "../src/web/html";
+import { landingPage } from "../src/web/landing";
+import { loadAccount, withCatchDetail } from "../src/web/queries";
 
 let pg: TestPostgres;
 let db: Db;
@@ -131,10 +134,28 @@ describe("web sign-in", () => {
     const home = await app.inject("/");
     expect(home.body).toContain('<a class="brand" href="/" aria-label="SHAPI home"><svg');
     expect(home.body).toContain('<link rel="icon" href="/favicon.svg" type="image/svg+xml">');
+    // The landing page's logo moves on hover. No style attributes and no <style> elements, so the CSP holds.
+    expect(home.body).toContain('<a class="brand" href="/" aria-label="SHAPI home"><svg xmlns="http://www.w3.org/2000/svg" class="sp-logo sp-hover"');
+    expect(home.body).not.toContain(" style=");
+    expect(home.body).not.toContain("<style");
+    // The mark (account picker, messages, welcome) is the two pieces alone: no wordmark, no bar, no <style>.
+    const mark = String(MARK);
+    expect(mark).toContain('viewBox="0 0 47.88 47.88"');
+    expect(mark).toContain('class="sp-left"');
+    expect(mark).not.toContain("sp-word");
+    expect(mark).not.toContain("<style");
+    const { cookie } = await signIn(app);
+    expect((await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body).not.toContain("<style");
+    const css = await app.inject("/static/app.css");
+    expect(css.body).toContain("@keyframes sp-in-left");
+    expect(css.body).toContain("prefers-reduced-motion");
+    // The pieces lift above the view box while they move; they show instead of being clipped.
+    expect(css.body).toContain(".sp-logo { overflow: visible; }");
     const svg = await app.inject("/favicon.svg");
     expect(svg.statusCode).toBe(200);
     expect(svg.headers["content-type"]).toBe("image/svg+xml");
     expect(svg.body).toContain("<svg");
+    expect(svg.body).toContain("prefers-color-scheme:dark");
     const ico = await app.inject("/favicon.ico");
     expect(ico.statusCode).toBe(200);
     expect(ico.headers["content-type"]).toBe("image/x-icon");
@@ -417,5 +438,79 @@ describe("web pages", () => {
     await pause();
     expect(await settings()).toEqual({ paused: true, pausedFromWeb: false });
     await app.close();
+  });
+});
+
+describe("account pages after review", () => {
+  const repair = {
+    method: "recipe",
+    recipeId: "status-code-accept-set",
+    verifiedAt: "2026-10-23T00:00:00.000Z",
+    sites: [{ file: "src/deploy.ts", line: 13, method: "POST", endpoint: "/x", status: "fixed", test: "test/shapi/a.test.ts", before: { passed: false, tests: "1 failed", output: "AssertionError: big output" }, after: { passed: true, tests: "1 passed", output: "ok" } }],
+    changes: [{ file: "src/deploy.ts", kind: "modified", diff: "@@ -13 +13 @@\n-  if (res.status !== 204)\n+  if (![200, 204].includes(res.status))", truncated: false }],
+  };
+
+  it("stops showing scan progress once every first scan has failed, and shows the failure", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    await owner.deleteFrom("scans").where("account_id", "=", mine.account).execute();
+    await owner.insertInto("scans").values({ account_id: mine.account, repository_id: mine.repo, sha: "c".repeat(40), status: "failed", error: "tarball download failed", finished_at: new Date() }).execute();
+    const body = (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+    expect(body).not.toContain("Scanning your repositories");
+    expect(body).not.toContain('http-equiv="refresh"');
+    expect(body).toContain("Scan failed in acme/api");
+    expect(body).toContain("tarball download failed");
+    await app.close();
+  });
+
+  it("loads summaries for every page, the full repair only for the latest catch, and the lock only for its repository", async () => {
+    await owner.updateTable("fix_prs").set({ repair: JSON.stringify(repair) }).where("account_id", "=", mine.account).execute();
+    await owner.updateTable("scans").set({ api_lock: JSON.stringify(createApiLock({ callSites: [], declared: [] }, "test")) }).where("account_id", "=", mine.account).execute();
+    const data = await loadAccount(db, mine.account);
+    expect(data.prs[0]!.repair!.changes).toEqual([]);
+    expect(data.prs[0]!.repair!.sites[0]).toMatchObject({ status: "fixed", before: { passed: false, tests: "1 failed" }, after: { passed: true, tests: "1 passed" } });
+    expect(data.prs[0]!.repair!.sites[0]!.before).not.toHaveProperty("output");
+    expect(data.repos[0]!.lock).toBeUndefined();
+    expect((await loadAccount(db, mine.account, { lockRepo: mine.repo })).repos[0]!.lock).toBeDefined();
+    const detailed = await withCatchDetail(db, data);
+    expect(detailed.prs[0]!.repair!.changes).toEqual(repair.changes);
+
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const overview = (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+    expect(overview).toContain("![200, 204].includes(res.status)");
+    await app.close();
+  });
+
+  it("skips a malformed advisory row instead of failing every page", async () => {
+    await owner.insertInto("advisories").values({ id: "broken-row", provider: "github", data: JSON.stringify({ id: "broken-row" }), reviewed: true, source: "test", modified: new Date() }).execute();
+    try {
+      const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+      const { cookie } = await signIn(app);
+      for (const path of ["", "/advisories", "/findings", "/repositories"]) expect((await app.inject({ url: `/a/${mine.account}${path}`, headers: { cookie } })).statusCode, path).toBe(200);
+      await app.close();
+    } finally {
+      await owner.deleteFrom("advisories").where("id", "=", "broken-row").execute();
+    }
+  });
+
+  it("sends a Stripe return to the old account URL on to the billing page", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const res = await app.inject({ url: `/a/${mine.account}?billing=done&session=cs_test_1`, headers: { cookie } });
+    expect(res.statusCode).toBe(303);
+    expect(res.headers.location).toBe(`/a/${mine.account}/billing?billing=done&session=cs_test_1`);
+    await app.close();
+  });
+
+  it("only claims what the product does: fixes need a recipe, Python is scanned, early access is free only without billing", () => {
+    const free = String(landingPage({ configured: true, advisories: 54, withFix: 11 }));
+    expect(free).not.toContain("fix most changes");
+    expect(free).toContain("(11 of the 54 reviewed changes have one today)");
+    expect(free).toContain("scanned; fixes for TS and JS");
+    expect(free).toContain("For each affected TypeScript or JavaScript call with a fix recipe");
+    expect(free).toContain("Free for everyone during early access.");
+    const paid = String(landingPage({ configured: true, advisories: 54, withFix: 11, billingEnabled: true }));
+    expect(paid).not.toContain("early access");
   });
 });

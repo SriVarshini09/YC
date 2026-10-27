@@ -12,7 +12,7 @@ export default defineConfig({
     ["link", { rel: "icon", href: "/YC/favicon.svg", type: "image/svg+xml" }],
     ["link", { rel: "icon", href: "/YC/favicon.ico", sizes: "32x32" }],
     ["link", { rel: "apple-touch-icon", href: "/YC/apple-touch-icon.png" }],
-    ["meta", { name: "theme-color", content: "#0B1F4D" }],
+    ["meta", { name: "theme-color", content: "#0E0F12" }],
     ["meta", { property: "og:type", content: "website" }],
     ["meta", { property: "og:site_name", content: "SHAPI" }],
     ["meta", { property: "og:image", content: "https://srivarshini09.github.io/YC/og.png" }],
@@ -22,8 +22,7 @@ export default defineConfig({
     ["meta", { name: "twitter:image", content: "https://srivarshini09.github.io/YC/og.png" }],
   ],
   themeConfig: {
-    // Light and dark lockups from brand/; the wordmark replaces the text title.
-    logo: { light: "/shapi-logo-light.svg", dark: "/shapi-logo-dark.svg", alt: "shapi" },
+    // The logo is drawn inline by the theme (theme/index.ts), so it can move; no image logo or text title.
     siteTitle: false,
     nav: [
       { text: "Quickstart", link: "/guide/quickstart" },

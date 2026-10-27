@@ -12,6 +12,8 @@ const DARK = `
   color-scheme: dark;
 `;
 
+import { MOTION_CSS } from "./brand";
+
 export const STYLES = `
 @font-face { font-family: "Inter Variable"; font-style: normal; font-weight: 100 900; font-display: swap; src: url(/static/inter.woff2) format("woff2"); }
 :root {
@@ -457,4 +459,6 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
   .deadline { grid-template-columns: 58px minmax(0, 1fr); }
 }
 @media print { .side { display: none; } .main { margin: 0; } }
+/* The logo's motion (brand/build_logo.mjs): intro, hover and the in-progress loop. */
+${MOTION_CSS}
 `;

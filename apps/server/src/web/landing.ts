@@ -9,6 +9,10 @@ interface LandingOptions {
   installLink?: string;
   /** Reviewed advisories in the database, when it could be read. */
   advisories?: number;
+  /** How many of them SHAPI can fix automatically (they name a recipe). */
+  withFix?: number;
+  /** Billing is configured: private repositories beyond the free one are paid, so "free during early access" no longer holds. */
+  billingEnabled?: boolean;
 }
 
 /**
@@ -31,9 +35,9 @@ export function landingPage(opts: LandingOptions): Html {
   <div class="lp-copy">
     <p class="eyebrow">Breaking-change protection for third-party APIs</p>
     <h1>Third-party APIs change.<br><span class="hl">Your code shouldn't break.</span></h1>
-    <p class="lp-lead">SHAPI finds every call your code makes to GitHub, Stripe, Slack, OpenAI and ${providers.length - 4} more APIs. It tells you when a change hits your code and opens a pull request with a fix that a test proves.</p>
+    <p class="lp-lead">SHAPI finds every call your code makes to GitHub, Stripe, Slack, OpenAI and ${providers.length - 4} more APIs. It tells you when a change hits your code and, where a fix recipe exists, opens a pull request with a fix that a test proves.</p>
     <div class="btn-row">${signIn("Sign in with GitHub")}${install}</div>
-    <p class="lp-note">Free for public repositories and one private repository. Free for everyone during early access.</p>
+    <p class="lp-note">Free for public repositories and one private repository.${opts.billingEnabled ? "" : " Free for everyone during early access."}</p>
   </div>
   <div class="lp-shot" aria-label="Example of a catch and its fix">${exampleCatch()}</div>
 </div></section>
@@ -41,7 +45,7 @@ export function landingPage(opts: LandingOptions): Html {
 <section class="lp-stats"><div class="lp-inner">
   <div><b>${providers.length}</b><span>APIs watched</span></div>
   ${opts.advisories ? html`<div><b>${opts.advisories}</b><span>reviewed API changes</span></div>` : EMPTY}
-  <div><b>TS · JS · Python</b><span>HTTP clients and SDKs</span></div>
+  <div><b>TS · JS · Python</b><span>scanned; fixes for TS and JS</span></div>
   <div><b>Every fix</b><span>proven by a contract test</span></div>
 </div></section>
 
@@ -51,7 +55,7 @@ export function landingPage(opts: LandingOptions): Html {
   <div class="lp-steps">
     ${step("1", ICONS.scan, "Map every call", "Install the GitHub App. Each push to your default branch is scanned for calls to third-party APIs, through HTTP clients or official SDKs.")}
     ${step("2", ICONS.advisories, "Match against real changes", "Each call is checked against a reviewed database of API changes: version sunsets, renamed fields, new status codes, auth and scope changes. Canaries watch live APIs for the undocumented ones.")}
-    ${step("3", ICONS.fixes, "Fix with proof", "For each affected call, SHAPI writes a contract test, confirms it fails, applies the fix, and opens a pull request only once the test passes.")}
+    ${step("3", ICONS.fixes, "Fix with proof", "For each affected TypeScript or JavaScript call with a fix recipe, SHAPI writes a contract test, confirms it fails, applies the fix, and opens a pull request only once the test passes. The rest get a migration note on the dashboard.")}
   </div>
 </div></section>
 
@@ -81,7 +85,7 @@ export function landingPage(opts: LandingOptions): Html {
     ${trust("No user token kept", "Sign-in reads who you are and which installations you can open, then drops the GitHub token. Sessions are stored only as a hash.")}
     ${trust("Pull requests, never pushes", "Every change arrives as a pull request on its own branch. You review and merge; SHAPI never writes to your default branch.")}
     ${trust("Verified in a sandbox", "Fixes and their tests run in an isolated sandbox. Dependencies install from the package registry, then the network is cut.")}
-    ${trust("AI only if you opt in", "Deterministic recipes fix most changes. Claude is used only when you turn it on, and its change is kept only if the test passes.")}
+    ${trust("AI only if you opt in", `Fixes come from deterministic recipes${opts.advisories && opts.withFix ? ` (${opts.withFix} of the ${opts.advisories} reviewed changes have one today)` : ""}. Claude is used only when you turn it on, and its change is kept only if the test passes.`)}
   </div>
   <p class="note"><a href="${DOCS_URL}/security">Read the security page</a></p>
 </div></section>
@@ -91,7 +95,7 @@ export function landingPage(opts: LandingOptions): Html {
   <h2>Start free. Pay for private repositories as you grow.</h2>
   <div class="lp-pricing">
     <div class="card price"><h3>Free</h3><p class="lead">For open source and trying SHAPI on real code.</p><ul>${["Every public repository", "One private repository", "Scans, alerts and fix pull requests", "Slack alerts"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Start free")}</div>
-    <div class="card price featured"><h3>Team</h3><p class="lead">For companies whose product runs on other people's APIs.</p><ul>${["Everything in Free", "Each private repository beyond the first", "A monthly price per repository, announced before anyone is charged", "Free during early access", "Cancel any time from the billing portal"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Sign in to upgrade", "")}</div>
+    <div class="card price featured"><h3>Team</h3><p class="lead">For companies whose product runs on other people's APIs.</p><ul>${["Everything in Free", "Each private repository beyond the first", "A monthly price per repository, announced before anyone is charged", ...(opts.billingEnabled ? [] : ["Free during early access"]), "Cancel any time from the billing portal"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Sign in to upgrade", "")}</div>
   </div>
 </div></section>
 
