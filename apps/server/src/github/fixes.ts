@@ -163,7 +163,8 @@ async function recordOutcome(tx: Tx, repo: { id: string; account_id: string }, a
     head_sha: "commit" in outcome ? outcome.commit : null,
     updated_at: now,
     closed_at: state === "closed" ? now : null,
-    // The verification behind the PR's current head; an unchanged PR keeps what it had.
+    // The verification behind the PR's current head. Every run that reaches the PR rewrites it, an unchanged
+    // PR included (same code, verified again now); a PR SHAPI skipped keeps what it had.
     ...(repair && "commit" in outcome ? { repair: JSON.stringify(repair) } : {}),
   };
   const created = outcome.action === "created";

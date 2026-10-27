@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { sql } from "kysely";
 import { z } from "zod";
 import { withService, withTenant, type Db } from "@shapi/db";
 import {
@@ -42,7 +43,7 @@ import {
 } from "./pages";
 import { landingPage } from "./landing";
 import { overviewPage } from "./overview";
-import { firstScanPending, loadAccount, loadFinding } from "./queries";
+import { firstScanPending, loadAccount, loadFinding, withCatchDetail } from "./queries";
 
 export interface WebConfig extends OAuthConfig {
   /** Signs the session cookie. */
@@ -150,10 +151,16 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
     scope.get("/", async (req, reply) => {
       const { session } = await sessionOf(req);
       if (!session) {
-        const advisories = await withService(deps.db, (tx) => tx.selectFrom("advisories").select((eb) => eb.fn.countAll<string>().as("n")).where("reviewed", "=", true).executeTakeFirst())
-          .then((r) => Number(r?.n ?? 0) || undefined)
-          .catch(() => undefined);
-        return send(reply, page("Third-party API changes, caught and fixed", landingPage({ configured: Boolean(deps.config), installLink, advisories }), { theme: themeOf(req), landing: true }));
+        const counts = await withService(deps.db, (tx) =>
+          tx
+            .selectFrom("advisories")
+            .select((eb) => [eb.fn.countAll<string>().as("n"), sql<string>`count(*) filter (where data ? 'recipeId' or data ? 'fix')`.as("fixable")])
+            .where("reviewed", "=", true)
+            .executeTakeFirst(),
+        ).catch(() => undefined);
+        const advisories = Number(counts?.n ?? 0) || undefined;
+        const withFix = Number(counts?.fixable ?? 0) || undefined;
+        return send(reply, page("Third-party API changes, caught and fixed", landingPage({ configured: Boolean(deps.config), installLink, advisories, withFix, billingEnabled: Boolean(deps.billing) }), { theme: themeOf(req), landing: true }));
       }
       const accounts = await sessionAccounts(deps.db, session);
       if (accounts.length === 1 && !("all" in (req.query as object))) return reply.redirect(`/a/${accounts[0]!.id}`);
@@ -212,7 +219,13 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
     scope.get("/a/:accountId", async (req, reply) => {
       const ctx = await accountFor(req, reply);
       if (!ctx) return;
-      const data = await loadAccount(deps.db, ctx.account.id);
+      // Stripe Checkout sessions started before the billing page moved still return here.
+      const { billing: returned, session: checkoutSession } = req.query as { billing?: string; session?: string };
+      if (returned) {
+        const query = new URLSearchParams({ billing: returned, ...(checkoutSession ? { session: checkoutSession } : {}) });
+        return reply.redirect(`/a/${ctx.account.id}/billing?${query}`, 303);
+      }
+      const data = await withCatchDetail(deps.db, await loadAccount(deps.db, ctx.account.id));
       // While the first scan runs, the page reloads itself to show progress.
       return send(reply, page(`${data.account.login} · Overview`, overviewPage(data, { installLink }), { ...shellFor(data, ctx.ctx, "overview"), ...(firstScanPending(data) ? { refresh: 10 } : {}) }));
     });
@@ -331,7 +344,7 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       if (!ctx) return;
       const repoId = idParam.safeParse((req.params as { repoId?: string }).repoId);
       if (!repoId.success) return notFound(req, reply, ctx.session);
-      const data = await loadAccount(deps.db, ctx.account.id, { locks: true });
+      const data = await loadAccount(deps.db, ctx.account.id, { lockRepo: repoId.data });
       const repo = data.repos.find((r) => r.id === repoId.data);
       if (!repo) return notFound(req, reply, ctx.session);
       const scans = await withTenant(deps.db, ctx.account.id, (tx) =>

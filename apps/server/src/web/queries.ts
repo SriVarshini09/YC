@@ -1,5 +1,5 @@
 import { sql } from "kysely";
-import { ApiLockSchema, SEVERITY_RANK, type Advisory, type ApiLock, type LockedCallSite } from "@shapi/core";
+import { AdvisorySchema, ApiLockSchema, SEVERITY_RANK, type Advisory, type ApiLock, type LockedCallSite } from "@shapi/core";
 import { withTenant, type Db, type FixRepair } from "@shapi/db";
 import { plural } from "./html";
 import type { Health } from "./views";
@@ -22,7 +22,7 @@ export interface RepoRow {
   pausedFromWeb: boolean;
   /** The latest scan of any status. */
   scan?: ScanRow;
-  /** From the latest successful scan's api.lock: its providers and call-site count (every page), and the lock itself (repository page). */
+  /** From the latest successful scan's api.lock: its providers and call-site count (every page), and the lock itself (the repository page, for that repository only). */
   providers: ApiLock["providers"];
   callSites: number;
   lock?: ApiLock;
@@ -82,6 +82,19 @@ interface BillingRow {
   cancel_at: Date | null;
 }
 
+/**
+ * A fix PR's repair as the account pages need it: everything but the diffs (`changes` is empty) and the
+ * test output. The finding page and the overview's latest catch load the full repair for one PR.
+ */
+const REPAIR_SUMMARY = sql<FixRepair | null>`case when fix_prs.repair is null then null else
+  (fix_prs.repair - 'changes' - 'sites') || jsonb_build_object(
+    'changes', '[]'::jsonb,
+    'sites', coalesce((
+      select jsonb_agg((s - 'before' - 'after') || jsonb_strip_nulls(jsonb_build_object('before', (s -> 'before') - 'output', 'after', (s -> 'after') - 'output')))
+      from jsonb_array_elements(fix_prs.repair -> 'sites') s
+    ), '[]'::jsonb)
+  ) end`;
+
 export interface AccountData {
   account: { id: string; login: string; type: string; settings: Record<string, unknown> };
   repos: RepoRow[];
@@ -93,7 +106,11 @@ export interface AccountData {
   now: Date;
 }
 
-export async function loadAccount(db: Db, accountId: string, opts: { locks?: boolean; now?: Date } = {}): Promise<AccountData> {
+/**
+ * Load an account's pages' data. Only small columns are read for history: the api.lock is read for the
+ * latest successful scan of each repository (its providers and size), and in full only for `lockRepo`.
+ */
+export async function loadAccount(db: Db, accountId: string, opts: { lockRepo?: string; now?: Date } = {}): Promise<AccountData> {
   const now = opts.now ?? new Date();
   return withTenant(db, accountId, async (tx) => {
     const account = await tx.selectFrom("accounts").select(["id", "login", "type", "settings"]).where("id", "=", accountId).executeTakeFirstOrThrow();
@@ -105,14 +122,28 @@ export async function loadAccount(db: Db, accountId: string, opts: { locks?: boo
       .orderBy("repository_id")
       .orderBy("created_at", "desc")
       .execute();
-    const lastGood = await tx
+    // First which scan is each repository's latest good one (small columns only), then read the lock of just those.
+    const goodIds = await tx
       .selectFrom("scans")
-      .select(["id", "repository_id", "sha", sql<unknown>`api_lock->'providers'`.as("providers"), sql<number | null>`jsonb_array_length(api_lock->'callSites')`.as("call_sites"), ...(opts.locks ? (["api_lock"] as const) : [])])
+      .select(["id", "repository_id", "sha"])
       .distinctOn("repository_id")
       .where("status", "=", "succeeded")
       .orderBy("repository_id")
       .orderBy("created_at", "desc")
       .execute();
+    const lockInfo = goodIds.length
+      ? await tx
+          .selectFrom("scans")
+          .select([
+            "id",
+            sql<unknown>`api_lock->'providers'`.as("providers"),
+            sql<number | null>`jsonb_array_length(api_lock->'callSites')`.as("call_sites"),
+            sql<unknown>`case when repository_id = ${opts.lockRepo ?? null} then api_lock end`.as("api_lock"),
+          ])
+          .where("id", "in", goodIds.map((g) => g.id))
+          .execute()
+      : [];
+    const lastGood = goodIds.map((g) => ({ ...g, ...lockInfo.find((l) => l.id === g.id) }));
     const findingRows = lastGood.length
       ? await tx
           .selectFrom("findings")
@@ -120,15 +151,20 @@ export async function loadAccount(db: Db, accountId: string, opts: { locks?: boo
           .where("scan_id", "in", lastGood.map((s) => s.id))
           .execute()
       : [];
-    const prRows = await tx.selectFrom("fix_prs").selectAll().orderBy("updated_at", "desc").execute();
+    const prRows = await tx
+      .selectFrom("fix_prs")
+      .select(["id", "repository_id", "advisory_id", "branch", "number", "url", "state", "stopped", "created_at", "updated_at", "closed_at", REPAIR_SUMMARY.as("repair")])
+      .orderBy("updated_at", "desc")
+      .execute();
     const advisoryRows = await tx.selectFrom("advisories").select("data").where("reviewed", "=", true).execute();
     const recent = await tx.selectFrom("scans").select(["id", "repository_id", "sha", "status", "finished_at", "created_at", "error"]).orderBy("created_at", "desc").limit(25).execute();
     const billing = await tx.selectFrom("billing").select(["status", "quantity", "stripe_customer_id", "current_period_end", "cancel_at"]).executeTakeFirst();
 
+    // Validated like the matcher does: one malformed row must not take every account page down.
     const advisories = new Map<string, Advisory>();
     for (const r of advisoryRows) {
-      const a = r.data as Advisory;
-      if (a?.id) advisories.set(a.id, a);
+      const a = AdvisorySchema.safeParse(r.data);
+      if (a.success) advisories.set(a.data.id, a.data);
     }
     const repoName = new Map(repoRows.map((r) => [r.id, r.full_name]));
     const goodByRepo = new Map(lastGood.map((s) => [s.repository_id, s]));
@@ -361,8 +397,28 @@ export function latestCatchOf(data: AccountData): LatestCatch | undefined {
   return finding ? { finding, pr: data.prs.find(pair(finding.repository_id, finding.advisory_id)) } : undefined;
 }
 
-/** Repositories are installed but none has finished a scan yet: the overview shows scan progress instead. */
-export const firstScanPending = (data: AccountData) => data.repos.length > 0 && !data.repos.some((r) => r.lockSha);
+/** How long a new repository with no scan row yet counts as waiting for its first scan. */
+const FIRST_SCAN_GRACE_MS = 15 * 60_000;
+
+/**
+ * Repositories are installed, none has finished a scan, and a first scan is still on its way: the overview
+ * shows scan progress (and refreshes) instead. Once every first scan has failed, or a repository has waited
+ * past the grace period with no scan at all, it stops: the overview shows the failures to act on.
+ */
+export const firstScanPending = (data: AccountData) =>
+  data.repos.length > 0 &&
+  !data.repos.some((r) => r.lockSha) &&
+  data.repos.some(
+    (r) => r.scan?.status === "queued" || r.scan?.status === "running" || (!r.scan && data.now.getTime() - r.created_at.getTime() < FIRST_SCAN_GRACE_MS),
+  );
+
+/** The overview's latest catch with its full repair (diffs included), which loadAccount leaves out. */
+export async function withCatchDetail(db: Db, data: AccountData): Promise<AccountData> {
+  const pr = latestCatchOf(data)?.pr;
+  if (!pr?.repair) return data;
+  const row = await withTenant(db, data.account.id, (tx) => tx.selectFrom("fix_prs").select("repair").where("id", "=", pr.id).executeTakeFirst());
+  return row?.repair ? { ...data, prs: data.prs.map((p) => (p.id === pr.id ? { ...p, repair: row.repair as FixRepair } : p)) } : data;
+}
 
 export interface SetupStep {
   key: "install" | "scan" | "slack" | "fix";

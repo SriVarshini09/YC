@@ -17,7 +17,7 @@ What exists: the web app is a dashboard with a fixed dark-navy sidebar and a lig
 - The overview and its widgets moved to `overview.ts`, the landing page is `landing.ts`; link helpers and the page head live in `views.ts`.
 - The preview seeds two more accounts: `newco` (first scan running) and `fresh-start` (nothing installed).
 
-**Data for the finding page**: migration `0008_fix_pr_repair` adds `fix_prs.repair` (jsonb). The fix job stores a `FixRepair` with the PR: method, recipe, sandbox, each call site's test file with its before/after run (verdict, vitest count, output tail), and a unified diff per file cut at 400 lines. Written when the PR is created or updated; an unchanged PR keeps what it had. PRs recorded before 0008 show "details on the PR".
+**Data for the finding page**: migration `0008_fix_pr_repair` adds `fix_prs.repair` (jsonb). The fix job stores a `FixRepair` with the PR: method, recipe, sandbox, each call site's test file with its before/after run (verdict, vitest count, output tail), and a unified diff per file cut at 400 lines. Written on every run that reaches the PR, an unchanged PR included (the same code, verified again); a PR SHAPI skips keeps what it had. PRs recorded before 0008 show "details on the PR".
 
 **Security**: unchanged rules, checked by tests. CSP stays `default-src 'none'` with no scripts; `font-src 'self'` is added because Inter is served from this origin (`@fontsource-variable/inter`, latin subset). The CSP forbids inline `style=` attributes, so none are used (a test asserts this on every page). Forms keep the CSRF token (theme switch included); every value is escaped; tenant isolation covers the new finding route (another account's finding id is a 404). The stylesheet URL carries a content hash so a deploy never serves an hour-old cached sheet.
 
@@ -30,3 +30,22 @@ Verified: typecheck, lint, and the suite pass (web tests cover every page, the t
 Not done: real provider logos (the marks are colored monograms, drawn here, so nothing is loaded from elsewhere and no trademarked artwork ships); charts beyond the ring and the timeline.
 
 **Merged with main (2026-10-25):** PB-7 (one PR per advisory: the fix job now stores the summary of the whole multi-site repair), PB-8 and the new logo. The sidebar, landing page and account picker use the official lockup and mark from `brand.ts` (the mark is the lockup's view box cropped to the icon), and the favicons are served as on main.
+
+**After review (2026-10-27):**
+- **Stuck scan screen:** the overview only shows "Scanning your repositories" (and refreshes) while a first scan is queued or running, or a new repository has had no scan for under 15 minutes. If every first scan failed, the overview appears with "Scan failed in …" and the error, instead of refreshing forever.
+- **Landing page claims match the product:**
+  - fixes need a recipe, with the live count ("11 of the 54 reviewed changes have one today");
+  - Python is scanned, and fixes are for TypeScript and JavaScript;
+  - "Free during early access" shows only while billing is off.
+- **Lighter page loads:**
+  - every page reads a summary of each fix PR's repair (no diffs, no test output); the overview loads the full repair for its latest catch only, and the finding page loads its own;
+  - the api.lock is read only for each repository's latest good scan, and in full only for the repository page being shown;
+  - migration `0009_findings_scan_index` adds the missing index on `findings(scan_id)`.
+- **Advisories are validated** with `AdvisorySchema`, so one malformed row is skipped instead of failing every page.
+- **Old checkout returns:** a Stripe Checkout that returns to the old `/a/<id>?billing=…&session=…` is forwarded to the billing page, which completes it.
+- **Comment fixed:** the fix-delivery comment, and this summary, now say what the code does with an unchanged PR's repair. A test covers it.
+
+Verified: tests for each item (failed first scan, summaries vs full repair, lock for one repository, malformed advisory, old return URL, landing claims, unchanged-PR rewrite), plus the full suite, lint and typecheck.
+
+Open, a decision for the founder: the finding page shows diffs, and access is per installation, not per repository.
+
