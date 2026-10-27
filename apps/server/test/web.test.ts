@@ -320,6 +320,29 @@ describe("web pages", () => {
     await app.close();
   });
 
+  it("offers Claude fixes only when the server has an Anthropic key, and keeps the saved choice without one", async () => {
+    const form = (cookie: string) => ({ cookie, "content-type": "application/x-www-form-urlencoded" });
+    const saved = async () => (await withService(db, (tx) => tx.selectFrom("accounts").select("settings").where("id", "=", mine.account).executeTakeFirstOrThrow())).settings;
+
+    const withKey = buildApp({ db, config: { ...config, ANTHROPIC_API_KEY: "sk-ant-test" }, fetch: fakeGitHub().fetch });
+    let session = await signIn(withKey);
+    let body = (await withKey.inject({ url: `/a/${mine.account}/settings`, headers: { cookie: session.cookie } })).body;
+    expect(body).toContain('name="llmFixes"');
+    await withKey.inject({ method: "POST", url: `/a/${mine.account}/settings`, headers: form(session.cookie), payload: `csrf=${csrfFrom(body)}&hourly=2&open=10&llmFixes=on` });
+    expect(await saved()).toMatchObject({ llmFixes: true });
+    await withKey.close();
+
+    const noKey = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    session = await signIn(noKey);
+    body = (await noKey.inject({ url: `/a/${mine.account}/settings`, headers: { cookie: session.cookie } })).body;
+    expect(body).not.toContain('name="llmFixes"');
+    expect(body).not.toContain("Use Claude");
+    // Saving the form (which has no Claude box) keeps the opt-in for when a key is added.
+    await noKey.inject({ method: "POST", url: `/a/${mine.account}/settings`, headers: form(session.cookie), payload: `csrf=${csrfFrom(body)}&hourly=3&open=10` });
+    expect(await saved()).toMatchObject({ prLimits: { hourly: 3, open: 10 }, llmFixes: true });
+    await noKey.close();
+  });
+
   it("connects Slack alerts: only an incoming webhook, shown masked, removable, with a test message", async () => {
     const gh = fakeGitHub();
     const slack: { url: string; body: { text: string } }[] = [];
@@ -424,7 +447,9 @@ describe("web pages", () => {
   });
 
   it("pauses and resumes a repository from the web app, separately from the dashboard checkbox", async () => {
-    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const queued: [string, string][] = [];
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch, enqueueFix: async (scanId, repo) => void queued.push([scanId, repo]) });
+    const scan = await owner.updateTable("scans").set({ api_lock: JSON.stringify({ callSites: [] }) }).where("repository_id", "=", mine.repo).returning("id").executeTakeFirstOrThrow();
     const { cookie } = await signIn(app);
     const page = await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } });
     const pause = () =>
@@ -434,9 +459,12 @@ describe("web pages", () => {
 
     expect((await pause()).statusCode).toBe(303);
     expect(await settings()).toEqual({ paused: true, pausedFromWeb: true });
+    expect(queued).toEqual([]);
     expect((await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } })).body).toContain("Resume SHAPI on this repository");
     await pause();
     expect(await settings()).toEqual({ paused: true, pausedFromWeb: false });
+    // Resumed: the fixes that waited are delivered from the latest scan now.
+    expect(queued).toEqual([[scan.id, mine.repo]]);
     await app.close();
   });
 });

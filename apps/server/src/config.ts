@@ -26,6 +26,8 @@ const ConfigSchema = z.object({
   /** Comma-separated providers the canary runs (default: all with credentials). */
   CANARY_PROVIDERS: z.string().optional(),
   GIT_SHA: z.string().default("dev"),
+  /** Claude fixes for accounts that opt in; unset, the option is hidden and only recipes fix code. */
+  ANTHROPIC_API_KEY: z.string().optional(),
   /** The GitHub App (all three, or none: the webhook route answers 503 until they are set). */
   SHAPI_GITHUB_APP_ID: z.string().optional(),
   SHAPI_GITHUB_APP_PRIVATE_KEY: z.string().optional(),

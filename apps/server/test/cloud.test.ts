@@ -17,6 +17,7 @@ import {
   runAdvisoryFanout,
   runFixJob,
   runScanJob,
+  scansToRefix,
   startWorker,
   syncAdvisoriesJob,
   type WorkspaceRunner,
@@ -209,6 +210,50 @@ describe("cloud fix", () => {
   }, 120_000);
 });
 
+describe("fixes after an upgrade", () => {
+  it("a new build runs the fix job again where a fixable finding has no PR yet; the same build does not", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    // No fix job has run on this scan (or an older build's could not fix it): due on this build.
+    expect(await scansToRefix(db, "build-2")).toEqual([{ scanId, repositoryId }]);
+    await runFixJob({ ...t.fixDeps, engine: "build-2" }, { scanId });
+    expect(await scansToRefix(db, "build-2")).toEqual([]);
+    // Two PRs opened; the third fix waits for the hourly limit, so the next build tries it again.
+    expect(t.github.pulls).toHaveLength(2);
+    expect(await scansToRefix(db, "build-3")).toEqual([{ scanId, repositoryId }]);
+
+    // Once every fixable finding has a PR (a closed one included), new builds leave the repository alone.
+    const account = await owner.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    const affected = await owner.selectFrom("findings").select("advisory_id").distinct().where("scan_id", "=", scanId).where("kind", "=", "affected").execute();
+    const withPr = new Set((await owner.selectFrom("fix_prs").select("advisory_id").where("repository_id", "=", repositoryId).execute()).map((p) => p.advisory_id));
+    for (const f of affected.filter((f) => !withPr.has(f.advisory_id))) {
+      await owner.insertInto("fix_prs").values({ account_id: account.account_id, repository_id: repositoryId, advisory_id: f.advisory_id, branch: `shapi/${f.advisory_id}`, state: "closed", updated_at: new Date() }).execute();
+    }
+    expect(await scansToRefix(db, "build-4")).toEqual([]);
+  }, 120_000);
+
+  it("leaves findings no recipe can fix alone unless the account opted in to Claude and the worker has a key", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    const account = await owner.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    // Strip the recipes: what is left needs Claude.
+    await owner.updateTable("findings").set({ advisory_id: "github-dispatch-without-recipe" }).where("scan_id", "=", scanId).execute();
+    const base = loadAdvisories(ADVISORIES).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
+    await upsertAdvisories(db, [{ ...base, id: "github-dispatch-without-recipe", recipeId: undefined, fix: undefined }], { reviewed: true, source: "repo" });
+    try {
+      expect(await scansToRefix(db, "build-5")).toEqual([]);
+      expect(await scansToRefix(db, "build-5", { llm: true })).toEqual([]);
+      await owner.updateTable("accounts").set({ settings: JSON.stringify({ llmFixes: true }) }).where("id", "=", account.account_id).execute();
+      expect(await scansToRefix(db, "build-5")).toEqual([]);
+      expect(await scansToRefix(db, "build-5", { llm: true })).toEqual([{ scanId, repositoryId }]);
+    } finally {
+      await owner.deleteFrom("advisories").where("id", "=", "github-dispatch-without-recipe").execute();
+    }
+  }, 120_000);
+});
+
 describe("advisory fan-out", () => {
   it("re-matches stored api.locks when an advisory is added, without downloading code again", async () => {
     const t = setup();
@@ -262,7 +307,7 @@ describe("triggers", () => {
     const boss = await startWorker({
       databaseUrl: pg.url,
       db,
-      config: { CANARY_CRON: "", SHAPI_ADVISORIES: ADVISORIES, WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14, SHAPI_RECORDINGS: RECORDINGS, FANOUT_CRON: "", ADVISORIES_SYNC_CRON: "", SHAPI_PUBLIC_URL: "https://shapi.test", githubApp },
+      config: { CANARY_CRON: "", SHAPI_ADVISORIES: ADVISORIES, WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14, SHAPI_RECORDINGS: RECORDINGS, FANOUT_CRON: "", ADVISORIES_SYNC_CRON: "", SHAPI_PUBLIC_URL: "https://shapi.test", GIT_SHA: "test", githubApp },
       env: { SHAPI_SHAPE_SECRET: "test" },
       log: { info: (_o, m) => logs.push(m ?? ""), error: (o, m) => logs.push(`ERROR ${m} ${String((o as { err?: unknown }).err)}`) },
       fetch: t.fetch,

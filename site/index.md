@@ -24,7 +24,7 @@ features:
   - title: Knows what changed, before it breaks
     details: An open database of researched API changes and deadlines, each checked against the provider's own pages. It tells apart code that's affected from code that only calls the same endpoint.
   - title: Fixes it, test-first
-    details: For each affected call site, SHAPI writes a contract test that fails against the change, applies a deterministic fix, and opens the PR only when the test passes.
+    details: Where a fix recipe exists (TypeScript and JavaScript), SHAPI writes a contract test that fails against the change, applies the fix, and opens the PR only when the test passes. Other affected call sites get the provider's migration steps.
 ---
 
 <script setup>
@@ -73,8 +73,8 @@ SHAPI watches for those changes and checks them against **your** code: the exact
 <div class="steps">
   <div><b>1. Map</b><p>SHAPI reads your code (it never runs it to scan) and writes an <code>api.lock</code>: every API call site and what it depends on.</p></div>
   <div><b>2. Match</b><p>It checks the lock against the advisories and marks each call site that depends on what changed as affected.</p></div>
-  <div><b>3. Fix</b><p>A contract test that fails on the change, then a recipe that makes it pass, verified in an isolated sandbox.</p></div>
-  <div><b>4. Watch</b><p>Every push is scanned. When a new advisory lands, code SHAPI already mapped is checked again: you get a PR, and a Slack alert if you connect Slack.</p></div>
+  <div><b>3. Fix</b><p>Where the advisory has a fix recipe: a contract test that fails on the change, then the recipe that makes it pass, verified in an isolated sandbox. Without one, the call site is listed with the provider's migration steps.</p></div>
+  <div><b>4. Watch</b><p>Every push is scanned. When a new advisory lands, code SHAPI already mapped is checked again: you get a PR where a recipe fits, and a Slack alert if you connect Slack.</p></div>
 </div>
 
 ## See it on your code

@@ -10,7 +10,7 @@ import { processDelivery, type ScanRequest } from "./github/events";
 import { syncAdvisoriesFromGitHub, syncAdvisoriesJob } from "./jobs/advisories";
 import { runCanaryJob } from "./jobs/canary";
 import { runAdvisoryFanout } from "./jobs/fanout";
-import { runFixJob, sandboxRunner, type WorkspaceRunner } from "./jobs/fix";
+import { runFixJob, sandboxRunner, scansToRefix, type WorkspaceRunner } from "./jobs/fix";
 import { runScanJob, staleQueuedScans } from "./jobs/scan";
 import { slackNotifier } from "./notify/slack";
 import { sweepWebhooks } from "./jobs/webhook-sweeper";
@@ -25,6 +25,7 @@ export const QUEUES = {
   repoFix: "repo-fix",
   advisoryFanout: "advisory-fanout",
   billingSync: "billing-sync",
+  fixRetry: "fix-retry",
 } as const;
 
 export interface Logger {
@@ -43,6 +44,7 @@ export async function createQueues(boss: PgBoss): Promise<void> {
   await boss.createQueue(QUEUES.repoFix, { policy: "stately", retryLimit: 2, retryDelay: 120, retryBackoff: true, expireInSeconds: 30 * 60 });
   await boss.createQueue(QUEUES.advisoryFanout, { retryLimit: 2, retryDelay: 60, expireInSeconds: 15 * 60 });
   await boss.createQueue(QUEUES.billingSync, { policy: "short", retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 10 * 60 });
+  await boss.createQueue(QUEUES.fixRetry, { policy: "short", retryLimit: 2, retryDelay: 60, expireInSeconds: 10 * 60 });
 }
 
 /** pg-boss for the database owner: creates its `pgboss` schema and the queues. Used by migrate. */
@@ -57,11 +59,14 @@ export async function prepareQueues(databaseUrl: string): Promise<void> {
 }
 
 /** A send-only pg-boss for the web process: no maintenance, no schedules, no schema changes. */
-export async function startSender(databaseUrl: string, log: Logger): Promise<{ boss: PgBoss; enqueueWebhook: (deliveryId: string) => Promise<void> }> {
+export async function startSender(
+  databaseUrl: string,
+  log: Logger,
+): Promise<{ boss: PgBoss; enqueueWebhook: (deliveryId: string) => Promise<void>; enqueueFix: (scanId: string, repositoryId: string) => Promise<void> }> {
   const boss = new PgBoss({ connectionString: databaseUrl, application_name: "shapi-web", supervise: false, schedule: false, migrate: false, createSchema: false });
   boss.on("error", (err) => log.error({ err }, "pg-boss error"));
   await boss.start();
-  return { boss, enqueueWebhook: (deliveryId) => sendWebhook(boss, deliveryId) };
+  return { boss, enqueueWebhook: (deliveryId) => sendWebhook(boss, deliveryId), enqueueFix: async (scanId, repositoryId) => void (await sendFix(boss, scanId, repositoryId)) };
 }
 
 async function sendWebhook(boss: PgBoss, deliveryId: string): Promise<void> {
@@ -78,7 +83,19 @@ export interface WorkerDeps {
   db: Db;
   config: Pick<
     Config,
-    "CANARY_CRON" | "SHAPI_ADVISORIES" | "SHAPI_ADVISORIES_REPO" | "ADVISORIES_SYNC_CRON" | "canaryProviders" | "githubApp" | "WEBHOOK_SWEEP_CRON" | "WEBHOOK_RETENTION_DAYS" | "SHAPI_RECORDINGS" | "FANOUT_CRON" | "billing" | "SHAPI_PUBLIC_URL"
+    | "CANARY_CRON"
+    | "SHAPI_ADVISORIES"
+    | "SHAPI_ADVISORIES_REPO"
+    | "ADVISORIES_SYNC_CRON"
+    | "canaryProviders"
+    | "githubApp"
+    | "WEBHOOK_SWEEP_CRON"
+    | "WEBHOOK_RETENTION_DAYS"
+    | "SHAPI_RECORDINGS"
+    | "FANOUT_CRON"
+    | "billing"
+    | "SHAPI_PUBLIC_URL"
+    | "GIT_SHA"
   >;
   env: Record<string, string | undefined>;
   log: Logger;
@@ -136,6 +153,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     const result = await processDelivery({ db: deps.db, github: requireGithub() }, job.data.deliveryId);
     // Committed: now the scans it asked for can start.
     for (const scan of result.scans) await sendScan(boss, scan);
+    for (const f of result.fixes) await sendFix(boss, f.scanId, f.repositoryId);
     // Repositories came or went: a paid plan may now be larger than needed.
     if (billing && ["installation", "installation_repositories"].includes(result.event)) await boss.send(QUEUES.billingSync, {});
     deps.log.info(result, "webhook processed");
@@ -159,6 +177,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
         shapeSecret: deps.env.SHAPI_SHAPE_SECRET ?? "shapi-dev-secret",
         llm,
         billingEnforced,
+        engine: deps.config.GIT_SHA,
       },
       job.data,
     );
@@ -170,6 +189,12 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     for (const f of report.fixScans) await sendFix(boss, f.scanId, f.repositoryId);
     deps.log.info(report, "advisory fan-out finished");
     return report;
+  });
+  await boss.work(QUEUES.fixRetry, async () => {
+    const scans = await scansToRefix(deps.db, deps.config.GIT_SHA, { llm: Boolean(llm) });
+    for (const s of scans) await sendFix(boss, s.scanId, s.repositoryId);
+    deps.log.info({ engine: deps.config.GIT_SHA, scans: scans.length }, "fixes queued again for this build");
+    return { scans: scans.length };
   });
   await boss.work(QUEUES.billingSync, async () => {
     if (!billing) return { synced: 0 };
@@ -207,7 +232,8 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     else await boss.unschedule(queue);
   }
 
-  // Reviewed advisories may have changed with this deploy.
+  // Reviewed advisories may have changed with this deploy, and this build may fix what an older one could not.
   await boss.send(QUEUES.advisoriesSync, {});
+  if (github) await boss.send(QUEUES.fixRetry, {});
   return boss;
 }

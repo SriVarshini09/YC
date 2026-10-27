@@ -33,7 +33,7 @@ Other flags: `--json`, `--out api.lock`, `--repo <git url>`, `--advisories <dir>
 npx shapi fix fixtures/demo-ts
 ```
 
-For every affected call site, `shapi fix` generates a contract test from the before/after response shapes, confirms it fails, applies the advisory's recipe (or asks Claude with `--llm`), and keeps the change only if the test then passes. `--write` writes the fix into the repo; `--pr` opens a pull request with the fix, the test and the evidence (`--repo <github url> --pr` works on a repo you haven't cloned). Example: [shapi-demo PR #2](https://github.com/SriVarshini09/shapi-demo/pull/2).
+For each affected TypeScript or JavaScript call site whose advisory has a fix recipe, `shapi fix` generates a contract test (from the advisory's fix, or from recorded before/after responses), confirms it fails, applies the recipe (or asks Claude with `--llm` when no recipe fits), and keeps the change only if the test then passes. Other call sites are reported with the provider's migration steps; Python is scan-only for now. `--write` writes the fix into the repo; `--pr` opens a pull request with the fix, the test and the evidence (`--repo <github url> --pr` works on a repo you haven't cloned). Example: [shapi-demo PR #2](https://github.com/SriVarshini09/shapi-demo/pull/2).
 
 ## Use it from your editor
 
@@ -61,10 +61,10 @@ Canary probes call provider APIs, store response shapes in `.shapi/shapes.db` (P
 
 - `packages/core`: provider registry, api.lock and advisory schemas, matcher
 - `packages/extractor`: call-site and dependency-surface extraction for TypeScript/JavaScript (ts-morph) and Python (tree-sitter)
-- `packages/shapes`: response shape inference, shape store (SQLite), shape diff
+- `packages/shapes`: response shape inference, shape store (SQLite for the CLI, Postgres for the hosted service), shape diff
 - `packages/canary`: canary workers, scheduler, replay, draft advisories
 - `packages/repair`: recipes, contract test generation, repair agent (Claude fallback)
-- `packages/github-app`: pull request delivery (token now, GitHub App later)
+- `packages/github-app`: pull request delivery and the dashboard issue (GitHub App, or a token for `shapi fix --pr`)
 - `packages/mcp`: MCP server for coding agents (`scan`, `advisories`, `impact`, `apply_fix`)
 - `packages/cli`: `shapi` command
 - `advisories/`: seeded advisories (open JSON format)

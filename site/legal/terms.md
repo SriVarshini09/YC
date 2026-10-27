@@ -1,7 +1,7 @@
 # Terms of service
 
 ::: warning Draft
-These terms take effect when the SHAPI GitHub App opens to the public. They have not been reviewed by a lawyer yet. Last updated October 23, 2026.
+These terms apply to SHAPI's early access, which is open to everyone now. They have not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 27, 2026.
 :::
 
 These terms are an agreement between you and SHAPI. SHAPI is operated by its founder and is not yet incorporated; "SHAPI", "we" and "us" mean the SHAPI project and its operator. If you use SHAPI for an organization, you accept these terms for that organization and confirm you're allowed to.

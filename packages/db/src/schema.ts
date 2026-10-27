@@ -43,6 +43,8 @@ export interface ScansTable {
   check_run_id: ColumnType<string, string | number, string | number> | null;
   /** Advisory id -> modified time of every advisory this scan's api.lock was matched against. */
   advisories: ColumnType<Record<string, string>, string | undefined, string>;
+  /** The SHAPI build (git sha) that last ran the fix job on this scan; null before any fix job. */
+  fix_engine: ColumnType<string | null, string | null | undefined, string | null>;
   created_at: CreatedAt;
   started_at: Timestamp | null;
   finished_at: Timestamp | null;

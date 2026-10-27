@@ -54,7 +54,7 @@ const log = {
 };
 const db = createDb({ connectionString: url });
 const sender = await startSender(url, log);
-const app = buildApp({ db, config: { ...config, LOG_LEVEL: "warn" }, enqueueWebhook: sender.enqueueWebhook });
+const app = buildApp({ db, config: { ...config, LOG_LEVEL: "warn" }, enqueueWebhook: sender.enqueueWebhook, enqueueFix: sender.enqueueFix });
 // "localhost" binds both 127.0.0.1 and ::1, so a browser on either reaches this server.
 await app.listen({ port: config.PORT, host: "localhost" });
 const boss = await startWorker({ databaseUrl: url, db, config, env: process.env, log });
