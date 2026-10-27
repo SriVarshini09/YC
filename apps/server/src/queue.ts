@@ -191,9 +191,11 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     return report;
   });
   await boss.work(QUEUES.fixRetry, async () => {
+    // A fresh scan, not a fix job on the old one: the old api.lock was mapped by the old build's extractor and
+    // can miss what the code reads, which the contract test needs. The scan queues the fix job as usual.
     const scans = await scansToRefix(deps.db, deps.config.GIT_SHA, { llm: Boolean(llm) });
-    for (const s of scans) await sendFix(boss, s.scanId, s.repositoryId);
-    deps.log.info({ engine: deps.config.GIT_SHA, scans: scans.length }, "fixes queued again for this build");
+    for (const s of scans) await sendScan(boss, { repositoryId: s.repositoryId });
+    deps.log.info({ engine: deps.config.GIT_SHA, scans: scans.length }, "repositories scanned again for this build");
     return { scans: scans.length };
   });
   await boss.work(QUEUES.billingSync, async () => {
