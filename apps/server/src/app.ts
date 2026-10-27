@@ -8,15 +8,17 @@ import { webRoutes } from "./web/routes";
 
 export interface AppDeps {
   db: Db;
-  config: Pick<Config, "LOG_LEVEL" | "GIT_SHA" | "NODE_ENV" | "githubApp" | "webApp" | "billing">;
+  config: Pick<Config, "LOG_LEVEL" | "GIT_SHA" | "NODE_ENV" | "githubApp" | "webApp" | "billing"> & Partial<Pick<Config, "ANTHROPIC_API_KEY">>;
   /** Queue a stored webhook delivery for the worker. */
   enqueueWebhook?: (deliveryId: string) => Promise<void>;
+  /** Queue a fix job on a repository's scan (a repository unpaused from the web app). */
+  enqueueFix?: (scanId: string, repositoryId: string) => Promise<void>;
   /** For tests: GitHub's OAuth and API endpoints. */
   fetch?: typeof globalThis.fetch;
 }
 
 /** The web process: health, readiness, GitHub webhooks, and the web app. */
-export function buildApp({ db, config, enqueueWebhook, fetch }: AppDeps): FastifyInstance {
+export function buildApp({ db, config, enqueueWebhook, enqueueFix, fetch }: AppDeps): FastifyInstance {
   const app = Fastify({
     logger: config.NODE_ENV === "test" ? false : { level: config.LOG_LEVEL },
     trustProxy: true,
@@ -42,7 +44,7 @@ export function buildApp({ db, config, enqueueWebhook, fetch }: AppDeps): Fastif
   webhookRoutes(app, { db, secret: config.githubApp?.webhookSecret, enqueue: enqueueWebhook ?? (async () => {}) });
   const billing: BillingDeps | undefined = config.billing ? { db, stripe: stripeClient(config.billing, { fetch }), config: config.billing } : undefined;
   stripeWebhookRoutes(app, { billing });
-  webRoutes(app, { db, config: config.webApp, fetch, billing });
+  webRoutes(app, { db, config: config.webApp, fetch, billing, enqueueFix, llmAvailable: Boolean(config.ANTHROPIC_API_KEY) });
 
   return app;
 }

@@ -264,6 +264,15 @@ const migrations: Record<string, Migration> = {
       await sql`drop index if exists findings_scan`.execute(db);
     },
   },
+  "0010_scans_fix_engine": {
+    // The SHAPI build that last ran the fix job on a scan: a new build retries the fixes an older one could not make.
+    async up(db: Kysely<unknown>) {
+      await sql`alter table scans add column fix_engine text`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`alter table scans drop column if exists fix_engine`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };

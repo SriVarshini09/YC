@@ -8,7 +8,7 @@ export { githubClients, type GitHubClients } from "./github/clients";
 export { processDelivery, type ProcessResult } from "./github/events";
 export { PR_LABEL, deliverRepoFixes, type DeliverInput, type DeliveryReport, type FixCandidate } from "./github/fixes";
 export { runScanJob, lockFromSnapshot, staleQueuedScans, type ScanDeps, type ScanJob, type ScanReport } from "./jobs/scan";
-export { runFixJob, sandboxRunner, type FixDeps, type FixReport, type WorkspaceRunner } from "./jobs/fix";
+export { runFixJob, sandboxRunner, scansToRefix, type FixDeps, type FixReport, type WorkspaceRunner } from "./jobs/fix";
 export { runAdvisoryFanout, type FanoutReport } from "./jobs/fanout";
 export { shapesFor, type AdvisoryShapes } from "./jobs/shapes";
 export type { ScanRequest } from "./github/events";

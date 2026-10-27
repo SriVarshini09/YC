@@ -1,7 +1,7 @@
 # Privacy policy
 
 ::: warning Draft
-This policy takes effect when the SHAPI GitHub App opens to the public. It has not been reviewed by a lawyer yet. Last updated October 23, 2026.
+This policy applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 27, 2026.
 :::
 
 SHAPI is operated by its founder and is not yet incorporated. In this policy, "SHAPI", "we" and "us" mean the SHAPI project and its operator. This policy covers the hosted GitHub App and web app, the `shapi-cli` command-line tool, and this documentation site.

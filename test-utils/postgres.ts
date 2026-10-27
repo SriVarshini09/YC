@@ -38,6 +38,18 @@ export async function startTestPostgres(database = "shapi_test"): Promise<TestPo
   throw lastError;
 }
 
+/**
+ * Remove a data folder. On Windows the stopped server can hold it for a moment (EBUSY): retry, and if it
+ * is still held, leave it in the temp folder rather than fail tests that passed.
+ */
+function removeDir(dir: string): void {
+  try {
+    rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+  } catch {
+    // left for the OS temp cleanup
+  }
+}
+
 async function startOnce(database: string): Promise<TestPostgres> {
   const dir = mkdtempSync(path.join(os.tmpdir(), "shapi-pg-"));
   const port = await freePort();
@@ -58,14 +70,14 @@ async function startOnce(database: string): Promise<TestPostgres> {
     await pg.createDatabase(database);
   } catch (err) {
     await pg.stop().catch(() => {});
-    rmSync(dir, { recursive: true, force: true });
+    removeDir(dir);
     throw err;
   }
   return {
     url: `postgres://postgres:postgres@127.0.0.1:${port}/${database}`,
     async stop() {
       await pg.stop();
-      rmSync(dir, { recursive: true, force: true });
+      removeDir(dir);
     },
   };
 }

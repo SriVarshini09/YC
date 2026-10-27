@@ -28,6 +28,8 @@ export interface FixDeps {
   llm?: LlmFixer;
   /** Billing is configured: private repositories beyond the plan get no fixes. */
   billingEnforced?: boolean;
+  /** This SHAPI build (git sha), recorded on the scan once its fix job finishes (see scansToRefix). */
+  engine?: string;
   now?: () => Date;
 }
 
@@ -72,7 +74,10 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
   const { scan } = ctx;
   if (!scan || scan.status !== "succeeded" || !scan.api_lock || !scan.github_installation_id) return { scanId: job.scanId, repairs: [] };
   const plan = await repositoryCovered(deps.db, scan.account_id, scan.repository_id, deps.billingEnforced ?? false);
-  if (!plan.covered) return { scanId: job.scanId, repairs: [], skipped: `not covered by the plan: ${plan.reason}` };
+  if (!plan.covered) {
+    await markEngine(deps, scan.id);
+    return { scanId: job.scanId, repairs: [], skipped: `not covered by the plan: ${plan.reason}` };
+  }
 
   const advisories = new Map((await reviewedAdvisories(deps.db)).map((a) => [a.advisory.id, a.advisory]));
   const lock = storedLock(scan.api_lock);
@@ -152,5 +157,52 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
     upcoming: upcoming.map((u) => ({ advisory: u.advisory, daysUntil: u.daysUntil })),
     now: now(),
   });
+  // Only a finished run counts: a failed one throws above, and the job (or the next build) tries again.
+  await markEngine(deps, scan.id);
   return report;
+}
+
+async function markEngine(deps: Pick<FixDeps, "db" | "engine">, scanId: string): Promise<void> {
+  const engine = deps.engine;
+  if (engine) await withService(deps.db, (tx) => tx.updateTable("scans").set({ fix_engine: engine }).where("id", "=", scanId).execute());
+}
+
+/**
+ * Scans whose fix job should run again on this build: each enabled repository's latest successful scan
+ * whose fix job ran on another build (or never ran), with an affected call site that has no fix PR yet
+ * and that this build may fix (a recipe, or Claude where the account opted in). A fix an older build could
+ * not make is retried once per deploy, not on every push; PRs that exist, closed ones included, are left alone.
+ */
+export async function scansToRefix(db: Db, engine: string, opts: { llm?: boolean } = {}): Promise<{ scanId: string; repositoryId: string }[]> {
+  const advisories = new Map((await reviewedAdvisories(db)).map((a) => [a.advisory.id, a.advisory]));
+  const hasRecipe = (id: string) => {
+    const recipeId = advisories.get(id)?.recipeId;
+    return Boolean(recipeId && RECIPES[recipeId]);
+  };
+  return withService(db, async (tx) => {
+    const latest = await tx
+      .selectFrom("scans")
+      .innerJoin("repositories", "repositories.id", "scans.repository_id")
+      .innerJoin("accounts", "accounts.id", "scans.account_id")
+      .select(["scans.id", "scans.repository_id", "scans.fix_engine", "accounts.settings"])
+      .distinctOn("scans.repository_id")
+      .where("scans.status", "=", "succeeded")
+      .where("scans.api_lock", "is not", null)
+      .where("repositories.enabled", "=", true)
+      .where("accounts.suspended_at", "is", null)
+      .orderBy("scans.repository_id")
+      .orderBy("scans.finished_at", "desc")
+      .execute();
+    const stale = latest.filter((s) => s.fix_engine !== engine);
+    if (!stale.length) return [];
+    const findings = await tx.selectFrom("findings").select(["scan_id", "advisory_id"]).where("scan_id", "in", stale.map((s) => s.id)).where("kind", "=", "affected").execute();
+    const prs = await tx.selectFrom("fix_prs").select(["repository_id", "advisory_id"]).where("repository_id", "in", stale.map((s) => s.repository_id)).execute();
+    const hasPr = new Set(prs.map((p) => `${p.repository_id}:${p.advisory_id}`));
+    return stale
+      .filter((s) => {
+        const llm = opts.llm === true && (s.settings as { llmFixes?: boolean }).llmFixes === true;
+        return findings.some((f) => f.scan_id === s.id && !hasPr.has(`${s.repository_id}:${f.advisory_id}`) && advisories.has(f.advisory_id) && (llm || hasRecipe(f.advisory_id)));
+      })
+      .map((s) => ({ scanId: s.id, repositoryId: s.repository_id }));
+  });
 }

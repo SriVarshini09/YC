@@ -43,7 +43,7 @@ Every customer table in Postgres uses **row-level security** keyed to the accoun
 
 ### Claude
 
-Off by default. When an account turns on *Use Claude when no deterministic recipe fits*, the affected file, the advisory and the contract test are sent to Anthropic's API for that call site. The proposed change is kept only if the contract test passes in the sandbox.
+Off by default, and the setting appears only when Claude is enabled on the server. When an account turns on *Use Claude when no deterministic recipe fits*, the affected file, the advisory and the contract test are sent to Anthropic's API for that call site. The proposed change is kept only if the contract test passes in the sandbox.
 
 ### Other safeguards
 

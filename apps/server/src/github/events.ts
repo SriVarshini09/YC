@@ -38,6 +38,12 @@ export interface EventDeps {
 /** A scan to start once the delivery is committed: one queued by a push, or a first scan of a newly added repository. */
 export type ScanRequest = { scanId: string } | { repositoryId: string };
 
+/** A fix job to run on a repository's latest scan once the delivery is committed. */
+export interface FixRequest {
+  scanId: string;
+  repositoryId: string;
+}
+
 export interface ProcessResult {
   deliveryId: string;
   event: string;
@@ -45,6 +51,8 @@ export interface ProcessResult {
   outcome: string;
   /** Scans this delivery asks for. The worker queues them after the transaction commits. */
   scans: ScanRequest[];
+  /** Fix jobs this delivery asks for (a ticked dashboard box), queued the same way. */
+  fixes: FixRequest[];
 }
 
 /**
@@ -56,13 +64,14 @@ export async function processDelivery(deps: EventDeps, deliveryId: string): Prom
   try {
     return await withService(deps.db, async (tx) => {
       const row = await tx.selectFrom("webhook_deliveries").selectAll().where("delivery_id", "=", deliveryId).forUpdate().executeTakeFirst();
-      if (!row) return { deliveryId, event: "unknown", action: null, outcome: "not found", scans: [] };
+      if (!row) return { deliveryId, event: "unknown", action: null, outcome: "not found", scans: [], fixes: [] };
       const result = { deliveryId, event: row.event, action: row.action };
-      if (row.processed_at) return { ...result, outcome: "already processed", scans: [] };
+      if (row.processed_at) return { ...result, outcome: "already processed", scans: [], fixes: [] };
       const scans: ScanRequest[] = [];
-      const outcome = await handleEvent(tx, deps.github, row.event, row.payload as WebhookPayload, scans);
+      const fixes: FixRequest[] = [];
+      const outcome = await handleEvent(tx, deps.github, row.event, row.payload as WebhookPayload, scans, fixes);
       await tx.updateTable("webhook_deliveries").set({ processed_at: new Date(), error: null }).where("delivery_id", "=", deliveryId).execute();
-      return { ...result, outcome, scans };
+      return { ...result, outcome, scans, fixes };
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -71,7 +80,7 @@ export async function processDelivery(deps: EventDeps, deliveryId: string): Prom
   }
 }
 
-async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload: WebhookPayload, scans: ScanRequest[]): Promise<string> {
+async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload: WebhookPayload, scans: ScanRequest[], fixes: FixRequest[]): Promise<string> {
   const installation = payload.installation;
   switch (event) {
     case "installation": {
@@ -115,7 +124,7 @@ async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload
     case "pull_request":
       return handlePullRequest(tx, payload);
     case "issues":
-      return handleIssue(tx, payload);
+      return handleIssue(tx, payload, fixes);
     default:
       return `ignored: ${event}`;
   }
@@ -239,8 +248,11 @@ async function handlePullRequest(tx: Tx, payload: WebhookPayload): Promise<strin
   return `fix PR #${pr.number} ${payload.action}`;
 }
 
-/** A maintainer ticked a box on the dashboard issue: save the intent for the next delivery run. */
-async function handleIssue(tx: Tx, payload: WebhookPayload): Promise<string> {
+/**
+ * A maintainer ticked a box on the dashboard issue: save the intent, and when it asks for a PR ("open now",
+ * "open again") or lifts the pause, run the fix job on the latest scan now instead of at the next push.
+ */
+async function handleIssue(tx: Tx, payload: WebhookPayload, fixes: FixRequest[]): Promise<string> {
   const issue = payload.issue;
   if (!issue || issue.pull_request || !payload.repository) return "ignored: no issue";
   if (payload.action !== "edited") return `ignored: issues.${payload.action}`;
@@ -254,5 +266,22 @@ async function handleIssue(tx: Tx, payload: WebhookPayload): Promise<string> {
   const intents = parseDashboard(issue.body);
   const settings = { ...repo.settings, paused: intents.paused, createNow: [...intents.createNow], retry: [...intents.retry] };
   await tx.updateTable("repositories").set({ settings: JSON.stringify(settings) }).where("id", "=", repo.id).execute();
-  return `dashboard saved (paused: ${settings.paused}, open now: ${settings.createNow.length}, retry: ${settings.retry.length})`;
+  const unpaused = (repo.settings as { paused?: boolean }).paused === true && !intents.paused;
+  const scanId = settings.createNow.length || settings.retry.length || unpaused ? await latestScanId(tx, repo.id) : undefined;
+  if (scanId) fixes.push({ scanId, repositoryId: repo.id });
+  return `dashboard saved (paused: ${settings.paused}, open now: ${settings.createNow.length}, retry: ${settings.retry.length})${scanId ? ", fix job queued" : ""}`;
+}
+
+/** The repository's latest successful scan: where a fix job runs when a maintainer asks for one. */
+export async function latestScanId(tx: Tx, repositoryId: string): Promise<string | undefined> {
+  const row = await tx
+    .selectFrom("scans")
+    .select("id")
+    .where("repository_id", "=", repositoryId)
+    .where("status", "=", "succeeded")
+    .where("api_lock", "is not", null)
+    .orderBy("finished_at", "desc")
+    .limit(1)
+    .executeTakeFirst();
+  return row?.id;
 }

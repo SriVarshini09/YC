@@ -44,6 +44,7 @@ import {
 import { landingPage } from "./landing";
 import { overviewPage } from "./overview";
 import { firstScanPending, loadAccount, loadFinding, withCatchDetail } from "./queries";
+import { latestScanId } from "../github/events";
 
 export interface WebConfig extends OAuthConfig {
   /** Signs the session cookie. */
@@ -59,6 +60,10 @@ export interface WebDeps {
   fetch?: typeof globalThis.fetch;
   /** Unset: no billing, every repository is covered. */
   billing?: BillingDeps;
+  /** Queue a fix job; unset (tests, no queue), an unpaused repository waits for its next scan. */
+  enqueueFix?: (scanId: string, repositoryId: string) => Promise<void>;
+  /** The worker can ask Claude (ANTHROPIC_API_KEY is set): only then does Settings offer it. */
+  llmAvailable?: boolean;
 }
 
 // form-action also governs where a submitted form may redirect: the billing buttons go on to Stripe.
@@ -271,7 +276,7 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       if (!ctx) return;
       const data = await loadAccount(deps.db, ctx.account.id);
       const notice = SLACK_NOTICES[(req.query as { slack?: string }).slack ?? ""];
-      return send(reply, page("Settings", settingsPage(data, notice, ctx.session.csrf), shellFor(data, ctx.ctx, "settings")));
+      return send(reply, page("Settings", settingsPage(data, notice, ctx.session.csrf, { llm: deps.llmAvailable === true }), shellFor(data, ctx.ctx, "settings")));
     });
 
     scope.post("/a/:accountId/settings", async (req, reply) => {
@@ -285,7 +290,9 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       const s = parsed.data;
       await withTenant(deps.db, ctx.account.id, async (tx) => {
         const current = await tx.selectFrom("accounts").select("settings").where("id", "=", ctx.account.id).executeTakeFirstOrThrow();
-        const next: Record<string, unknown> = { ...current.settings, prLimits: { hourly: s.hourly, open: s.open }, failOnAffected: s.failOnAffected === "on", llmFixes: s.llmFixes === "on" };
+        // Without a key the option is not on the form: keep what was saved rather than reading it as unticked.
+        const llmFixes = deps.llmAvailable ? s.llmFixes === "on" : (current.settings as { llmFixes?: boolean }).llmFixes === true;
+        const next: Record<string, unknown> = { ...current.settings, prLimits: { hourly: s.hourly, open: s.open }, failOnAffected: s.failOnAffected === "on", llmFixes };
         if (s.slackRemove === "on") delete next.slackWebhookUrl;
         else if (s.slack) next.slackWebhookUrl = s.slack;
         await tx.updateTable("accounts").set({ settings: JSON.stringify(next) }).where("id", "=", ctx.account.id).execute();
@@ -364,9 +371,14 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
         if (!repo) return false;
         const current = repo.settings as { pausedFromWeb?: boolean };
         await tx.updateTable("repositories").set({ settings: JSON.stringify({ ...repo.settings, pausedFromWeb: !current.pausedFromWeb }) }).where("id", "=", repo.id).execute();
-        return true;
+        // Resumed: deliver the fixes that waited now, from the latest scan, instead of at the next push.
+        return { resumedScan: current.pausedFromWeb ? await latestScanId(tx, repo.id) : undefined };
       });
       if (!done) return notFound(req, reply, ctx.session);
+      if (done.resumedScan && deps.enqueueFix) {
+        // The pause is saved either way; if the queue is down, the next scan delivers them.
+        await deps.enqueueFix(done.resumedScan, repoId.data).catch((err: unknown) => req.log.error({ err }, "could not queue the fix job after resuming"));
+      }
       return reply.redirect(`/a/${ctx.account.id}/r/${repoId.data}`, 303);
     });
 

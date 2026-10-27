@@ -40,5 +40,5 @@ The [GitHub App](/guide/github-app) runs all of this on every push to your defau
 ## Where the knowledge comes from
 
 - **Advisories:** reviewed entries in the open [advisory database](/advisories).
-- **Canaries:** SHAPI probes provider APIs with its own accounts and records the *shape* of each response (status, field names and types; never the values), so it notices a silent change and can draft a new advisory for review.
-- **Recordings:** before and after response shapes for each advisory, used to build the contract tests.
+- **Canaries:** SHAPI probes the provider APIs it holds its own test accounts for (never with your keys) and records the *shape* of each response (status, field names and types; never the values), so it notices a silent change and can draft a new advisory for review.
+- **Recordings:** before and after response shapes for an endpoint, used to build a contract test when the advisory's fix doesn't describe the change by itself.
