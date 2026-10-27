@@ -53,4 +53,4 @@ One line per task: task, summary file, PR, status.
 - PA-A6c web app dashboard redesign and launch pages: [summary](PA-A6c-dashboard-redesign.md) · PR: [#53](https://github.com/SriVarshini09/YC/pull/53) · open
 - PA-A6d simpler dashboard for customers: [summary](PA-A6c-dashboard-redesign.md) · PR: [#54](https://github.com/SriVarshini09/YC/pull/54) · open
 - PB-9 launch fixes (fix retries after upgrades and dashboard ticks, Claude option, docs claims, legal banners): [summary](PB-9-launch-fixes.md) · PR: [#55](https://github.com/SriVarshini09/YC/pull/55) · open
-- PB-10 clean redesign of the website and web app: [summary](PB-10-clean-redesign.md) · PR: pending · open
+- PB-10 clean redesign of the website and web app: [summary](PB-10-clean-redesign.md) · PR: [#56](https://github.com/SriVarshini09/YC/pull/56) · open
