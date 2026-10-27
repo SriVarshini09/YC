@@ -15,19 +15,14 @@ import {
 } from "./queries";
 import {
   accountHref,
-  activityFeed,
-  deadlineRow,
-  deadlineTimeline,
   findingHref,
   healthRing,
   prLink,
   progressBar,
-  providerGrid,
   providerMark,
   providerName,
   repoHref,
   section,
-  statCard,
   stateTag,
   tag,
   type ActivityEvent,
@@ -46,35 +41,27 @@ export function overviewPage(data: AccountData, opts: { installLink?: string } =
   if (firstScanPending(data)) return html`${scanningCard(data)}${checklist}`;
 
   const b = accountHref(data);
-  const affected = data.findings.filter((f) => f.kind === "affected");
-  const merged = data.prs.filter((p) => p.state === "merged").length;
-  const open = data.prs.filter((p) => p.state === "open").length;
-  const deadlines = deadlinesOf(data);
-  const soon = deadlines.filter((d) => d.daysUntil >= 0 && d.daysUntil <= 90);
-  const providers = providersOf(data);
-  const reposHit = new Set(affected.map((f) => f.repository_id)).size;
   const attention = attentionOf(data);
+  const coming = deadlinesOf(data).filter((d) => d.daysUntil >= 0 && d.daysUntil <= 90 && (d.breaking || d.working));
   return html`${valueHero(data)}
 ${checklist}
-<div class="grid cols-4">
-  ${statCard({ label: "Affected call sites", value: affected.length, sub: affected.length ? `in ${plural(reposHit, "repository", "repositories")}` : "nothing breaks today", icon: ICONS.findings, tone: affected.length ? "bad" : "ok", href: `${b}/findings` })}
-  ${statCard({ label: "Fixes merged", value: merged, sub: open ? `${plural(open, "PR")} open now` : "no open fix PRs", icon: ICONS.fixes, href: `${b}/fixes` })}
-  ${statCard({ label: "Deadlines in 90 days", value: soon.length, sub: soon[0] ? `nearest in ${plural(soon[0].daysUntil, "day")}` : "nothing due this quarter", icon: ICONS.deadlines, tone: soon.some((d) => d.affected) ? "bad" : "", href: `${b}/deadlines` })}
-  ${statCard({ label: "Providers watched", value: providers.length, sub: `${plural(data.advisories.size, "advisory", "advisories")} tracked`, icon: ICONS.providers, href: `${b}/advisories` })}
-</div>
 <div class="grid cols-3 even">
-  <div class="span-2 column">${section("Latest catch", catchCard(data, latestCatchOf(data)))}</div>
-  <div class="column" id="attention">${section("Needs your attention", attentionCard(data, attention), attention.length ? { label: "All findings", href: `${b}/findings?kind=affected` } : undefined)}</div>
+  <div class="span-2 column" id="attention">${section("Needs your attention", attentionCard(data, attention), attention.length ? { label: "All problems", href: `${b}/findings` } : undefined)}</div>
+  <div class="column">${section("Coming up", comingCard(data, coming), { label: "All API changes", href: `${b}/advisories` })}</div>
 </div>
-<div class="grid cols-3">
-  <div class="span-2 column">${section(
-    "Deadline timeline",
-    html`<div class="card">${deadlineTimeline(deadlines, data.now)}${deadlines.slice(0, 4).map((d) => deadlineRow(d, `${b}/advisories?advisory=${encodeURIComponent(d.advisory.id)}`))}</div>`,
-    { label: "All deadlines", href: `${b}/deadlines` },
-  )}
-  ${section("Providers", providerGrid(providers, (id) => `${b}/advisories?provider=${encodeURIComponent(id)}`))}</div>
-  <div class="column">${section("Recent activity", html`<div class="card">${activityFeed(activityOf(data), data.now)}</div>`)}</div>
-</div>`;
+${section("Latest fix", catchCard(data, latestCatchOf(data)))}`;
+}
+
+/** API changes due in the next 90 days that touch the account's code. */
+function comingCard(data: AccountData, coming: ReturnType<typeof deadlinesOf>): Html {
+  if (!coming.length) return html`<div class="card all-clear"><span class="icon ok">${ICONS.check}</span><div><b>Nothing coming up</b><p class="note">No API change in the next 90 days touches your code.</p></div></div>`;
+  const b = accountHref(data);
+  return html`<div class="card coming">${coming.slice(0, 5).map((d) => {
+    const tone = d.daysUntil <= 30 ? "bad" : "warn";
+    return html`<div class="deadline"><div class="days ${tone}">${d.daysUntil}<small>${d.daysUntil === 1 ? "day" : "days"}</small></div><div class="what"><a href="${b}/advisories?advisory=${encodeURIComponent(d.advisory.id)}#all"><b>${d.advisory.title}</b></a><div class="sub">${providerName(d.advisory.provider)}</div>${
+      d.breaking ? tag(`breaks ${plural(d.breaking, "repo")}`, "bad") : tag("still works", "info")
+    }</div></div>`;
+  })}${coming.length > 5 ? html`<a class="coming-foot" href="${b}/advisories#timeline">${plural(coming.length - 5, "more change")}</a>` : EMPTY}</div>`;
 }
 
 /* ---------- the value statement ---------- */
@@ -84,22 +71,22 @@ function valueHero(data: AccountData): Html {
   const v = valueOf(data);
   const callSites = data.repos.reduce((n, r) => n + r.callSites, 0);
   const lastScan = data.scans.find((s) => s.finished_at);
-  const eyebrow = `${plural(data.repos.length, "repository", "repositories")} · ${plural(callSites, "third-party call")} · last scan ${lastScan ? timeAgo(lastScan.finished_at, data.now) : "pending"}`;
+  const eyebrow = `${plural(data.repos.length, "repository", "repositories")} · ${plural(callSites, "API call")} · last scan ${lastScan ? timeAgo(lastScan.finished_at, data.now) : "pending"}`;
   const parts: string[] = [];
-  if (v.merged) parts.push(`${v.merged} fixed and merged`);
-  if (v.review) parts.push(`${plural(v.review, "fix PR")} ready for review`);
-  if (v.open) parts.push(`${v.open} still need${v.open === 1 ? "s" : ""} attention`);
-  const title = v.caught ? html`SHAPI found <span class="hl">${plural(v.caught, "breaking API change")}</span> in your code.` : html`No breaking API changes in your code.`;
+  if (v.merged) parts.push(`${v.merged} fixed`);
+  if (v.review) parts.push(`${plural(v.review, "fix", "fixes")} ready for review`);
+  if (v.open) parts.push(`${v.open} need${v.open === 1 ? "s" : ""} you`);
+  const title = v.caught ? html`SHAPI found <span class="hl">${plural(v.caught, "problem")}</span> in your code.` : html`No problems in your code.`;
   const sub = v.caught
     ? parts.join(" · ")
-    : `SHAPI watches ${plural(providersOf(data).length, "provider")} across ${plural(callSites, "call site")}, and opens a tested fix PR the moment an API change hits your code.`;
+    : `SHAPI watches ${plural(providersOf(data).length, "provider")} across ${plural(callSites, "API call")}, and opens a tested fix the moment an API change breaks your code.`;
   return html`<section class="value-hero">
 <div class="vh-text">
 <p class="eyebrow">${eyebrow}</p>
 <h1>${title}</h1>
 <p class="vh-sub">${sub}</p>
-<div class="btn-row">${v.review ? html`<a class="button primary" href="${b}/fixes?state=open">${ICONS.fixes} Review ${plural(v.review, "fix PR")}</a>` : EMPTY}${
-    v.open ? html`<a class="button ghost" href="#attention">See what needs attention</a>` : html`<a class="button ghost" href="${b}/advisories">See what SHAPI watches</a>`
+<div class="btn-row">${v.review ? html`<a class="button primary" href="${b}/fixes?state=open">${ICONS.fixes} Review ${plural(v.review, "fix", "fixes")}</a>` : EMPTY}${
+    v.open ? html`<a class="button ghost" href="#attention">See what needs you</a>` : html`<a class="button ghost" href="${b}/advisories">See what SHAPI watches</a>`
   }</div>
 </div>
 <div class="vh-ring">${healthRing(healthOf(data))}</div>
@@ -109,7 +96,7 @@ function valueHero(data: AccountData): Html {
 /* ---------- the latest catch ---------- */
 
 function catchCard(data: AccountData, c: LatestCatch | undefined): Html {
-  if (!c) return html`<div class="card catch empty-catch"><span class="icon ok">${ICONS.check}</span><div><b>Nothing caught yet</b><p class="note">When an API change hits your code, the story of the catch and its fix shows up here.</p></div></div>`;
+  if (!c) return html`<div class="card catch empty-catch"><span class="icon ok">${ICONS.check}</span><div><b>No fixes yet</b><p class="note">When an API change breaks your code, the problem and its tested fix show up here.</p></div></div>`;
   const { pr, finding } = c;
   const advisory = pr?.advisory ?? finding?.advisory;
   const provider = advisory?.provider ?? finding?.site.provider ?? "unknown";
@@ -136,7 +123,7 @@ ${story}
 /** How the fix was proven, in four short steps. */
 function proofSteps(repair: FixRepair): Html {
   const steps = [
-    "Contract test written",
+    "Test written",
     "Failed on your code",
     repair.method === "llm" ? "Claude proposed the fix" : repair.recipeId ? `Recipe ${repair.recipeId} applied` : "Fix applied",
     repair.sandbox ? `Passed in sandbox ${repair.sandbox}` : "Passed after the fix",
@@ -161,13 +148,13 @@ function miniDiff(change: FixRepair["changes"][number]): Html {
 
 /* ---------- what needs the user ---------- */
 
-const ATTENTION_SHOWN = 4;
+const ATTENTION_SHOWN = 5;
 
 function attentionCard(data: AccountData, items: AttentionItem[]): Html {
   if (!items.length) return html`<div class="card all-clear"><span class="icon ok">${ICONS.check}</span><div><b>All clear</b><p class="note">Nothing needs you right now. SHAPI keeps watching.</p></div></div>`;
   const rows = items.slice(0, ATTENTION_SHOWN).map((item) => attentionRow(data, item));
   const more = items.length - ATTENTION_SHOWN;
-  return html`<div class="card tight todo-list">${rows}${more > 0 ? html`<a class="todo more" href="${accountHref(data)}/findings?kind=affected">${plural(more, "more item")} ${ICONS.arrow}</a>` : EMPTY}</div>`;
+  return html`<div class="card tight todo-list">${rows}${more > 0 ? html`<a class="todo more" href="${accountHref(data)}/findings">${plural(more, "more item")} ${ICONS.arrow}</a>` : EMPTY}</div>`;
 }
 
 function attentionRow(data: AccountData, item: AttentionItem): Html {
@@ -193,7 +180,7 @@ function attentionRow(data: AccountData, item: AttentionItem): Html {
         `${providerName(item.deadline.advisory.provider)} · takes effect in ${plural(item.deadline.daysUntil, "day")}`,
       );
     case "pending":
-      return row(findingHref(data, item.finding.id), "", ICONS.pr, html`Fix PR on the way: ${item.finding.advisory?.title ?? item.finding.advisory_id}`, `${item.finding.repo} · waiting for the next fix run`);
+      return row(findingHref(data, item.finding.id), "", ICONS.pr, html`Fix on the way: ${item.finding.advisory?.title ?? item.finding.advisory_id}`, `${item.finding.repo} · SHAPI opens it on the next fix run`);
   }
 }
 
@@ -246,8 +233,8 @@ ${progressBar(finished, total)}
 
 /* ---------- activity ---------- */
 
-/** Scans, PRs and new affected call sites, newest first. */
-function activityOf(data: AccountData, limit = 8): ActivityEvent[] {
+/** Scans, fixes and new problems, newest first. Shown on the Repositories page. */
+export function activityOf(data: AccountData, limit = 8): ActivityEvent[] {
   const events: ActivityEvent[] = [];
   for (const s of data.scans) {
     if (!s.finished_at && s.status !== "failed") continue;
@@ -265,13 +252,13 @@ function activityOf(data: AccountData, limit = 8): ActivityEvent[] {
     events.push({ at: p.created_at, kind: "pr", tone: "info", text: html`Fix PR ${link} opened in ${p.repo}`, sub: title });
     if (p.state !== "open" && p.closed_at) events.push({ at: p.closed_at, kind: p.state === "merged" ? "merged" : "closed", tone: p.state === "merged" ? "ok" : "", text: html`Fix PR ${link} ${p.state} in ${p.repo}`, sub: title });
   }
-  const newFindings = new Map<string, { at: Date; repo: string; repository_id: string; n: number }>();
+  const newProblems = new Map<string, { at: Date; repo: string; repository_id: string; changes: Set<string> }>();
   for (const f of data.findings.filter((f) => f.kind === "affected")) {
     const key = `${f.repository_id}:${f.created_at.toISOString().slice(0, 16)}`;
-    const e = newFindings.get(key) ?? { at: f.created_at, repo: f.repo, repository_id: f.repository_id, n: 0 };
-    e.n++;
-    newFindings.set(key, e);
+    const e = newProblems.get(key) ?? { at: f.created_at, repo: f.repo, repository_id: f.repository_id, changes: new Set<string>() };
+    e.changes.add(f.advisory_id);
+    newProblems.set(key, e);
   }
-  for (const e of newFindings.values()) events.push({ at: e.at, kind: "finding", tone: "bad", text: html`${plural(e.n, "affected call site")} found in <a href="${repoHref(data, e.repository_id)}">${e.repo}</a>` });
+  for (const e of newProblems.values()) events.push({ at: e.at, kind: "finding", tone: "bad", text: html`${plural(e.changes.size, "problem")} found in <a href="${repoHref(data, e.repository_id)}">${e.repo}</a>` });
   return events.sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, limit);
 }

@@ -27,8 +27,9 @@ export interface RepoRow {
   callSites: number;
   lock?: ApiLock;
   lockSha?: string;
-  affected: number;
-  exposed: number;
+  /** Problems in this repository: API changes that break its code, and changes it uses that still work. */
+  breaking: number;
+  working: number;
   openPrs: number;
   mergedPrs: number;
 }
@@ -152,6 +153,9 @@ export async function loadAccount(db: Db, accountId: string, opts: { locks?: boo
       const settings = r.settings as { paused?: boolean; pausedFromWeb?: boolean };
       const lockParsed = good?.api_lock ? ApiLockSchema.safeParse(good.api_lock) : undefined;
       const providers = good?.providers ? ApiLockSchema.shape.providers.safeParse(good.providers) : undefined;
+      const mine = findings.filter((f) => f.repository_id === r.id);
+      const breakingIds = new Set(mine.filter((f) => f.kind === "affected").map((f) => f.advisory_id));
+      const workingIds = new Set(mine.filter((f) => f.kind === "exposed" && !breakingIds.has(f.advisory_id)).map((f) => f.advisory_id));
       return {
         id: r.id,
         full_name: r.full_name,
@@ -167,8 +171,8 @@ export async function loadAccount(db: Db, accountId: string, opts: { locks?: boo
         callSites: Number(good?.call_sites ?? 0),
         lock: lockParsed?.success ? lockParsed.data : undefined,
         lockSha: good?.sha,
-        affected: findings.filter((f) => f.repository_id === r.id && f.kind === "affected").length,
-        exposed: findings.filter((f) => f.repository_id === r.id && f.kind === "exposed").length,
+        breaking: breakingIds.size,
+        working: workingIds.size,
         openPrs: prs.filter((p) => p.repository_id === r.id && p.state === "open").length,
         mergedPrs: prs.filter((p) => p.repository_id === r.id && p.state === "merged").length,
       };
@@ -197,6 +201,7 @@ export async function loadFinding(db: Db, accountId: string, findingId: string) 
         "findings.reasons",
         "findings.advisory_id",
         "findings.created_at",
+        "findings.scan_id",
         "scans.sha",
         "scans.api_lock",
         "scans.finished_at",
@@ -212,7 +217,10 @@ export async function loadFinding(db: Db, accountId: string, findingId: string) 
     const site = f.call_site as FindingRow["site"];
     const lock = f.api_lock ? ApiLockSchema.safeParse(f.api_lock) : undefined;
     const locked = lock?.success ? lock.data.callSites.find((c) => c.file === site.file && c.line === site.line) : undefined;
-    return { ...f, site, locked, advisory: (f.advisory as Advisory | null) ?? undefined, pr: pr ? { ...pr, repair: pr.repair } : undefined };
+    // The same problem elsewhere in this repository: same scan, same API change.
+    const siblings = await tx.selectFrom("findings").select(["id", "kind", "call_site"]).where("scan_id", "=", f.scan_id).where("advisory_id", "=", f.advisory_id).where("id", "!=", f.id).orderBy("id").execute();
+    const others = siblings.map((o) => ({ id: o.id, kind: o.kind, file: (o.call_site as FindingRow["site"]).file, line: (o.call_site as FindingRow["site"]).line }));
+    return { ...f, site, locked, others, advisory: (f.advisory as Advisory | null) ?? undefined, pr: pr ? { ...pr, repair: pr.repair } : undefined };
   });
 }
 
@@ -223,62 +231,106 @@ export const daysUntil = (date: string, now: Date) => Math.round((Date.parse(dat
 
 /** Providers in the account's code (from the latest api.lock of each repository), with how they stand. */
 export function providersOf(data: AccountData) {
-  const map = new Map<string, { id: string; callSites: number; repos: number; affected: number; exposed: number; nextDeadline?: number }>();
+  const map = new Map<string, { id: string; callSites: number; repos: number; breaking: number; working: number; nextDeadline?: number }>();
   for (const r of data.repos) {
     for (const p of r.providers) {
-      const e = map.get(p.id) ?? { id: p.id, callSites: 0, repos: 0, affected: 0, exposed: 0 };
+      const e = map.get(p.id) ?? { id: p.id, callSites: 0, repos: 0, breaking: 0, working: 0 };
       e.callSites += p.callSites;
       e.repos += 1;
       map.set(p.id, e);
     }
   }
-  for (const f of data.findings) {
-    const id = f.advisory?.provider ?? f.site.provider;
+  for (const p of problemsOf(data)) {
+    const id = p.advisory?.provider ?? p.places[0]?.site.provider;
     if (!id) continue;
-    const e = map.get(id) ?? { id, callSites: 0, repos: 0, affected: 0, exposed: 0 };
-    if (f.kind === "affected") e.affected++;
-    else e.exposed++;
+    const e = map.get(id) ?? { id, callSites: 0, repos: 0, breaking: 0, working: 0 };
+    if (p.status === "breaks") e.breaking++;
+    else e.working++;
     map.set(id, e);
   }
   for (const d of deadlinesOf(data)) {
     const e = map.get(d.advisory.provider);
     if (e && d.daysUntil >= 0 && (e.nextDeadline === undefined || d.daysUntil < e.nextDeadline)) e.nextDeadline = d.daysUntil;
   }
-  return [...map.values()].sort((a, b) => b.affected - a.affected || b.exposed - a.exposed || b.callSites - a.callSites || a.id.localeCompare(b.id));
+  return [...map.values()].sort((a, b) => b.breaking - a.breaking || b.working - a.working || b.callSites - a.callSites || a.id.localeCompare(b.id));
 }
 
 /**
- * The advisories that matter to this account: every upcoming one for a provider in its code, and any
- * in effect that still hits a call site. Sorted by date.
+ * The API changes that matter to this account: every upcoming one for a provider in its code, and any
+ * in effect that still touches its code. Sorted by date. Counts are problems (repositories), not lines.
  */
 export function deadlinesOf(data: AccountData) {
   const present = new Set(data.repos.flatMap((r) => r.providers.map((p) => p.id)));
   for (const f of data.findings) if (f.advisory) present.add(f.advisory.provider);
-  const hits = hitsByAdvisory(data.findings);
+  const hits = hitsByAdvisory(data);
   return [...data.advisories.values()]
     .filter((a) => present.has(a.provider))
-    .map((a) => ({ advisory: a, daysUntil: daysUntil(a.effectiveDate, data.now), ...(hits.get(a.id) ?? { affected: 0, exposed: 0 }) }))
-    .filter((d) => d.daysUntil >= 0 || d.affected || d.exposed)
+    .map((a) => ({ advisory: a, daysUntil: daysUntil(a.effectiveDate, data.now), ...(hits.get(a.id) ?? { breaking: 0, working: 0 }) }))
+    .filter((d) => d.daysUntil >= 0 || d.breaking || d.working)
     .sort((a, b) => a.daysUntil - b.daysUntil || SEVERITY_RANK[a.advisory.severity] - SEVERITY_RANK[b.advisory.severity]);
 }
 
-/** Affected and exposed call sites per advisory. */
-export function hitsByAdvisory(findings: FindingRow[]): Map<string, { affected: number; exposed: number }> {
-  const hits = new Map<string, { affected: number; exposed: number }>();
-  for (const f of findings) {
-    const h = hits.get(f.advisory_id) ?? { affected: 0, exposed: 0 };
-    h[f.kind]++;
-    hits.set(f.advisory_id, h);
+/** Problems per API change: in how many repositories it breaks the code, and in how many the code still works. */
+export function hitsByAdvisory(data: AccountData): Map<string, { breaking: number; working: number }> {
+  const hits = new Map<string, { breaking: number; working: number }>();
+  for (const p of problemsOf(data)) {
+    const h = hits.get(p.advisory_id) ?? { breaking: 0, working: 0 };
+    if (p.status === "breaks") h.breaking++;
+    else h.working++;
+    hits.set(p.advisory_id, h);
   }
   return hits;
 }
 
+/**
+ * The unit every page counts: one API change in one repository. It "breaks" when any place in that
+ * repository's code depends on what changed, and "works" when the code only calls the changed API.
+ */
+export interface Problem {
+  key: string;
+  repository_id: string;
+  repo: string;
+  advisory_id: string;
+  advisory?: Advisory;
+  status: "breaks" | "works";
+  /** Every place in the code it touches, the breaking ones first. */
+  places: FindingRow[];
+  pr?: PrRow;
+}
+
+const problemCache = new WeakMap<AccountData, Problem[]>();
+
+/** The account's problems, breaking ones first, then by severity. */
+export function problemsOf(data: AccountData): Problem[] {
+  const cached = problemCache.get(data);
+  if (cached) return cached;
+  const byKey = new Map<string, Problem>();
+  for (const f of data.findings) {
+    const key = pairKey(f.repository_id, f.advisory_id);
+    let p = byKey.get(key);
+    if (!p) {
+      p = { key, repository_id: f.repository_id, repo: f.repo, advisory_id: f.advisory_id, advisory: f.advisory, status: "works", places: [], pr: data.prs.find((pr) => pairKey(pr.repository_id, pr.advisory_id) === key) };
+      byKey.set(key, p);
+    }
+    p.places.push(f);
+    if (f.kind === "affected") p.status = "breaks";
+  }
+  const rank = (a?: Advisory) => (a ? SEVERITY_RANK[a.severity] : 9);
+  for (const p of byKey.values()) p.places.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "affected" ? -1 : 1));
+  const list = [...byKey.values()].sort((a, b) => (a.status === b.status ? 0 : a.status === "breaks" ? -1 : 1) || rank(a.advisory) - rank(b.advisory) || a.repo.localeCompare(b.repo));
+  problemCache.set(data, list);
+  return list;
+}
+
+/** Problems that break code now: the number the sidebar and the Problems page show. */
+export const openProblems = (data: AccountData) => problemsOf(data).filter((p) => p.status === "breaks");
+
 const SEVERITY_COST: Record<string, number> = { critical: 8, high: 5, medium: 3, low: 1 };
 
 /**
- * One number for the account: the share of third-party call sites that still work (100 when none is
- * affected), less a little per affected call site by severity (at most 15) and 5 per repository whose
- * last scan failed. Exposed call sites cost nothing: they call a changed endpoint without depending on the change.
+ * One number for the account: the share of its API calls that still work (100 when none breaks), less
+ * a little per breaking call by severity (at most 15) and 5 per repository whose last scan failed.
+ * Calls that use a changed API but still work cost nothing. The explanation counts problems.
  */
 export function healthOf(data: AccountData): Health {
   const scanned = data.repos.filter((r) => r.lockSha);
@@ -289,7 +341,8 @@ export function healthOf(data: AccountData): Health {
   const share = 100 * (1 - Math.min(affected.length, callSites) / callSites);
   const severity = Math.min(15, affected.reduce((n, f) => n + (SEVERITY_COST[f.advisory?.severity ?? "medium"] ?? 3), 0));
   const score = Math.max(0, Math.round(share - severity - failed * 5));
-  const parts = [`${affected.length} of ${callSites} call sites affected`];
+  const open = openProblems(data).length;
+  const parts = [open ? plural(open, "open problem") : "No open problems"];
   if (failed) parts.push(`${failed} scan${failed === 1 ? "" : "s"} failed`);
   const verdict = !affected.length && !failed ? "Healthy" : score >= 55 ? "Needs attention" : "At risk";
   return { score, verdict, why: parts.join(" · ") };
@@ -343,7 +396,7 @@ export function attentionOf(data: AccountData): AttentionItem[] {
     items.push(pr ? { kind: "closed", finding: f, pr } : { kind: f.advisory?.recipeId ? "pending" : "manual", finding: f });
   }
   for (const repo of data.repos) if (repo.scan?.status === "failed") items.push({ kind: "scan-failed", repo });
-  for (const deadline of deadlinesOf(data)) if (deadline.daysUntil >= 0 && deadline.daysUntil <= 30 && (deadline.affected || deadline.exposed)) items.push({ kind: "deadline", deadline });
+  for (const deadline of deadlinesOf(data)) if (deadline.daysUntil >= 0 && deadline.daysUntil <= 30 && (deadline.breaking || deadline.working)) items.push({ kind: "deadline", deadline });
   return items.sort((a, b) => ATTENTION_ORDER[a.kind] - ATTENTION_ORDER[b.kind]);
 }
 
@@ -364,7 +417,7 @@ export function latestCatchOf(data: AccountData): LatestCatch | undefined {
 /** Repositories are installed but none has finished a scan yet: the overview shows scan progress instead. */
 export const firstScanPending = (data: AccountData) => data.repos.length > 0 && !data.repos.some((r) => r.lockSha);
 
-export interface SetupStep {
+interface SetupStep {
   key: "install" | "scan" | "slack" | "fix";
   state: "done" | "active" | "todo";
   label: string;
@@ -404,7 +457,7 @@ export function setupOf(data: AccountData): Setup {
         ? { key: "fix", state: "active", label: "Merge your first verified fix", detail: "A fix PR is ready: its test failed before the change and passes after." }
         : scanned && !affected
           ? { key: "fix", state: "done", label: "Merge your first verified fix", detail: "Nothing to fix yet. SHAPI opens a PR when an API change hits your code." }
-          : { key: "fix", state: "todo", label: "Merge your first verified fix", detail: "Appears after a scan finds an affected call site." },
+          : { key: "fix", state: "todo", label: "Merge your first verified fix", detail: "Appears after a scan finds a problem." },
   ];
   const done = steps.filter((s) => s.state === "done").length;
   return { steps, done, complete: done === steps.length };

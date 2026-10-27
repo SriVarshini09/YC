@@ -29,11 +29,10 @@ import {
   accountsPage,
   advisoriesPage,
   billingPage,
-  deadlinesPage,
   findingPage,
-  findingsPage,
   fixesPage,
   messagePage,
+  problemsPage,
   repositoriesPage,
   repositoryPage,
   settingsPage,
@@ -90,8 +89,8 @@ const backParam = z.string().regex(/^\/(?![/\\])[^\s]*$/);
 const FONT_FILE = createRequire(import.meta.url).resolve("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2");
 
 /**
- * The web app: sign in with GitHub, then see each account's overview, repositories, findings, fix PRs,
- * deadlines, advisories, settings and billing. Server-rendered, no client JavaScript. Every data query
+ * The web app: sign in with GitHub, then see each account's overview, problems, fixes, repositories,
+ * API changes, settings and billing. Server-rendered, no client JavaScript. Every data query
  * runs inside withTenant for an account the signed-in user can access on GitHub, so row-level security applies.
  */
 export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
@@ -229,28 +228,28 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       if (!ctx) return;
       const data = await loadAccount(deps.db, ctx.account.id);
       const q = req.query as { kind?: string; advisory?: string };
-      return send(reply, page("Findings", findingsPage(data, q), shellFor(data, ctx.ctx, "findings")));
+      return send(reply, page("Problems", problemsPage(data, q), shellFor(data, ctx.ctx, "findings")));
     });
 
     scope.get("/a/:accountId/fixes", async (req, reply) => {
       const ctx = await accountFor(req, reply);
       if (!ctx) return;
       const data = await loadAccount(deps.db, ctx.account.id);
-      return send(reply, page("Fix pull requests", fixesPage(data, req.query as { state?: string }), shellFor(data, ctx.ctx, "fixes")));
+      return send(reply, page("Fixes", fixesPage(data, req.query as { state?: string }), shellFor(data, ctx.ctx, "fixes")));
     });
 
     scope.get("/a/:accountId/deadlines", async (req, reply) => {
       const ctx = await accountFor(req, reply);
       if (!ctx) return;
-      const data = await loadAccount(deps.db, ctx.account.id);
-      return send(reply, page("Deadlines", deadlinesPage(data), shellFor(data, ctx.ctx, "deadlines")));
+      // Deadlines live on the API changes page now; old links land on its timeline.
+      return reply.redirect(`/a/${ctx.account.id}/advisories#timeline`);
     });
 
     scope.get("/a/:accountId/advisories", async (req, reply) => {
       const ctx = await accountFor(req, reply);
       if (!ctx) return;
       const data = await loadAccount(deps.db, ctx.account.id);
-      return send(reply, page("Advisories", advisoriesPage(data, req.query as { provider?: string; advisory?: string }), shellFor(data, ctx.ctx, "advisories")));
+      return send(reply, page("API changes", advisoriesPage(data, req.query as { provider?: string; advisory?: string }), shellFor(data, ctx.ctx, "advisories")));
     });
 
     scope.get("/a/:accountId/settings", async (req, reply) => {

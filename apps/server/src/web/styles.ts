@@ -104,9 +104,7 @@ a.card:hover { text-decoration: none; transform: translateY(-1px); box-shadow: v
 .grid { display: grid; gap: 16px; }
 .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .span-2 { grid-column: span 2; }
-.overview-top { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; }
 
 /* stat cards */
 .stat { display: grid; gap: 6px; align-content: start; }
@@ -201,7 +199,6 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
 .deadline .days.bad { background: var(--bad-bg); color: var(--bad); } .deadline .days.warn { background: var(--warn-bg); color: var(--warn); } .deadline .days.ok { background: var(--ok-bg); color: var(--ok); }
 .deadline .what b { font-weight: 600; }
 .deadline .what .sub { font-size: 12px; color: var(--muted); }
-.deadline .hits { display: flex; gap: 6px; }
 
 /* providers */
 .providers { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 12px; }
@@ -316,7 +313,11 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
 .catch { display: grid; gap: 14px; align-content: start; }
 .even > .column { align-content: stretch; }
 .even > .column > .section { grid-template-rows: auto 1fr; }
-.even .catch { grid-template-rows: auto auto auto auto auto 1fr; }
+.coming { display: grid; align-content: start; }
+.coming .deadline { grid-template-columns: 54px minmax(0, 1fr); padding: 10px 0; }
+.coming .deadline:first-child { padding-top: 0; }
+.coming .tag { margin-top: 4px; }
+.coming-foot { font-size: 12.5px; margin-top: 4px; }
 .catch-actions { align-self: end; }
 .proof { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .proof li { display: grid; gap: 6px; justify-items: start; font-size: 12px; color: var(--muted); padding: 10px 12px; border-radius: 10px; background: var(--card-2); border: 1px solid var(--line); overflow-wrap: anywhere; }
@@ -434,7 +435,7 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
 .brand-sm { color: var(--fg); } .brand-sm svg { display: block; height: 26px; width: auto; }
 @media (max-width: 900px) { .lp-shot { transform: none; } .lp-hero { padding: 40px 0 56px; } .lp-section { padding: 48px 0; } .lp-section h2 { font-size: 24px; } .lp-inner { padding: 0 16px; } }
 
-@media (max-width: 1100px) { .overview-top, .cols-3 { grid-template-columns: minmax(0, 1fr); } .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .span-2 { grid-column: auto; } .value-hero { grid-template-columns: minmax(0, 1fr); } .lp-hero .lp-inner, .lp-proof { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1100px) { .cols-3 { grid-template-columns: minmax(0, 1fr); } .span-2 { grid-column: auto; } .value-hero { grid-template-columns: minmax(0, 1fr); } .lp-hero .lp-inner, .lp-proof { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 900px) {
   body { flex-direction: column; }
   .side { position: static; width: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; }
@@ -445,7 +446,7 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
   .nav a .label { display: none; }
   .main { margin-left: 0; padding: 20px 16px 48px; }
   .proof { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .cols-2, .cols-4, .compare, .lp-steps, .lp-pricing, .lp-trust, .mini-steps { grid-template-columns: minmax(0, 1fr); }
+  .cols-2, .compare, .lp-steps, .lp-pricing, .lp-trust, .mini-steps { grid-template-columns: minmax(0, 1fr); }
   .lp-nav nav { display: none; }
   .lp-hero h1 { font-size: 34px; }
   .value-hero h1 { font-size: 24px; }
@@ -454,7 +455,6 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
   .compare .arrow svg { transform: rotate(90deg); }
   th:nth-child(n+4), td:nth-child(n+4) { display: none; }
   .deadline { grid-template-columns: 58px minmax(0, 1fr); }
-  .deadline .hits { display: none; }
 }
 @media print { .side { display: none; } .main { margin: 0; } }
 `;

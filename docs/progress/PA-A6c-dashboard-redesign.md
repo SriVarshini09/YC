@@ -30,3 +30,11 @@ Verified: typecheck, lint, and the suite pass (web tests cover every page, the t
 Not done: real provider logos (the marks are colored monograms, drawn here, so nothing is loaded from elsewhere and no trademarked artwork ships); charts beyond the ring and the timeline.
 
 **Merged with main (2026-10-25):** PB-7 (one PR per advisory: the fix job now stores the summary of the whole multi-site repair), PB-8 and the new logo. The sidebar, landing page and account picker use the official lockup and mark from `brand.ts` (the mark is the lockup's view box cropped to the icon), and the favicons are served as on main.
+
+**Simplified for customers (2026-10-27):**
+- **One counting unit: problems.** A problem is one API change in one repository, however many lines it touches. It either breaks the code or uses a changed API and still works. The banner, sidebar, Problems page, repositories, providers, deadlines and activity all count problems; only the repository page's code map lists individual API calls.
+- **Plain words.** Findings became Problems, Fix PRs became Fixes, Advisories became API changes; "affected" became "breaks", "exposed" became "still works", "call site" became "API call" or "place in your code".
+- **Shorter Overview:** the banner with the health score, then "Needs your attention" beside "Coming up" (changes in the next 90 days that touch the code), then the latest fix with its proof. The number cards, timeline, provider grid and activity feed moved off it: the timeline and providers to API changes, the activity to Repositories.
+- **Smaller sidebar:** Overview, Problems, Fixes, Repositories, API changes, then Settings and Billing. The Deadlines page is folded into API changes; `/deadlines` redirects to its timeline.
+- The finding page lists the other places of the same problem. A test checks that two broken lines from one API change count as one problem everywhere.
+

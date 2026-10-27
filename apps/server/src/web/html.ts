@@ -44,7 +44,7 @@ export const THEMES: Theme[] = ["auto", "light", "dark"];
 /** The public documentation site, where the security page and the legal terms live. */
 export const DOCS_URL = "https://srivarshini09.github.io/YC";
 
-export type NavKey = "overview" | "repositories" | "findings" | "fixes" | "deadlines" | "advisories" | "settings" | "billing";
+export type NavKey = "overview" | "repositories" | "findings" | "fixes" | "advisories" | "settings" | "billing";
 
 interface NavItem {
   key: NavKey;
@@ -114,11 +114,10 @@ export function navFor(accountId: string, counts: Partial<Record<NavKey, { count
   const item = (key: NavKey, label: string, href: string): NavItem => ({ key, label, href, icon: ICONS[key], ...(counts[key] ?? {}) });
   return [
     item("overview", "Overview", base),
+    item("findings", "Problems", `${base}/findings`),
+    item("fixes", "Fixes", `${base}/fixes`),
     item("repositories", "Repositories", `${base}/repositories`),
-    item("findings", "Findings", `${base}/findings`),
-    item("fixes", "Fix PRs", `${base}/fixes`),
-    item("deadlines", "Deadlines", `${base}/deadlines`),
-    item("advisories", "Advisories", `${base}/advisories`),
+    item("advisories", "API changes", `${base}/advisories`),
     item("settings", "Settings", `${base}/settings`),
     item("billing", "Billing", `${base}/billing`),
   ];
@@ -140,9 +139,9 @@ function sidebar(shell: Shell): Html {
       ? html`<div class="account"><span class="avatar">${initials(workspace.login)}</span><span class="who"><b>${workspace.login}</b><span>${workspace.type}</span></span><a href="/" title="Switch account">Switch</a></div>
   <nav class="nav">
     <div class="group">Monitor</div>
-    ${workspace.nav.slice(0, 6).map(navLink(workspace.active))}
+    ${workspace.nav.slice(0, 5).map(navLink(workspace.active))}
     <div class="group">Account</div>
-    ${workspace.nav.slice(6).map(navLink(workspace.active))}
+    ${workspace.nav.slice(5).map(navLink(workspace.active))}
   </nav>`
       : EMPTY
   }
