@@ -398,7 +398,7 @@ ${r.changes.length ? r.changes.map(diffView) : html`<p class="muted">No file cha
 
 /* ---------- settings ---------- */
 
-export function settingsPage(data: AccountData, notice: string | undefined, csrf: string): Html {
+export function settingsPage(data: AccountData, notice: string | undefined, csrf: string, opts: { llm?: boolean } = {}): Html {
   const b = accountHref(data);
   const settings = data.account.settings as { prLimits?: { hourly?: number; open?: number }; failOnAffected?: boolean; llmFixes?: boolean; slackWebhookUrl?: string };
   const limits = { ...DEFAULT_PR_LIMITS, ...(settings.prLimits ?? {}) };
@@ -411,7 +411,11 @@ ${notice ? html`<div class="notice">${notice}</div>` : EMPTY}
 <label>New fix PRs per hour, per repository <input type="number" name="hourly" min="1" max="20" value="${limits.hourly}"></label>
 <label>Open SHAPI PRs at once, per repository <input type="number" name="open" min="1" max="50" value="${limits.open}"></label>
 <label class="check"><input type="checkbox" name="failOnAffected" ${settings.failOnAffected ? "checked" : ""}> <span>Fail the SHAPI check when a call site is affected <span class="note">(it is neutral by default, so it never blocks a merge)</span></span></label>
-<label class="check"><input type="checkbox" name="llmFixes" ${settings.llmFixes ? "checked" : ""}> <span>Use Claude when no deterministic recipe fits <span class="note">(sends the affected file and its contract test to Anthropic; the change is kept only if the test passes in the sandbox)</span></span></label>
+${
+  opts.llm
+    ? html`<label class="check"><input type="checkbox" name="llmFixes" ${settings.llmFixes ? "checked" : ""}> <span>Use Claude when no deterministic recipe fits <span class="note">(sends the affected file and its contract test to Anthropic; the change is kept only if the test passes in the sandbox)</span></span></label>`
+    : EMPTY
+}
 <h2>Slack alerts</h2>
 <label>Slack alerts for new affected call sites <span class="note">${
     settings.slackWebhookUrl ? html`(connected: webhook ending in <span class="mono">${settings.slackWebhookUrl.slice(-6)}</span>; paste a new one to replace it)` : html`(paste an <a href="https://api.slack.com/messaging/webhooks">incoming webhook</a> link, https://hooks.slack.com/services/…)`

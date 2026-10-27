@@ -15,6 +15,10 @@ const app = buildApp({
     if (!sender) throw new Error("job queue not started");
     await sender.enqueueWebhook(deliveryId);
   },
+  enqueueFix: async (scanId, repositoryId) => {
+    if (!sender) throw new Error("job queue not started");
+    await sender.enqueueFix(scanId, repositoryId);
+  },
 });
 const log = {
   info: (obj: object, msg?: string) => app.log.info(obj, msg),

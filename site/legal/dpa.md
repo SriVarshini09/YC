@@ -1,7 +1,7 @@
 # Data processing agreement
 
 ::: warning Draft
-This agreement takes effect when the SHAPI GitHub App opens to the public. It has not been reviewed by a lawyer yet. Last updated October 23, 2026.
+This agreement applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 27, 2026.
 :::
 
 This data processing agreement ("DPA") is part of the [terms of service](/legal/terms) between you ("Customer") and SHAPI. It applies when SHAPI processes personal data for you that is protected by the EU GDPR, the UK GDPR or similar data protection laws. If this DPA and the terms conflict, this DPA wins for personal data.

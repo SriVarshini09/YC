@@ -40,12 +40,14 @@ npx shapi-cli scan . --out api.lock
 npx shapi-cli fix .
 ```
 
-`fix` copies your repository to a temporary folder and, for each affected call site:
+`fix` copies your repository to a temporary folder and, for each affected TypeScript or JavaScript call site whose advisory has a fix recipe:
 
 1. writes a contract test that calls your code with the response it was written for and the response the provider sends now
 2. runs it and confirms that it **fails**
 3. applies the advisory's deterministic recipe
 4. runs the test again, and keeps the change only if it **passes**.
+
+Call sites without a recipe (and all Python call sites, which are scan-only for now) are reported with the provider's migration steps.
 
 Nothing in your repository changes until you ask:
 

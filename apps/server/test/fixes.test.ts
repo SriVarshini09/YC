@@ -145,6 +145,35 @@ describe("fix delivery", () => {
     expect(t.github.issues[0]!.body).toContain("Change low [#4]");
   });
 
+  it("a ticked box or a lifted pause queues a fix job on the latest scan right away", async () => {
+    const t = setup();
+    const first = await deliverRepoFixes(t.deps, { repositoryId, fixes, now: new Date() });
+    const issue = t.github.issues[0]!;
+    const account = await owner.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    const scan = await owner
+      .insertInto("scans")
+      .values({ account_id: account.account_id, repository_id: repositoryId, sha: "a".repeat(40), status: "succeeded", api_lock: JSON.stringify({ callSites: [] }), finished_at: new Date() })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+    const edited = async () => {
+      const id = randomUUID();
+      await db.insertInto("webhook_deliveries").values({ delivery_id: id, event: "issues", action: "edited", installation_id: 42, payload: JSON.stringify({ action: "edited", issue, sender: { type: "User" }, repository: { id: 777 } }) }).execute();
+      return processDelivery(t.deps, id);
+    };
+
+    t.github.tick(first.dashboard!.number, "create:low");
+    const ticked = await edited();
+    expect(ticked.outcome).toBe("dashboard saved (paused: false, open now: 1, retry: 0), fix job queued");
+    expect(ticked.fixes).toEqual([{ scanId: scan.id, repositoryId }]);
+
+    // Pausing asks for nothing; lifting the pause delivers what waited.
+    issue.body = issue.body.replace("- [x] <!-- shapi:create:low -->", "- [ ] <!-- shapi:create:low -->");
+    t.github.tick(issue.number, "pause");
+    expect((await edited()).fixes).toEqual([]);
+    issue.body = issue.body.replace("- [x] <!-- shapi:pause -->", "- [ ] <!-- shapi:pause -->");
+    expect((await edited()).fixes).toEqual([{ scanId: scan.id, repositoryId }]);
+  });
+
   it("follows maintainers: closed stays closed until retried, merged is recorded, stop label halts updates", async () => {
     const t = setup();
     const now = new Date();

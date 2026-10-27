@@ -17,7 +17,7 @@ The test must **fail before the fix**, which proves it reproduces the breakage. 
 1. **A deterministic recipe**, if the advisory has one. Recipes are plain code transformations with tests of their own:
    - `status-code-accept-set` rewrites `res.status !== 204` to `![200, 204].includes(res.status)`;
    - `apply-fix` applies the change the advisory spells out, for example moving `/v21.0/` to `/v26.0/` (including in a base URL constant), setting `minorversion=75`, reading `folderIdV2` with `folderId` as a fallback, or accepting a renamed enum value.
-2. **Claude**, only if you ask for it (`fix --llm`, or the account setting *Use Claude when no deterministic recipe fits*). Claude gets the affected file, the advisory and the failing test, and proposes a change. It may not touch the test or anything outside your repository.
+2. **Claude**, only if you ask for it (`fix --llm`, or the account setting *Use Claude when no deterministic recipe fits*, shown when Claude is enabled on the server). Claude gets the affected file, the advisory and the failing test, and proposes a change. It may not touch the test or anything outside your repository.
 
 Either way, the change is kept **only if the contract test then passes**. Otherwise the call site is reported as needing a manual fix, and nothing is changed.
 
