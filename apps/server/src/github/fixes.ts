@@ -1,5 +1,5 @@
 import type { Advisory } from "@shapi/core";
-import { withService, type Db, type Tx } from "@shapi/db";
+import { withService, type Db, type FixRepair, type Tx } from "@shapi/db";
 import {
   DEFAULT_PR_LIMITS,
   parseDashboard,
@@ -24,6 +24,8 @@ export interface FixCandidate {
   body: string;
   commitMessage: string;
   files: { path: string; content: string }[];
+  /** How the fix was verified, shown in the web app; absent for fixes built outside the fix job. */
+  repair?: FixRepair;
 }
 
 export interface DeliverInput {
@@ -114,7 +116,7 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
     }
     try {
       const outcome = await upsertFixPr(octokit, { repo: repo.full_name, branch: prBranch(d.advisory), title: fix.title, body: fix.body, commitMessage: fix.commitMessage, files: fix.files, labels: [PR_LABEL], retryClosed: intents.retry.has(d.advisory.id) });
-      await withService(deps.db, (tx) => recordOutcome(tx, repo, d.advisory.id, outcome, now));
+      await withService(deps.db, (tx) => recordOutcome(tx, repo, d.advisory.id, outcome, now, fix.repair));
       if (outcome.action === "skipped" && !outcome.state) waiting.push({ advisory: d.advisory, reason: outcome.reason });
       report.outcomes.push({ advisoryId: d.advisory.id, action: outcome.action, reason: outcome.action === "skipped" ? outcome.reason : undefined, url: outcome.url });
     } catch (err) {
@@ -149,7 +151,7 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
   return report;
 }
 
-async function recordOutcome(tx: Tx, repo: { id: string; account_id: string }, advisoryId: string, outcome: FixPrOutcome, now: Date): Promise<void> {
+async function recordOutcome(tx: Tx, repo: { id: string; account_id: string }, advisoryId: string, outcome: FixPrOutcome, now: Date, repair: FixRepair | undefined): Promise<void> {
   if (outcome.action === "skipped" && !outcome.state) return; // a foreign branch: nothing SHAPI owns
   const state = outcome.action === "skipped" ? outcome.state! : "open";
   const values = {
@@ -161,6 +163,9 @@ async function recordOutcome(tx: Tx, repo: { id: string; account_id: string }, a
     head_sha: "commit" in outcome ? outcome.commit : null,
     updated_at: now,
     closed_at: state === "closed" ? now : null,
+    // The verification behind the PR's current head. Every run that reaches the PR rewrites it, an unchanged
+    // PR included (same code, verified again now); a PR SHAPI skipped keeps what it had.
+    ...(repair && "commit" in outcome ? { repair: JSON.stringify(repair) } : {}),
   };
   const created = outcome.action === "created";
   await tx

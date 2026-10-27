@@ -1,7 +1,13 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { createDb, migrateToLatest, withService, type Db } from "@shapi/db";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { createApiLock, loadAdvisories } from "@shapi/core";
+import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { buildApp, loadConfig } from "../src/index";
+import { MARK } from "../src/web/html";
+import { landingPage } from "../src/web/landing";
+import { loadAccount, withCatchDetail } from "../src/web/queries";
 
 let pg: TestPostgres;
 let db: Db;
@@ -12,6 +18,8 @@ beforeAll(async () => {
   owner = createDb({ connectionString: pg.url, appRole: false });
   await migrateToLatest(owner);
   db = createDb({ connectionString: pg.url });
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+  await upsertAdvisories(owner, loadAdvisories(path.join(root, "advisories")), { reviewed: true, source: "repo" });
 }, 120_000);
 
 afterAll(async () => {
@@ -112,6 +120,10 @@ describe("web sign-in", () => {
     expect(res.body).toContain("https://github.com/apps/shapi-test/installations/new");
     expect(res.body).not.toContain("<script");
     expect(res.body).toContain('<a href="https://srivarshini09.github.io/YC/legal/privacy">Privacy</a>');
+    // the public landing page: what SHAPI does, with numbers read from the server
+    expect(res.body).toContain("Your code shouldn't break.");
+    expect(res.body).toContain('id="how"');
+    expect(res.body).toMatch(/<b>\d+<\/b><span>reviewed API changes<\/span>/);
     expect(res.headers["content-security-policy"]).toContain("default-src 'none'");
     expect(res.headers["x-frame-options"]).toBe("DENY");
     await app.close();
@@ -122,10 +134,28 @@ describe("web sign-in", () => {
     const home = await app.inject("/");
     expect(home.body).toContain('<a class="brand" href="/" aria-label="SHAPI home"><svg');
     expect(home.body).toContain('<link rel="icon" href="/favicon.svg" type="image/svg+xml">');
+    // The landing page's logo moves on hover. No style attributes and no <style> elements, so the CSP holds.
+    expect(home.body).toContain('<a class="brand" href="/" aria-label="SHAPI home"><svg xmlns="http://www.w3.org/2000/svg" class="sp-logo sp-hover"');
+    expect(home.body).not.toContain(" style=");
+    expect(home.body).not.toContain("<style");
+    // The mark (account picker, messages, welcome) is the two pieces alone: no wordmark, no bar, no <style>.
+    const mark = String(MARK);
+    expect(mark).toContain('viewBox="0 0 47.88 47.88"');
+    expect(mark).toContain('class="sp-left"');
+    expect(mark).not.toContain("sp-word");
+    expect(mark).not.toContain("<style");
+    const { cookie } = await signIn(app);
+    expect((await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body).not.toContain("<style");
+    const css = await app.inject("/static/app.css");
+    expect(css.body).toContain("@keyframes sp-in-left");
+    expect(css.body).toContain("prefers-reduced-motion");
+    // The pieces lift above the view box while they move; they show instead of being clipped.
+    expect(css.body).toContain(".sp-logo { overflow: visible; }");
     const svg = await app.inject("/favicon.svg");
     expect(svg.statusCode).toBe(200);
     expect(svg.headers["content-type"]).toBe("image/svg+xml");
     expect(svg.body).toContain("<svg");
+    expect(svg.body).toContain("prefers-color-scheme:dark");
     const ico = await app.inject("/favicon.ico");
     expect(ico.statusCode).toBe(200);
     expect(ico.headers["content-type"]).toBe("image/x-icon");
@@ -159,9 +189,12 @@ describe("web sign-in", () => {
     expect(JSON.stringify(rows)).not.toContain("ghu_user_token");
     expect(rows[0]).toMatchObject({ login: "octo", installation_ids: ["4242", "5555"] });
 
+    // one account: straight to its overview; the picker is still there under /?all
     const home = await app.inject({ url: "/", headers: { cookie } });
-    expect(home.body).toContain(`href="/a/${mine.account}"`);
-    expect(home.body).not.toContain("rival");
+    expect(home.headers.location).toBe(`/a/${mine.account}`);
+    const picker = await app.inject({ url: "/?all", headers: { cookie } });
+    expect(picker.body).toContain(`href="/a/${mine.account}"`);
+    expect(picker.body).not.toContain("rival");
     await app.close();
   });
 
@@ -179,7 +212,7 @@ describe("web sign-in", () => {
   it("signs out: the session is deleted, and a tampered cookie counts as signed out", async () => {
     const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
     const { cookie } = await signIn(app);
-    const home = await app.inject({ url: "/", headers: { cookie } });
+    const home = await app.inject({ url: `/a/${mine.account}`, headers: { cookie } });
     const out = await app.inject({ method: "POST", url: "/logout", headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(home.body)}` });
     expect(out.statusCode).toBe(302);
     expect(await withService(db, (tx) => tx.selectFrom("sessions").selectAll().execute())).toEqual([]);
@@ -190,14 +223,36 @@ describe("web sign-in", () => {
 });
 
 describe("web pages", () => {
-  it("shows the account's repositories, findings and fix PRs, escaping everything", async () => {
+  it("shows the account's overview, repositories, findings and fix PRs, escaping everything", async () => {
     const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
     const { cookie } = await signIn(app);
     const account = await app.inject({ url: `/a/${mine.account}`, headers: { cookie } });
     expect(account.statusCode).toBe(200);
     expect(account.body).toContain("acme/api");
     expect(account.body).toContain("1 affected");
-    expect(account.body).toContain('name="hourly" min="1" max="20" value="2"');
+    expect(account.body).toContain('class="nav"');
+    expect(account.body).not.toContain("<script");
+    expect(account.body).toContain("Affected call sites");
+    const settings = await app.inject({ url: `/a/${mine.account}/settings`, headers: { cookie } });
+    expect(settings.body).toContain('name="hourly" min="1" max="20" value="2"');
+    for (const path of ["repositories", "findings", "fixes", "deadlines", "advisories", "billing"]) {
+      const res = await app.inject({ url: `/a/${mine.account}/${path}`, headers: { cookie } });
+      expect(res.statusCode, path).toBe(200);
+      expect(res.body).not.toContain("<script");
+      expect(res.body, path).not.toContain(' style="');
+    }
+    const findings = await app.inject({ url: `/a/${mine.account}/findings`, headers: { cookie } });
+    expect(findings.body).toContain("src/deploy.ts:13");
+    expect(findings.body).toContain('href="https://github.com/acme/api/pull/7"');
+    const findingId = /\/f\/(\d+)/.exec(findings.body)![1]!;
+    const finding = await app.inject({ url: `/a/${mine.account}/f/${findingId}`, headers: { cookie } });
+    expect(finding.statusCode).toBe(200);
+    expect(finding.body).toContain("Expected by the code");
+    expect(finding.body).toContain("204 No Content");
+    expect(finding.body).toContain("200 OK");
+    expect(finding.body).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    expect(finding.body).not.toContain("<img");
+    expect(finding.body).toContain('href="https://github.com/acme/api/pull/7"');
 
     const repo = await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } });
     expect(repo.statusCode).toBe(200);
@@ -250,7 +305,7 @@ describe("web pages", () => {
     }) as typeof globalThis.fetch;
     const app = buildApp({ db, config, fetch });
     const { cookie } = await signIn(app);
-    const pageBody = async () => (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+    const pageBody = async () => (await app.inject({ url: `/a/${mine.account}/settings`, headers: { cookie } })).body;
     const csrf = csrfFrom(await pageBody());
     const form = { cookie, "content-type": "application/x-www-form-urlencoded" };
     const save = (extra: string) => app.inject({ method: "POST", url: `/a/${mine.account}/settings`, headers: form, payload: `csrf=${csrf}&hourly=2&open=10${extra}` });
@@ -269,17 +324,74 @@ describe("web pages", () => {
     expect((await stored()).slackWebhookUrl).toBe(hook);
 
     const test = await app.inject({ method: "POST", url: `/a/${mine.account}/slack/test`, headers: form, payload: `csrf=${csrf}` });
-    expect(test.headers.location).toBe(`/a/${mine.account}?slack=sent`);
+    expect(test.headers.location).toBe(`/a/${mine.account}/settings?slack=sent`);
     expect(slack).toEqual([{ url: hook, body: expect.objectContaining({ text: expect.stringContaining("SHAPI is connected") }) }]);
     slackStatus = 404;
     const failed = await app.inject({ method: "POST", url: `/a/${mine.account}/slack/test`, headers: form, payload: `csrf=${csrf}` });
-    expect(failed.headers.location).toBe(`/a/${mine.account}?slack=failed`);
-    body = (await app.inject({ url: `/a/${mine.account}?slack=failed`, headers: { cookie } })).body;
+    expect(failed.headers.location).toBe(`/a/${mine.account}/settings?slack=failed`);
+    body = (await app.inject({ url: `/a/${mine.account}/settings?slack=failed`, headers: { cookie } })).body;
     expect(body).toContain("Slack did not accept the test message");
 
     expect((await save("&slackRemove=on")).statusCode).toBe(303);
     expect((await stored()).slackWebhookUrl).toBeUndefined();
     expect(await pageBody()).not.toContain("Send a test message");
+    await app.close();
+  });
+
+  it("remembers the theme in a cookie, only with the CSRF token, and never shows another account's finding", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const home = await app.inject({ url: `/a/${mine.account}`, headers: { cookie } });
+    expect(home.body).not.toContain("data-theme");
+    const form = { cookie, "content-type": "application/x-www-form-urlencoded" };
+    expect((await app.inject({ method: "POST", url: "/theme", headers: form, payload: "csrf=nope&theme=dark" })).statusCode).toBe(403);
+    const set = await app.inject({ method: "POST", url: "/theme", headers: form, payload: `csrf=${csrfFrom(home.body)}&theme=dark&back=/a/${mine.account}/findings` });
+    expect(set.statusCode).toBe(303);
+    expect(set.headers.location).toBe(`/a/${mine.account}/findings`);
+    const theme = set.cookies.find((c) => c.name === "shapi_theme")!;
+    expect(theme).toMatchObject({ value: "dark", httpOnly: true });
+    const dark = await app.inject({ url: `/a/${mine.account}`, headers: { cookie: `${cookie}; shapi_theme=dark` } });
+    expect(dark.body).toContain('<html lang="en" data-theme="dark">');
+    const back = await app.inject({ method: "POST", url: "/theme", headers: form, payload: `csrf=${csrfFrom(home.body)}&theme=auto&back=https://evil.example/` });
+    expect(back.headers.location).toBe("/");
+
+    const rivalRepo = await owner.selectFrom("repositories").select("id").where("full_name", "=", "rival/secret").executeTakeFirstOrThrow();
+    const rivalScan = await owner.insertInto("scans").values({ account_id: other.account, repository_id: rivalRepo.id, sha: "f".repeat(40), status: "succeeded" }).returning("id").executeTakeFirstOrThrow();
+    const rivalFinding = await owner
+      .insertInto("findings")
+      .values({ account_id: other.account, repository_id: rivalRepo.id, scan_id: rivalScan.id, advisory_id: "github-workflow-dispatch-204-to-200", kind: "affected", call_site: JSON.stringify({ file: "secret.ts", line: 1 }), reasons: JSON.stringify(["rival-only-reason"]) })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+    const res = await app.inject({ url: `/a/${mine.account}/f/${rivalFinding.id}`, headers: { cookie } });
+    expect(res.statusCode).toBe(404);
+    expect(res.body).not.toContain("rival-only-reason");
+    await app.close();
+  });
+
+  it("welcomes a new account, shows the first scan's progress, then leads with what SHAPI found", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const overview = async () => (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+
+    let body = await overview();
+    expect(body).toContain('SHAPI found <span class="hl">1 breaking API change</span> in your code.');
+    expect(body).toContain("1 fix PR ready for review");
+    expect(body).toContain("Review fix PR #7");
+    expect(body).toContain("Get started"); // Slack is not connected yet
+    expect(body).not.toContain('http-equiv="refresh"');
+
+    await owner.deleteFrom("scans").where("account_id", "=", mine.account).execute();
+    await owner.insertInto("scans").values({ account_id: mine.account, repository_id: mine.repo, sha: "b".repeat(40), status: "running" }).execute();
+    body = await overview();
+    expect(body).toContain("Scanning your repositories");
+    expect(body).toContain('<meta http-equiv="refresh" content="10">');
+    expect(body).not.toContain("breaking API change");
+
+    await owner.deleteFrom("repositories").where("account_id", "=", mine.account).execute();
+    body = await overview();
+    expect(body).toContain("Welcome to SHAPI, acme");
+    expect(body).toContain('href="https://github.com/apps/shapi-test/installations/new"');
+    expect(body).not.toContain(' style="');
     await app.close();
   });
 
@@ -298,5 +410,79 @@ describe("web pages", () => {
     await pause();
     expect(await settings()).toEqual({ paused: true, pausedFromWeb: false });
     await app.close();
+  });
+});
+
+describe("account pages after review", () => {
+  const repair = {
+    method: "recipe",
+    recipeId: "status-code-accept-set",
+    verifiedAt: "2026-10-23T00:00:00.000Z",
+    sites: [{ file: "src/deploy.ts", line: 13, method: "POST", endpoint: "/x", status: "fixed", test: "test/shapi/a.test.ts", before: { passed: false, tests: "1 failed", output: "AssertionError: big output" }, after: { passed: true, tests: "1 passed", output: "ok" } }],
+    changes: [{ file: "src/deploy.ts", kind: "modified", diff: "@@ -13 +13 @@\n-  if (res.status !== 204)\n+  if (![200, 204].includes(res.status))", truncated: false }],
+  };
+
+  it("stops showing scan progress once every first scan has failed, and shows the failure", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    await owner.deleteFrom("scans").where("account_id", "=", mine.account).execute();
+    await owner.insertInto("scans").values({ account_id: mine.account, repository_id: mine.repo, sha: "c".repeat(40), status: "failed", error: "tarball download failed", finished_at: new Date() }).execute();
+    const body = (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+    expect(body).not.toContain("Scanning your repositories");
+    expect(body).not.toContain('http-equiv="refresh"');
+    expect(body).toContain("Scan failed in acme/api");
+    expect(body).toContain("tarball download failed");
+    await app.close();
+  });
+
+  it("loads summaries for every page, the full repair only for the latest catch, and the lock only for its repository", async () => {
+    await owner.updateTable("fix_prs").set({ repair: JSON.stringify(repair) }).where("account_id", "=", mine.account).execute();
+    await owner.updateTable("scans").set({ api_lock: JSON.stringify(createApiLock({ callSites: [], declared: [] }, "test")) }).where("account_id", "=", mine.account).execute();
+    const data = await loadAccount(db, mine.account);
+    expect(data.prs[0]!.repair!.changes).toEqual([]);
+    expect(data.prs[0]!.repair!.sites[0]).toMatchObject({ status: "fixed", before: { passed: false, tests: "1 failed" }, after: { passed: true, tests: "1 passed" } });
+    expect(data.prs[0]!.repair!.sites[0]!.before).not.toHaveProperty("output");
+    expect(data.repos[0]!.lock).toBeUndefined();
+    expect((await loadAccount(db, mine.account, { lockRepo: mine.repo })).repos[0]!.lock).toBeDefined();
+    const detailed = await withCatchDetail(db, data);
+    expect(detailed.prs[0]!.repair!.changes).toEqual(repair.changes);
+
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const overview = (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+    expect(overview).toContain("![200, 204].includes(res.status)");
+    await app.close();
+  });
+
+  it("skips a malformed advisory row instead of failing every page", async () => {
+    await owner.insertInto("advisories").values({ id: "broken-row", provider: "github", data: JSON.stringify({ id: "broken-row" }), reviewed: true, source: "test", modified: new Date() }).execute();
+    try {
+      const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+      const { cookie } = await signIn(app);
+      for (const path of ["", "/deadlines", "/advisories", "/findings"]) expect((await app.inject({ url: `/a/${mine.account}${path}`, headers: { cookie } })).statusCode, path).toBe(200);
+      await app.close();
+    } finally {
+      await owner.deleteFrom("advisories").where("id", "=", "broken-row").execute();
+    }
+  });
+
+  it("sends a Stripe return to the old account URL on to the billing page", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const res = await app.inject({ url: `/a/${mine.account}?billing=done&session=cs_test_1`, headers: { cookie } });
+    expect(res.statusCode).toBe(303);
+    expect(res.headers.location).toBe(`/a/${mine.account}/billing?billing=done&session=cs_test_1`);
+    await app.close();
+  });
+
+  it("only claims what the product does: fixes need a recipe, Python is scanned, early access is free only without billing", () => {
+    const free = String(landingPage({ configured: true, advisories: 54, withFix: 11 }));
+    expect(free).not.toContain("fix most changes");
+    expect(free).toContain("(11 of the 54 reviewed changes have one today)");
+    expect(free).toContain("scanned; fixes for TS and JS");
+    expect(free).toContain("For each affected TypeScript or JavaScript call with a fix recipe");
+    expect(free).toContain("Free for everyone during early access.");
+    const paid = String(landingPage({ configured: true, advisories: 54, withFix: 11, billingEnabled: true }));
+    expect(paid).not.toContain("early access");
   });
 });
