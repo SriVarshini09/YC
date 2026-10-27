@@ -173,7 +173,7 @@ onBeforeUnmount(() => {
     <section class="wrap hero" data-scroll="out">
       <div class="hero-copy">
         <div class="eyebrow">For teams that call other people's APIs</div>
-        <h1>APIs change.<br /><span class="dim">Your code keeps working.</span></h1>
+        <h1>APIs change.<br />Your code <span class="under">keeps working.</span></h1>
         <p class="lede">
           Stripe renames a value. GitHub answers 200 instead of 204. SHAPI finds the exact lines in your code that a change breaks and, where a fix recipe
           exists, opens a pull request that fixes them, with a test that proves it.
@@ -245,7 +245,7 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <section class="block" id="how">
+    <section class="block band" id="how">
       <div class="wrap center rise" data-scroll="enter">
         <div class="eyebrow center">How it works</div>
         <h2>One API change,<br /><span class="dim">from start to finish.</span></h2>
@@ -387,7 +387,7 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <section class="block">
+    <section class="block band">
       <div class="wrap center rise" data-scroll="enter">
         <div class="eyebrow center">Pricing</div>
         <h2>Free to start.</h2>

@@ -121,7 +121,7 @@ describe("web sign-in", () => {
     expect(res.body).not.toContain("<script");
     expect(res.body).toContain('<a href="https://srivarshini09.github.io/YC/legal/privacy">Privacy</a>');
     // the public landing page: what SHAPI does, with numbers read from the server
-    expect(res.body).toContain("Your code keeps working.");
+    expect(res.body).toContain("keeps working.");
     expect(res.body).toContain('id="how"');
     expect(res.body).toMatch(/<b>\d+<\/b><span>reviewed API changes<\/span>/);
     expect(res.headers["content-security-policy"]).toContain("default-src 'none'");

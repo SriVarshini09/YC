@@ -1,13 +1,16 @@
-/* SHAPI's colours (brand/): Paper #F7F6F2 and Ink #0E0F12, with red only where something breaks and
-   green only where it is fixed. One light theme, no gradients. Headlines in Jost, text in Inter. */
+/* SHAPI's colours ("Butter"): warm yellow #FFD84A and Ink #17130A, on a cream page for reading. Red only
+   where something breaks, green only where it is fixed. One light theme, no gradients. Headlines in
+   Jost, text in Inter. The landing page turns the whole page yellow (home.css). */
 :root {
-  --paper: #f7f6f2;
-  --paper-2: #efede6;
+  --butter: #ffd84a;
+  --butter-soft: #fff0b3;
+  --paper: #fcf8ec;
+  --paper-2: #f4eed9;
   --card: #ffffff;
-  --ink: #0e0f12;
-  --ink-2: #55575e;
-  --ink-3: #9a9ba1;
-  --line: #e3e0d7;
+  --ink: #17130a;
+  --ink-2: #4f4836;
+  --ink-3: #8c846c;
+  --line: #e7dfc6;
   --break: #c2412d;
   --break-bg: #fbedea;
   --fixed: #2d7a52;
@@ -29,9 +32,9 @@
   --vp-c-gutter: var(--line);
   --vp-c-border: var(--line);
   --vp-c-brand-1: var(--ink);
-  --vp-c-brand-2: #2b2d33;
+  --vp-c-brand-2: #3a3220;
   --vp-c-brand-3: var(--ink);
-  --vp-c-brand-soft: rgba(14, 15, 18, 0.07);
+  --vp-c-brand-soft: var(--butter-soft);
   --vp-c-default-soft: var(--paper-2);
   --vp-c-danger-1: var(--break);
   --vp-c-danger-soft: var(--break-bg);
@@ -46,13 +49,13 @@
   --vp-code-block-bg: var(--card);
   --vp-button-brand-bg: var(--ink);
   --vp-button-brand-border: var(--ink);
-  --vp-button-brand-text: var(--paper);
-  --vp-button-brand-hover-bg: #2b2d33;
-  --vp-button-brand-hover-text: var(--paper);
+  --vp-button-brand-text: var(--butter);
+  --vp-button-brand-hover-bg: #3a3220;
+  --vp-button-brand-hover-text: var(--butter);
   --vp-button-brand-active-bg: var(--ink);
-  --vp-button-brand-active-text: var(--paper);
-  --vp-nav-bg-color: rgba(247, 246, 242, 0.9);
-  --vp-local-nav-bg-color: rgba(247, 246, 242, 0.9);
+  --vp-button-brand-active-text: var(--butter);
+  --vp-nav-bg-color: rgba(252, 248, 236, 0.92);
+  --vp-local-nav-bg-color: rgba(252, 248, 236, 0.92);
   --vp-sidebar-bg-color: var(--paper);
 }
 
@@ -61,16 +64,18 @@
 .shapi-nav-logo svg { display: block; height: 24px; width: auto; }
 
 /* Nav: an install pill after the links. */
-.nav-install { display: inline-flex; align-items: center; height: 34px; padding: 0 16px; margin-left: 16px; border-radius: 999px; background: var(--ink); color: var(--paper) !important; font-size: 13px; font-weight: 500; white-space: nowrap; transition: transform 0.15s; }
-.nav-install:hover { transform: translateY(-1px); }
+.nav-install { display: inline-flex; align-items: center; height: 34px; padding: 0 16px; margin-left: 16px; border-radius: 999px; background: var(--ink); color: var(--butter) !important; font-size: 13px; font-weight: 600; white-space: nowrap; transition: transform 0.15s, box-shadow 0.15s; }
+.nav-install:hover { transform: translate(-2px, -2px); box-shadow: 3px 3px 0 var(--butter), 3px 3px 0 1.5px var(--ink); }
 @media (max-width: 767px) { .nav-install { display: none; } }
 
-/* Docs pages: headings in Jost, a little more air, code blocks as white cards. */
-.vp-doc h1, .vp-doc h2, .vp-doc h3 { font-family: var(--display); letter-spacing: -0.01em; }
-.vp-doc h1 { font-weight: 300; font-size: 40px; line-height: 1.15; }
-.vp-doc h2 { font-weight: 400; font-size: 28px; border-top-color: var(--line); }
-.vp-doc h3 { font-weight: 500; font-size: 20px; }
-.vp-doc a { text-underline-offset: 3px; }
+/* Docs pages: bold Jost headings, links underlined in butter, code blocks as white cards. */
+.vp-doc h1, .vp-doc h2, .vp-doc h3 { font-family: var(--display); letter-spacing: -0.02em; }
+.vp-doc h1 { font-weight: 600; font-size: 42px; line-height: 1.1; }
+.vp-doc h2 { font-weight: 600; font-size: 28px; border-top-color: var(--line); }
+.vp-doc h3 { font-weight: 600; font-size: 20px; }
+.vp-doc a { font-weight: 500; text-decoration: underline; text-decoration-color: var(--butter); text-decoration-thickness: 3px; text-underline-offset: 3px; transition: background 0.15s; }
+.vp-doc a:hover { background: var(--butter-soft); }
+.vp-doc :not(pre) > code { background: var(--butter-soft); }
 .vp-doc div[class*="language-"] { border: 1px solid var(--line); border-radius: 12px; }
 .vp-doc table { border-radius: 12px; overflow: hidden; }
 .vp-doc tr { background: var(--card); }
@@ -78,4 +83,7 @@
 .vp-doc th { background: var(--paper-2); }
 .custom-block { border-radius: 12px; }
 .VPSidebarItem.is-active > .item .link > .text { font-weight: 600; }
+.VPSidebarItem.is-active > .item { position: relative; }
+.VPSidebarItem.is-active > .item::before { content: ""; position: absolute; left: -12px; right: -8px; top: 2px; bottom: 2px; border-radius: 8px; background: var(--butter); z-index: -1; }
+.VPSidebarItem.is-active > .item .indicator { display: none; }
 

@@ -2,9 +2,9 @@
 
 What exists: the docs site and the web app share one look, signed off on `brand/redesign-mockup.html` (open it in a browser; the switch at the bottom flips between the website and the dashboard). It replaces the dark navy-and-blue look.
 
-**The look**
-- **Colours:** the logo's Paper `#F7F6F2` and Ink `#0E0F12`, with white cards and thin warm lines. Red `#C2412D` appears only where something breaks, green `#2D7A52` only where it's fixed, and amber `#A86A12` for what's coming soon. No gradients and no blue.
-- **Type:** headlines in Jost Light, text in Inter, and code with ligatures off. Both fonts come from `@fontsource-variable`. The web app serves them itself (`/static/jost.woff2`), because its CSP allows only `font-src 'self'`.
+**The look** (the Butter pass replaced the first, paper-only colours; see "Butter" below)
+- **Colours:** Butter `#FFD84A` and Ink `#17130A`, on a cream page `#FCF8EC` for reading. Red `#C2412D` appears only where something breaks, green `#2D7A52` only where it's fixed, and amber `#A86A12` for what's coming soon. No gradients and no blue.
+- **Type:** headlines in Jost SemiBold, text in Inter, and code with ligatures off. Both fonts come from `@fontsource-variable`. The web app serves them itself (`/static/jost.woff2`), because its CSP allows only `font-src 'self'`.
 - **Shapes:** pill buttons, small spaced-out labels with a rule, and numbered sections.
 
 **Motion.** All of it explains the product, and all of it is off under `prefers-reduced-motion`:
@@ -63,3 +63,17 @@ Verified:
 - `docs:build`: passed.
 - `pnpm test`: 39 files, 274 tests. One run reported a file failure with every test passing, and two reruns were fully green.
 - Real-time headless Chrome screenshots at each chapter, the calendar and the close, on desktop (1366 px) and phone (390 px). No sideways scroll, no console errors.
+
+## Butter (third pass)
+
+The founder found the paper-and-grey look too quiet and picked option B of four colour directions (`brand/colour-directions.html`: Highlighter, Butter, Tangerine, Forest).
+- **Website landing:** the whole page is Butter yellow, nav included. The deadline ticker and the closing call to action are ink bands, while "How it works" and pricing sit on cream bands. Headlines are Jost SemiBold, and "keeps working." gets a red underline that draws in on load. Cards are white, with a 2 px ink edge and a hard ink shadow, and the buttons are ink pills with Butter text.
+- **Docs pages:** a cream page with bold headings. Links are underlined in Butter, inline code sits on light Butter, and the current page in the sidebar is a Butter pill.
+- **Web app:** the sidebar is Butter, and the current page is an ink pill. Cards have an ink edge and a hard shadow, the primary buttons are ink with Butter text, and the numbers are SemiBold. The app's landing matches the website (`.under` is the underline). Dark mode keeps its warm ink set, with Butter as the accent.
+- **Fixed:** the app landing's code card was showing `===` as a ligature, because the `font:` shorthand reset `font-variant-ligatures`.
+
+Verified:
+- `pnpm typecheck` and `pnpm lint`: clean.
+- `docs:build`: passed.
+- `pnpm test`: 274 of 274 tests passed, though `cloud.test.ts` reported a file-level failure in the full run. On its own (with `web.test.ts`), 34 of 34 passed.
+- Headless Chrome screenshots: the landing (desktop and 390 px phone, no sideways scroll), a docs page, the app landing, Overview and Problems.

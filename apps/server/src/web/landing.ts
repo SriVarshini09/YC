@@ -37,7 +37,7 @@ export function landingPage(opts: LandingOptions): Html {
 <section class="lp-hero"><div class="lp-inner">
   <div class="lp-copy rise">
     <p class="eyebrow line">For teams that call other people's APIs</p>
-    <h1>APIs change.<br><span class="dim">Your code keeps working.</span></h1>
+    <h1>APIs change.<br>Your code <span class="under">keeps working.</span></h1>
     <p class="lp-lead">Stripe renames a value. GitHub answers 200 instead of 204. SHAPI finds the exact lines in your code that break, across GitHub, Stripe, Slack, OpenAI and ${providers.length - 4} more APIs, and where a fix recipe exists, sends a pull request that fixes them with a test that proves it.</p>
     <div class="btn-row">${ctas}</div>
     <p class="lp-note">Free for public repositories and one private repository.${opts.billingEnabled ? "" : " Free for everyone during early access."}</p>
