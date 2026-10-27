@@ -392,7 +392,8 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
 .head h1 { font-size: 34px; }
 
 /* ---------- landing page ---------- */
-.landing { flex: 1; min-width: 0; background: var(--bg); overflow-x: hidden; }
+.landing { flex: 1; min-width: 0; background: var(--bg); overflow-x: clip; }
+.lp-progress { display: none; }
 .lp-inner { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
 .lp-nav { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
 .lp-nav .lp-inner { display: flex; align-items: center; gap: 24px; height: 68px; }
@@ -538,6 +539,73 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
   .story-code .ln { grid-template-columns: 30px minmax(0, 1fr); }
   .story-code .ln > .no { padding-right: 10px; }
 }
+/* Scroll-driven motion on the landing: CSS scroll timelines, no script. Browsers without them, and
+   visitors who ask for less motion, get the page as it is above. .landing uses overflow-x: clip, not
+   hidden, so it is not a scroll container and every view() timeline follows the page. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* reading progress: a thin ink line under the top edge */
+    .lp-progress { display: block; position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 6; background: var(--fg); transform-origin: left; animation: sc-grow linear both; animation-timeline: scroll(root); }
+
+    /* hero: as it leaves, the words drift up and soften, the card settles back */
+    .lp-hero h1, .lp-hero .lp-lead { animation: sc-drift linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+    .lp-hero .story { animation: sc-settle linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+
+    /* the provider strip slides against its own drift while it crosses the screen */
+    .lp-ticker .track { animation-name: drift, sc-slide; animation-duration: 70s, auto; animation-timing-function: linear, linear; animation-iteration-count: infinite, 1; animation-fill-mode: none, both; animation-timeline: auto, view(); animation-range: normal, cover 0% cover 100%; }
+
+    /* headlines rise in; the grey second line inks in as it reaches the middle */
+    .lp-section .lp-inner > .eyebrow, .lp-section .lp-inner > h2, .lp-proof h2, .lp-cta h2, .lp-stats .lp-inner > div { animation: sc-rise linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; }
+    .lp-section h2 .dim { animation: sc-ink linear both; animation-timeline: view(); animation-range: cover 15% cover 45%; }
+    .lp-stats .lp-inner > div:nth-child(2) { animation-range: entry 20% cover 34%; }
+    .lp-stats .lp-inner > div:nth-child(3) { animation-range: entry 30% cover 38%; }
+    .lp-stats .lp-inner > div:nth-child(4) { animation-range: entry 40% cover 42%; }
+
+    /* the problem, one by one: the number slides in, then the line, then the reason */
+    .lp-problem { animation: sc-rule linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }
+    .lp-problem .n { animation: sc-from-left linear both; animation-timeline: view(); animation-range: entry 10% cover 25%; }
+    .lp-problem h3 { animation: sc-rise linear both; animation-timeline: view(); animation-range: entry 25% cover 32%; }
+    .lp-problem p { animation: sc-rise linear both; animation-timeline: view(); animation-range: entry 40% cover 38%; }
+    /* "production." turns red as it reaches the middle of the screen */
+    .lp-problem .red { animation: sc-red linear both; animation-timeline: view(); animation-range: cover 30% cover 50%; }
+
+    /* the four steps come in one after the other; their content moves, not the cells, so the grid's
+       lines never open up. Stacked on a phone, each step simply rises as it arrives. */
+    .lp-step > * { animation: sc-step linear both; animation-timeline: view(); animation-range: entry 0% entry 80%; }
+    .lp-step:nth-child(2) > * { animation-range: entry 15% entry 95%; }
+    .lp-step:nth-child(3) > * { animation-range: entry 30% cover 25%; }
+    .lp-step:nth-child(4) > * { animation-range: entry 45% cover 32%; }
+    @media (max-width: 560px) { .lp-step:nth-child(n) > * { animation-range: entry 0% entry 80%; } }
+
+    /* provider pills fan in */
+    .lp-providers { animation: sc-spread linear both; animation-timeline: view(); animation-range: entry 0% cover 35%; }
+
+    /* the proof: scroll through the diff and the fix writes itself over the break. The diff scrolls
+       sideways (overflow-x: auto), so its lines follow a timeline named on the diff, not their own view(). */
+    .lp-scrub { view-timeline: --sc-fix block; }
+    .lp-scrub .del { animation: sc-strike linear both; animation-timeline: --sc-fix; animation-range: cover 25% cover 45%; }
+    .lp-scrub .add { animation: sc-write linear both; animation-timeline: --sc-fix; animation-range: cover 35% cover 60%; }
+
+    /* cards and the closing line */
+    .lp-trust-item, .lp-pricing .card { animation: sc-rise linear both; animation-timeline: view(); animation-range: entry 5% cover 30%; }
+    .lp-trust-item:nth-child(even), .lp-pricing .card:nth-child(2) { animation-range: entry 20% cover 36%; }
+    .lp-cta h2 { animation-name: sc-close; animation-range: entry 0% cover 45%; }
+  }
+}
+@keyframes sc-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes sc-drift { to { transform: translateY(-70px); opacity: .25; } }
+@keyframes sc-settle { to { transform: translateY(40px) scale(.94); opacity: .5; } }
+@keyframes sc-slide { from { translate: 12% 0; } to { translate: -12% 0; } }
+@keyframes sc-rise { from { opacity: 0; transform: translateY(36px); } to { opacity: 1; transform: none; } }
+@keyframes sc-ink { from { color: var(--line-2); } to { color: var(--faint); } }
+@keyframes sc-rule { from { border-top-color: transparent; } to { border-top-color: var(--line); } }
+@keyframes sc-from-left { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
+@keyframes sc-red { from { color: var(--fg); } to { color: var(--bad); } }
+@keyframes sc-step { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+@keyframes sc-spread { from { opacity: 0; letter-spacing: -.02em; transform: scale(.96); } to { opacity: 1; letter-spacing: normal; transform: none; } }
+@keyframes sc-strike { from { opacity: 1; text-decoration: none; } to { opacity: .45; text-decoration: line-through; } }
+@keyframes sc-write { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes sc-close { from { opacity: 0; transform: scale(.92); letter-spacing: .02em; } to { opacity: 1; transform: none; letter-spacing: -.01em; } }
 @media (prefers-reduced-motion: reduce) {
   .rise, .status-dot::after, .pulse::after, .lp-ticker .track, .story-progress i { animation: none; }
   .story .s1, .story .s2, .story .s3, .story-code .before, .story-code .hot, .story-code .after { animation: none; }

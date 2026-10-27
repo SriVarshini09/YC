@@ -19,3 +19,5 @@ docs/private/
 packages/cli/npm/
 # logo generator (brand/): dependencies are installed there on demand, see brand/README.md
 brand/package-lock.json
+# VitePress dev server cache (site/)
+site/.vitepress/cache/

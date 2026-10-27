@@ -5,6 +5,7 @@ import "@fontsource-variable/jost";
 import { LOGO_HOVER } from "./brand";
 import Home from "./components/Home.vue";
 import "./custom.css";
+import "./home.css";
 import "./shapi-motion.css";
 
 // The logo is inline SVG rather than an image, so the motion CSS can reach its pieces: the nav logo

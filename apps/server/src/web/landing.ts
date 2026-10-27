@@ -27,6 +27,7 @@ export function landingPage(opts: LandingOptions): Html {
   const ctas = opts.installLink ? html`${install()}${signIn("Sign in with GitHub", "ghost")}` : signIn("Sign in with GitHub");
   const ticker = providers.map((p) => html`<span>${providerMark(p.id, "sm")}${p.name}</span>`);
   return html`<div class="landing">
+<div class="lp-progress" aria-hidden="true"></div>
 <header class="lp-nav"><div class="lp-inner">
   <a class="brand" href="/" aria-label="SHAPI home">${LOGO}</a>
   <nav><a href="#how">How it works</a><a href="#providers">APIs</a><a href="#trust">Security</a><a href="#pricing">Pricing</a><a href="${DOCS_URL}">Docs</a></nav>
@@ -89,7 +90,7 @@ export function landingPage(opts: LandingOptions): Html {
   </div>
   <div class="stack">
     ${comparisonView({ expected: { value: "204 No Content", caption: "The status the code checks for" }, actual: { value: "200 OK", caption: "What GitHub returns now" } })}
-    <pre class="diff"><div class="file"><span>src/ops/deploy.ts</span><span class="muted">+1 −1</span></div><span class="l hunk">@@ -11,3 +11,3 @@</span><span class="l del">-  if (res.status !== 204) throw new Error(\`dispatch failed: \${res.status}\`);</span><span class="l add">+  if (![200, 204].includes(res.status)) throw new Error(\`dispatch failed: \${res.status}\`);</span><span class="l">   return { started: true };</span></pre>
+    <pre class="diff lp-scrub"><div class="file"><span>src/ops/deploy.ts</span><span class="muted">+1 −1</span></div><span class="l hunk">@@ -11,3 +11,3 @@</span><span class="l del">-  if (res.status !== 204) throw new Error(\`dispatch failed: \${res.status}\`);</span><span class="l add">+  if (![200, 204].includes(res.status)) throw new Error(\`dispatch failed: \${res.status}\`);</span><span class="l">   return { started: true };</span></pre>
   </div>
 </div></section>
 
