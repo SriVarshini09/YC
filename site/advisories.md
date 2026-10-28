@@ -22,7 +22,7 @@ One JSON file per advisory, validated against a [JSON Schema](https://github.com
   "severity": "critical",
   "recipeId": "status-code-accept-set",
   "status": "verified",
-  "sources": ["https://..."]
+  "sources": ["https://github.blog/changelog/2026-02-19-workflow-dispatch-api-now-returns-run-ids"]
 }
 ```
 

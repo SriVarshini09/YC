@@ -11,6 +11,8 @@ export interface AdvisoryRow {
   title: string;
   effectiveDate: string;
   severity: string;
+  /** What changed: status-code, version-sunset, auth, required-field and so on. */
+  changeClass: string;
   status: string;
   fix: boolean;
   url: string;
@@ -40,13 +42,14 @@ export default defineLoader({
   watch: ["../../advisories/*.json"],
   load(files: string[]): AdvisoryData {
     const all = files
-      .map((file) => JSON.parse(readFileSync(file, "utf8")) as { id: string; provider: string; title: string; effectiveDate: string; severity: string; status: string; fix?: unknown; recipeId?: string })
+      .map((file) => JSON.parse(readFileSync(file, "utf8")) as { id: string; provider: string; title: string; effectiveDate: string; severity: string; changeClass?: string; status: string; fix?: unknown; recipeId?: string })
       .map((a) => ({
         id: a.id,
         provider: NAMES[a.provider] ?? a.provider,
         title: a.title,
         effectiveDate: a.effectiveDate,
         severity: a.severity,
+        changeClass: a.changeClass ?? "",
         status: a.status,
         fix: Boolean(a.fix || a.recipeId),
         url: `https://github.com/SriVarshini09/shapi-advisories/blob/main/advisories/${path.basename(`${a.id}.json`)}`,

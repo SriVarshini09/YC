@@ -3,436 +3,631 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { withBase } from "vitepress";
 import { data } from "../../advisories.data";
 
-// The landing page (site/index.md). Numbers and deadlines come from the advisories loader, so
-// nothing here goes stale; the docs workflow rebuilds daily, which moves "in N days" along.
+// The landing page (site/index.md). Every picture on it is a real SHAPI artifact: the demo project's
+// src/deploy.ts and its api.lock entry, the canary's shape diff, the GitHub advisory, the contract
+// test SHAPI generated, shapi-demo PR #2 and the real `shapi scan` output. The API changes and the
+// numbers come from the advisories loader, so nothing goes stale.
 //
-// Scrolling drives most of the page: every element with `data-scroll` gets `--p` (0 → 1) from
-// where it sits in the viewport, and home.css turns that into motion. Without JavaScript, or with
-// reduced motion, `--p` stays at its CSS default of 1 and the page shows its finished state.
+// Most sections are taller than the screen and pin a stage (position: sticky) while you scroll
+// through them. One requestAnimationFrame loop reads how far through each section you are (0 → 1)
+// and moves its stage: discrete states (which step, which pane) are refs, continuous movement is
+// written straight to the element's style. The markup renders readable before the script runs, and
+// with reduced motion the page still follows the scroll but nothing moves on its own.
 
 const INSTALL = "https://github.com/apps/shapi-by-srivarshini/installations/new";
 const days = (d: string) => Math.ceil((Date.parse(d) - Date.parse(data.builtOn)) / 86400000);
 const inDays = (d: string) => (days(d) === 1 ? "tomorrow" : `in ${days(d)} days`);
-const short = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+const short = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 // From tomorrow on: changes that take effect today are no longer "coming up".
 const ahead = data.upcoming.filter((a) => days(a.effectiveDate) >= 1);
-const upcoming = ahead.slice(0, 10);
-const ticker = ahead.slice(0, 12);
-const next = ahead[0];
+const ringCards = ahead.slice(0, 16);
 
-const problems = [
-  { title: "Your tests mock the API as it was.", body: "They keep passing while the provider changes a status code, renames a field or adds a new value." },
-  { title: "Deadlines hide in changelogs.", body: "A version is retired on a date announced months ago, in a post nobody on your team read." },
-  { title: "You find out in production.", body: "From an error report, a failed payment or an unhappy customer, not from your own checks.", red: "production." },
+// The demo project (fixtures/demo-ts): which provider each file calls, how many call sites, and what
+// `shapi scan` flags in it: GitHub breaks now (critical), QuickBooks and HubSpot are high, Stripe is fine.
+const providers = [
+  { key: "github", mark: "Gh", name: "GitHub", file: "deploy.ts", sites: 2, flag: "critical" },
+  { key: "stripe", mark: "St", name: "Stripe", file: "billing.ts", sites: 1, flag: "" },
+  { key: "hubspot", mark: "Hs", name: "HubSpot", file: "crm.ts", sites: 1, flag: "high" },
+  { key: "quickbooks", mark: "Qb", name: "QuickBooks", file: "accounting.ts", sites: 1, flag: "high" },
 ];
+const SOURCE = [
+  [14, '    method: "POST",'],
+  [15, "    headers: {"],
+  [16, '      Accept: "application/vnd.github+json",'],
+  [17, "      Authorization: `Bearer ${token}`,"],
+  [18, '      "X-GitHub-Api-Version": "2022-11-28",'],
+  [19, "    },"],
+  [20, "    body: JSON.stringify({ ref: req.ref }),"],
+  [21, "  });"],
+] as const;
+const OLD = "if (res.status !== 204) {";
+const NEW = "if (![200, 204].includes(res.status)) {";
 
-const chapters = [
-  { name: "Map", body: "SHAPI reads your code, never runs it, and finds every call to GitHub, Stripe, HubSpot and dozens more APIs: the endpoint, and what the code relies on, such as a status code, a field or a value." },
-  { name: "Match", body: `Each call is checked against ${data.total} researched API changes and deadlines. Code that depends on what changed breaks; code that only calls the same endpoint is left alone.` },
-  { name: "Fix", body: "Where a fix recipe exists (TypeScript and JavaScript), SHAPI writes a contract test that fails on the change, applies the fix, and keeps it only once the test passes." },
-  { name: "Watch", body: "The fix arrives as a pull request with its proof. Every push is scanned again, and each new change is checked against the code SHAPI already mapped." },
+// The hero's story, in the order the scroll plays it.
+type Phase = "map" | "match" | "fix" | "prove" | "ship";
+const PHASES: Phase[] = ["map", "match", "fix", "prove", "ship"];
+const STEP_NAMES = ["Map", "Match", "Fix", "Prove", "Ship"];
+const STATUS: Record<Phase, string> = { map: "SHAPI · mapping", match: "SHAPI · 1 critical · 2 high", fix: "SHAPI · test written", prove: "SHAPI · applying fix", ship: "SHAPI · PR #2 opened" };
+const CAPTION: Record<Phase, [string, string]> = {
+  map: ["4 files · 5 call sites · 4 providers,", " mapped in 63 ms."],
+  match: ["GitHub changed workflow_dispatch: line 22 breaks.", " QuickBooks and HubSpot are flagged high. Stripe is fine."],
+  fix: ["A contract test is written first.", " Against the current code, it fails."],
+  prove: ["Recipe status-code-accept-set", " is rewriting line 22."],
+  ship: ["Fix PR #2 opened,", " with the test and the evidence attached."],
+};
+const phase = ref<Phase>("map");
+const typed = ref(-1); // how much of NEW is typed on line 22; -1 shows OLD
+// The test passes only once the fix is fully typed.
+const passed = computed(() => phase.value === "ship" || (phase.value === "prove" && typed.value >= NEW.length));
+const broken = computed(() => !passed.value && phase.value !== "map");
+const mended = passed;
+const flagged = computed(() => phase.value !== "map");
+const status = computed(() => (phase.value === "prove" && passed.value ? "SHAPI · test passes" : STATUS[phase.value]));
+const caption = computed<[string, string]>(() => (phase.value === "prove" && passed.value ? ["The same test now passes.", " The change is kept."] : CAPTION[phase.value]));
+const chipNote = (p: (typeof providers)[number]) => (!flagged.value ? String(p.sites) : p.key === "github" && mended.value ? "fixed" : p.flag || "✓ not affected");
+const hotText = computed(() => (typed.value < 0 ? OLD : NEW.slice(0, typed.value)));
+
+// The problem, word by word. Each word but the last keeps its space: Vue drops whitespace between elements.
+const PROBLEM = "Your tests mock the API as it was. GitHub started answering 200 instead of 204, told no one, and every deploy that checked for 204 failed in production.";
+const problemWords = PROBLEM.split(" ").map((w, i, all) => (i < all.length - 1 ? `${w} ` : w));
+
+// "How it works": the pane beside the step at the middle of the screen.
+const PANE_TITLES = ["api.lock", "canary · github · workflow_dispatch", "shapi scan", "shapi fix · recipe status-code-accept-set", "github.com/SriVarshini09/shapi-demo/pull/2"];
+const pane = ref(0);
+
+// The same morning, two ways: flips at the middle of its section, or with the switch.
+const withShapi = ref(false);
+
+// The real output of `npx shapi-cli scan .` on the demo project, printed as you scroll.
+const hubspotDays = days("2026-12-04");
+const TERM: [string, string][] = [
+  ['<span class="c">$</span> npx shapi-cli scan .', ""],
+  ["SHAPI scan  .", ""],
+  ["4 files · 5 call sites · 4 providers · 63 ms", "c"],
+  ["", ""],
+  ["Providers", ""],
+  ["  github      2 call sites", ""],
+  ["  hubspot     1 call site    @hubspot/api-client", ""],
+  ["  quickbooks  1 call site", ""],
+  ["  stripe      1 call site    stripe", ""],
+  ["", ""],
+  ["Affected call sites (3)", ""],
+  ['  <span class="crit">CRITICAL</span>  src/deploy.ts:13  POST /repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches', ""],
+  ["            workflow_dispatch returns 200 with a body instead of 204", ""],
+  ["            why: compares the response status to 204", "c"],
+  ['  <span class="high">HIGH</span>      src/accounting.ts:7  GET /v3/company/{realmId}/query', ""],
+  ["            Minor versions below 75 are silently answered as minor version 75", ""],
+  ["            why: sends minorversion=65 (below 75)", "c"],
+  ['  <span class="high">HIGH</span>      src/crm.ts:6  GET /crm-pipelines/v1/pipelines/deals', ""],
+  ["            Pipelines API v1 retired on 2026-12-04", ""],
+  ...((hubspotDays > 0 && hubspotDays <= 90
+    ? [["", ""], ["Deadlines in the next 90 days", ""], [`  2026-12-04 (${hubspotDays} days)  hubspot  Pipelines API v1 retired on 2026-12-04  1 call site`, ""]]
+    : []) as [string, string][]),
 ];
+const termShown = ref(TERM.length);
+const termHtml = computed(() => TERM.slice(0, termShown.value).map(([l, c]) => (c ? `<span class="${c}">${l}</span>` : l)).join("\n") + (termShown.value < TERM.length ? '\n<span class="caret"></span>' : ""));
 
-const proof = [
-  { b: "One pull request per change,", t: " covering every affected place in the repository." },
-  { b: "The change itself,", t: " for example minorversion=65 → 75." },
-  { b: "A contract test per call,", t: " with its run before and after the fix." },
-  { b: "The evidence:", t: " the provider's notice, the severity and the sources." },
-  { b: "No noise:", t: " at most 2 new pull requests an hour, and one you closed stays closed." },
-];
+const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+const rect = (el: Element) => el.getBoundingClientRect();
+// How far through a pinned section the page is: 0 when it reaches the top, 1 when its end does.
+const prog = (el: Element) => { const r = rect(el); return clamp(-r.top / Math.max(1, r.height - innerHeight)); };
+// How far an element has travelled through the screen, from entering at the bottom to leaving at the top.
+const through = (el: Element) => { const r = rect(el); return clamp((innerHeight - r.top) / (innerHeight + r.height)); };
+const inView = (el: Element) => { const r = rect(el); return r.bottom > 0 && r.top < innerHeight; };
 
-// The hero card: the code works, GitHub changes, the line breaks, SHAPI fixes it. Loops on a timer.
-const BEFORE = "if (res.status === 204) {";
-const AFTER = "if ([200, 204].includes(res.status)) {";
-const STAGES = [
-  { badge: "Works", kind: "ok", dot: "idle", ms: 2600, text: "Watching <b>GitHub</b> for changes to the endpoints this code uses." },
-  { badge: "Changed", kind: "soon", dot: "soon", ms: 2800, text: "<b>GitHub changed.</b> workflow_dispatch now answers <b>200</b> with a body, not 204." },
-  { badge: "Breaks", kind: "bad", dot: "bad", ms: 2800, text: "<b>Line 15 breaks.</b> It only accepts 204, so every deploy now looks like a failure." },
-  { badge: "Fixing", kind: "wait", dot: "ink", ms: 0, text: "<b>SHAPI is fixing it.</b> Writing a test that fails on the change first…" },
-  { badge: "Fixed", kind: "ok", dot: "ok", ms: 3600, text: "<b>Fixed.</b> The test failed before and passes now. Pull request opened." },
-];
-const ready = ref(false);
-const stage = ref(4);
-const line = ref(AFTER);
-const typing = ref(false);
-// Each word but the last keeps its space: Vue drops whitespace between elements.
-const words = (s: string) => s.split(" ").map((w, i, all) => (i < all.length - 1 ? `${w} ` : w));
-
-// The scroll story ("how it works"): `story` is which chapter sits at the middle of the screen,
-// as a float (0 = Map centred, 3 = Watch centred), so the stage always shows the text beside it.
-// Each phase plays while its chapter scrolls up to the middle.
-const story = ref(3);
-const clamp = (v: number) => Math.min(1, Math.max(0, v));
-const seg = (p: number, a: number, b: number) => clamp((p - a) / (b - a));
-const phase = computed(() => ({
-  map: seg(story.value, -0.9, -0.15),
-  match: seg(story.value, 0.15, 0.8),
-  fix: seg(story.value, 1.15, 1.8),
-  watch: seg(story.value, 2.15, 2.8),
-}));
-const chapter = computed(() => Math.min(3, Math.max(0, Math.round(story.value))));
-const typed = computed(() => (phase.value.fix >= 1 ? AFTER : phase.value.fix > 0.15 ? AFTER.slice(0, Math.round(((phase.value.fix - 0.15) / 0.85) * AFTER.length)) : BEFORE));
-const stageVars = computed(() => ({ "--map": phase.value.map, "--match": phase.value.match, "--fix": phase.value.fix, "--watch": phase.value.watch }));
-
-// Numbers count up as they scroll in.
-const counted = ref(1);
-const count = (n: number) => Math.round(n * (1 - Math.pow(1 - counted.value, 3)));
-
-type Mode = "pin" | "out" | "enter" | "view";
-function measure(el: HTMLElement, mode: Mode, vh: number): number {
-  const r = el.getBoundingClientRect();
-  if (mode === "pin") return clamp(-r.top / Math.max(1, r.height - vh));
-  if (mode === "out") return clamp(-r.top / Math.max(1, r.height));
-  if (mode === "enter") return clamp((vh * 0.9 - r.top) / (vh * 0.45));
-  return clamp((vh - r.top) / (vh + r.height));
-}
-
-let alive = true;
-let frame = 0;
-let tracked: HTMLElement[] = [];
 const root = ref<HTMLElement>();
-const storyEl = ref<HTMLElement>();
-const statsEl = ref<HTMLElement>();
-const rail = ref<HTMLElement>();
-const track = ref<HTMLElement>();
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+let alive = true;
+let raf = 0;
+let lenis: { raf(t: number): void; destroy(): void } | undefined;
+let stopListeners = () => {};
 
-async function loop() {
-  while (alive) {
-    for (let i = 0; i < STAGES.length && alive; i++) {
-      stage.value = i;
-      if (i === 0) line.value = BEFORE;
-      if (i === 3) {
-        typing.value = true;
-        for (let n = 0; n <= AFTER.length && alive; n++) {
-          line.value = AFTER.slice(0, n);
-          await sleep(38);
-        }
-        typing.value = false;
-      } else await sleep(STAGES[i]!.ms);
-    }
+onMounted(async () => {
+  const el = root.value!;
+  const $ = <T extends Element = HTMLElement>(s: string) => el.querySelector<T>(s)!;
+  const $$ = <T extends Element = HTMLElement>(s: string) => [...el.querySelectorAll<T>(s)];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.classList.add("motion");
+
+  const css = getComputedStyle(el);
+  const color = (name: string) => css.getPropertyValue(name).trim();
+  const C = { ink: color("--ink"), break: color("--break"), fixed: color("--fixed"), soon: color("--soon") };
+  const rgba = (hex: string, a: number) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+
+  let mx = 0.5;
+  let my = 0.5;
+  const onPointer = (e: PointerEvent) => { mx = e.clientX / innerWidth; my = e.clientY / innerHeight; };
+
+  // 1. hero: threads run from each provider to the file that calls it, then the story plays.
+  const hero = $("#hero"), canvas = $<HTMLCanvasElement>("#threads"), ctx = canvas.getContext("2d")!;
+  const copy = $(".hero-copy"), rig = $(".rig"), caption = $(".caption");
+  const chips = $$(".prov"), files = $$(".tree .file[data-k]");
+  let rise = 0;
+  const onResize = () => {
+    const d = devicePixelRatio || 1;
+    canvas.width = canvas.clientWidth * d; canvas.height = canvas.clientHeight * d; ctx.setTransform(d, 0, 0, d, 0, 0);
+    rise = parseFloat(getComputedStyle(rig).getPropertyValue("--rise")) || 0;
+  };
+  function drawHero(t: number) {
+    if (!inView(hero)) return;
+    const p = prog(hero);
+    // The headline and the editor rise together, so they keep their gap and never overlap.
+    const lift = ease(clamp(p / 0.22));
+    copy.style.transform = `translateY(${-lift * rise}vh)`;
+    copy.style.opacity = String(clamp(1 - lift * 1.6));
+    caption.style.opacity = String(clamp((p - 0.06) * 12));
+    rig.style.transform = `translateX(-50%) translateY(${-lift * rise}vh)`;
+    phase.value = p < 0.24 ? "map" : p < 0.44 ? "match" : p < 0.6 ? "fix" : p < 0.8 ? "prove" : "ship";
+    typed.value = phase.value === "ship" ? NEW.length : phase.value === "prove" ? Math.round(clamp((p - 0.6) / 0.12) * NEW.length) : -1;
+    if (!reduce) chips.forEach((c, i) => { c.style.transform = `translate(${(mx - 0.5) * 14}px, ${Math.sin(t / 1000 + i) * 4}px)`; });
+
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    chips.forEach((chip, ci) => {
+      const file = files.find((f) => f.dataset.k === chip.dataset.k);
+      if (!file || chip.offsetParent === null || file.offsetParent === null) return;
+      const a = rect(chip), b = rect(file), gh = chip.dataset.k === "github", high = chip.dataset.flag === "high" && flagged.value, safe = !chip.dataset.flag && flagged.value;
+      const x1 = a.right, y1 = a.top + a.height / 2, x2 = b.left + 6, y2 = b.top + b.height / 2;
+      const col = gh && broken.value ? C.break : (gh && mended.value) || safe ? C.fixed : high ? C.soon : C.ink;
+      const strong = (gh && flagged.value) || high || safe;
+      for (let s = 0; s < 9; s++) {
+        const o = (s - 4) * 2.2, wob = reduce ? 0 : Math.sin(t / 1300 + s + ci) * 6;
+        const c1x = x1 + (x2 - x1) * 0.45, c1y = y1 + o * 3 + wob, c2x = x1 + (x2 - x1) * 0.6, c2y = y2 + o * 2 - wob;
+        ctx.strokeStyle = rgba(col, strong ? 0.35 : 0.11);
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x1, y1 + o * 0.6); ctx.bezierCurveTo(c1x, c1y, c2x, c2y, x2, y2 + o * 0.3); ctx.stroke();
+        if (reduce) continue;
+        // a particle travelling along each strand: the data the call sends and gets back
+        const u = (t / (2200 + s * 120) + s * 0.17 + ci * 0.31) % 1, v = 1 - u;
+        const px = v * v * v * x1 + 3 * v * v * u * c1x + 3 * v * u * u * c2x + u * u * u * x2;
+        const py = v * v * v * (y1 + o * 0.6) + 3 * v * v * u * c1y + 3 * v * u * u * c2y + u * u * u * (y2 + o * 0.3);
+        ctx.fillStyle = rgba(col, strong ? 0.9 : 0.4);
+        ctx.beginPath(); ctx.arc(px, py, strong ? 1.8 : 1.3, 0, 6.29); ctx.fill();
+      }
+    });
   }
-}
 
-function update() {
-  frame = 0;
-  const vh = innerHeight;
-  for (const el of tracked) {
-    const p = measure(el, el.dataset.scroll as Mode, vh);
-    el.style.setProperty("--p", p.toFixed(4));
-    if (el === storyEl.value) story.value = chapterAt(el, vh);
-    if (el === statsEl.value) counted.value = p;
+  // 2. the problem, lit word by word
+  const scrub = $(".scrub p"), words = $$(".scrub .w");
+  function drawScrub() {
+    if (!inView(scrub)) return;
+    const p = clamp((through(scrub) - 0.22) / 0.42);
+    words.forEach((w, i) => { w.style.opacity = String(clamp(p * words.length - i, 0.14, 1)); });
   }
-  const max = document.documentElement.scrollHeight - vh;
-  root.value?.style.setProperty("--page", clamp(scrollY / Math.max(1, max)).toFixed(4));
-}
-const onScroll = () => (frame ||= requestAnimationFrame(update));
 
-// Measured on the chapter titles, against the middle of the screen (or, on phones, where the
-// stage is pinned above the text, the middle of the space below it).
-function chapterAt(el: HTMLElement, vh: number): number {
-  const [a, b] = [...el.querySelectorAll(".chapter h3")].map((c) => {
-    const r = c.getBoundingClientRect();
-    return r.top + r.height / 2;
-  });
-  const mark = innerWidth < 960 ? vh * 0.72 : vh * 0.45;
-  return a === undefined || b === undefined ? 3 : (mark - a) / Math.max(1, b - a);
-}
+  // 3. how it works: the step nearest the middle of the screen (lower on phones, under the pinned screen)
+  const steps = $$(".f");
+  function drawPipe() {
+    const mid = innerWidth < 1000 ? innerHeight * 0.78 : innerHeight * 0.5;
+    let best = 0, bd = Infinity;
+    steps.forEach((s, i) => { const r = rect(s), d = Math.abs(r.top + r.height / 2 - mid); if (d < bd) { bd = d; best = i; } });
+    pane.value = best;
+  }
 
-// The deadline rail moves sideways while the page scrolls down: its section is as tall as the
-// distance the track has to travel, plus one screen.
-function sizeRail() {
-  if (!rail.value || !track.value) return;
-  const travel = Math.max(0, track.value.scrollWidth - rail.value.clientWidth);
-  rail.value.style.setProperty("--travel", `${travel}px`);
-  onScroll();
-}
+  // 4. the API changes on a turning ring; the front card is the brightest
+  const helix = $("#changes"), ring = $(".ring"), cards = $$(".adv");
+  function drawHelix(t: number) {
+    if (!inView(helix)) return;
+    // on phones the ring is wider than the screen, so one card at a time faces you
+    const p = prog(helix), R = innerWidth < 640 ? 260 : Math.min(580, innerWidth * 0.42), step = 360 / cards.length;
+    const rot = -p * 300 - (reduce ? 0 : t / 280);
+    ring.style.transform = `translateY(${(0.5 - p) * 50}px) rotateX(${-7 + (my - 0.5) * 6}deg) rotateY(${rot}deg)`;
+    cards.forEach((c, i) => {
+      const front = Math.cos(((i * step + rot) * Math.PI) / 180);
+      c.style.transform = `rotateY(${i * step}deg) translateZ(${R}px)`;
+      c.style.opacity = (0.1 + 0.9 * Math.pow(Math.max(0, front), 1.6)).toFixed(3);
+    });
+  }
 
-onMounted(() => {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  ready.value = true;
-  tracked = [...document.querySelectorAll<HTMLElement>(".home [data-scroll]")];
-  addEventListener("scroll", onScroll, { passive: true });
-  addEventListener("resize", sizeRail);
-  update();
-  requestAnimationFrame(sizeRail);
-  loop();
+  // 5. two ways: the scroll flips it once, at the middle; the switch can flip it back
+  const two = $("#two");
+  let lastHalf: boolean | undefined;
+  function drawTwo() {
+    if (!inView(two)) return;
+    const half = prog(two) > 0.5;
+    if (half !== lastHalf) { lastHalf = half; withShapi.value = half; }
+  }
+
+  // 6. the terminal prints as you scroll
+  const term = $("#cli");
+  function drawTerm() {
+    if (!inView(term)) return;
+    termShown.value = reduce ? TERM.length : Math.round(clamp(prog(term) / 0.75) * TERM.length);
+  }
+
+  // 7. your code and the API fit together
+  const close = $("#close"), left = $(".fit .code-p"), right = $(".fit .api-p"), tags = $$(".fit .tag");
+  function drawClose() {
+    if (!inView(close)) return;
+    const p = ease(clamp(prog(close) / 0.8));
+    left.style.transform = `translate(${(1 - p) * -90}px, ${(1 - p) * 16}px) rotate(${(1 - p) * -12}deg)`;
+    right.style.transform = `translate(${(1 - p) * 90}px, ${(1 - p) * -30}px) rotate(${(1 - p) * 14}deg)`;
+    right.classList.toggle("joined", p > 0.98);
+    tags.forEach((g) => { g.style.opacity = String(clamp(1 - p * 1.3)); });
+  }
+
+  const draw = (t: number) => { drawHero(t); drawScrub(); drawPipe(); drawHelix(t); drawTwo(); drawTerm(); drawClose(); };
+  const tick = (t: number) => { if (!alive) return; lenis?.raf(t); draw(t); raf = requestAnimationFrame(tick); };
+  const onScroll = () => draw(performance.now());
+
+  addEventListener("resize", onResize);
+  onResize();
+  if (reduce) {
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  } else {
+    addEventListener("pointermove", onPointer, { passive: true });
+    raf = requestAnimationFrame(tick);
+  }
+  stopListeners = () => {
+    removeEventListener("resize", onResize);
+    removeEventListener("scroll", onScroll);
+    removeEventListener("pointermove", onPointer);
+  };
+
+  // Smooth scrolling, loaded only here so the docs pages keep the browser's own scrolling.
+  if (!reduce) {
+    const { default: Lenis } = await import("lenis");
+    if (alive) lenis = new Lenis({ lerp: 0.09 });
+  }
 });
+
 onBeforeUnmount(() => {
   alive = false;
-  removeEventListener("scroll", onScroll);
-  removeEventListener("resize", sizeRail);
-  cancelAnimationFrame(frame);
+  cancelAnimationFrame(raf);
+  stopListeners();
+  lenis?.destroy();
 });
 </script>
 
 <template>
-  <div ref="root" :class="['home', { motion: ready }]">
-    <div class="progress" aria-hidden="true"></div>
-
-    <section class="wrap hero" data-scroll="out">
-      <div class="hero-copy">
-        <div class="eyebrow">For teams that call other people's APIs</div>
-        <h1>APIs change.<br />Your code <span class="under">keeps working.</span></h1>
-        <p class="lede">
-          Stripe renames a value. GitHub answers 200 instead of 204. SHAPI finds the exact lines in your code that a change breaks and, where a fix recipe
-          exists, opens a pull request that fixes them, with a test that proves it.
-        </p>
-        <div class="actions">
-          <a class="pill solid" :href="INSTALL">Install the GitHub App</a>
-          <a class="pill ghost" :href="withBase('/guide/quickstart')">Try it in your terminal</a>
-        </div>
-        <p class="note">Free for public repositories and one private one. Free for everyone during early access.</p>
-      </div>
-
-      <div class="story" role="img" aria-label="An API change breaks a line of code, and SHAPI fixes it">
-        <div class="bar">
-          <span class="file">src/deploy.ts</span>
-          <span :class="['badge', STAGES[stage]!.kind]"><i></i>{{ STAGES[stage]!.badge }}</span>
-        </div>
-        <div class="code">
-          <div class="ln"><span>12</span><span><b>const</b> res = <b>await</b> fetch(dispatchUrl, {</span></div>
-          <div class="ln"><span>13</span><span>&nbsp;&nbsp;method: "POST", headers, body</span></div>
-          <div class="ln"><span>14</span><span>});</span></div>
-          <div :class="['ln', 'hot', stage === 2 ? 'bad' : stage >= 3 ? 'good' : '']">
-            <span>15</span><span class="txt">{{ line }}<i v-if="typing" class="caret"></i></span>
-          </div>
-          <div class="ln"><span>16</span><span>&nbsp;&nbsp;log("deploy started");</span></div>
-          <div class="ln"><span>17</span><span>}</span></div>
-        </div>
-        <div class="event"><span :class="['dot', STAGES[stage]!.dot]"></span><span v-html="STAGES[stage]!.text"></span></div>
-        <div class="steps">
-          <span v-for="n in 4" :key="n" :class="stage === 4 || n - 1 < stage ? 'done' : n - 1 === stage ? 'run' : ''"
-            ><i :style="{ animationDuration: `${STAGES[stage]!.ms || 1600}ms` }"></i
-          ></span>
-        </div>
-      </div>
-      <div class="scroll-cue" aria-hidden="true"><span></span>Scroll</div>
-    </section>
-
-    <div class="ticker" aria-label="Upcoming API deadlines">
-      <div class="track">
-        <template v-for="copy in 2" :key="copy">
-          <a v-for="a in ticker" :key="`${copy}-${a.id}`" class="item" :href="a.url" :aria-hidden="copy === 2 ? 'true' : undefined" :tabindex="copy === 2 ? -1 : undefined">
-            <b>{{ a.provider }}</b> · {{ a.title }}<span :class="['days', { near: days(a.effectiveDate) <= 14 }]">{{ inDays(a.effectiveDate) }}</span>
-          </a>
-        </template>
-      </div>
-    </div>
-
-    <section ref="statsEl" class="wrap stats" data-scroll="enter">
-      <div><strong>{{ count(data.total) }}</strong><span>researched API changes</span></div>
-      <div><strong>{{ count(ahead.length) }}</strong><span>deadlines still ahead</span></div>
-      <div><strong>{{ count(data.providers.length) }}</strong><span>providers</span></div>
-      <div><strong>{{ count(data.withFix) }}</strong><span>with an automatic fix</span></div>
-    </section>
-
-    <section class="block">
-      <div class="wrap center rise" data-scroll="enter">
-        <div class="eyebrow center">The problem</div>
-        <h2>Your tests pass.<br /><span class="dim">The real API already moved on.</span></h2>
-      </div>
-      <div class="wrap problems">
-        <div v-for="(p, i) in problems" :key="i" class="problem" data-scroll="view">
-          <div class="n">0{{ i + 1 }}</div>
-          <div>
-            <h3 class="scrub" :style="{ '--n': words(p.title).length }">
-              <span v-for="(w, j) in words(p.title)" :key="j" :class="['w', { red: w.trim() === p.red }]" :style="{ '--i': j }">{{ w }}</span>
-            </h3>
-            <p>{{ p.body }}</p>
+  <div ref="root" class="home">
+    <!-- 1. hero: the real deploy.ts, mapped, broken by GitHub, fixed and proven -->
+    <section id="hero" class="hero">
+      <div class="stage">
+        <canvas id="threads" aria-hidden="true"></canvas>
+        <div class="hero-copy">
+          <span class="eyebrow">For teams that call other people's APIs</span>
+          <h1>APIs change.<span class="it">Your code keeps working.</span></h1>
+          <p class="lede">SHAPI finds the exact lines a third-party API change breaks. Where a fix recipe exists, it opens a pull request that fixes them, with a test that proves it.</p>
+          <div class="actions">
+            <a class="pill solid" :href="INSTALL">Install the GitHub App</a>
+            <a class="pill" :href="withBase('/guide/quickstart')">Try it in your terminal</a>
           </div>
         </div>
+        <div class="steps" aria-hidden="true">
+          <span v-for="(s, i) in STEP_NAMES" :key="s" :class="{ on: PHASES[i] === phase }">{{ s }}</span>
+        </div>
+        <div class="rig">
+          <div class="provs">
+            <div
+              v-for="p in providers"
+              :key="p.key"
+              :class="['prov', { hit: p.key === 'github' && broken, ok: p.key === 'github' && mended, warn: p.flag === 'high' && flagged, safe: !p.flag && flagged }]"
+              :data-k="p.key"
+              :data-flag="p.flag"
+            >
+              <i>{{ p.mark }}</i>{{ p.name }}<small>{{ chipNote(p) }}</small>
+            </div>
+            <div class="more">+ {{ data.providers.length - providers.length }} more providers covered</div>
+          </div>
+          <div class="desk">
+            <div :class="['toast', { on: phase === 'ship' }]"><b>PR #2 opened</b> SHAPI: workflow_dispatch returns 200 with a body instead of 204</div>
+            <div class="editor">
+              <div class="ed-bar">
+                <i></i><i></i><i></i><span class="tab on">deploy.ts</span><span class="tab">api.lock</span>
+                <span :class="['ed-status', { bad: broken, ok: mended }]">{{ status }}</span>
+              </div>
+              <div class="ed-body">
+                <div class="tree">
+                  <div class="dir">fixtures/demo-ts/src</div>
+                  <div
+                    v-for="(p, i) in providers"
+                    :key="p.key"
+                    :class="['file', { cur: i === 0, hit: i === 0 && broken, ok: i === 0 && mended, warn: p.flag === 'high' && flagged, safe: !p.flag && flagged }]"
+                    :data-k="p.key"
+                  >
+                    {{ p.file }} <em>{{ p.sites }}</em>
+                  </div>
+                  <div class="dir">test/shapi</div>
+                  <div :class="['file', 'new', { on: phase !== 'map' && phase !== 'match' }]">github-workflow-dispatch-…test.ts</div>
+                </div>
+                <pre class="src"><span class="l"><b>13</b>  <span class="k">const res = await fetch</span>(`${GITHUB_API}/repos/${req.owner}/${req.repo}/actions/workflows/…</span><span v-for="[n, l] in SOURCE" :key="n" class="l"><b>{{ n }}</b>{{ l }}</span><span :class="['l', { hit: broken, ok: mended }]"><b>22</b>  <span :class="{ squig: phase === 'match' }">{{ hotText }}</span><span v-if="typed >= 0 && typed < NEW.length" class="caret"></span></span><span class="l"><b>23</b>    throw new Error(`deploy dispatch failed with ${res.status}`);</span><span class="l"><b>24</b>  }</span><span :class="['diag', { on: phase === 'match' }]"><span class="h">SHAPI · CRITICAL · github-workflow-dispatch-204-to-200</span>workflow_dispatch returns 200 with a body instead of 204. This line compares the response status to 204, so every successful deploy now throws.</span></pre>
+              </div>
+              <div :class="['ed-panel', { on: phase === 'fix' || phase === 'prove' }]">
+                <div class="mute">$ npx vitest run test/shapi/github-workflow-dispatch-204-to-200.test.ts</div>
+                <template v-if="passed">
+                  <div class="good">✓ triggerDeploy handles the before (204) response</div>
+                  <div class="good">✓ triggerDeploy handles the after (200) response</div>
+                  <div>&nbsp;</div>
+                  <div class="good">Tests  2 passed · change kept</div>
+                </template>
+                <template v-else-if="phase === 'prove'">
+                  <div>✓ triggerDeploy handles the before (204) response</div>
+                  <div class="bad">✗ triggerDeploy handles the after (200) response</div>
+                  <div class="bad">&nbsp;&nbsp;Error: deploy dispatch failed with 200</div>
+                  <div class="mute">→ applying recipe status-code-accept-set, then running the test again</div>
+                </template>
+                <template v-else>
+                  <div>✓ triggerDeploy handles the before (204) response</div>
+                  <div class="bad">✗ triggerDeploy handles the after (200) response</div>
+                  <div class="bad">&nbsp;&nbsp;Error: deploy dispatch failed with 200</div>
+                  <div class="bad">Tests  1 failed | 1 passed</div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="caption"><b>{{ caption[0] }}</b>{{ caption[1] }}</p>
       </div>
     </section>
 
-    <section class="block band" id="how">
-      <div class="wrap center rise" data-scroll="enter">
-        <div class="eyebrow center">How it works</div>
-        <h2>One API change,<br /><span class="dim">from start to finish.</span></h2>
+    <!-- 2. the problem -->
+    <section class="scrub">
+      <p>
+        <span v-for="(w, i) in problemWords" :key="i" :class="['w', { red: i === problemWords.length - 1 }]">{{ w }}</span>
+      </p>
+    </section>
+
+    <!-- 3. how it works: five real artifacts, one per step, on a pinned screen -->
+    <section id="how" class="pipe">
+      <div class="pipe-head">
+        <span class="eyebrow">How SHAPI works</span>
+        <h2>One API change, <span class="it">start to finish.</span></h2>
       </div>
-
-      <div ref="storyEl" class="wrap chapters" data-scroll="pin">
-        <div class="texts">
-          <article v-for="(c, i) in chapters" :key="c.name" :class="['chapter', { on: ready && chapter === i }]">
-            <span class="n">0{{ i + 1 }}</span>
-            <h3>{{ c.name }}</h3>
-            <p>{{ c.body }}</p>
-          </article>
-        </div>
-
-        <div class="pin">
-          <div class="stage" :style="stageVars" role="img" aria-label="SHAPI maps three API calls, matches a GitHub change, fixes the line and opens a pull request">
-            <div class="stage-bar">
-              <span class="file">api.lock</span>
-              <span class="dots"><i v-for="n in 4" :key="n" :class="{ on: chapter >= n - 1 || !ready }"></i></span>
+      <div class="list">
+        <article :class="['f', { on: pane === 0 }]">
+          <span class="n">01 · MAP</span>
+          <h3>Read what your code expects.</h3>
+          <p>SHAPI reads your code, never runs it. Every call site goes into <code>api.lock</code>: the endpoint, and the status codes, fields, headers and query params your code relies on.</p>
+        </article>
+        <article :class="['f', { on: pane === 1 }]">
+          <span class="n">02 · WATCH</span>
+          <h3>Probe the providers every hour.</h3>
+          <p>Canaries call providers' APIs every hour and record the shape of each answer. When a shape changes in a breaking way, an advisory is drafted for review. Announced changes are researched from changelogs.</p>
+        </article>
+        <article :class="['f', { on: pane === 2 }]">
+          <span class="n">03 · MATCH</span>
+          <h3>Only the code that breaks.</h3>
+          <p>The advisory is matched against <code>api.lock</code>. A call that checks for 204 is flagged; a call that only uses the same endpoint is left alone.</p>
+        </article>
+        <article :class="['f', { on: pane === 3 }]">
+          <span class="n">04 · FIX</span>
+          <h3>A fix that has to prove itself.</h3>
+          <p>SHAPI writes a contract test, confirms it fails, applies the recipe, and keeps the change only once the test passes.</p>
+        </article>
+        <article :class="['f', { on: pane === 4 }]">
+          <span class="n">05 · SHIP</span>
+          <h3>A pull request with its evidence.</h3>
+          <p>The change, the test, and why: the advisory, its sources, and the test runs before and after. By default, at most two new pull requests an hour, and one you close stays closed.</p>
+        </article>
+        <p class="more"><a :href="withBase('/guide/how-it-works')">How SHAPI works, in detail →</a></p>
+      </div>
+      <div class="media">
+        <div class="screen">
+          <div class="screen-bar"><i></i><i></i><i></i><span>{{ PANE_TITLES[pane] }}</span></div>
+          <div :class="['pane', { on: pane === 0 }]">
+            <div class="lbl">src/deploy.ts</div>
+            <div class="box">
+              <div class="r"><b class="mute">13</b>  const res = await <mark>fetch</mark>(`…/actions/workflows/${req.workflow}/dispatches`, {</div>
+              <div class="r"><b class="mute">14</b>    <mark>method: "POST"</mark>,</div>
+              <div class="r"><b class="mute">18</b>    <mark>"X-GitHub-Api-Version": "2022-11-28"</mark>,</div>
+              <div class="r"><b class="mute">22</b>  if (<mark>res.status !== 204</mark>) {</div>
             </div>
-
-            <div class="layer map">
-              <div class="calls">
-                <div class="call c1"><span class="file">src/deploy.ts:13</span><span :class="['tag', phase.match > 0.5 ? 'bad' : '']">{{ phase.match > 0.5 ? "breaks" : "POST" }}</span></div>
-                <div class="call c2"><span class="file">src/accounting.ts:7</span><span class="tag">GET</span></div>
-                <div class="call c3"><span class="file">src/crm.ts:6</span><span class="tag">GET</span></div>
+            <div class="flow">written to api.lock</div>
+            <div class="box">
+              <div class="r">{</div>
+              <div class="r">  "file": "src/deploy.ts", "line": 13, "provider": <mark>"github"</mark>,</div>
+              <div class="r">  "method": <mark>"POST"</mark>, "client": "fetch",</div>
+              <div class="r">  "endpoint": "/repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches",</div>
+              <div class="r">  "surface": { "statusCodes": [<mark>204</mark>],</div>
+              <div class="r">    "headers": [{ "name": "x-github-api-version", "value": <mark>"2022-11-28"</mark> }] }</div>
+              <div class="r">}</div>
+            </div>
+          </div>
+          <div :class="['pane', { on: pane === 1 }]">
+            <div class="lbl">Probe every hour · POST …/dispatches on SHAPI's test repository</div>
+            <div class="ticks">
+              <i><span>8 hours ago</span></i><i></i><i></i><i></i><i><span>4 hours ago</span></i><i></i><i></i><i></i><i class="hit"><span>this hour</span></i>
+            </div>
+            <div class="shape">
+              <div>
+                <div class="lbl">Recorded shape</div>
+                <div class="box"><div class="r">status   204</div><div class="r">body     none</div><div class="r">&nbsp;</div><div class="r">&nbsp;</div></div>
               </div>
-              <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                <path :class="{ hit: phase.match > 0.5 }" pathLength="1" d="M48 22 C 58 22, 58 45, 66 45" />
-                <path pathLength="1" d="M48 45 C 58 45, 58 68, 66 68" />
-                <path pathLength="1" d="M48 68 C 58 68, 58 22, 66 22" />
-              </svg>
-              <div class="apis">
-                <span class="api a1">HubSpot</span>
-                <span :class="['api', 'a2', { hit: phase.match > 0.5 }]">GitHub</span>
-                <span class="api a3">QuickBooks</span>
-              </div>
-              <div class="notice">
-                <span class="badge bad"><i></i>critical</span>
-                <b>GitHub changed.</b> workflow_dispatch now answers 200 with a body instead of 204.
+              <div>
+                <div class="lbl">Shape now</div>
+                <div class="box">
+                  <div class="r chg">status   200</div>
+                  <div class="r add">+ body.workflow_run_id   number</div>
+                  <div class="r add">+ body.run_url           string</div>
+                  <div class="r add">+ body.html_url          string</div>
+                </div>
               </div>
             </div>
-
-            <div class="layer fix">
-              <div class="code">
-                <div class="ln"><span>13</span><span><b>const</b> res = <b>await</b> fetch(dispatchUrl, {</span></div>
-                <div class="ln"><span>14</span><span>});</span></div>
-                <div :class="['ln', 'hot', phase.fix >= 1 ? 'good' : 'bad']"><span>15</span><span class="txt">{{ typed }}</span></div>
-                <div class="ln"><span>16</span><span>&nbsp;&nbsp;log("deploy started");</span></div>
+            <div class="box stag"><span class="bad">breaking</span> · status-code · drafted <span class="mute">advisories/drafts/github-workflow-dispatch-204-to-200.json</span></div>
+          </div>
+          <div :class="['pane', { on: pane === 2 }]">
+            <div class="shape">
+              <div>
+                <div class="lbl">api.lock</div>
+                <div class="box"><div class="r">"endpoint": "…/dispatches",</div><div class="r">"surface": {</div><div class="r">  "statusCodes": [<mark class="bad">204</mark>]</div><div class="r">}</div></div>
               </div>
-              <div class="log">
-                <div :class="{ show: phase.fix > 0.1 }"><span class="x">✕</span>contract test · POST /dispatches answers 200 → <b>fails</b></div>
-                <div :class="{ show: phase.fix > 0.5 }"><span class="arrow">→</span>applying recipe <b>status-code-accept-set</b></div>
-                <div :class="{ show: phase.fix >= 1 }"><span class="v">✓</span>contract test · 200 and 204 accepted → <b>passes</b></div>
-              </div>
-              <div class="tests">
-                <span :class="['badge', phase.fix > 0.08 ? 'bad' : 'wait']"><i></i>contract test fails before</span>
-                <span :class="['badge', phase.fix >= 1 ? 'ok' : 'wait']"><i></i>{{ phase.fix >= 1 ? "passes after" : "running…" }}</span>
+              <div>
+                <div class="lbl">advisory · verified</div>
+                <div class="box"><div class="r">"changeClass": "status-code",</div><div class="r">"trigger": {</div><div class="r">  "statusCodes": [<mark class="bad">204</mark>],</div><div class="r">  "newStatusCodes": [200] }</div></div>
               </div>
             </div>
-
-            <div class="layer watch">
-              <div class="pr">
-                <div class="pr-top"><span class="badge ok"><i></i>open</span><span class="file">#12 · shapi-demo</span></div>
+            <div class="box finding stag">
+              <div class="r"><span class="bad">CRITICAL</span>  src/deploy.ts:13  POST …/actions/workflows/{workflow}/dispatches</div>
+              <div class="r">          workflow_dispatch returns 200 with a body instead of 204</div>
+              <div class="r mute">          why: compares the response status to 204</div>
+              <div class="r mute">          fix: Treat both 200 and 204 as success (any 2xx).</div>
+            </div>
+            <div class="box stag"><div class="r">src/deploy.ts:28  GET …/workflows/{workflow}/runs   <span class="good">not affected</span></div></div>
+          </div>
+          <div :class="['pane', { on: pane === 3 }]">
+            <div class="diff">
+              <div class="h">src/deploy.ts</div>
+              <div class="d mute">@@ -19,7 +19,7 @@</div>
+              <div class="d del">-  if (res.status !== 204) {</div>
+              <div class="d add">+  if (![200, 204].includes(res.status)) {</div>
+              <div class="d mute">     throw new Error(`deploy dispatch failed with ${res.status}`);</div>
+            </div>
+            <div class="box stag"><span class="good">A</span> test/shapi/github-workflow-dispatch-204-to-200.test.ts <span class="mute">· calls triggerDeploy() with the 204 it was written for and the 200 GitHub sends now</span></div>
+            <div class="runs stag">
+              <div class="run fail"><b>Before the fix</b>fail · 1 failed | 1 passed</div>
+              <div class="run pass"><b>After the fix</b>pass · 2 passed</div>
+            </div>
+          </div>
+          <div :class="['pane', { on: pane === 4 }]">
+            <div class="prc">
+              <div class="t">
                 <b>SHAPI: workflow_dispatch returns 200 with a body instead of 204</b>
-                <div class="pr-meta">1 file · +1 −1 · contract test passed in a fresh sandbox</div>
+                <span class="state">Merged</span> <span class="mute">&nbsp;2 files · src/deploy.ts, test/shapi/…test.ts</span>
               </div>
-              <div class="radar">
-                <span class="ring"></span><span class="ring r2"></span><span class="core"></span>
-                <p>Watching every push.<br /><template v-if="next">Next: {{ next.provider }}, {{ inDays(next.effectiveDate) }}.</template></p>
-              </div>
+              <table>
+                <tbody>
+                  <tr><td>Change</td><td><code>res.status !== 204</code> → <code>![200, 204].includes(res.status)</code></td></tr>
+                  <tr><td>Contract test, before</td><td class="bad">fail (1 failed | 1 passed)</td></tr>
+                  <tr><td>Contract test, after</td><td class="good">pass (2 passed)</td></tr>
+                  <tr><td>Severity · change class</td><td>critical · status-code</td></tr>
+                  <tr><td>First observed</td><td>2025-12-19</td></tr>
+                  <tr><td>Provider notice</td><td>none (undocumented change)</td></tr>
+                </tbody>
+              </table>
+              <div class="foot">The change was kept only because the contract test failed before it and passes after it.</div>
             </div>
           </div>
         </div>
       </div>
-      <p class="more"><a :href="withBase('/guide/how-it-works')">How SHAPI works, in detail →</a></p>
     </section>
 
-    <section class="block">
-      <div class="wrap split">
-        <div class="rise" data-scroll="enter">
-          <div class="eyebrow">See it on your code</div>
-          <h2>One command.<br /><span class="dim">No account needed.</span></h2>
-          <p class="lede small">
-            Run it in any TypeScript, JavaScript or Python repository. This is SHAPI's demo project; <code>npx shapi-cli fix . --write</code> fixes all
-            three, each with a test that failed before and passes after.
-          </p>
-          <a class="pill ghost" :href="withBase('/guide/quickstart')">Read the quickstart</a>
+    <!-- 4. the researched API changes, on a turning ring -->
+    <section id="changes" class="helix">
+      <div class="stage">
+        <div class="helix-copy">
+          <span class="eyebrow">The API changes</span>
+          <h2>{{ data.total }} changes, <span class="it">researched.</span></h2>
+          <p>Across {{ data.providers.length }} providers, {{ ahead.length }} still ahead. Each has a date, its sources, and the exact shape that breaks.</p>
+          <a class="pill" :href="withBase('/advisories')">See all {{ data.total }} API changes</a>
         </div>
-        <div class="term" data-scroll="enter">
-          <div class="bar"><span class="file">terminal</span></div>
-          <pre><span class="cmd">$ npx shapi-cli scan .</span>
-
-<span class="out o1">Affected call sites (3)</span>
-<span class="out o2">  <span class="crit">CRITICAL</span>  src/deploy.ts:13
-            workflow_dispatch returns 200 with a body
-            instead of 204</span>
-<span class="out o3">  <span class="high">HIGH</span>      src/accounting.ts:7
-            Minor versions below 75 are silently
-            answered as minor version 75</span>
-<span class="out o4">  <span class="high">HIGH</span>      src/crm.ts:6
-            Pipelines API v1 retired on 2026-12-04</span></pre>
+        <div class="ring">
+          <a v-for="a in ringCards" :key="a.id" class="adv" :href="a.url">
+            <span class="top"><span>{{ short(a.effectiveDate) }}</span><span>{{ a.changeClass }}</span></span>
+            <b>{{ a.provider }}</b>
+            <span class="what">{{ a.title }}</span>
+            <span class="foot"><span :class="['sev', a.severity]">{{ a.severity }}</span><span class="when">{{ inDays(a.effectiveDate) }}</span></span>
+          </a>
         </div>
       </div>
     </section>
 
-    <section class="block">
-      <div class="wrap center rise" data-scroll="enter">
-        <div class="eyebrow center">Coming up</div>
-        <h2>The next API deadlines.</h2>
-        <p class="lede">Keep scrolling: the calendar moves with you.</p>
-      </div>
-      <div ref="rail" class="rail" data-scroll="pin">
-        <div class="rail-pin">
-          <div ref="track" class="rail-track">
-            <div class="today"><span>Today</span><b>{{ short(data.builtOn) }}</b></div>
-            <a v-for="a in upcoming" :key="a.id" :class="['date', { near: days(a.effectiveDate) <= 14 }]" :href="a.url">
-              <span class="when">{{ short(a.effectiveDate) }} · {{ inDays(a.effectiveDate) }}</span>
-              <b>{{ a.provider }}</b>
-              <span class="what">{{ a.title }}</span>
-              <span :class="['badge', a.severity === 'critical' ? 'bad' : a.severity === 'high' ? 'soon' : 'wait']"><i></i>{{ a.severity }}</span>
-            </a>
-            <a class="date all" :href="withBase('/advisories')"><b>All {{ data.total }} API changes →</b><span class="what">Open data you can use and contribute to.</span></a>
+    <!-- 5. the same morning, two ways: production logs -->
+    <section id="two" class="two">
+      <div class="stage">
+        <div class="two-inner">
+          <div class="two-head">
+            <span class="eyebrow">Dec 19, 2025 · GitHub changes a status code</span>
+            <h2>The same morning, <span class="it">two ways.</span></h2>
           </div>
-          <div class="rail-line"><i></i></div>
+          <div class="logs">
+            <div class="logs-bar">
+              deploy-service · production · illustration
+              <div class="switch" role="group" aria-label="Show the morning">
+                <button type="button" :class="{ on: !withShapi }" :aria-pressed="!withShapi" @click="withShapi = false">Without SHAPI</button>
+                <button type="button" :class="{ on: withShapi }" :aria-pressed="withShapi" @click="withShapi = true">With SHAPI</button>
+              </div>
+            </div>
+            <div class="log-body">
+              <div :class="['lset', { on: !withShapi }]">
+                <div><span>09:14:02</span>POST /repos/acme/api/actions/workflows/deploy.yml/dispatches → 200</div>
+                <div class="e"><span>09:14:02</span>Error: deploy dispatch failed with 200</div>
+                <div><span>09:14:03</span>deploy marked failed · alert sent to on-call</div>
+                <div><span>09:31:40</span>POST /repos/acme/api/actions/workflows/deploy.yml/dispatches → 200</div>
+                <div class="e"><span>09:31:40</span>Error: deploy dispatch failed with 200</div>
+                <div><span>10:02:15</span>on-call: tests pass locally, mocks return 204</div>
+                <div class="e"><span>11:47:09</span>Error: deploy dispatch failed with 200</div>
+              </div>
+              <div :class="['lset', { on: withShapi }]">
+                <div class="s"><span>04:00:00</span>SHAPI canary · workflow_dispatch answered 200, recorded 204</div>
+                <div class="s"><span>04:00:01</span>SHAPI · 1 affected call site · src/deploy.ts:13</div>
+                <div class="g"><span>04:03:12</span>SHAPI · PR #2 opened · contract test fails before, passes after</div>
+                <div><span>08:55:30</span>PR #2 approved and merged</div>
+                <div><span>09:14:02</span>POST /repos/acme/api/actions/workflows/deploy.yml/dispatches → 200</div>
+                <div class="g"><span>09:14:02</span>deploy started</div>
+                <div class="g"><span>09:31:40</span>deploy started</div>
+              </div>
+            </div>
+            <div class="verdict">
+              <span>Deploys that morning</span><b :class="withShapi ? 'g' : 'e'">{{ withShapi ? "2 started, 0 failed" : "3 marked failed" }}</b>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="block">
-      <div class="wrap split">
-        <div class="rise" data-scroll="enter">
-          <div class="eyebrow">What a fix looks like</div>
-          <h2>A pull request<br /><span class="dim">with its proof attached.</span></h2>
+    <!-- 6. the terminal: the real shapi scan output -->
+    <section id="cli" class="term-sec">
+      <div class="stage">
+        <div>
+          <span class="eyebrow">Try it now</span>
+          <h2>One command. <span class="it">No account.</span></h2>
+          <p>Run it in any TypeScript, JavaScript or Python repository. This is real output on SHAPI's demo project, with the fix hints left out; <code>npx shapi-cli fix . --write</code> fixes all three, each with a test.</p>
+          <span class="cmd">$ <b>npx shapi-cli scan .</b></span>
         </div>
-        <ul class="checks">
-          <li v-for="(c, i) in proof" :key="i" data-scroll="enter"><b>{{ c.b }}</b>{{ c.t }}</li>
-        </ul>
+        <div class="term"><pre v-html="termHtml"></pre></div>
       </div>
     </section>
 
-    <section class="block band">
-      <div class="wrap center rise" data-scroll="enter">
-        <div class="eyebrow center">Pricing</div>
-        <h2>Free to start.</h2>
-      </div>
-      <div class="wrap price">
-        <div data-scroll="enter">
-          <h4>Free</h4>
+    <!-- 7. pricing and code handling -->
+    <section class="trust">
+      <div class="col">
+        <span class="eyebrow">Pricing</span>
+        <h2>Free <span class="it">to start.</span></h2>
+        <div class="plan">
+          <b>Free</b>
           <p>Public repositories and one private repository. Scans, checks, fix pull requests and Slack alerts included.</p>
         </div>
-        <div data-scroll="enter">
-          <h4>More private repositories</h4>
+        <div class="plan">
+          <b>More private repositories</b>
           <p>A monthly price per repository, announced before it starts. SHAPI asks before anything is charged. Free during early access.</p>
         </div>
       </div>
-    </section>
-
-    <section class="block">
-      <div class="wrap split">
-        <div class="rise" data-scroll="enter">
-          <div class="eyebrow">Your code stays yours</div>
-          <h2>Read-only,<br /><span class="dim">and nothing kept.</span></h2>
-          <p class="lede small">
-            Read <a :href="withBase('/security')">security and code handling</a>, the <a :href="withBase('/legal/privacy')">privacy policy</a> and the
-            <a :href="withBase('/legal/subprocessors')">subprocessors</a>.
-          </p>
-        </div>
+      <div class="col">
+        <span class="eyebrow">Your code stays yours</span>
+        <h2>Read-only, <span class="it">nothing kept.</span></h2>
         <ul class="checks">
-          <li data-scroll="enter"><b>Read-only tokens:</b> each scan can only read that one repository, and the token expires within an hour.</li>
-          <li data-scroll="enter"><b>Source isn't kept:</b> only the map of API calls and the findings are stored.</li>
-          <li data-scroll="enter"><b>Fixes run in a fresh microVM,</b> with the network off before any of your code runs.</li>
-          <li data-scroll="enter"><b>Claude is off by default.</b></li>
+          <li><b>Read-only tokens:</b> each scan can only read that one repository, and the token expires within an hour.</li>
+          <li><b>Source isn't kept:</b> only the map of API calls, the findings and each fix's diff are stored.</li>
+          <li><b>Fixes run in a fresh microVM,</b> with no credentials inside and the network off before your code or tests run.</li>
+          <li><b>Claude is off by default.</b></li>
         </ul>
+        <p class="more">
+          Read <a :href="withBase('/security')">security and code handling</a>, the <a :href="withBase('/legal/privacy')">privacy policy</a> and the
+          <a :href="withBase('/legal/subprocessors')">subprocessors</a>.
+        </p>
       </div>
     </section>
 
-    <section class="wrap cta" data-scroll="enter">
-      <svg class="join" viewBox="-40 -40 156 156" aria-hidden="true">
-        <path class="piece left" d="M0 0 H48 C48 40 28 36 28 76 H0 Z" />
-        <path class="piece right" d="M56 0 H76 V76 H36 C36 36 56 40 56 0 Z" />
-      </svg>
-      <h2>Know before it breaks.</h2>
-      <p class="lede">Your code and the APIs it calls, kept in step. Install it on one repository: it takes a minute and needs no code changes.</p>
-      <div class="actions">
-        <a class="pill solid" :href="INSTALL">Install the GitHub App</a>
-        <a class="pill ghost" :href="withBase('/advisories')">See the API changes</a>
+    <!-- 8. close: the logo's two pieces, your code and the API, fit together -->
+    <section id="close" class="close">
+      <div class="stage">
+        <div>
+          <div class="fit">
+            <svg viewBox="0 0 76 76" aria-hidden="true">
+              <path class="code-p" d="M0 0 H48 C48 40 28 36 28 76 H0 Z" />
+              <path class="api-p" d="M56 0 H76 V76 H36 C36 36 56 40 56 0 Z" />
+            </svg>
+            <span class="tag l">your code</span><span class="tag r">the API</span>
+          </div>
+          <h2>Know before <span class="it">it breaks.</span></h2>
+          <p>Install SHAPI on one repository. It takes a minute and needs no code changes.</p>
+          <div class="actions">
+            <a class="pill solid" :href="INSTALL">Install the GitHub App</a>
+            <span class="cmd">$ <b>npx shapi-cli scan .</b></span>
+          </div>
+        </div>
       </div>
     </section>
   </div>

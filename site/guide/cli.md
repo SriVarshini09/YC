@@ -15,7 +15,7 @@ Maps the third-party API call sites in a repository (default: the current direct
 | `--fail-on <severity>` | Exit `1` when an affected call site is at least this severe: `critical`, `high`, `medium`, `low` or `none`. Default: `critical`. |
 | `--no-color` | Plain output. |
 
-Exit codes: `0` nothing at or above `--fail-on`, `1` affected call sites found, `2` an error such as an unreadable path.
+Exit codes: `0` nothing at or above `--fail-on`, `1` an affected call site at or above `--fail-on` (or an unknown option), `2` an error such as an unreadable path.
 
 ## `shapi fix [path]`
 
@@ -32,7 +32,7 @@ Repairs affected call sites test-first. Without `--write` or `--pr` it only repo
 | `--recordings <dir>` | Recorded before/after responses (default: the bundled recordings). |
 | `--db <file>` | A shape store with canary observations, checked before the recordings. Default: `.shapi/shapes.db`. |
 
-Exit codes: `0` every affected call site was fixed or already handles the new response, `1` at least one could not be fixed, `2` an error.
+Exit codes: `0` every affected call site was fixed or already handles the new response, `1` at least one could not be fixed (or an unknown option), `2` an error.
 
 ## Environment
 

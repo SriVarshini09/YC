@@ -17,7 +17,7 @@ The test must **fail before the fix**, which proves it reproduces the breakage. 
 1. **A deterministic recipe**, if the advisory has one. Recipes are plain code transformations with tests of their own:
    - `status-code-accept-set` rewrites `res.status !== 204` to `![200, 204].includes(res.status)`;
    - `apply-fix` applies the change the advisory spells out, for example moving `/v21.0/` to `/v26.0/` (including in a base URL constant), setting `minorversion=75`, reading `folderIdV2` with `folderId` as a fallback, or accepting a renamed enum value.
-2. **Claude**, only if you ask for it (`fix --llm`, or the account setting *Use Claude when no deterministic recipe fits*, shown when Claude is enabled on the server). Claude gets the affected file, the advisory and the failing test, and proposes a change. It may not touch the test or anything outside your repository.
+2. **Claude**, only if you ask for it (`fix --llm`, or the account setting *Use Claude when no deterministic recipe fits*, shown when Claude is enabled on the server). Claude gets the affected file, the advisory, the failing test and its output, and proposes a change. It may not touch the test or anything outside your repository.
 
 Either way, the change is kept **only if the contract test then passes**. Otherwise the call site is reported as needing a manual fix, and nothing is changed.
 
@@ -26,7 +26,7 @@ Either way, the change is kept **only if the contract test then passes**. Otherw
 - **CLI on your machine (`shapi fix`):** in a temporary copy of your repository, using your installed dependencies. This is your own code on your own machine.
 - **GitHub App (hosted):** in a fresh **E2B Firecracker microVM** per job, with its own kernel.
   1. Dependencies install with only the npm and Yarn registries reachable.
-  2. The network is switched off completely before any of your code or tests run.
+  2. The network is limited to the package registries during the dependency install (install scripts run then), and switched off completely before your code or tests run.
   3. No tokens or SHAPI credentials are inside.
   4. The VM is destroyed after the job and has a hard lifetime limit.
 

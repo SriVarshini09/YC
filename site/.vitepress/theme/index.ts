@@ -1,7 +1,8 @@
 import DefaultTheme from "vitepress/theme";
 import { h } from "vue";
 import "@fontsource-variable/inter";
-import "@fontsource-variable/jost";
+import "@fontsource/instrument-serif/400.css";
+import "@fontsource/instrument-serif/400-italic.css";
 import { LOGO_HOVER } from "./brand";
 import Home from "./components/Home.vue";
 import "./custom.css";

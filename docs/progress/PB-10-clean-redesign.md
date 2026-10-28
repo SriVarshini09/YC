@@ -2,7 +2,7 @@
 
 What exists: the docs site and the web app share one look, signed off on `brand/redesign-mockup.html` (open it in a browser; the switch at the bottom flips between the website and the dashboard). It replaces the dark navy-and-blue look.
 
-**The look** (the Butter pass replaced the first, paper-only colours; see "Butter" below)
+**The look** (later passes replaced these colours; the current one is "Stone and Ink" at the end)
 - **Colours:** Butter `#FFD84A` and Ink `#17130A`, on a cream page `#FCF8EC` for reading. Red `#C2412D` appears only where something breaks, green `#2D7A52` only where it's fixed, and amber `#A86A12` for what's coming soon. No gradients and no blue.
 - **Type:** headlines in Jost SemiBold, text in Inter, and code with ligatures off. Both fonts come from `@fontsource-variable`. The web app serves them itself (`/static/jost.woff2`), because its CSP allows only `font-src 'self'`.
 - **Shapes:** pill buttons, small spaced-out labels with a rule, and numbered sections.
@@ -77,3 +77,64 @@ Verified:
 - `docs:build`: passed.
 - `pnpm test`: 274 of 274 tests passed, though `cloud.test.ts` reported a file-level failure in the full run. On its own (with `web.test.ts`), 34 of 34 passed.
 - Headless Chrome screenshots: the landing (desktop and 390 px phone, no sideways scroll), a docs page, the app landing, Overview and Problems.
+
+## Stone and Ink (fourth pass, website only so far)
+
+The founder found Butter too loud. They chose Stone and Ink from seven palettes in `brand/palette-studio.html` and asked for the website first; the web app still has Butter.
+- **Colours:** stone `#F1F1EE`, surface `#FAFAF8`, ink `#121212`, muted `#6B6B66`, tint `#E4E4DF`. Red `#C0392B` only where something breaks, green `#3F7A55` only where it is fixed. Logs and terminals are ink panels, with brighter red, green and amber for text on them.
+- **Type:** headlines in Instrument Serif, with the second half of a headline in grey italic. Text stays in Inter, and code keeps ligatures off. `@fontsource/instrument-serif` replaces Jost on the site.
+- **Landing (`Home.vue`, `home.css`):** every picture is a real SHAPI artifact. Each section pins while you scroll through it:
+  1. **Hero:** the demo project's `deploy.ts` in an editor, with threads from GitHub, Stripe, HubSpot and QuickBooks to the files that call them. Line 22 breaks with SHAPI's diagnostic, the contract test fails, the fix types in, the test passes, and "PR #2 opened" appears.
+  2. **The problem:** the GitHub story lights up word by word.
+  3. **How it works:** Map, Watch, Match, Fix and Ship, each beside the real artifact: the `api.lock` entry, the canary's shape diff, the advisory matched to `api.lock`, the diff with its test runs, and PR #2 with its evidence table.
+  4. **The API changes:** the next 16 real changes on a turning ring. The loader now also passes each advisory's `changeClass`.
+  5. **The same morning, two ways:** production logs without and with SHAPI, which flip halfway or with the switch.
+  6. **Terminal:** the real `shapi scan` output, printed as you scroll. The HubSpot deadline counts down from the build date.
+  7. **Pricing and code handling,** then the logo's two pieces, "your code" and "the API", fitting together.
+- **Smooth scrolling:** Lenis, loaded only on the landing page and removed when you leave it.
+- **Reduced motion:** the page still follows the scroll, but nothing moves on its own.
+- **Docs pages:** serif headings, ink links with a quiet underline, and the current page in the sidebar on a tint pill.
+
+Verified:
+- `pnpm typecheck` and `pnpm lint`: clean.
+- `docs:build`: passed.
+- Headless Chrome screenshots, with no console errors and no sideways scroll:
+  - **Desktop (1440 × 900):** every hero phase and every section.
+  - **Phone (390 × 844):** the hero, the pinned screens, the ring, the logs, the terminal, pricing and the close.
+  - **Docs pages:** quickstart (desktop and phone), how it works, advisories and security.
+
+## Accuracy pass (before the YC submission)
+
+Every claim on the website was checked against the code, the real CLI output and the real shapi-demo PR #2.
+
+**Landing page**
+- **Hero:**
+  - The contract test now passes only once line 22 is fully rewritten.
+  - The match step flags all three real findings: GitHub critical, QuickBooks and HubSpot high. Stripe shows "✓ not affected" in green.
+  - The lede says fixes come "where a fix recipe exists".
+- **How it works:**
+  - The canary pane uses relative times. The demo's shapes come from a recording, so the pane makes no claim about a live detection on a real date.
+  - PR #2 is shown as merged, and the PR limit is "by default".
+  - "Probe every hour" matches `CANARY_CRON`.
+- **The logs section** is labelled "illustration".
+- **The terminal** says its output is shortened.
+- **Code-handling bullets:** they now mention the stored fix diffs, and the network is described as off before code or tests run.
+
+**Docs pages** (corrected from an audit against the code)
+- **Install network:** install scripts run while the package registries are reachable, and the network is cut before code or tests run. Fixed in fixes, security and DPA.
+- **Stored data:** fix diffs and contract-test output are stored. Fixed in security, privacy and DPA.
+- **Claude:** it also receives the failing test output. Fixed in security, privacy, subprocessors and fixes.
+- **Cookies:** the web app sets three cookies (theme included), and the docs site has no theme switch. Fixed in privacy.
+- **Retention:** webhook payloads are kept 14 days after processing, and billing ids are kept while installed.
+- **CLI:** exit codes for unknown options, `GH_TOKEN`, and what `fix` prints for call sites it can't fix.
+- **Other corrections:**
+  - The HubSpot tense (Dec 4, 2026 is still ahead).
+  - The pricing wording on the GitHub App page.
+  - The placeholder source in the advisory example.
+  - "© 2026 SHAPI".
+- **Legal pages:** marked last updated October 28, 2026.
+
+Verified:
+- **Links:** 36 internal links, none missing. 77 of 80 external links return 200; the other 3 are GitHub history pages that rate-limited the check.
+- **Pages:** the whole landing page in headless Chrome at 1440 and 390 px, with no console errors and no sideways scroll.
+- **Checks:** typecheck, lint and `docs:build` pass.

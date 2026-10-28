@@ -47,13 +47,13 @@ npx shapi-cli fix .
 3. applies the advisory's deterministic recipe
 4. runs the test again, and keeps the change only if it **passes**.
 
-Call sites without a recipe (and all Python call sites, which are scan-only for now) are reported with the provider's migration steps.
+Call sites without a recipe (and all Python call sites, which are scan-only for now) are reported as not fixed; `shapi scan` shows the provider's migration steps for them.
 
 Nothing in your repository changes until you ask:
 
 ```sh
 npx shapi-cli fix . --write   # write the fix and the contract test into your working tree
-npx shapi-cli fix . --pr      # open a pull request (uses GITHUB_TOKEN, or your gh login)
+npx shapi-cli fix . --pr      # open a pull request (uses GITHUB_TOKEN, GH_TOKEN or your gh login)
 ```
 
 `fix` runs the contract test on your machine, against your own code. See [how fixes are verified](/guide/fixes).
