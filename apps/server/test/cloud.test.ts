@@ -301,6 +301,38 @@ describe("triggers", () => {
     expect(pushed.scans[0]).toHaveProperty("scanId");
   });
 
+  it("after an upgrade the worker scans the repository again, so the fix job uses this build's api.lock", async () => {
+    const t = setup();
+    // A scan mapped by an older build, whose fix job never opened PRs.
+    const oldScan = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId: oldScan });
+    await owner.updateTable("scans").set({ fix_engine: "old-build" }).where("id", "=", oldScan).execute();
+    const logs: { msg: string; obj: object }[] = [];
+    const boss = await startWorker({
+      databaseUrl: pg.url,
+      db,
+      config: { CANARY_CRON: "", SHAPI_ADVISORIES: ADVISORIES, WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14, SHAPI_RECORDINGS: RECORDINGS, FANOUT_CRON: "", ADVISORIES_SYNC_CRON: "", SHAPI_PUBLIC_URL: "https://shapi.test", GIT_SHA: "new-build", githubApp },
+      env: { SHAPI_SHAPE_SECRET: "test" },
+      log: { info: (o, m) => logs.push({ msg: m ?? "", obj: o }), error: (o, m) => logs.push({ msg: `ERROR ${m} ${String((o as { err?: unknown }).err)}`, obj: o }) },
+      fetch: t.fetch,
+      githubOptions: { resilient: false },
+      workspace: t.workspace,
+    });
+    try {
+      const deadline = Date.now() + 90_000;
+      while (!logs.some((l) => l.msg === "fix job finished") && Date.now() < deadline) await new Promise((r) => setTimeout(r, 250));
+      expect(logs.filter((l) => l.msg.startsWith("ERROR")).map((l) => l.msg)).toEqual([]);
+      expect(logs.find((l) => l.msg === "repositories scanned again for this build")?.obj).toMatchObject({ engine: "new-build", scans: 1 });
+      const scans = await owner.selectFrom("scans").select(["id", "fix_engine"]).where("repository_id", "=", repositoryId).orderBy("created_at").execute();
+      // the fix job ran on the new scan, not on the old one
+      expect(scans).toEqual([{ id: oldScan, fix_engine: "old-build" }, { id: expect.any(String), fix_engine: "new-build" }]);
+      expect((logs.find((l) => l.msg === "fix job finished")!.obj as { scanId: string }).scanId).toBe(scans[1]!.id);
+      expect(t.github.pulls).toHaveLength(2);
+    } finally {
+      await boss.stop({ graceful: false, timeout: 5_000 });
+    }
+  }, 150_000);
+
   it("the worker runs push -> scan -> fix -> PR end to end", async () => {
     const t = setup();
     const logs: string[] = [];

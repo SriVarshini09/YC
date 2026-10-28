@@ -168,7 +168,8 @@ async function markEngine(deps: Pick<FixDeps, "db" | "engine">, scanId: string):
 }
 
 /**
- * Scans whose fix job should run again on this build: each enabled repository's latest successful scan
+ * Scans whose fixes this build should try again (the worker scans their repository afresh, which queues the
+ * fix job): each enabled repository's latest successful scan
  * whose fix job ran on another build (or never ran), with an affected call site that has no fix PR yet
  * and that this build may fix (a recipe, or Claude where the account opted in). A fix an older build could
  * not make is retried once per deploy, not on every push; PRs that exist, closed ones included, are left alone.
