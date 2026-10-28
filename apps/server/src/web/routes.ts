@@ -91,9 +91,10 @@ const idParam = z.string().regex(/^\d+$/);
 /** A same-site path to return to after a form post. */
 const backParam = z.string().regex(/^\/(?![/\\])[^\s]*$/);
 
-/** Inter for text and Jost for headlines, served from this origin so the strict CSP needs no font host. */
+/** Inter for text and Instrument Serif for headlines, served from this origin so the strict CSP needs no font host. */
 const FONT_FILE = createRequire(import.meta.url).resolve("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2");
-const DISPLAY_FONT_FILE = createRequire(import.meta.url).resolve("@fontsource-variable/jost/files/jost-latin-wght-normal.woff2");
+const SERIF_FILE = createRequire(import.meta.url).resolve("@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2");
+const SERIF_ITALIC_FILE = createRequire(import.meta.url).resolve("@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2");
 
 /**
  * The web app: sign in with GitHub, then see each account's overview, problems, fixes, repositories,
@@ -152,7 +153,8 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
     scope.get("/favicon.ico", async (_req, reply) => reply.type("image/x-icon").header("cache-control", cached).send(FAVICON_ICO));
     scope.get("/apple-touch-icon.png", async (_req, reply) => reply.type("image/png").header("cache-control", cached).send(APPLE_TOUCH_ICON));
     scope.get("/static/inter.woff2", async (_req, reply) => reply.type("font/woff2").header("cache-control", "public, max-age=604800, immutable").send(await readFile(FONT_FILE)));
-    scope.get("/static/jost.woff2", async (_req, reply) => reply.type("font/woff2").header("cache-control", "public, max-age=604800, immutable").send(await readFile(DISPLAY_FONT_FILE)));
+    scope.get("/static/serif.woff2", async (_req, reply) => reply.type("font/woff2").header("cache-control", "public, max-age=604800, immutable").send(await readFile(SERIF_FILE)));
+    scope.get("/static/serif-italic.woff2", async (_req, reply) => reply.type("font/woff2").header("cache-control", "public, max-age=604800, immutable").send(await readFile(SERIF_ITALIC_FILE)));
 
     scope.get("/", async (req, reply) => {
       const { session } = await sessionOf(req);
