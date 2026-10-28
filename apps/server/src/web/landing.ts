@@ -37,18 +37,18 @@ export function landingPage(opts: LandingOptions): Html {
 <section class="lp-hero"><div class="lp-inner">
   <div class="lp-copy rise">
     <p class="eyebrow line">For teams that call other people's APIs</p>
-    <h1>APIs change.<br>Your code <span class="under">keeps working.</span></h1>
-    <p class="lp-lead">Stripe renames a value. GitHub answers 200 instead of 204. SHAPI finds the exact lines in your code that break, across GitHub, Stripe, Slack, OpenAI and ${providers.length - 4} more APIs, and where a fix recipe exists, sends a pull request that fixes them with a test that proves it.</p>
+    <h1>APIs change.<em>Your code keeps working.</em></h1>
+    <p class="lp-lead">Stripe renames a value. GitHub answers 200 instead of 204. SHAPI recognizes calls to GitHub, Stripe, Slack, OpenAI and ${providers.length - 4} more APIs, finds the exact lines a change breaks, and where a fix recipe exists, sends a pull request that fixes them with a test that proves it.</p>
     <div class="btn-row">${ctas}</div>
     <p class="lp-note">Free for public repositories and one private repository.${opts.billingEnabled ? "" : " Free for everyone during early access."}</p>
   </div>
   <div class="lp-shot rise d2">${storyCard()}</div>
 </div></section>
 
-<div class="lp-ticker" aria-label="APIs SHAPI watches"><div class="track">${ticker}<span aria-hidden="true"></span>${ticker}</div></div>
+<div class="lp-ticker" aria-label="APIs SHAPI recognizes"><div class="track">${ticker}<span aria-hidden="true"></span>${ticker}</div></div>
 
 <section class="lp-stats"><div class="lp-inner">
-  <div><b>${providers.length}</b><span>APIs watched</span></div>
+  <div><b>${providers.length}</b><span>APIs recognized in your code</span></div>
   ${opts.advisories ? html`<div><b>${opts.advisories}</b><span>reviewed API changes</span></div>` : EMPTY}
   <div><b>TS · JS · Python</b><span>scanned; fixes for TS and JS</span></div>
   <div><b>Every fix</b><span>proven by a contract test</span></div>
@@ -71,13 +71,13 @@ export function landingPage(opts: LandingOptions): Html {
     ${step("01", "Map", "Install the GitHub App. Each push to your default branch is scanned for calls to third-party APIs, through HTTP clients or official SDKs.")}
     ${step("02", "Match", "Each call is checked against reviewed API changes and deadlines: version sunsets, renamed fields, new status codes. Code that breaks is told apart from code that is fine.")}
     ${step("03", "Fix", "For each affected TypeScript or JavaScript call with a fix recipe, SHAPI writes a contract test, confirms it fails, applies the fix, and opens a pull request only once the test passes.")}
-    ${step("04", "Watch", "Canaries keep checking the providers, so the next change reaches you as a pull request or an alert, not an incident.")}
+    ${step("04", "Watch", "Canaries probe providers every hour and announced changes are researched from changelogs, so the next change reaches you as a pull request or an alert, not an incident.")}
   </div>
 </div></section>
 
 <section class="lp-section alt" id="providers"><div class="lp-inner">
   <p class="eyebrow line">Coverage</p>
-  <h2>${providers.length} APIs your product depends on.</h2>
+  <h2>${providers.length} APIs SHAPI recognizes in your code.</h2>
   <div class="lp-providers">${providers.map((p) => html`<span class="lp-provider">${providerMark(p.id, "sm")}${p.name}</span>`)}</div>
 </div></section>
 
@@ -90,7 +90,8 @@ export function landingPage(opts: LandingOptions): Html {
   </div>
   <div class="stack">
     ${comparisonView({ expected: { value: "204 No Content", caption: "The status the code checks for" }, actual: { value: "200 OK", caption: "What GitHub returns now" } })}
-    <pre class="diff lp-scrub"><div class="file"><span>src/ops/deploy.ts</span><span class="muted">+1 −1</span></div><span class="l hunk">@@ -11,3 +11,3 @@</span><span class="l del">-  if (res.status !== 204) throw new Error(\`dispatch failed: \${res.status}\`);</span><span class="l add">+  if (![200, 204].includes(res.status)) throw new Error(\`dispatch failed: \${res.status}\`);</span><span class="l">   return { started: true };</span></pre>
+    <pre class="diff lp-scrub"><div class="file"><span>src/deploy.ts</span><span class="muted">+1 −1</span></div><span class="l hunk">@@ -19,7 +19,7 @@</span><span class="l del">-  if (res.status !== 204) {</span><span class="l add">+  if (![200, 204].includes(res.status)) {</span><span class="l">     throw new Error(\`deploy dispatch failed with \${res.status}\`);</span></pre>
+    <p class="note">The fix SHAPI opened on its demo project: <a href="https://github.com/SriVarshini09/shapi-demo/pull/2">shapi-demo pull request #2</a>.</p>
   </div>
 </div></section>
 
@@ -116,7 +117,7 @@ export function landingPage(opts: LandingOptions): Html {
 </div></section>
 
 <section class="lp-cta"><div class="lp-inner">
-  <h2>Know before it breaks.</h2>
+  <h2>Know before <em>it breaks.</em></h2>
   <p>Install in a minute. SHAPI scans your repositories right away, then on every push.</p>
   <div class="btn-row">${ctas}</div>
 </div></section>
@@ -141,21 +142,21 @@ function trust(title: string, text: string): Html {
 }
 
 /**
- * The hero's picture, from the GitHub incident below: the code works, GitHub changes, line 15 breaks,
- * SHAPI types the fix. Each state is stacked in place and shown in turn by a CSS loop (no script); with
+ * The hero's picture, from the GitHub incident below and SHAPI's demo project (src/deploy.ts): the code
+ * works, GitHub changes, line 22 breaks, SHAPI types the fix. Each state is stacked in place and shown in turn by a CSS loop (no script); with
  * reduced motion only the fixed state shows.
  */
 function storyCard(): Html {
-  const before = html`<span class="k">if</span> (res.status === 204) {`;
-  const after = html`<span class="k">if</span> ([200, 204].includes(res.status)) {`;
+  const before = html`<span class="k">if</span> (res.status !== 204) {`;
+  const after = html`<span class="k">if</span> (![200, 204].includes(res.status)) {`;
   const line = (n: number, code: Html | string) => html`<span class="ln"><span class="no">${n}</span><span>${code}</span></span>`;
   return html`<div class="story" role="img" aria-label="GitHub changes its API, a line of code breaks, and SHAPI fixes it with a tested pull request">
-<div class="story-bar"><span class="file">src/ops/deploy.ts</span><span class="stack-cell story-badges"><span class="tag s1">works</span><span class="tag warn s2">changed</span><span class="tag bad s3">breaks</span><span class="tag ok s4">fixed</span></span></div>
-<pre class="story-code">${line(12, html`<span class="k">const</span> res = <span class="k">await</span> fetch(dispatchUrl, {`)}${line(13, '  method: "POST", headers, body')}${line(14, "});")}<span class="ln hot"><span class="no">15</span><span class="stack-cell"><span class="txt before">${before}</span><span class="txt after">${after}</span></span></span>${line(16, '  log("deploy started");')}${line(17, "}")}</pre>
+<div class="story-bar"><span class="file">src/deploy.ts</span><span class="stack-cell story-badges"><span class="tag s1">works</span><span class="tag warn s2">changed</span><span class="tag bad s3">breaks</span><span class="tag ok s4">fixed</span></span></div>
+<pre class="story-code">${line(13, html`<span class="k">const</span> res = <span class="k">await</span> fetch(\`…/dispatches\`, {`)}${line(14, '  method: "POST",')}${line(21, "});")}<span class="ln hot"><span class="no">22</span><span class="stack-cell"><span class="txt before">${before}</span><span class="txt after">${after}</span></span></span>${line(23, "  throw new Error(`deploy dispatch failed with ${res.status}`);")}${line(24, "}")}</pre>
 <div class="story-event stack-cell">
 <p class="s1"><i></i><span>Watching <b>GitHub</b> for changes to the endpoints this code calls.</span></p>
 <p class="s2"><i></i><span><b>GitHub changed.</b> workflow_dispatch now answers 200 with a body, not 204.</span></p>
-<p class="s3"><i></i><span><b>Line 15 breaks.</b> It only accepts 204, so every deploy now looks like a failure.</span></p>
+<p class="s3"><i></i><span><b>Line 22 breaks.</b> It only accepts 204, so every successful deploy now throws.</span></p>
 <p class="s4"><i></i><span><b>Fixed.</b> A contract test failed before the fix and passes after it. Pull request opened.</span></p>
 </div>
 <div class="story-progress"><i></i></div>

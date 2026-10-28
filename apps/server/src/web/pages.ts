@@ -436,7 +436,7 @@ ${
     : EMPTY
 }
 <div class="card stack"><h2>Pausing</h2><p class="note">Pause a repository from its page, or tick the box on its SHAPI Dashboard issue. Scans continue; no PRs are opened or updated while paused. Add the <span class="mono">${STOP_LABEL}</span> label to a SHAPI PR to stop updates to that PR.</p></div>
-<div class="card stack"><h2>Appearance</h2><p class="note">Light or dark follows your system by default. Change it with the theme buttons at the bottom of the sidebar.</p></div>
+<div class="card stack"><h2>Appearance</h2><p class="note">The app is light by default. Switch to dark with the theme buttons at the bottom of the sidebar.</p></div>
 </div>
 </div>`;
 }

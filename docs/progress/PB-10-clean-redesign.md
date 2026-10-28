@@ -138,3 +138,29 @@ Verified:
 - **Links:** 36 internal links, none missing. 77 of 80 external links return 200; the other 3 are GitHub history pages that rate-limited the check.
 - **Pages:** the whole landing page in headless Chrome at 1440 and 390 px, with no console errors and no sideways scroll.
 - **Checks:** typecheck, lint and `docs:build` pass.
+
+## Web app in Stone and Ink
+
+The web app (`apps/server/src/web/`) now matches the website.
+- **Colours** (`styles.ts`):
+  - Stone and Ink tokens: a stone sidebar, the current page as an ink pill, and ink primary buttons.
+  - Cards have a thin line border and a soft shadow, with no hard ink edge.
+  - Red only where code breaks, amber for high and coming soon, and green only where it's fixed.
+  - Dark mode is an ink set with stone type, still applied only when picked.
+- **Type:** headlines, numbers and the health score are in Instrument Serif. The app serves the serif itself (`/static/serif.woff2` and `/static/serif-italic.woff2` from `@fontsource/instrument-serif`), so the CSP is unchanged. Jost is gone.
+- **Landing (`landing.ts`):**
+  - The serif headline has "Your code keeps working." in grey italic.
+  - The story card and the proof diff now show the demo project's real `src/deploy.ts`, line 22, and the real fix from shapi-demo PR #2, with a link to it.
+  - The provider strip and the closing section are light, not ink bands.
+- **Accuracy:**
+  - The landing now says SHAPI *recognizes* calls to 35 APIs, which is the registry the scanner matches, rather than "watching" them.
+  - The Watch step says canaries probe every hour and that announced changes are researched from changelogs.
+  - Settings no longer says the theme follows the system; light is the default.
+- **Still true:** no client JavaScript, no `style=""` attributes.
+
+Verified:
+- **Static checks:** `pnpm typecheck` and `pnpm lint` are clean.
+- **Tests:** `pnpm test` passes, 39 files and 275 tests.
+- **Demo preview at 1440 px:** the landing, Overview, Problems, a problem page, Fixes, Repositories, API changes, Deadlines and Settings in light mode. Overview, Problems, a problem page and Fixes in dark mode.
+- **Phone (375 px):** the landing, Overview and Problems, with `scrollWidth` 375 and no sideways scroll.
+- **Fonts:** both serif files are served with `font/woff2`.
