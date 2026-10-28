@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en" data-p="oat">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SHAPI Palette Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* Every visual on this page is a real SHAPI artifact: fixtures/demo-ts/src/deploy.ts, its api.lock
+   entry, the canary's shape diff, advisories/github-workflow-dispatch-204-to-200.json, the generated
+   contract test, and shapi-demo PR #2. Colours come only from the palette tokens below. */
+:root { --serif: "Instrument Serif", Georgia, serif; --sans: Inter, system-ui, sans-serif; --mono: ui-monospace, "Cascadia Code", Consolas, monospace; }
+[data-p="oat"]    { --bg:#F3F0E8; --surface:#FBFAF6; --ink:#1E211F; --muted:#6E716B; --line:#E2DDD1; --accent:#5F7D69; --on-accent:#F7F5EF; --tint:#E3E8DD; --night:#1C211E; --night-ink:#E9EDE6; --break:#B5523B; --fixed:#4F7A5C; --scheme: light; }
+[data-p="linen"]  { --bg:#F6EFE6; --surface:#FFFBF5; --ink:#2A1F18; --muted:#7A6B5E; --line:#E8DCCB; --accent:#B4643F; --on-accent:#FFF8F0; --tint:#F0DCCB; --night:#2A1F18; --night-ink:#F6EFE6; --break:#B4432F; --fixed:#5E7F5A; --scheme: light; }
+[data-p="blush"]  { --bg:#F7EFEC; --surface:#FFFAF8; --ink:#2A1F1D; --muted:#7D6A66; --line:#EADBD6; --accent:#B9746C; --on-accent:#FFF7F5; --tint:#F1DDD8; --night:#2A1F1D; --night-ink:#F7EFEC; --break:#B2443A; --fixed:#5F7F64; --scheme: light; }
+[data-p="honey"]  { --bg:#FAF6EC; --surface:#FFFDF7; --ink:#231E14; --muted:#776E5C; --line:#EAE1CC; --accent:#C89B3C; --on-accent:#231E14; --tint:#F4E8C8; --night:#231E14; --night-ink:#FAF6EC; --break:#B4482F; --fixed:#5B7D52; --scheme: light; }
+[data-p="stone"]  { --bg:#F1F1EE; --surface:#FAFAF8; --ink:#121212; --muted:#6B6B66; --line:#DDDDD7; --accent:#121212; --on-accent:#F1F1EE; --tint:#E4E4DF; --night:#121212; --night-ink:#F1F1EE; --break:#C0392B; --fixed:#3F7A55; --scheme: light; }
+[data-p="ember"]  { --bg:#0C0C0D; --surface:#151517; --ink:#ECEAE5; --muted:#8B8A85; --line:#26262A; --accent:#E5534B; --on-accent:#0C0C0D; --tint:#1A1A1D; --night:#070708; --night-ink:#ECEAE5; --break:#F06A5F; --fixed:#7CC79A; --scheme: dark; }
+[data-p="forest"] { --bg:#0D1411; --surface:#141D19; --ink:#E7EEE9; --muted:#8C9A92; --line:#23302A; --accent:#A7D7B8; --on-accent:#0D1411; --tint:#17221D; --night:#080D0B; --night-ink:#E7EEE9; --break:#F08A76; --fixed:#A7D7B8; --scheme: dark; }
+
+* { box-sizing: border-box; }
+html { background: var(--bg); color-scheme: var(--scheme); }
+html.lenis, html.lenis body { height: auto; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; transition: background .6s, color .6s; overflow-x: clip; }
+a { color: inherit; text-decoration: none; }
+code, pre, .mono { font-family: var(--mono); font-variant-ligatures: none; }
+/* code must read as typed: no ligature turns !== or === into one glyph */
+pre, code, .src, .box, .diff, .ed-panel, .lset, .tree, .term pre, .cmd { font-variant-ligatures: none !important; font-feature-settings: "calt" 0, "liga" 0 !important; }
+.it { font-style: italic; color: var(--muted); }
+.eyebrow { display: inline-flex; align-items: center; gap: 12px; font-size: 11.5px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+.eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+.pill { display: inline-flex; align-items: center; height: 46px; padding: 0 24px; border-radius: 999px; font-weight: 500; font-size: 14.5px; border: 1px solid var(--line); transition: transform .2s; }
+.pill:hover { transform: translateY(-2px); }
+.pill.solid { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.cmd { display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line); font: 13.5px var(--mono); color: var(--muted); }
+.cmd b { color: var(--ink); font-weight: 400; }
+.stage { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+.bad-t { color: var(--break); } .ok-t { color: var(--fixed); } .mute-t { color: var(--muted); }
+.caret { display: inline-block; width: 7px; height: 15px; vertical-align: -2px; background: currentColor; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+nav.top { position: fixed; z-index: 30; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 28px; padding: 18px 32px; transition: background .4s; }
+nav.top.solid { background: color-mix(in srgb, var(--bg) 84%, transparent); backdrop-filter: blur(14px); }
+.logo { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 19px; letter-spacing: -.02em; }
+.logo svg { width: 22px; height: 22px; fill: var(--ink); }
+nav.top .links { margin-left: auto; display: flex; gap: 26px; font-size: 14px; color: var(--muted); }
+nav.top .pill { height: 38px; padding: 0 18px; font-size: 13.5px; }
+
+/* ---------- 1. hero: the real deploy.ts, mapped, broken by GitHub, fixed and proven ---------- */
+.hero { height: 330vh; position: relative; }
+#threads { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-copy { position: absolute; left: 0; right: 0; top: 13vh; text-align: center; will-change: transform, opacity; }
+.hero h1 { margin: 16px 0 0; font: 400 clamp(48px, 6.6vw, 100px)/.95 var(--serif); letter-spacing: -.02em; }
+.hero h1 .it { display: block; }
+.rig { position: absolute; left: 50%; top: 45vh; width: min(1160px, 94vw); transform: translateX(-50%); display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 96px; align-items: start; will-change: transform; }
+.provs { display: grid; gap: 14px; padding-top: 70px; }
+.prov { display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); font-size: 13.5px; font-weight: 500; transition: border-color .4s, color .4s; will-change: transform; }
+.prov i { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font: 600 10.5px var(--sans); font-style: normal; background: var(--tint); }
+.prov small { margin-left: auto; font: 11px var(--mono); color: var(--muted); }
+.prov.hit { border-color: var(--break); color: var(--break); } .prov.hit i { background: var(--break); color: #fff; }
+.prov.ok { border-color: var(--fixed); color: var(--fixed); } .prov.ok i { background: var(--fixed); color: #fff; }
+.more { font-size: 12px; color: var(--muted); padding-left: 8px; }
+.editor { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 40px 80px -44px rgba(0,0,0,.5); }
+.ed-bar { display: flex; align-items: center; gap: 7px; height: 42px; padding: 0 14px; border-bottom: 1px solid var(--line); font: 12px var(--mono); color: var(--muted); }
+.ed-bar > i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.tab { margin-left: 10px; padding: 4px 10px; border-radius: 7px; } .tab.on { background: var(--tint); color: var(--ink); }
+.ed-status { margin-left: auto; display: flex; align-items: center; gap: 8px; transition: color .4s; }
+.ed-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.ed-body { display: grid; grid-template-columns: 210px minmax(0, 1fr); }
+.tree { border-right: 1px solid var(--line); padding: 12px 8px; font: 12.5px/1 var(--mono); }
+.tree .dir { padding: 8px 10px; color: var(--muted); }
+.tree .file { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px 8px 20px; border-radius: 7px; transition: background .4s, color .4s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tree .file em { font-style: normal; font-size: 10.5px; color: var(--muted); }
+.tree .file.cur { background: var(--tint); }
+.tree .file.hit { color: var(--break); } .tree .file.ok { color: var(--fixed); }
+.tree .file.new { opacity: 0; transform: translateX(-8px); transition: opacity .5s, transform .5s; color: var(--fixed); }
+.tree .file.new.on { opacity: 1; transform: none; }
+.src { position: relative; margin: 0; padding: 12px 0 58px; font: 13px/2 var(--mono); color: var(--muted); overflow: hidden; }
+.src .l { display: block; padding: 0 16px; white-space: pre; overflow: hidden; text-overflow: ellipsis; transition: background .4s; }
+.src .l b { display: inline-block; width: 30px; font-weight: 400; opacity: .5; }
+.src .k { color: var(--ink); }
+.src .l.hit { background: color-mix(in srgb, var(--break) 12%, transparent); color: var(--ink); }
+.src .l.ok { background: color-mix(in srgb, var(--fixed) 14%, transparent); color: var(--ink); }
+.squig { text-decoration: underline wavy var(--break); text-underline-offset: 4px; }
+.diag { position: absolute; left: 62px; right: 16px; top: 278px; padding: 11px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--break); box-shadow: 0 18px 40px -22px rgba(0,0,0,.45); font: 12px/1.55 var(--sans); color: var(--ink); opacity: 0; transform: translateY(-6px); transition: opacity .35s, transform .35s; pointer-events: none; white-space: normal; }
+.diag.on { opacity: 1; transform: none; }
+.diag .h { font: 600 10.5px var(--mono); letter-spacing: .1em; color: var(--break); margin-bottom: 3px; }
+.ed-panel { border-top: 1px solid var(--line); background: color-mix(in srgb, var(--tint) 45%, var(--surface)); font: 12px/1.9 var(--mono); padding: 0 16px; height: 0; overflow: hidden; transition: height .5s cubic-bezier(.2,.8,.2,1), padding .5s; }
+.ed-panel.on { height: 132px; padding: 10px 16px; }
+.ed-panel div { white-space: nowrap; }
+.toast { position: absolute; right: 0; top: -58px; display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: var(--ink); color: var(--bg); font-size: 13px; opacity: 0; transform: translateY(10px); transition: opacity .4s, transform .4s; }
+.toast.on { opacity: 1; transform: none; }
+.toast b { font-weight: 600; }
+.caption { position: absolute; left: 0; right: 0; bottom: 120px; text-align: center; font-size: 15px; color: var(--muted); }
+.caption b { color: var(--ink); font-weight: 500; }
+.steps { position: absolute; left: 32px; top: 50%; transform: translateY(-50%); display: grid; gap: 12px; font: 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.steps span { display: flex; align-items: center; gap: 10px; opacity: .4; transition: opacity .3s, color .3s; }
+.steps span::before { content: ""; width: 18px; height: 1px; background: currentColor; transition: width .3s; }
+.steps span.on { opacity: 1; color: var(--ink); } .steps span.on::before { width: 34px; }
+
+/* ---------- 2. the problem, word by word ---------- */
+.scrub { padding: 24vh 0; }
+.scrub p { margin: 0 auto; max-width: 1000px; padding: 0 28px; text-align: center; font: 400 clamp(34px, 4.6vw, 64px)/1.15 var(--serif); }
+.scrub .w { opacity: .14; }
+.scrub .w.red { color: var(--break); }
+
+/* ---------- 3. pipeline: five real artifacts, one per step, on a pinned screen ---------- */
+.pipe { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 72px; max-width: 1240px; margin: 0 auto; padding: 4vh 28px 12vh; }
+.pipe-head { grid-column: 1 / -1; text-align: center; padding-top: 10vh; }
+.pipe-head h2 { margin: 14px 0 0; font: 400 clamp(40px, 5.4vw, 76px)/1 var(--serif); }
+.f { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; opacity: .2; transition: opacity .5s; }
+.f.on { opacity: 1; }
+.f .n { font: 500 12px var(--mono); letter-spacing: .14em; color: var(--muted); }
+.f h3 { margin: 10px 0 12px; font: 400 48px/1.02 var(--serif); }
+.f p { margin: 0; color: var(--muted); font-size: 17px; max-width: 400px; }
+.f code { font-size: .86em; background: var(--tint); padding: 2px 6px; border-radius: 5px; color: var(--ink); }
+.media { position: sticky; top: 12vh; height: 76vh; align-self: start; }
+.screen { position: relative; height: 100%; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; box-shadow: 0 50px 90px -54px rgba(0,0,0,.55); }
+.screen-bar { display: flex; align-items: center; gap: 7px; height: 42px; padding: 0 16px; border-bottom: 1px solid var(--line); font: 12px var(--mono); color: var(--muted); }
+.screen-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.screen-bar span { margin-left: 10px; }
+.pane { position: absolute; inset: 42px 0 0; padding: 26px 28px; display: flex; flex-direction: column; gap: 14px; opacity: 0; transform: translateY(22px); transition: opacity .55s, transform .55s cubic-bezier(.2,.8,.2,1); pointer-events: none; overflow: hidden; }
+.pane.on { opacity: 1; transform: none; }
+.lbl { font: 500 10.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.box { border: 1px solid var(--line); border-radius: 12px; background: var(--bg); font: 12.5px/1.85 var(--mono); padding: 12px 14px; overflow: hidden; }
+.box .r { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.pane .r, .pane .stag { opacity: 0; transform: translateY(8px); transition: opacity .4s, transform .4s; }
+.pane.on .r, .pane.on .stag { opacity: 1; transform: none; }
+mark { background: none; color: inherit; border-radius: 4px; padding: 0 2px; transition: background .4s .6s, color .4s .6s; }
+.pane.on mark { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--ink); }
+.pane.on mark.bad { background: color-mix(in srgb, var(--break) 16%, transparent); color: var(--break); }
+.flow { display: flex; align-items: center; gap: 10px; font: 11.5px var(--mono); color: var(--muted); }
+.flow::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.ticks { display: flex; gap: 6px; align-items: flex-end; }
+.ticks i { flex: 1; height: 26px; border-radius: 4px; background: var(--tint); position: relative; }
+.ticks i.hit { background: var(--break); }
+.ticks i span { position: absolute; bottom: -18px; left: 0; font: 10px var(--mono); color: var(--muted); font-style: normal; white-space: nowrap; }
+.shape { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.shape .box .r.add { color: var(--fixed); } .shape .box .r.chg { color: var(--break); }
+.finding { border-left: 3px solid var(--break); }
+.runs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.run { border-radius: 12px; padding: 14px 16px; font-size: 13px; }
+.run.fail { background: color-mix(in srgb, var(--break) 11%, transparent); color: var(--break); }
+.run.pass { background: color-mix(in srgb, var(--fixed) 13%, transparent); color: var(--fixed); }
+.run b { display: block; font: 400 24px/1.1 var(--serif); margin-bottom: 2px; }
+.diff { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font: 12.5px/2 var(--mono); }
+.diff .h { padding: 4px 14px; color: var(--muted); border-bottom: 1px solid var(--line); background: var(--bg); }
+.diff .d { padding: 0 14px; white-space: pre; }
+.diff .del { background: color-mix(in srgb, var(--break) 11%, transparent); color: var(--break); }
+.diff .add { background: color-mix(in srgb, var(--fixed) 13%, transparent); color: var(--fixed); clip-path: inset(0 100% 0 0); transition: clip-path 1.2s .5s steps(30); }
+.pane.on .diff .add { clip-path: inset(0 0 0 0); }
+.prc { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--bg); font-size: 13px; }
+.prc .t { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.prc .t b { display: block; font: 400 22px/1.15 var(--serif); margin-bottom: 6px; }
+.state { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: var(--fixed); color: #fff; font-size: 11.5px; font-weight: 500; }
+.prc table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.prc td { padding: 7px 16px; border-bottom: 1px solid var(--line); }
+.prc td:first-child { color: var(--muted); width: 42%; }
+.prc .foot { padding: 10px 16px; font-size: 12px; color: var(--muted); }
+
+/* ---------- 4. helix: the 54 researched API changes ---------- */
+.helix { height: 320vh; position: relative; }
+.helix .stage { perspective: 1500px; }
+.helix-copy { position: absolute; left: 0; right: 0; top: 12vh; text-align: center; z-index: 2; }
+.helix-copy h2 { margin: 14px 0 6px; font: 400 clamp(40px, 5.4vw, 76px)/1 var(--serif); }
+.helix-copy p { margin: 0; color: var(--muted); }
+.ring { position: absolute; left: 50%; top: 60%; width: 0; height: 0; transform-style: preserve-3d; }
+.adv { position: absolute; width: 270px; height: 176px; left: -135px; top: -88px; padding: 16px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; backface-visibility: hidden; box-shadow: 0 30px 60px -36px rgba(0,0,0,.5); }
+.adv .top { display: flex; justify-content: space-between; font: 11px var(--mono); color: var(--muted); }
+.adv b { font: 400 24px/1 var(--serif); }
+.adv p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--muted); flex: 1; }
+.adv .sev { align-self: flex-start; font: 500 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--break) 13%, transparent); color: var(--break); }
+.adv .sev.high { background: var(--tint); color: var(--ink); } .adv .sev.medium { background: var(--tint); color: var(--muted); }
+
+/* ---------- 5. the same morning, two ways: production logs ---------- */
+.two { height: 230vh; position: relative; }
+.two .stage { display: grid; place-items: center; }
+.two-inner { width: min(1000px, 92vw); }
+.two-head { text-align: center; margin-bottom: 30px; }
+.two-head h2 { margin: 12px 0 0; font: 400 clamp(40px, 5.4vw, 76px)/1 var(--serif); }
+.logs { border-radius: 18px; background: var(--night); color: var(--night-ink); overflow: hidden; box-shadow: 0 50px 90px -50px rgba(0,0,0,.6); }
+.logs-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid color-mix(in srgb, var(--night-ink) 12%, transparent); font: 12px var(--mono); color: color-mix(in srgb, var(--night-ink) 55%, transparent); }
+.switch { margin-left: auto; display: flex; gap: 3px; padding: 3px; border-radius: 999px; background: color-mix(in srgb, var(--night-ink) 9%, transparent); }
+.switch button { border: 0; background: none; padding: 7px 14px; border-radius: 999px; font: 500 12.5px var(--sans); color: color-mix(in srgb, var(--night-ink) 60%, transparent); cursor: pointer; transition: background .3s, color .3s; }
+.switch button.on { background: var(--night-ink); color: var(--night); }
+.log-body { position: relative; height: 300px; font: 12.5px/2.05 var(--mono); }
+.lset { position: absolute; inset: 0; padding: 16px 18px; }
+.lset div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transform: translateY(6px); transition: opacity .3s, transform .3s; }
+.lset.on div { opacity: 1; transform: none; }
+.lset div span { color: color-mix(in srgb, var(--night-ink) 45%, transparent); margin-right: 14px; }
+.lset .e { color: var(--break); } .lset .g { color: var(--fixed); } .lset .s { color: var(--accent); }
+.verdict { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-top: 1px solid color-mix(in srgb, var(--night-ink) 12%, transparent); font-size: 14px; }
+.verdict b { font: 400 24px var(--serif); }
+
+/* ---------- 6. terminal: the real shapi scan output ---------- */
+.term-sec { height: 220vh; position: relative; }
+.term-sec .stage { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 64px; align-items: center; max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+.term-sec h2 { margin: 12px 0 18px; font: 400 clamp(40px, 5vw, 72px)/1 var(--serif); }
+.term-sec p { color: var(--muted); max-width: 380px; margin: 0 0 24px; }
+.term { border-radius: 16px; background: var(--night); color: var(--night-ink); overflow: hidden; box-shadow: 0 50px 90px -50px rgba(0,0,0,.6); }
+.term pre { margin: 0; padding: 18px 20px 22px; font: 12.5px/1.75 var(--mono); min-height: 470px; white-space: pre; overflow: hidden; }
+.term .c { color: color-mix(in srgb, var(--night-ink) 55%, transparent); }
+.term .crit { color: var(--break); } .term .high { color: var(--accent); }
+
+/* ---------- 7. close: the logo's two pieces, your code and the API, fit together ---------- */
+.close { position: relative; height: 230vh; }
+.close .stage { display: grid; place-items: center; text-align: center; }
+.fit { position: relative; width: 300px; height: 300px; margin: 0 auto; }
+.fit svg { width: 100%; height: 100%; overflow: visible; }
+.fit path { transform-box: fill-box; transform-origin: center; will-change: transform; }
+.fit .code-p { fill: var(--ink); } .fit .api-p { fill: var(--accent); }
+.fit .tagl, .fit .tagr { position: absolute; top: 104%; font: 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.fit .tagl { left: 0; } .fit .tagr { right: 0; }
+.close h2 { margin: 54px 0 14px; font: 400 clamp(56px, 8vw, 128px)/.92 var(--serif); }
+.close p { margin: 0 auto 28px; max-width: 520px; color: var(--muted); }
+.close .acts { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+footer { padding: 30px 32px 120px; display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+
+/* ---------- palette picker ---------- */
+.picker { position: fixed; z-index: 50; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 8px; border-radius: 22px; background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(16px); border: 1px solid var(--line); box-shadow: 0 20px 50px -24px rgba(0,0,0,.45); max-width: calc(100vw - 24px); overflow-x: auto; }
+.picker .plbl { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); padding: 0 10px 0 8px; white-space: nowrap; }
+.opt { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 10px 6px; border-radius: 14px; border: 1px solid transparent; background: none; cursor: pointer; font: 500 11.5px var(--sans); color: var(--ink); white-space: nowrap; }
+.opt.on { border-color: var(--ink); }
+.opt .sw { display: flex; } .opt .sw i { width: 18px; height: 18px; border-radius: 50%; margin-left: -5px; border: 1.5px solid var(--surface); } .opt .sw i:first-child { margin-left: 0; }
+.hexes { position: fixed; z-index: 50; right: 18px; bottom: 112px; display: grid; gap: 6px; padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(16px); border: 1px solid var(--line); font: 11.5px var(--mono); color: var(--muted); }
+.hexes b { display: block; font: 400 20px var(--serif); color: var(--ink); margin-bottom: 2px; }
+.hexes div { display: flex; align-items: center; gap: 8px; } .hexes i { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line); }
+
+@media (max-width: 1000px) {
+  nav.top .links, .steps, .hexes { display: none; }
+  .rig { grid-template-columns: 1fr; gap: 0; } .provs { display: none; }
+  .ed-body { grid-template-columns: 1fr; } .tree { display: none; }
+  .pipe, .term-sec .stage { grid-template-columns: 1fr; gap: 0; }
+  .media { order: -1; top: 64px; height: 56vh; z-index: 2; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<nav class="top" id="nav">
+  <a class="logo" href="#"><svg viewBox="0 0 76 76" aria-hidden="true"><path d="M0 0 H48 C48 40 28 36 28 76 H0 Z"/><path d="M56 0 H76 V76 H36 C36 36 56 40 56 0 Z"/></svg>shapi</a>
+  <div class="links"><a href="#pipe">How it works</a><a href="#helix">API changes</a><a href="#term">CLI</a><a href="#close">Pricing</a></div>
+  <a class="pill solid" href="#close">Install on GitHub</a>
+</nav>
+
+<!-- 1. hero -->
+<section class="hero" id="hero">
+  <div class="stage">
+    <canvas id="threads"></canvas>
+    <div class="hero-copy" id="heroCopy">
+      <span class="eyebrow">For teams that call other people's APIs</span>
+      <h1>APIs change.<span class="it">Your code keeps working.</span></h1>
+    </div>
+    <div class="steps" id="steps"><span>Map</span><span>Match</span><span>Fix</span><span>Prove</span><span>Ship</span></div>
+    <div class="rig" id="rig">
+      <div class="provs">
+        <div class="prov" data-k="github"><i>Gh</i>GitHub<small>2</small></div>
+        <div class="prov" data-k="stripe"><i>St</i>Stripe<small>1</small></div>
+        <div class="prov" data-k="hubspot"><i>Hs</i>HubSpot<small>1</small></div>
+        <div class="prov" data-k="quickbooks"><i>Qb</i>QuickBooks<small>1</small></div>
+        <div class="more">+ 12 more providers watched</div>
+      </div>
+      <div style="position:relative">
+        <div class="toast" id="toast"><b>PR #2 opened</b> SHAPI: workflow_dispatch returns 200 with a body instead of 204</div>
+        <div class="editor">
+          <div class="ed-bar"><i></i><i></i><i></i><span class="tab on">deploy.ts</span><span class="tab">api.lock</span><span class="ed-status" id="edStatus">SHAPI · mapping</span></div>
+          <div class="ed-body">
+            <div class="tree">
+              <div class="dir">fixtures/demo-ts/src</div>
+              <div class="file cur" data-k="github" id="fDeploy">deploy.ts <em>2</em></div>
+              <div class="file" data-k="stripe">billing.ts <em>1</em></div>
+              <div class="file" data-k="hubspot">crm.ts <em>1</em></div>
+              <div class="file" data-k="quickbooks">accounting.ts <em>1</em></div>
+              <div class="dir">test/shapi</div>
+              <div class="file new" id="fTest">github-workflow-dispatch-…test.ts</div>
+            </div>
+            <pre class="src" id="src"><span class="l"><b>13</b>  <span class="k">const res = await fetch</span>(`${GITHUB_API}/repos/${req.owner}/${req.repo}/actions/workflows/…</span><span class="l"><b>14</b>    method: "POST",</span><span class="l"><b>15</b>    headers: {</span><span class="l"><b>16</b>      Accept: "application/vnd.github+json",</span><span class="l"><b>17</b>      Authorization: `Bearer ${token}`,</span><span class="l"><b>18</b>      "X-GitHub-Api-Version": "2022-11-28",</span><span class="l"><b>19</b>    },</span><span class="l"><b>20</b>    body: JSON.stringify({ ref: req.ref }),</span><span class="l"><b>21</b>  });</span><span class="l" id="hot"><b>22</b>  <span id="hotTxt">if (res.status !== 204) {</span></span><span class="l"><b>23</b>    throw new Error(`deploy dispatch failed with ${res.status}`);</span><span class="l"><b>24</b>  }</span><div class="diag" id="diag"><div class="h">SHAPI · CRITICAL · github-workflow-dispatch-204-to-200</div>workflow_dispatch returns 200 with a body instead of 204. This line compares the response status to 204, so every successful deploy now throws.</div></pre>
+          </div>
+          <div class="ed-panel" id="edPanel"></div>
+        </div>
+      </div>
+    </div>
+    <p class="caption" id="caption"><b>4 files · 5 call sites · 4 providers</b>, mapped in 63 ms.</p>
+  </div>
+</section>
+
+<!-- 2. problem -->
+<section class="scrub" id="scrub"><p data-scrub>Your tests mock the API as it was. GitHub started answering 200 instead of 204, told no one, and every deploy that checked for 204 failed in <span data-red>production.</span></p></section>
+
+<!-- 3. pipeline -->
+<section id="pipe">
+  <div class="pipe">
+    <div class="pipe-head"><span class="eyebrow">How SHAPI works</span><h2>One API change, <span class="it">start to finish.</span></h2></div>
+    <div class="list">
+      <article class="f" data-i="0"><span class="n">01 · MAP</span><h3>Read what your code expects.</h3><p>Every call site goes into <code>api.lock</code>: the endpoint, and the status codes, fields, headers and query params your code relies on.</p></article>
+      <article class="f" data-i="1"><span class="n">02 · WATCH</span><h3>Probe the providers every hour.</h3><p>Canaries call each API and record the shape of the answer. When a shape changes in a breaking way, an advisory is drafted for review.</p></article>
+      <article class="f" data-i="2"><span class="n">03 · MATCH</span><h3>Only the code that breaks.</h3><p>The advisory is matched against <code>api.lock</code>. A call that checks for 204 is flagged; a call that only uses the endpoint is left alone.</p></article>
+      <article class="f" data-i="3"><span class="n">04 · FIX</span><h3>A fix that has to prove itself.</h3><p>SHAPI writes a contract test, confirms it fails, applies the recipe, and keeps the change only once the test passes.</p></article>
+      <article class="f" data-i="4"><span class="n">05 · SHIP</span><h3>A pull request with its evidence.</h3><p>The change, the test, and why: the advisory, its sources, and the test runs before and after.</p></article>
+    </div>
+    <div class="media"><div class="screen">
+      <div class="screen-bar"><i></i><i></i><i></i><span id="screenTitle">api.lock</span></div>
+      <div class="pane" data-i="0" data-t="api.lock">
+        <div class="lbl">src/deploy.ts</div>
+        <div class="box"><div class="r"><b class="mute-t">13</b>  const res = await <mark>fetch</mark>(`…/actions/workflows/${req.workflow}/dispatches`, {</div><div class="r"><b class="mute-t">14</b>    <mark>method: "POST"</mark>,</div><div class="r"><b class="mute-t">18</b>    <mark>"X-GitHub-Api-Version": "2022-11-28"</mark>,</div><div class="r"><b class="mute-t">22</b>  if (<mark>res.status !== 204</mark>) {</div></div>
+        <div class="flow">written to api.lock</div>
+        <div class="box"><div class="r">{</div><div class="r">  "file": "src/deploy.ts", "line": 13, "provider": <mark>"github"</mark>,</div><div class="r">  "method": <mark>"POST"</mark>, "client": "fetch",</div><div class="r">  "endpoint": "/repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches",</div><div class="r">  "surface": { "statusCodes": [<mark>204</mark>],</div><div class="r">    "headers": [{ "name": "x-github-api-version", "value": <mark>"2022-11-28"</mark> }] }</div><div class="r">}</div></div>
+      </div>
+      <div class="pane" data-i="1" data-t="canary · github · workflow_dispatch">
+        <div class="lbl">Probe every hour · POST …/dispatches on a test repository</div>
+        <div class="ticks"><i><span>Dec 18 · 20:00</span></i><i></i><i></i><i></i><i><span>00:00</span></i><i></i><i></i><i></i><i class="hit"><span>Dec 19 · 04:00</span></i></div>
+        <div class="shape" style="margin-top:18px">
+          <div><div class="lbl" style="margin-bottom:6px">Recorded shape</div><div class="box"><div class="r">status   204</div><div class="r">body     none</div><div class="r">&nbsp;</div><div class="r">&nbsp;</div></div></div>
+          <div><div class="lbl" style="margin-bottom:6px">Shape now</div><div class="box"><div class="r chg">status   200</div><div class="r add">+ body.workflow_run_id   number</div><div class="r add">+ body.run_url           string</div><div class="r add">+ body.html_url          string</div></div></div>
+        </div>
+        <div class="box stag"><span class="bad-t">breaking</span> · status-code · drafted <span class="mute-t">advisories/drafts/github-workflow-dispatch-204-to-200.json</span></div>
+      </div>
+      <div class="pane" data-i="2" data-t="shapi scan">
+        <div class="shape">
+          <div><div class="lbl" style="margin-bottom:6px">api.lock</div><div class="box"><div class="r">"endpoint": "…/dispatches",</div><div class="r">"surface": {</div><div class="r">  "statusCodes": [<mark class="bad">204</mark>]</div><div class="r">}</div></div></div>
+          <div><div class="lbl" style="margin-bottom:6px">advisory · verified</div><div class="box"><div class="r">"changeClass": "status-code",</div><div class="r">"trigger": {</div><div class="r">  "statusCodes": [<mark class="bad">204</mark>],</div><div class="r">  "newStatusCodes": [200] }</div></div></div>
+        </div>
+        <div class="box finding stag"><div class="r"><span class="bad-t">CRITICAL</span>  src/deploy.ts:13  POST …/actions/workflows/{workflow}/dispatches</div><div class="r">          workflow_dispatch returns 200 with a body instead of 204</div><div class="r mute-t">          why: compares the response status to 204</div><div class="r mute-t">          fix: Treat both 200 and 204 as success (any 2xx).</div></div>
+        <div class="box stag"><div class="r">src/deploy.ts:28  GET …/workflows/{workflow}/runs   <span class="ok-t">not affected</span></div></div>
+      </div>
+      <div class="pane" data-i="3" data-t="shapi fix · recipe status-code-accept-set">
+        <div class="diff"><div class="h">src/deploy.ts</div><div class="d mute-t">@@ -19,7 +19,7 @@</div><div class="d del">-  if (res.status !== 204) {</div><div class="d add">+  if (![200, 204].includes(res.status)) {</div><div class="d mute-t">     throw new Error(`deploy dispatch failed with ${res.status}`);</div></div>
+        <div class="box stag"><span class="ok-t">A</span> test/shapi/github-workflow-dispatch-204-to-200.test.ts <span class="mute-t">· calls triggerDeploy() with the 204 it was written for and the 200 GitHub sends now</span></div>
+        <div class="runs stag"><div class="run fail"><b>Before the fix</b>fail · 1 failed | 1 passed</div><div class="run pass"><b>After the fix</b>pass · 2 passed</div></div>
+      </div>
+      <div class="pane" data-i="4" data-t="github.com/SriVarshini09/shapi-demo/pull/2">
+        <div class="prc">
+          <div class="t"><b>SHAPI: workflow_dispatch returns 200 with a body instead of 204</b><span class="state">Open</span> <span class="mute-t" style="font-size:12px">&nbsp;2 files · src/deploy.ts, test/shapi/…test.ts</span></div>
+          <table><tr><td>Change</td><td><code>res.status !== 204</code> → <code>![200, 204].includes(res.status)</code></td></tr><tr><td>Contract test, before</td><td class="bad-t">fail (1 failed | 1 passed)</td></tr><tr><td>Contract test, after</td><td class="ok-t">pass (2 passed)</td></tr><tr><td>Severity · change class</td><td>critical · status-code</td></tr><tr><td>First observed</td><td>2025-12-19</td></tr><tr><td>Provider notice</td><td>none (undocumented change)</td></tr></table>
+          <div class="foot">The change was kept only because the contract test failed before it and passes after it.</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<!-- 4. helix -->
+<section class="helix" id="helix">
+  <div class="stage">
+    <div class="helix-copy"><span class="eyebrow">The API changes</span><h2>54 changes, <span class="it">researched.</span></h2><p>Across 16 providers. Each one has a date, its sources, and the exact shape that breaks.</p></div>
+    <div class="ring" id="ring"></div>
+  </div>
+</section>
+
+<!-- 5. two ways -->
+<section class="two" id="two">
+  <div class="stage"><div class="two-inner">
+    <div class="two-head"><span class="eyebrow">Dec 19, 2025 · GitHub changes a status code</span><h2>The same morning, <span class="it">two ways.</span></h2></div>
+    <div class="logs" id="logs">
+      <div class="logs-bar">deploy-service · production<div class="switch" id="switch"><button data-v="0" class="on">Without SHAPI</button><button data-v="1">With SHAPI</button></div></div>
+      <div class="log-body">
+        <div class="lset on" data-v="0">
+          <div><span>09:14:02</span>POST /repos/acme/api/actions/workflows/deploy.yml/dispatches → 200</div>
+          <div class="e"><span>09:14:02</span>Error: deploy dispatch failed with 200</div>
+          <div><span>09:14:03</span>deploy marked failed · alert sent to on-call</div>
+          <div><span>09:31:40</span>POST /repos/acme/api/actions/workflows/deploy.yml/dispatches → 200</div>
+          <div class="e"><span>09:31:40</span>Error: deploy dispatch failed with 200</div>
+          <div><span>10:02:15</span>on-call: tests pass locally, mocks return 204</div>
+          <div class="e"><span>11:47:09</span>Error: deploy dispatch failed with 200</div>
+        </div>
+        <div class="lset" data-v="1">
+          <div class="s"><span>04:00:00</span>SHAPI canary · workflow_dispatch answered 200, recorded 204</div>
+          <div class="s"><span>04:00:01</span>SHAPI · 1 affected call site · src/deploy.ts:13</div>
+          <div class="g"><span>04:03:12</span>SHAPI · PR #2 opened · contract test fails before, passes after</div>
+          <div><span>08:55:30</span>PR #2 approved and merged</div>
+          <div><span>09:14:02</span>POST /repos/acme/api/actions/workflows/deploy.yml/dispatches → 200</div>
+          <div class="g"><span>09:14:02</span>deploy started</div>
+          <div class="g"><span>09:31:40</span>deploy started</div>
+        </div>
+      </div>
+      <div class="verdict"><span>Deploys that morning</span><b id="verdictB" class="bad-t">3 marked failed</b></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- 6. terminal -->
+<section class="term-sec" id="term">
+  <div class="stage">
+    <div><span class="eyebrow">Try it now</span><h2>One command. <span class="it">No account.</span></h2><p>Run it in any TypeScript, JavaScript or Python repository. This is the real output on SHAPI's demo project.</p><span class="cmd">$ <b>npx shapi-cli scan .</b></span></div>
+    <div class="term"><pre id="termPre"></pre></div>
+  </div>
+</section>
+
+<!-- 7. close -->
+<section class="close" id="close">
+  <div class="stage"><div>
+    <div class="fit"><svg viewBox="0 0 76 76" aria-hidden="true"><path class="code-p" id="pl" d="M0 0 H48 C48 40 28 36 28 76 H0 Z"/><path class="api-p" id="pr" d="M56 0 H76 V76 H36 C36 36 56 40 56 0 Z"/></svg><span class="tagl" id="tagl">your code</span><span class="tagr" id="tagr">the API</span></div>
+    <h2>Know before <span class="it">it breaks.</span></h2>
+    <p>Install SHAPI on one repository. It takes a minute and needs no code changes.</p>
+    <div class="acts"><a class="pill solid" href="#">Install the GitHub App</a><span class="cmd">$ <b>npx shapi-cli scan .</b></span></div>
+  </div></div>
+</section>
+<footer><span>shapi-cli is Apache-2.0</span><span>Palette studio · pick a palette below, or press 1–7</span></footer>
+
+<div class="picker" id="picker"><span class="plbl">Palette</span></div>
+<div class="hexes" id="hexes"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+const PALETTES = [["oat", "Oat & Sage"], ["linen", "Linen & Terracotta"], ["blush", "Blush & Cocoa"], ["honey", "Cream & Honey"], ["stone", "Stone & Ink"], ["ember", "Midnight & Ember"], ["forest", "Forest Night"]];
+const root = document.documentElement, $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v)), ease = (t) => 1 - Math.pow(1 - t, 3);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let C = {};
+const readColors = () => { const s = getComputedStyle(root); for (const k of ["ink", "muted", "accent", "break", "fixed"]) C[k] = s.getPropertyValue("--" + k).trim(); };
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+
+/* palette picker */
+const picker = $("#picker"), hexes = $("#hexes");
+for (const [k, name] of PALETTES) {
+  const probe = document.createElement("div"); probe.dataset.p = k; document.body.appendChild(probe);
+  const cs = getComputedStyle(probe), sw = ["--bg", "--tint", "--accent", "--ink"].map((v) => cs.getPropertyValue(v).trim()); probe.remove();
+  const b = document.createElement("button"); b.className = "opt"; b.dataset.k = k;
+  b.innerHTML = `<span class="sw">${sw.map((c) => `<i style="background:${c}"></i>`).join("")}</span>${name}`; b.onclick = () => setPalette(k); picker.appendChild(b);
+}
+function setPalette(k) {
+  root.dataset.p = k; readColors();
+  for (const b of picker.querySelectorAll(".opt")) b.classList.toggle("on", b.dataset.k === k);
+  const cs = getComputedStyle(root);
+  hexes.innerHTML = `<b>${PALETTES.find((p) => p[0] === k)[1]}</b>` + [["Background", "--bg"], ["Tint", "--tint"], ["Accent", "--accent"], ["Ink", "--ink"], ["Breaks", "--break"], ["Fixed", "--fixed"]].map(([l, v]) => `<div><i style="background:${cs.getPropertyValue(v)}"></i>${cs.getPropertyValue(v).trim().toUpperCase()} · ${l}</div>`).join("");
+  const u = new URL(location.href); u.searchParams.set("p", k); history.replaceState(null, "", u);
+}
+setPalette(new URLSearchParams(location.search).get("p") || "oat");
+addEventListener("keydown", (e) => { const i = +e.key - 1; if (PALETTES[i]) setPalette(PALETTES[i][0]); });
+if (window.Lenis && !reduce) { const lenis = new Lenis({ lerp: 0.09 }); const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf); }
+
+const prog = (el) => { const r = el.getBoundingClientRect(); return clamp(-r.top / (r.height - innerHeight)); };
+const through = (el) => { const r = el.getBoundingClientRect(); return clamp((innerHeight - r.top) / (innerHeight + r.height)); };
+const inView = (el) => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; };
+let mx = 0.5, my = 0.5;
+addEventListener("pointermove", (e) => { mx = e.clientX / innerWidth; my = e.clientY / innerHeight; });
+function sizeCanvas(cv) { const d = devicePixelRatio || 1; cv.width = cv.clientWidth * d; cv.height = cv.clientHeight * d; cv.getContext("2d").setTransform(d, 0, 0, d, 0, 0); }
+
+/* 1. hero: threads run from each provider to the files that call it (api.lock), then the story plays */
+const hero = $("#hero"), canvas = $("#threads"), ctx = canvas.getContext("2d"), rig = $("#rig"), copy = $("#heroCopy");
+const provs = $$(".prov"), files = $$(".tree .file[data-k]"), hot = $("#hot"), hotTxt = $("#hotTxt"), diag = $("#diag"), panel = $("#edPanel"), toast = $("#toast");
+const edStatus = $("#edStatus"), caption = $("#caption"), fTest = $("#fTest"), steps = $$("#steps span");
+const OLD = "if (res.status !== 204) {", NEW = "if (![200, 204].includes(res.status)) {";
+const PANEL = {
+  fail: `<div class="mute-t">$ npx vitest run test/shapi/github-workflow-dispatch-204-to-200.test.ts</div><div>✓ triggerDeploy handles the before (204) response</div><div class="bad-t">✗ triggerDeploy handles the after (200) response</div><div class="bad-t">  Error: deploy dispatch failed with 200</div><div class="bad-t">Tests  1 failed | 1 passed</div>`,
+  pass: `<div class="mute-t">$ npx vitest run test/shapi/github-workflow-dispatch-204-to-200.test.ts</div><div class="ok-t">✓ triggerDeploy handles the before (204) response</div><div class="ok-t">✓ triggerDeploy handles the after (200) response</div><div>&nbsp;</div><div class="ok-t">Tests  2 passed · change kept</div>`,
+};
+let phase = "";
+function setPhase(ph) {
+  if (ph === phase) return; phase = ph;
+  const i = ["map", "match", "fix", "prove", "ship"].indexOf(ph); steps.forEach((s, j) => s.classList.toggle("on", j === i));
+  hot.className = "l" + (ph === "match" ? " hit" : ph !== "map" ? " ok" : "");
+  if (ph === "fix") hot.className = "l hit";
+  diag.classList.toggle("on", ph === "match");
+  hotTxt.className = ph === "match" ? "squig" : "";
+  const gh = provs.find((p) => p.dataset.k === "github"), fd = $("#fDeploy");
+  gh.classList.toggle("hit", ph === "match" || ph === "fix"); gh.classList.toggle("ok", ph === "prove" || ph === "ship");
+  fd.classList.toggle("hit", ph === "match" || ph === "fix"); fd.classList.toggle("ok", ph === "prove" || ph === "ship");
+  fTest.classList.toggle("on", ph !== "map" && ph !== "match");
+  panel.classList.toggle("on", ph === "fix" || ph === "prove"); panel.innerHTML = ph === "prove" ? PANEL.pass : PANEL.fail;
+  toast.classList.toggle("on", ph === "ship");
+  edStatus.textContent = { map: "SHAPI · mapping", match: "SHAPI · 1 critical", fix: "SHAPI · test written", prove: "SHAPI · test passes", ship: "SHAPI · PR #2 opened" }[ph];
+  edStatus.style.color = ph === "match" || ph === "fix" ? C.break : ph === "map" ? "" : C.fixed;
+  caption.innerHTML = {
+    map: "<b>4 files · 5 call sites · 4 providers</b>, mapped in 63 ms.",
+    match: "<b>GitHub changed workflow_dispatch.</b> Line 22 is the one line it breaks.",
+    fix: "<b>A contract test is written first.</b> Against the current code, it fails.",
+    prove: "<b>Recipe status-code-accept-set applied.</b> The same test now passes.",
+    ship: "<b>Fix PR #2 opened</b>, with the test and the evidence attached.",
+  }[ph];
+}
+function drawHero(t) {
+  if (!inView(hero)) return;
+  const p = reduce ? 1 : prog(hero);
+  copy.style.transform = `translateY(${-p * 180}px)`; copy.style.opacity = clamp(1 - p * 3.2);
+  caption.style.opacity = clamp((p - 0.06) * 12);
+  rig.style.transform = `translateX(-50%) translateY(${-ease(clamp(p / 0.25)) * 31}vh)`;
+  setPhase(p < 0.24 ? "map" : p < 0.44 ? "match" : p < 0.6 ? "fix" : p < 0.8 ? "prove" : "ship");
+  if (phase === "prove" || phase === "ship") { const n = phase === "ship" ? NEW.length : Math.round(clamp((p - 0.6) / 0.12) * NEW.length); hotTxt.innerHTML = NEW.slice(0, n) + (n < NEW.length ? '<span class="caret"></span>' : ""); }
+  else hotTxt.textContent = OLD;
+  provs.forEach((el, i) => { el.style.transform = `translate(${(mx - 0.5) * 14}px, ${Math.sin(t / 1000 + i) * 4}px)`; });
+  const w = canvas.clientWidth, h = canvas.clientHeight; ctx.clearRect(0, 0, w, h);
+  provs.forEach((pv, ci) => {
+    const f = files.find((x) => x.dataset.k === pv.dataset.k); if (!f || pv.offsetParent === null || f.offsetParent === null) return;
+    const a = pv.getBoundingClientRect(), b = f.getBoundingClientRect();
+    const x1 = a.right, y1 = a.top + a.height / 2, x2 = b.left + 6, y2 = b.top + b.height / 2, gh = pv.dataset.k === "github";
+    const col = gh && (phase === "match" || phase === "fix") ? C.break : gh && (phase === "prove" || phase === "ship") ? C.fixed : C.ink;
+    const strong = gh && phase !== "map";
+    for (let s = 0; s < 9; s++) {
+      const o = (s - 4) * 2.2, wob = Math.sin(t / 1300 + s + ci) * 6;
+      const c1x = x1 + (x2 - x1) * 0.45, c1y = y1 + o * 3 + wob, c2x = x1 + (x2 - x1) * 0.6, c2y = y2 + o * 2 - wob;
+      ctx.strokeStyle = rgba(col, strong ? 0.35 : 0.11); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x1, y1 + o * 0.6); ctx.bezierCurveTo(c1x, c1y, c2x, c2y, x2, y2 + o * 0.3); ctx.stroke();
+      const u = (t / (2200 + s * 120) + s * 0.17 + ci * 0.31) % 1, v = 1 - u;
+      const px = v*v*v*x1 + 3*v*v*u*c1x + 3*v*u*u*c2x + u*u*u*x2, py = v*v*v*(y1 + o * .6) + 3*v*v*u*c1y + 3*v*u*u*c2y + u*u*u*(y2 + o * .3);
+      ctx.fillStyle = rgba(col, strong ? 0.9 : 0.4); ctx.beginPath(); ctx.arc(px, py, strong ? 1.8 : 1.3, 0, 6.29); ctx.fill();
+    }
+  });
+}
+
+/* 2. scrub */
+const scrubP = $("[data-scrub]");
+(function split(node) { for (const n of [...node.childNodes]) { if (n.nodeType === 3) { const frag = document.createDocumentFragment(); for (const w of n.textContent.split(/(\s+)/)) { if (!w.trim()) { frag.append(w); continue; } const s = document.createElement("span"); s.className = "w" + (node.dataset && "red" in node.dataset ? " red" : ""); s.textContent = w; frag.append(s); } n.replaceWith(frag); } else split(n); } })(scrubP);
+const words = [...scrubP.querySelectorAll(".w")];
+function drawScrub() { if (!inView(scrubP)) return; const p = reduce ? 1 : clamp((through(scrubP) - 0.22) / 0.42); words.forEach((w, i) => { w.style.opacity = clamp(p * words.length - i, 0.14, 1); }); }
+
+/* 3. pipeline */
+const fs = $$(".f"), panes = $$(".pane"), screenTitle = $("#screenTitle");
+let active = -1;
+for (const pane of panes) pane.querySelectorAll(".r, .stag").forEach((r, i) => { r.style.transitionDelay = `${0.08 + i * 0.07}s`; });
+function drawPipe() {
+  let best = 0, bd = 1e9; const mid = innerWidth < 1000 ? innerHeight * 0.78 : innerHeight * 0.5;
+  fs.forEach((f, i) => { const r = f.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - mid); if (d < bd) { bd = d; best = i; } });
+  if (best === active) return; active = best;
+  fs.forEach((f, i) => f.classList.toggle("on", i === best)); panes.forEach((p, i) => p.classList.toggle("on", i === best));
+  screenTitle.textContent = panes[best].dataset.t;
+}
+
+/* 4. helix: the next real deadlines from advisories/ */
+const ADV = [["Shopify", "2026-11-02", "Global Catalog REST API stops serving traffic", "critical", "version-sunset"], ["Xero", "2026-11-05", "NZ Payroll tax requests without KiwiSaverStatus return 400", "critical", "required-field"], ["Meta", "2026-11-10", "Marketing API v24.0 available until 2026-11-10", "critical", "version-sunset"], ["Gemini", "2026-11-17", "Gemini 2.5 preview TTS models shut down", "critical", "version-sunset"], ["OpenAI", "2026-11-30", "Evals API shuts down", "critical", "version-sunset"], ["Salesforce", "2026-12-01", "SOAP login() requires the Use Any API Auth permission", "critical", "auth"], ["HubSpot", "2026-12-04", "Pipelines API v1 retired", "high", "version-sunset"], ["Salesforce", "2026-12-15", "SOAP login() from a broad IP range needs a security token", "critical", "auth"], ["Google", "2027-01-01", "Custom Search JSON API discontinued", "critical", "version-sunset"], ["Shopify", "2027-01-01", "Non-expiring offline access tokens rejected for public apps", "critical", "auth"], ["Xero", "2027-01-14", "Invoice email daily limit returns 429 instead of 500", "medium", "status-code"], ["Shopify", "2027-01-16", "Admin API version 2026-01 becomes unsupported", "critical", "version-sunset"], ["Meta", "2027-01-21", "Graph API v21.0 removed", "high", "version-sunset"], ["Twilio", "2027-01-31", "Twilio Notify reaches end of life", "critical", "version-sunset"], ["QuickBooks", "2027-02-01", "Refresh tokens hard-expire after five years", "high", "auth"], ["GitHub", "2025-12-19", "workflow_dispatch returns 200 with a body instead of 204", "critical", "status-code"]];
+const ring = $("#ring"), helix = $("#helix");
+const advEls = ADV.map(([who, when, what, sev, cls]) => { const d = document.createElement("div"); d.className = "adv"; d.innerHTML = `<div class="top"><span>${when}</span><span>${cls}</span></div><b>${who}</b><p>${what}</p><span class="sev ${sev}">${sev}</span>`; ring.appendChild(d); return d; });
+function drawHelix(t) {
+  if (!inView(helix)) return;
+  const p = prog(helix), R = Math.min(500, innerWidth * 0.4), step = 360 / ADV.length, rot = -p * 300 - t / 280;
+  ring.style.transform = `translateY(${(0.5 - p) * 50}px) rotateX(${-7 + (my - 0.5) * 6}deg) rotateY(${rot}deg)`;
+  advEls.forEach((el, i) => { const f = Math.cos((i * step + rot) * Math.PI / 180); el.style.transform = `rotateY(${i * step}deg) translateZ(${R}px)`; el.style.opacity = (0.1 + 0.9 * Math.pow(Math.max(0, f), 1.6)).toFixed(3); });
+}
+
+/* 5. two ways: scroll flips it halfway, the switch flips it too */
+const two = $("#two"), sw = $("#switch"), lsets = $$(".lset"), verdictB = $("#verdictB");
+let lastAuto = null;
+function applyTwo(v) {
+  for (const b of sw.children) b.classList.toggle("on", +b.dataset.v === v);
+  lsets.forEach((l) => { l.classList.toggle("on", +l.dataset.v === v); l.querySelectorAll("div").forEach((d, i) => { d.style.transitionDelay = l.classList.contains("on") ? `${i * 0.12}s` : "0s"; }); });
+  verdictB.textContent = v ? "2 started, 0 failed" : "3 marked failed"; verdictB.className = v ? "ok-t" : "bad-t";
+}
+sw.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) applyTwo(+b.dataset.v); });
+function drawTwo() { if (!inView(two)) return; const v = (reduce ? 1 : prog(two)) > 0.5 ? 1 : 0; if (v !== lastAuto) { lastAuto = v; applyTwo(v); } }
+
+/* 6. terminal: the real `shapi scan fixtures/demo-ts` output, printed as you scroll */
+const TERM = [
+  ['<span class="c">$</span> npx shapi-cli scan .', ""], ["SHAPI scan  .", ""], ["4 files · 5 call sites · 4 providers · 63 ms", "c"], ["", ""], ["Providers", ""],
+  ["  github      2 call sites", ""], ["  hubspot     1 call site    @hubspot/api-client", ""], ["  quickbooks  1 call site", ""], ["  stripe      1 call site    stripe", ""], ["", ""],
+  ["Affected call sites (3)", ""],
+  ['  <span class="crit">CRITICAL</span>  src/deploy.ts:13  POST /repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches', ""], ["            workflow_dispatch returns 200 with a body instead of 204", ""], ["            why: compares the response status to 204", "c"],
+  ['  <span class="high">HIGH</span>      src/accounting.ts:7  GET /v3/company/{realmId}/query', ""], ["            Minor versions below 75 are silently answered as minor version 75", ""], ["            why: sends minorversion=65 (below 75)", "c"],
+  ['  <span class="high">HIGH</span>      src/crm.ts:6  GET /crm-pipelines/v1/pipelines/deals', ""], ["            Pipelines API v1 retired on 2026-12-04", ""], ["", ""],
+  ["Deadlines in the next 90 days", ""], ["  2026-12-04 (37 days)  hubspot  Pipelines API v1 retired on 2026-12-04  1 call site", ""],
+];
+const termSec = $("#term"), termPre = $("#termPre"); let shownLines = -1;
+function drawTerm() {
+  if (!inView(termSec)) return;
+  const n = reduce ? TERM.length : Math.round(clamp(prog(termSec) / 0.75) * TERM.length); if (n === shownLines) return; shownLines = n;
+  termPre.innerHTML = TERM.slice(0, n).map(([l, c]) => c ? `<span class="${c}">${l}</span>` : l).join("\n") + (n < TERM.length ? '\n<span class="caret"></span>' : "");
+}
+
+/* 7. close: your code and the API fit together */
+const close = $("#close"), pl = $("#pl"), pr = $("#pr"), tagl = $("#tagl"), tagr = $("#tagr");
+function drawClose() {
+  if (!inView(close)) return; const p = reduce ? 1 : ease(clamp(prog(close) / 0.6));
+  pl.style.transform = `translate(${(1 - p) * -90}px, ${(1 - p) * 16}px) rotate(${(1 - p) * -12}deg)`;
+  pr.style.transform = `translate(${(1 - p) * 90}px, ${(1 - p) * -30}px) rotate(${(1 - p) * 14}deg)`;
+  tagl.style.opacity = tagr.style.opacity = clamp(1 - p * 1.3);
+}
+
+const nav = $("#nav");
+function frame(t) { nav.classList.toggle("solid", scrollY > 40); drawHero(t); drawScrub(); drawPipe(); drawHelix(t); drawTwo(); drawTerm(); drawClose(); if (!reduce) requestAnimationFrame(frame); }
+addEventListener("resize", () => sizeCanvas(canvas)); sizeCanvas(canvas); readColors(); requestAnimationFrame(frame);
+if (reduce) addEventListener("scroll", () => frame(performance.now()), { passive: true });
+</script>
+</body>
+</html>

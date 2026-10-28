@@ -2,56 +2,57 @@
 
 One line per task: task, summary file, PR, status.
 
-- M0-T1 scaffold: [summary](M0-T1-scaffold.md) · PR: [#1](https://github.com/SriVarshini09/YC/pull/1) · open
-- M1-T1 provider registry: [summary](M1-T1-provider-registry.md) · PR: [#2](https://github.com/SriVarshini09/YC/pull/2) · open
-- M1-T2 call-site extractor: [summary](M1-T2-call-site-extractor.md) · PR: [#3](https://github.com/SriVarshini09/YC/pull/3) · open
-- M1-T3 dependency surface: [summary](M1-T3-dependency-surface.md) · PR: [#4](https://github.com/SriVarshini09/YC/pull/4) · open
-- M1-T4 api.lock format: [summary](M1-T4-api-lock.md) · PR: [#5](https://github.com/SriVarshini09/YC/pull/5) · open
-- M1-T5 advisory format and seed: [summary](M1-T5-advisories.md) · PR: [#6](https://github.com/SriVarshini09/YC/pull/6) · open
-- M1-T6 matcher: [summary](M1-T6-matcher.md) · PR: [#7](https://github.com/SriVarshini09/YC/pull/7) · open
-- M1-T7 CLI: [summary](M1-T7-cli.md) · PR: [#8](https://github.com/SriVarshini09/YC/pull/8) · open
-- M1-T8 demo fixture and tests: [summary](M1-T8-demo-fixture.md) · PR: [#9](https://github.com/SriVarshini09/YC/pull/9) · open
-- M2-T1 shape inference: [summary](M2-T1-shape-inference.md) · PR: [#10](https://github.com/SriVarshini09/YC/pull/10) · open
-- M2-T2 shape store: [summary](M2-T2-shape-store.md) · PR: [#11](https://github.com/SriVarshini09/YC/pull/11) · open
-- M2-T3 canary workers and scheduler: [summary](M2-T3-canary-workers.md) · PR: [#12](https://github.com/SriVarshini09/YC/pull/12) · open
-- M2-T4 shape diff and classification: [summary](M2-T4-shape-diff.md) · PR: [#13](https://github.com/SriVarshini09/YC/pull/13) · open
-- M2-T5 replay of the GitHub incident: [summary](M2-T5-incident-replay.md) · PR: [#14](https://github.com/SriVarshini09/YC/pull/14) · open
-- M2-T6 draft advisory from diff: [summary](M2-T6-draft-advisory.md) · PR: [#15](https://github.com/SriVarshini09/YC/pull/15) · open
-- M2-T7 canary keeps token and anonymous observations apart: [summary](M2-T7-canary-auth-variants.md) · PR: [#16](https://github.com/SriVarshini09/YC/pull/16) · open
-- M3-T1 recipe format and status-code recipe: [summary](M3-T1-status-code-recipe.md) · PR: [#17](https://github.com/SriVarshini09/YC/pull/17) · open
-- M3-T2 contract test generation: [summary](M3-T2-contract-test.md) · PR: [#18](https://github.com/SriVarshini09/YC/pull/18) · open
-- M3-T3 repair agent: [summary](M3-T3-repair-agent.md) · PR: [#19](https://github.com/SriVarshini09/YC/pull/19) · open
-- M3-T4 PR delivery and shapi fix: [summary](M3-T4-pr-delivery.md) · PR: [#20](https://github.com/SriVarshini09/YC/pull/20) · open
-- M4-T1 MCP server: [summary](M4-T1-mcp-server.md) · PR: [#21](https://github.com/SriVarshini09/YC/pull/21) · open
-- M4-T2 agent skill and editor setup: [summary](M4-T2-agent-skill.md) · PR: [#22](https://github.com/SriVarshini09/YC/pull/22) · open
-- PA-A1 backend foundation: [summary](PA-A1-backend-foundation.md) · PR: [#26](https://github.com/SriVarshini09/YC/pull/26) · open
-- PA-A2 GitHub App: [summary](PA-A2-github-app.md) · PR: [#27](https://github.com/SriVarshini09/YC/pull/27) · open
-- PA-A3 PR engine: [summary](PA-A3-pr-engine.md) · PR: [#28](https://github.com/SriVarshini09/YC/pull/28) · open
-- PA-A3b PR engine follow-up: [summary](PA-A3b-pr-engine-followup.md) · PR: [#29](https://github.com/SriVarshini09/YC/pull/29) · open
-- PA-A4 real sandbox: [summary](PA-A4-sandbox.md) · PR: [#30](https://github.com/SriVarshini09/YC/pull/30) · open
-- Repository cleanup: [summary](PA-repo-cleanup.md) · PR: [#31](https://github.com/SriVarshini09/YC/pull/31) · open
-- PA-A5 scan and fix jobs in the cloud: [summary](PA-A5-cloud-jobs.md) · PR: [#32](https://github.com/SriVarshini09/YC/pull/32) · open
-- PA-A6a web app: [summary](PA-A6a-web-app.md) · PR: [#33](https://github.com/SriVarshini09/YC/pull/33) · open
-- PA-A6b billing: [summary](PA-A6b-billing.md) · PR: [#34](https://github.com/SriVarshini09/YC/pull/34) · open
-- Follow-up: advisory sync and A6a leftovers: [summary](PA-followup-advisory-sync.md) · PR: [#35](https://github.com/SriVarshini09/YC/pull/35) · open
-- Billing redirect fix (missed the #35 merge): [summary](PA-followup-advisory-sync.md) · PR: [#36](https://github.com/SriVarshini09/YC/pull/36) · open
-- PA-A7a shapi-cli on npm: [summary](PA-A7a-npm-cli.md) · PR: [#37](https://github.com/SriVarshini09/YC/pull/37) · open
-- PA-A7b public advisory database: [summary](PA-A7b-advisory-repo.md) · PR: [#38](https://github.com/SriVarshini09/YC/pull/38) · open
-- PA-A7c docs site: [summary](PA-A7c-docs-site.md) · PR: [#39](https://github.com/SriVarshini09/YC/pull/39) · open
-- PA-A8 trust basics: [summary](PA-A8-trust.md) · PR: [#40](https://github.com/SriVarshini09/YC/pull/40) · open
-- PA-A9 deploy to Fly.io: [summary](PA-A9-fly-deploy.md) · PR: [#41](https://github.com/SriVarshini09/YC/pull/41) · open
-- Production GitHub App (missed the #41 merge): [summary](PA-A9-fly-deploy.md) · PR: [#42](https://github.com/SriVarshini09/YC/pull/42) · open
-- PB-1 advisories 7 → 54: [summary](PB-1-advisories.md) · PR: [#43](https://github.com/SriVarshini09/YC/pull/43) · open
-- PB-2 fix recipes: [summary](PB-2-fix-recipes.md) · PR: [#44](https://github.com/SriVarshini09/YC/pull/44) · open
-- PB-3 contract tests beyond fetch: [summary](PB-3-contract-clients.md) · PR: [#45](https://github.com/SriVarshini09/YC/pull/45) · open
-- PB-4 canaries for five more providers: [summary](PB-4-canaries.md) · PR: [#46](https://github.com/SriVarshini09/YC/pull/46) · open
-- PB-5 Python scanning: [summary](PB-5-python.md) · PR: [#47](https://github.com/SriVarshini09/YC/pull/47) · open
-- PB-6 Slack alerts: [summary](PB-6-slack-alerts.md) · PR: [#48](https://github.com/SriVarshini09/YC/pull/48) · open
-- PB-7 known gaps (one PR per advisory, deleted advisories, cancels on): [summary](PB-7-known-gaps.md) · PR: [#49](https://github.com/SriVarshini09/YC/pull/49) · open
-- PB-8 landing page: [summary](PB-8-landing.md) · PR: [#50](https://github.com/SriVarshini09/YC/pull/50) · open
-- shapi-cli 0.2.0 on npm: [summary](PB-release-cli-0-2-0.md) · PR: [#51](https://github.com/SriVarshini09/YC/pull/51) · open
-- PA-A6c web app dashboard redesign and launch pages: [summary](PA-A6c-dashboard-redesign.md) · PR: [#53](https://github.com/SriVarshini09/YC/pull/53) · open
-- PA-A6d simpler dashboard for customers: [summary](PA-A6c-dashboard-redesign.md) · PR: [#54](https://github.com/SriVarshini09/YC/pull/54) · open
-- PB-9 launch fixes (fix retries after upgrades and dashboard ticks, Claude option, docs claims, legal banners): [summary](PB-9-launch-fixes.md) · PR: [#55](https://github.com/SriVarshini09/YC/pull/55) · open
-- PB-9b after an upgrade, scan again instead of reusing the old api.lock (the HubSpot fix on shapi-demo): [summary](PB-9b-rescan-on-upgrade.md) · PR: [#57](https://github.com/SriVarshini09/YC/pull/57) · open
-- PB-10 clean redesign of the website and web app: [summary](PB-10-clean-redesign.md) · PR: [#56](https://github.com/SriVarshini09/YC/pull/56) · open
+- M0-T1 scaffold: [summary](M0-T1-scaffold.md) · PR: [#1](https://github.com/SriVarshini09/YC/pull/1) · merged
+- M1-T1 provider registry: [summary](M1-T1-provider-registry.md) · PR: [#2](https://github.com/SriVarshini09/YC/pull/2) · merged
+- M1-T2 call-site extractor: [summary](M1-T2-call-site-extractor.md) · PR: [#3](https://github.com/SriVarshini09/YC/pull/3) · merged
+- M1-T3 dependency surface: [summary](M1-T3-dependency-surface.md) · PR: [#4](https://github.com/SriVarshini09/YC/pull/4) · merged
+- M1-T4 api.lock format: [summary](M1-T4-api-lock.md) · PR: [#5](https://github.com/SriVarshini09/YC/pull/5) · merged
+- M1-T5 advisory format and seed: [summary](M1-T5-advisories.md) · PR: [#6](https://github.com/SriVarshini09/YC/pull/6) · merged
+- M1-T6 matcher: [summary](M1-T6-matcher.md) · PR: [#7](https://github.com/SriVarshini09/YC/pull/7) · merged
+- M1-T7 CLI: [summary](M1-T7-cli.md) · PR: [#8](https://github.com/SriVarshini09/YC/pull/8) · merged
+- M1-T8 demo fixture and tests: [summary](M1-T8-demo-fixture.md) · PR: [#9](https://github.com/SriVarshini09/YC/pull/9) · merged
+- M2-T1 shape inference: [summary](M2-T1-shape-inference.md) · PR: [#10](https://github.com/SriVarshini09/YC/pull/10) · merged
+- M2-T2 shape store: [summary](M2-T2-shape-store.md) · PR: [#11](https://github.com/SriVarshini09/YC/pull/11) · merged
+- M2-T3 canary workers and scheduler: [summary](M2-T3-canary-workers.md) · PR: [#12](https://github.com/SriVarshini09/YC/pull/12) · merged
+- M2-T4 shape diff and classification: [summary](M2-T4-shape-diff.md) · PR: [#13](https://github.com/SriVarshini09/YC/pull/13) · merged
+- M2-T5 replay of the GitHub incident: [summary](M2-T5-incident-replay.md) · PR: [#14](https://github.com/SriVarshini09/YC/pull/14) · merged
+- M2-T6 draft advisory from diff: [summary](M2-T6-draft-advisory.md) · PR: [#15](https://github.com/SriVarshini09/YC/pull/15) · merged
+- M2-T7 canary keeps token and anonymous observations apart: [summary](M2-T7-canary-auth-variants.md) · PR: [#16](https://github.com/SriVarshini09/YC/pull/16) · merged
+- M3-T1 recipe format and status-code recipe: [summary](M3-T1-status-code-recipe.md) · PR: [#17](https://github.com/SriVarshini09/YC/pull/17) · merged
+- M3-T2 contract test generation: [summary](M3-T2-contract-test.md) · PR: [#18](https://github.com/SriVarshini09/YC/pull/18) · merged
+- M3-T3 repair agent: [summary](M3-T3-repair-agent.md) · PR: [#19](https://github.com/SriVarshini09/YC/pull/19) · merged
+- M3-T4 PR delivery and shapi fix: [summary](M3-T4-pr-delivery.md) · PR: [#20](https://github.com/SriVarshini09/YC/pull/20) · merged
+- M4-T1 MCP server: [summary](M4-T1-mcp-server.md) · PR: [#21](https://github.com/SriVarshini09/YC/pull/21) · merged
+- M4-T2 agent skill and editor setup: [summary](M4-T2-agent-skill.md) · PR: [#22](https://github.com/SriVarshini09/YC/pull/22) · merged
+- PA-A1 backend foundation: [summary](PA-A1-backend-foundation.md) · PR: [#26](https://github.com/SriVarshini09/YC/pull/26) · merged
+- PA-A2 GitHub App: [summary](PA-A2-github-app.md) · PR: [#27](https://github.com/SriVarshini09/YC/pull/27) · merged
+- PA-A3 PR engine: [summary](PA-A3-pr-engine.md) · PR: [#28](https://github.com/SriVarshini09/YC/pull/28) · merged
+- PA-A3b PR engine follow-up: [summary](PA-A3b-pr-engine-followup.md) · PR: [#29](https://github.com/SriVarshini09/YC/pull/29) · merged
+- PA-A4 real sandbox: [summary](PA-A4-sandbox.md) · PR: [#30](https://github.com/SriVarshini09/YC/pull/30) · merged
+- Repository cleanup: [summary](PA-repo-cleanup.md) · PR: [#31](https://github.com/SriVarshini09/YC/pull/31) · merged
+- PA-A5 scan and fix jobs in the cloud: [summary](PA-A5-cloud-jobs.md) · PR: [#32](https://github.com/SriVarshini09/YC/pull/32) · merged
+- PA-A6a web app: [summary](PA-A6a-web-app.md) · PR: [#33](https://github.com/SriVarshini09/YC/pull/33) · merged
+- PA-A6b billing: [summary](PA-A6b-billing.md) · PR: [#34](https://github.com/SriVarshini09/YC/pull/34) · merged
+- Follow-up: advisory sync and A6a leftovers: [summary](PA-followup-advisory-sync.md) · PR: [#35](https://github.com/SriVarshini09/YC/pull/35) · merged
+- Billing redirect fix (missed the #35 merge): [summary](PA-followup-advisory-sync.md) · PR: [#36](https://github.com/SriVarshini09/YC/pull/36) · merged
+- PA-A7a shapi-cli on npm: [summary](PA-A7a-npm-cli.md) · PR: [#37](https://github.com/SriVarshini09/YC/pull/37) · merged
+- PA-A7b public advisory database: [summary](PA-A7b-advisory-repo.md) · PR: [#38](https://github.com/SriVarshini09/YC/pull/38) · merged
+- PA-A7c docs site: [summary](PA-A7c-docs-site.md) · PR: [#39](https://github.com/SriVarshini09/YC/pull/39) · merged
+- PA-A8 trust basics: [summary](PA-A8-trust.md) · PR: [#40](https://github.com/SriVarshini09/YC/pull/40) · merged
+- PA-A9 deploy to Fly.io: [summary](PA-A9-fly-deploy.md) · PR: [#41](https://github.com/SriVarshini09/YC/pull/41) · merged
+- Production GitHub App (missed the #41 merge): [summary](PA-A9-fly-deploy.md) · PR: [#42](https://github.com/SriVarshini09/YC/pull/42) · merged
+- PB-1 advisories 7 → 54: [summary](PB-1-advisories.md) · PR: [#43](https://github.com/SriVarshini09/YC/pull/43) · merged
+- PB-2 fix recipes: [summary](PB-2-fix-recipes.md) · PR: [#44](https://github.com/SriVarshini09/YC/pull/44) · merged
+- PB-3 contract tests beyond fetch: [summary](PB-3-contract-clients.md) · PR: [#45](https://github.com/SriVarshini09/YC/pull/45) · merged
+- PB-4 canaries for five more providers: [summary](PB-4-canaries.md) · PR: [#46](https://github.com/SriVarshini09/YC/pull/46) · merged
+- PB-5 Python scanning: [summary](PB-5-python.md) · PR: [#47](https://github.com/SriVarshini09/YC/pull/47) · merged
+- PB-6 Slack alerts: [summary](PB-6-slack-alerts.md) · PR: [#48](https://github.com/SriVarshini09/YC/pull/48) · merged
+- PB-7 known gaps (one PR per advisory, deleted advisories, cancels on): [summary](PB-7-known-gaps.md) · PR: [#49](https://github.com/SriVarshini09/YC/pull/49) · merged
+- PB-8 landing page: [summary](PB-8-landing.md) · PR: [#50](https://github.com/SriVarshini09/YC/pull/50) · merged
+- shapi-cli 0.2.0 on npm: [summary](PB-release-cli-0-2-0.md) · PR: [#51](https://github.com/SriVarshini09/YC/pull/51) · merged
+- PA-A6c web app dashboard redesign and launch pages: [summary](PA-A6c-dashboard-redesign.md) · PR: [#53](https://github.com/SriVarshini09/YC/pull/53) · merged
+- PA-A6d simpler dashboard for customers: [summary](PA-A6c-dashboard-redesign.md) · PR: [#54](https://github.com/SriVarshini09/YC/pull/54) · merged
+- PB-9 launch fixes (fix retries after upgrades and dashboard ticks, Claude option, docs claims, legal banners): [summary](PB-9-launch-fixes.md) · PR: [#55](https://github.com/SriVarshini09/YC/pull/55) · merged
+- PB-9b after an upgrade, scan again instead of reusing the old api.lock (the HubSpot fix on shapi-demo): [summary](PB-9b-rescan-on-upgrade.md) · PR: [#57](https://github.com/SriVarshini09/YC/pull/57) · merged
+- PB-10 Stone and Ink website, with an accuracy pass: [summary](PB-10-clean-redesign.md) · PR: [#56](https://github.com/SriVarshini09/YC/pull/56) · merged
+- PB-10b web app in Stone and Ink: [summary](PB-10-clean-redesign.md#web-app-in-stone-and-ink) · PR: [#58](https://github.com/SriVarshini09/YC/pull/58) · merged
