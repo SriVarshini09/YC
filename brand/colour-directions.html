@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SHAPI colour directions</title>
+<style>
+@font-face { font-family: "Jost"; src: url("../site/node_modules/@fontsource-variable/jost/files/jost-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+@font-face { font-family: "Inter"; src: url("../site/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2"); font-weight: 100 900; }
+
+/* Each direction sets the same tokens; the page below only uses tokens. */
+body { margin: 0; font-family: Inter, system-ui, sans-serif; }
+.d { --break: #C2412D; --break-bg: #FBEDEA; --fixed: #2D7A52; --fixed-bg: #E9F3EC; --card: #fff; --card-ink: #0E0F12; --card-line: #E3E0D7; --mute-card: #9A9BA1; }
+
+/* A. Highlighter: cream paper, heavy ink, acid lime as solid blocks */
+.d.lime   { --bg: #F4F2EA; --ink: #0E0F12; --ink-2: #3E4046; --accent: #D4FF3A; --on-accent: #0E0F12; --line: #0E0F12; --shadow: 6px 6px 0 #0E0F12; --strip: #0E0F12; --strip-ink: #F4F2EA; --strip-hot: #D4FF3A; }
+/* B. Butter: the whole hero in warm yellow, ink type, tomato for change */
+.d.butter { --bg: #FFD84A; --ink: #17130A; --ink-2: #4A3F1E; --accent: #17130A; --on-accent: #FFD84A; --line: #17130A; --shadow: 6px 6px 0 #17130A; --strip: #17130A; --strip-ink: #FFF6D6; --strip-hot: #FFD84A; }
+/* C. Tangerine: loud orange field, cream card, ink type */
+.d.orange { --bg: #FF6A1F; --ink: #1A0E06; --ink-2: #3D1E0A; --accent: #FFF4E8; --on-accent: #1A0E06; --line: #1A0E06; --shadow: 0 30px 60px -20px rgba(60,20,0,.45); --strip: #FFF4E8; --strip-ink: #1A0E06; --strip-hot: #C2410C; }
+/* D. Forest: deep green field, pink accent, cream type */
+.d.forest { --bg: #123B2C; --ink: #F6F1E7; --ink-2: #B9CBBF; --accent: #FF9EBB; --on-accent: #123B2C; --line: #2F5C4A; --shadow: 0 30px 60px -20px rgba(0,0,0,.45); --strip: #0C2B20; --strip-ink: #DCE7DF; --strip-hot: #FF9EBB; }
+
+.d { background: var(--bg); color: var(--ink); width: 1440px; height: 900px; position: relative; overflow: hidden; box-sizing: border-box; }
+nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 48px; }
+nav .logo { height: 28px; }
+nav ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; font-size: 15px; font-weight: 500; align-items: center; }
+nav .install { background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-weight: 600; }
+.lime nav .install { background: var(--ink); color: var(--accent); }
+
+.hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; padding: 70px 120px 0 160px; align-items: center; }
+.tag { display: inline-block; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-bottom: 26px; }
+h1 { font-family: Jost, sans-serif; font-weight: 600; font-size: 96px; line-height: .98; letter-spacing: -0.035em; margin: 0 0 30px; }
+h1 .mark { position: relative; white-space: nowrap; }
+.lime h1 .mark { background: linear-gradient(transparent 30%, var(--accent) 30%, var(--accent) 88%, transparent 88%); padding: 0 .1em; margin-left: -.1em; }
+.butter h1 .mark { text-decoration: underline; text-decoration-thickness: .09em; text-underline-offset: .12em; text-decoration-color: var(--break); }
+.orange h1 .mark { color: var(--accent); }
+.forest h1 .mark { color: var(--accent); font-style: italic; font-weight: 500; }
+.lede { font-size: 19px; line-height: 1.6; color: var(--ink-2); max-width: 540px; margin: 0 0 34px; }
+.actions { display: flex; gap: 14px; }
+.btn { padding: 16px 26px; border-radius: 999px; font-weight: 600; font-size: 16px; border: 2px solid var(--line); }
+.btn.solid { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.lime .btn.solid, .butter .btn.solid { border-color: var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); }
+
+.card { background: var(--card); color: var(--card-ink); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+.lime .card, .butter .card { border: 2px solid var(--line); border-radius: 14px; }
+.card .bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--card-line); font: 14px "Cascadia Code", Consolas, monospace; }
+.badge { font: 600 13px Inter, sans-serif; padding: 5px 12px; border-radius: 999px; background: var(--fixed-bg); color: var(--fixed); }
+.badge.b { background: var(--break); color: #fff; }
+pre { margin: 0; padding: 18px 0; font: 15px/1.9 "Cascadia Code", Consolas, monospace; font-variant-ligatures: none; }
+pre span { display: block; padding: 0 20px; }
+pre i { font-style: normal; color: var(--mute-card); display: inline-block; width: 30px; }
+pre .del { background: var(--break-bg); color: var(--break); text-decoration: line-through; }
+pre .add { background: var(--fixed-bg); color: var(--fixed); font-weight: 600; }
+.note { margin: 0 18px 18px; padding: 14px 16px; border-radius: 12px; background: var(--fixed-bg); font-size: 14px; line-height: 1.5; }
+.note b { color: var(--fixed); }
+
+.strip { position: absolute; left: 0; right: 0; bottom: 0; background: var(--strip); color: var(--strip-ink); display: flex; gap: 44px; padding: 18px 48px; font-size: 15px; white-space: nowrap; }
+.strip b { font-weight: 700; }
+.strip em { font-style: normal; font-weight: 700; color: var(--strip-hot); margin-left: 8px; }
+.label { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); font: 700 13px Inter; letter-spacing: .12em; text-transform: uppercase; background: #fff; color: #0E0F12; padding: 6px 14px; border-radius: 999px; border: 2px solid #0E0F12; }
+</style>
+</head>
+<body>
+<script>
+// ?d=lime|butter|orange|forest renders one direction; no parameter stacks all four.
+const all = [["lime", "A · Highlighter"], ["butter", "B · Butter"], ["orange", "C · Tangerine"], ["forest", "D · Forest"]];
+const pick = new URLSearchParams(location.search).get("d");
+for (const [k, name] of all.filter(([k]) => !pick || k === pick)) {
+  const dark = k === "forest";
+  document.body.insertAdjacentHTML("beforeend", `
+<section class="d ${k}">
+  <nav><img class="logo" src="svg/shapi-lockup-horizontal-${dark ? "dark" : "light"}.svg" alt="shapi" />
+    <span class="label">${name}</span>
+    <ul><li>How it works</li><li>API changes</li><li>Docs</li><li>Security</li><li class="install">Install on GitHub</li></ul></nav>
+  <div class="hero">
+    <div>
+      <div class="tag">For teams that call other people's APIs</div>
+      <h1>APIs change.<br />Your code <span class="mark">keeps working.</span></h1>
+      <p class="lede">Stripe renames a value. GitHub answers 200 instead of 204. SHAPI finds the exact lines a change breaks and opens a pull request that fixes them, with a test that proves it.</p>
+      <div class="actions"><span class="btn solid">Install the GitHub App</span><span class="btn ghost">Try it in your terminal</span></div>
+    </div>
+    <div class="card">
+      <div class="bar"><span>src/deploy.ts</span><span class="badge">Fixed</span></div>
+      <pre><span><i>12</i>const res = await fetch(dispatchUrl, {</span><span><i>13</i>  method: "POST", headers, body</span><span><i>14</i>});</span><span class="del"><i>15</i>if (res.status === 204) {</span><span class="add"><i>15</i>if (res.status === 200 || res.status === 204) {</span><span><i>16</i>  log("deploy started");</span><span><i>17</i>}</span></pre>
+      <div class="note"><b>Fixed in PR #12.</b> The test failed before the change and passes after.</div>
+    </div>
+  </div>
+  <div class="strip"><span><b>Stripe</b> · Basil API version<em>in 6 days</em></span><span><b>Xero</b> · NZ Payroll KiwiSaverStatus<em>in 9 days</em></span><span><b>Meta</b> · Marketing API v24.0 ends<em>in 14 days</em></span><span><b>Gemini</b> · 1.5 models retire<em>in 21 days</em></span></div>
+</section>`);
+}
+</script>
+</body>
+</html>

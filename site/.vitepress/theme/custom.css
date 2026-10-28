@@ -1,63 +1,98 @@
-/* SHAPI's colours (brand/): Ink #0E0F12 and Paper #F7F6F2, and nothing else. */
+/* SHAPI's colours ("Stone and Ink"): a warm stone page, near-black ink, and nothing else, so the
+   two signal colours carry meaning: red only where something breaks, green only where it is fixed.
+   Dark panels (logs, terminals) use the ink as their background. Headlines in Instrument Serif,
+   text in Inter, code in the system monospace with ligatures off. One light theme, no gradients. */
 :root {
-  --vp-c-brand-1: #0e0f12;
-  --vp-c-brand-2: #2b2d33;
-  --vp-c-brand-3: #0e0f12;
-  --vp-c-brand-soft: rgba(14, 15, 18, 0.08);
-  --vp-button-brand-text: #f7f6f2;
-  --vp-button-brand-hover-text: #f7f6f2;
-  --vp-button-brand-active-text: #f7f6f2;
-  --vp-home-hero-name-color: var(--vp-c-text-1);
-  --vp-home-hero-image-background-image: none;
+  --bg: #f1f1ee;
+  --surface: #fafaf8;
+  --ink: #121212;
+  --ink-2: #3e3e3a;
+  --muted: #6b6b66;
+  --line: #ddddd7;
+  --tint: #e4e4df;
+  --on-ink: #f1f1ee;
+  --break: #c0392b;
+  --break-bg: #f6e4e1;
+  --fixed: #3f7a55;
+  --fixed-bg: #e2ece5;
+  --soon: #8f6420;
+  --soon-bg: #f1e9da;
+  /* the same signals, brighter, for text on the dark panels */
+  --night: #121212;
+  --night-ink: #f1f1ee;
+  --night-break: #f0786c;
+  --night-fixed: #86c9a0;
+  --night-soon: #e3b261;
+  --serif: "Instrument Serif", Georgia, serif;
+
+  --vp-font-family-base: "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --vp-font-family-mono: ui-monospace, "Cascadia Code", "JetBrains Mono", SFMono-Regular, Consolas, monospace;
+  --vp-c-bg: var(--bg);
+  --vp-c-bg-alt: var(--bg);
+  --vp-c-bg-elv: var(--surface);
+  --vp-c-bg-soft: var(--tint);
+  --vp-c-text-1: var(--ink);
+  --vp-c-text-2: var(--ink-2);
+  --vp-c-text-3: var(--muted);
+  --vp-c-divider: var(--line);
+  --vp-c-gutter: var(--line);
+  --vp-c-border: var(--line);
+  --vp-c-brand-1: var(--ink);
+  --vp-c-brand-2: #33332f;
+  --vp-c-brand-3: var(--ink);
+  --vp-c-brand-soft: var(--tint);
+  --vp-c-default-soft: var(--tint);
+  --vp-c-danger-1: var(--break);
+  --vp-c-danger-soft: var(--break-bg);
+  --vp-c-warning-1: var(--soon);
+  --vp-c-warning-soft: var(--soon-bg);
+  --vp-c-tip-1: var(--fixed);
+  --vp-c-tip-soft: var(--fixed-bg);
+  --vp-c-note-1: var(--ink-2);
+  --vp-c-note-soft: var(--tint);
+  --vp-code-bg: var(--tint);
+  --vp-code-color: var(--ink);
+  --vp-code-block-bg: var(--surface);
+  --vp-button-brand-bg: var(--ink);
+  --vp-button-brand-border: var(--ink);
+  --vp-button-brand-text: var(--on-ink);
+  --vp-button-brand-hover-bg: #33332f;
+  --vp-button-brand-hover-text: var(--on-ink);
+  --vp-button-brand-active-bg: var(--ink);
+  --vp-button-brand-active-text: var(--on-ink);
+  --vp-nav-bg-color: rgba(241, 241, 238, 0.86);
+  --vp-local-nav-bg-color: rgba(241, 241, 238, 0.86);
+  --vp-sidebar-bg-color: var(--bg);
 }
-.dark {
-  --vp-c-brand-1: #f7f6f2;
-  --vp-c-brand-2: #d8d7d1;
-  --vp-c-brand-3: #f7f6f2;
-  --vp-c-brand-soft: rgba(247, 246, 242, 0.12);
-  --vp-button-brand-text: #0e0f12;
-  --vp-button-brand-hover-text: #0e0f12;
-  --vp-button-brand-active-text: #0e0f12;
-  --vp-c-bg: #0e0f12;
-}
+
+/* Code reads as typed: no ligature turns !== or === into one glyph. */
+code, pre, kbd { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
 
 /* The logo, drawn inline by theme/index.ts in the text colour. */
 .shapi-nav-logo { display: inline-flex; color: var(--vp-c-text-1); }
 .shapi-nav-logo svg { display: block; height: 24px; width: auto; }
-.shapi-hero-logo { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: var(--vp-c-text-1); }
-.shapi-hero-logo svg { display: block; width: min(320px, 82%); height: auto; }
+.VPNavBar .content-body { backdrop-filter: blur(14px); }
 
-/* Landing page (site/index.md), below the hero. */
-.landing { max-width: 1152px; margin: 0 auto; padding: 0 24px 64px; }
-.landing h2 { border-top: none; margin-top: 56px; }
-.landing .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin: 24px 0 8px; }
-.landing .stats div { background: var(--vp-c-bg-soft); border-radius: 12px; padding: 16px 20px; }
-.landing .stats strong { display: block; font-size: 32px; line-height: 1.2; color: var(--vp-c-brand-1); }
-.landing .stats span { color: var(--vp-c-text-2); font-size: 14px; }
-.landing .providers { color: var(--vp-c-text-2); font-size: 14px; }
-.landing .table-wrap { overflow-x: auto; margin: 16px 0; }
-.landing table.deadlines { display: table; width: 100%; margin: 0; }
-.landing .deadlines td { overflow-wrap: anywhere; }
-.landing .deadlines .prov { display: none; }
-@media (max-width: 560px) {
-  .landing .deadlines th:last-child, .landing .deadlines td:last-child, .landing .deadlines .prov-col { display: none; }
-  .landing .deadlines .prov { display: inline; font-weight: 600; }
-}
-.landing .deadlines td.when { white-space: nowrap; }
-.landing .deadlines td.when span { color: var(--vp-c-text-2); font-size: 12px; }
-.landing .sev { font-size: 12px; font-weight: 600; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--vp-c-default-soft); }
-.landing .sev.critical { background: var(--vp-c-danger-soft); color: var(--vp-c-danger-1); }
-.landing .sev.high { background: var(--vp-c-warning-soft); color: var(--vp-c-warning-1); }
-.landing .more { color: var(--vp-c-text-2); }
-.landing .steps, .landing .pricing { display: grid; gap: 16px; margin-top: 16px; }
-.landing .steps { grid-template-columns: repeat(4, 1fr); }
-.landing .pricing { grid-template-columns: repeat(2, 1fr); }
-@media (max-width: 960px) { .landing .steps { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .landing .steps, .landing .pricing { grid-template-columns: 1fr; } }
-.landing .steps div, .landing .pricing div { border: 1px solid var(--vp-c-divider); border-radius: 12px; padding: 16px 20px; }
-.landing .steps p, .landing .pricing p { margin: 8px 0 0; color: var(--vp-c-text-2); font-size: 14px; line-height: 1.6; }
-.landing .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
-.landing .cta a { display: inline-block; padding: 0 20px; line-height: 40px; border-radius: 20px; font-weight: 600; font-size: 14px; text-decoration: none; border: 1px solid transparent; }
-.landing .cta a.brand { background: var(--vp-button-brand-bg); color: var(--vp-button-brand-text); }
-.landing .cta a.brand:hover { background: var(--vp-button-brand-hover-bg); }
-.landing .cta a.alt { background: var(--vp-button-alt-bg); color: var(--vp-button-alt-text); border-color: var(--vp-button-alt-border); }
+/* Nav: an install pill after the links. */
+.nav-install { display: inline-flex; align-items: center; height: 36px; padding: 0 18px; margin-left: 16px; border-radius: 999px; background: var(--ink); color: var(--on-ink) !important; font-size: 13.5px; font-weight: 500; white-space: nowrap; transition: transform 0.2s; }
+.nav-install:hover { transform: translateY(-1px); }
+@media (max-width: 767px) { .nav-install { display: none; } }
+
+/* Docs pages: serif headings, ink links with a quiet underline, code blocks as light cards. */
+.vp-doc h1, .vp-doc h2 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.01em; }
+.vp-doc h1 { font-size: 52px; line-height: 1.04; }
+.vp-doc h2 { font-size: 34px; line-height: 1.1; border-top-color: var(--line); }
+.vp-doc h3 { font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
+.vp-doc a { color: var(--ink); font-weight: 500; text-decoration: underline; text-decoration-color: #b4b4ad; text-decoration-thickness: 1px; text-underline-offset: 4px; transition: text-decoration-color 0.2s; }
+.vp-doc a:hover { color: var(--ink); text-decoration-color: var(--ink); }
+.vp-doc :not(pre) > code { background: var(--tint); }
+.vp-doc div[class*="language-"] { border: 1px solid var(--line); border-radius: 12px; }
+.vp-doc table { border-radius: 12px; overflow: hidden; }
+.vp-doc tr { background: var(--surface); }
+.vp-doc tr:nth-child(2n) { background: var(--bg); }
+.vp-doc th { background: var(--tint); }
+.custom-block { border-radius: 12px; }
+.VPSidebarItem.is-active > .item .link > .text { color: var(--ink); font-weight: 600; }
+.VPSidebarItem.is-active > .item { position: relative; }
+.VPSidebarItem.is-active > .item::before { content: ""; position: absolute; left: -12px; right: -8px; top: 2px; bottom: 2px; border-radius: 8px; background: var(--tint); z-index: -1; }
+.VPSidebarItem.is-active > .item .indicator { display: none; }

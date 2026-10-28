@@ -41,4 +41,4 @@ Sign in with GitHub to see each repository's latest scan, its findings with link
 
 ## Plans
 
-Public repositories and one private repository are free. Each further private repository is a monthly per-repository price; pricing will be announced. Adding private repositories never raises the bill on its own: the web app asks first.
+Public repositories and one private repository are free. Each additional private repository has a monthly fee, shown in the web app before you pay, and it's free during early access. Adding private repositories never raises the bill on its own: the web app asks first.

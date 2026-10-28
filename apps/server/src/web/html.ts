@@ -37,7 +37,7 @@ export interface PageUser {
   csrf: string;
 }
 
-/** The user's choice; "auto" follows the operating system. */
+/** The user's choice; "auto" (no choice yet) renders light. */
 export type Theme = "auto" | "light" | "dark";
 export const THEMES: Theme[] = ["auto", "light", "dark"];
 
@@ -132,9 +132,11 @@ export const initials = (name: string) => name.replace(/[^a-z0-9]/gi, "").slice(
 
 function sidebar(shell: Shell): Html {
   const { user, workspace, theme = "auto" } = shell;
+  // "auto" renders light, so the picker offers Light and Dark only.
+  const shown = theme === "dark" ? "dark" : "light";
   const themeForm = user
-    ? html`<form method="post" action="/theme" class="theme"><input type="hidden" name="csrf" value="${user.csrf}"><span>Theme</span>${THEMES.map(
-        (t) => html`<button type="submit" name="theme" value="${t}" class="${t === theme ? "on" : ""}">${t[0]!.toUpperCase() + t.slice(1)}</button>`,
+    ? html`<form method="post" action="/theme" class="theme"><input type="hidden" name="csrf" value="${user.csrf}"><span>Theme</span>${(["light", "dark"] as const).map(
+        (t) => html`<button type="submit" name="theme" value="${t}" class="${t === shown ? "on" : ""}">${t[0]!.toUpperCase() + t.slice(1)}</button>`,
       )}</form>`
     : EMPTY;
   return html`<aside class="side">

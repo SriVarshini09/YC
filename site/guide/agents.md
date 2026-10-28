@@ -38,8 +38,8 @@ Optional environment for the server:
 
 | Variable | Used for |
 |---|---|
-| `ANTHROPIC_API_KEY` | Lets `apply_fix` use Claude when no recipe applies. |
-| `GITHUB_TOKEN` | Opening PRs (otherwise the `gh` login). |
+| `ANTHROPIC_API_KEY` | Lets `apply_fix` use Claude when it's called with `llm=true` and no recipe applies. |
+| `GITHUB_TOKEN` or `GH_TOKEN` | Opening PRs (otherwise the `gh` login). |
 | `SHAPI_ADVISORIES` | A different advisory folder. |
 
 Then ask, for example: *"Use SHAPI to check this repository for third-party API breakages and fix what you can."*

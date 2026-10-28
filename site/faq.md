@@ -24,7 +24,7 @@ The call site calls an endpoint that changed, but does not depend on what change
 
 ## Will SHAPI flood my repository with pull requests?
 
-No. At most 2 new PRs per hour and 10 open per repository by default, one PR per API change, updated in place, and never reopened once you close it. See [noise controls](/guide/github-app#noise-controls).
+No. At most 2 new PRs per hour and 10 open per repository by default, one PR per API change, updated in place, and never reopened once you close it, unless you ask. See [noise controls](/guide/github-app#noise-controls).
 
 ## Does SHAPI use AI to change my code?
 

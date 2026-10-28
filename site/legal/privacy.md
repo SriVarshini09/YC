@@ -1,7 +1,7 @@
 # Privacy policy
 
 ::: warning Draft
-This policy applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 27, 2026.
+This policy applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 28, 2026.
 :::
 
 SHAPI is operated by its founder and is not yet incorporated. In this policy, "SHAPI", "we" and "us" mean the SHAPI project and its operator. This policy covers the hosted GitHub App and web app, the `shapi-cli` command-line tool, and this documentation site.
@@ -20,10 +20,10 @@ When you install the GitHub App, GitHub sends SHAPI information about the instal
 | Repositories: name, default branch, public or private, last scanned commit | To scan the right repositories and enforce plan limits |
 | The **api.lock** of each scanned commit: file paths and line numbers of third-party API calls, the endpoints called, and the status codes, fields, enums and headers the code relies on | To show findings and re-check them when an advisory is added |
 | Findings: which advisory affects which call site, and why | To show results and open fix pull requests |
-| Fix pull request records: branch, number, state | To update PRs in place and apply noise limits |
+| Fix pull request records: branch, number, state, and each fix's diff and contract-test output | To update PRs in place and apply noise limits |
 | GitHub webhook payloads | To process events and retry failures. Payloads are written by GitHub. A `push` payload, for example, includes commit messages and the commit authors' names and email addresses. |
 
-**Source code** is downloaded for each scan or fix, processed in a temporary folder or an isolated sandbox, and deleted when the job ends. SHAPI doesn't keep copies of your source files. See [Security and code handling](/security) for the details.
+**Source code** is downloaded for each scan or fix, processed in a temporary folder or an isolated sandbox, and deleted when the job ends. SHAPI doesn't keep copies of your source files, apart from the diff of each fix it proposes. See [Security and code handling](/security) for the details.
 
 ### Signing in to the web app
 
@@ -39,7 +39,7 @@ If you add a Slack incoming webhook in the web app, SHAPI stores that link with 
 
 ### Using Claude (opt-in)
 
-If an account turns on *Use Claude when no deterministic recipe fits*, SHAPI sends the affected file, the advisory and the contract test to Anthropic's API to propose a fix. It's off by default. Under Anthropic's commercial terms, API inputs are not used to train its models.
+If an account turns on *Use Claude when no deterministic recipe fits*, SHAPI sends the affected file, the advisory, the contract test and its failing output to Anthropic's API to propose a fix. It's off by default. Under Anthropic's commercial terms, API inputs are not used to train its models.
 
 ### Logs and error reports
 
@@ -51,16 +51,17 @@ The web server's request logs record the time, method, URL, response status and 
 
 ### This documentation site
 
-This site is hosted on GitHub Pages. GitHub may log visitors' IP addresses under its own privacy statement. The site sets no cookies and has no analytics. Your browser stores your light or dark theme choice locally, and search runs in your browser.
+This site is hosted on GitHub Pages. GitHub may log visitors' IP addresses under its own privacy statement. The site sets no cookies and has no analytics. Search runs in your browser.
 
 ## Cookies
 
-The web app sets two cookies, both needed for sign-in and neither used for tracking:
+The web app sets three cookies, none used for tracking:
 
 | Cookie | Purpose | Lifetime |
 |---|---|---|
 | Session | Keeps you signed in. Signed and HttpOnly. SHAPI stores only a SHA-256 hash of it. | 8 hours |
 | Sign-in state | Protects the GitHub sign-in redirect against forgery | 10 minutes |
+| Theme | Remembers whether you chose light or dark | 1 year |
 
 ## How long we keep data
 
@@ -75,7 +76,7 @@ We share data only with the service providers that run SHAPI. They're listed, wi
 
 ## Where data is processed
 
-SHAPI is hosted in the United States, and its service providers process data mainly in the United States. If you're outside the United States, your data is transferred there. For customers whose data falls under the GDPR or the UK GDPR, the [data processing agreement](/legal/dpa) covers these transfers.
+SHAPI is hosted in the United States, and its service providers process data in the United States. If you're outside the United States, your data is transferred there. For customers whose data falls under the GDPR or the UK GDPR, the [data processing agreement](/legal/dpa) covers these transfers.
 
 ## Your choices and rights
 
