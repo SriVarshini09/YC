@@ -540,6 +540,9 @@ form.settings input:focus { outline: 2px solid var(--accent-soft); border-color:
   .setup-steps li .button { grid-column: 2; justify-self: start; }
   .compare .arrow svg { transform: rotate(90deg); }
   th:nth-child(n+4), td:nth-child(n+4) { display: none; }
+  /* the columns still shown can be wider than a phone: the table scrolls sideways inside its card, never the page */
+  .card.tight { overflow-x: auto; }
+  th, td { padding: 12px 12px; }
   .deadline { grid-template-columns: 58px minmax(0, 1fr); }
 }
 @media (max-width: 560px) {
