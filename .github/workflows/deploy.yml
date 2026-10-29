@@ -1,10 +1,12 @@
 name: Deploy
 
-# Deploys main to Fly.io. Does nothing until the FLY_API_TOKEN repository secret is set.
+# Deploys main to Fly.io once CI has passed on that commit. Does nothing until the FLY_API_TOKEN repository
+# secret is set. The token is given only to the deploy step.
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
-  workflow_dispatch:
 
 concurrency:
   group: deploy
@@ -15,18 +17,23 @@ permissions:
 
 jobs:
   deploy:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      HAS_TOKEN: ${{ secrets.FLY_API_TOKEN != '' }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
     steps:
-      - name: Check for Fly token
-        id: token
-        run: |
-          if [ -n "$FLY_API_TOKEN" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "FLY_API_TOKEN not set; skipping deploy."; fi
-      - if: steps.token.outputs.present == 'true'
+      - if: env.HAS_TOKEN != 'true'
+        run: echo "FLY_API_TOKEN not set; skipping deploy."
+      - if: env.HAS_TOKEN == 'true'
         uses: actions/checkout@v5
-      - if: steps.token.outputs.present == 'true'
-        uses: superfly/flyctl-actions/setup-flyctl@master
-      - if: steps.token.outputs.present == 'true'
-        run: flyctl deploy --remote-only --env GIT_SHA=${{ github.sha }}
+        with:
+          # The commit CI passed on, not whatever main is now.
+          ref: ${{ env.SHA }}
+      - if: env.HAS_TOKEN == 'true'
+        uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1 # 1.6
+      - if: env.HAS_TOKEN == 'true'
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl deploy --remote-only --build-arg GIT_SHA="$SHA"

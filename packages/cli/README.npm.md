@@ -1,4 +1,4 @@
-<p align="center"><a href="https://shapi.dev/"><img src="https://raw.githubusercontent.com/SriVarshini09/YC/main/brand/png/shapi-lockup-horizontal-light-on-bg-1024.png" alt="SHAPI" width="320"></a></p>
+<p align="center"><a href="https://shapi.dev/"><img src="https://shapi.dev/shapi-lockup.png" alt="SHAPI" width="320"></a></p>
 
 # shapi-cli
 
@@ -39,7 +39,7 @@ For every affected call site, `fix` generates a contract test that calls your co
 
 ## Requirements
 
-Node.js 22 or later.
+Node.js 22.12 or later (Node 23 and 25 are not supported).
 
 ## More
 

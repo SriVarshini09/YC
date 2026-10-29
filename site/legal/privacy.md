@@ -51,7 +51,7 @@ The web server's request logs record the time, method, URL, response status and 
 
 ### This documentation site
 
-This site is hosted on GitHub Pages. GitHub may log visitors' IP addresses under its own privacy statement. The site sets no cookies and has no analytics. Search runs in your browser.
+This site is served by SHAPI's own server on Fly.io, the same one that runs the web app. Its request logs (time, URL, response status and IP address) are kept in Fly.io's log system, as described under *Logs and error reports*. The site sets no cookies and has no analytics. Search runs in your browser.
 
 ## Cookies
 
