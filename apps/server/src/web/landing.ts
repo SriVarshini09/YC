@@ -91,7 +91,7 @@ export function landingPage(opts: LandingOptions): Html {
   <div class="stack">
     ${comparisonView({ expected: { value: "204 No Content", caption: "The status the code checks for" }, actual: { value: "200 OK", caption: "What GitHub returns now" } })}
     <pre class="diff lp-scrub"><div class="file"><span>src/deploy.ts</span><span class="muted">+1 −1</span></div><span class="l hunk">@@ -19,7 +19,7 @@</span><span class="l del">-  if (res.status !== 204) {</span><span class="l add">+  if (![200, 204].includes(res.status)) {</span><span class="l">     throw new Error(\`deploy dispatch failed with \${res.status}\`);</span></pre>
-    <p class="note">The fix SHAPI opened on its demo project: <a href="https://github.com/SriVarshini09/shapi-demo/pull/2">shapi-demo pull request #2</a>.</p>
+    <p class="note">What each fix pull request contains: <a href="https://shapi.dev/guide/fixes#what-a-fix-pr-contains">how fixes are verified</a>.</p>
   </div>
 </div></section>
 

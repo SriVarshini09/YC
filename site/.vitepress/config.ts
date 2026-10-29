@@ -1,6 +1,6 @@
 import { defineConfig } from "vitepress";
 
-// Published by GitHub Pages at https://shapi.dev (see .github/workflows/docs.yml).
+// Served at https://shapi.dev by the server on Fly: the Docker image builds it (see apps/server/src/docs.ts).
 export default defineConfig({
   title: "SHAPI",
   description: "Find the code that breaks when a third-party API changes, and fix it test-first.",
@@ -72,7 +72,7 @@ export default defineConfig({
         ],
       },
     ],
-    // The public advisory database: SHAPI's source repository is private.
+    // The public advisory database, where issues and contributions go.
     socialLinks: [{ icon: "github", link: "https://github.com/SriVarshini09/shapi-advisories" }],
     search: { provider: "local" },
     footer: {

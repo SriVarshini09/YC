@@ -1,10 +1,10 @@
 # Quickstart
 
-You need **Node.js 22 or later**.
+You need **Node.js 22.14 or later** (Node 23 and 25 are not supported).
 
 ## 1. Scan a repository
 
-From the root of a TypeScript or JavaScript project:
+From the root of a TypeScript, JavaScript or Python project:
 
 ```sh
 npx shapi-cli scan .
@@ -15,7 +15,8 @@ npx shapi-cli scan .
 - **Providers**: the third-party APIs your code calls (GitHub, Stripe, QuickBooks, HubSpot, Xero, Meta Graph, Slack, OpenAI and more) and how many call sites each has.
 - **Affected call sites**: code that depends on exactly what an API changed, with the file and line, the reason, and how to fix it.
 - **Possibly affected** (when there are any): calls whose path is only known at runtime, which an API change may reach. Check these by hand.
-- **Deadlines in the next 90 days**: announced changes, such as a version sunset, that will hit call sites in this repository.
+- **Exposed, not affected** (when there are any): calls to an endpoint that changed, which don't depend on what changed. Nothing to fix.
+- **Deadlines in the next 90 days**: announced changes, such as a version sunset, for the providers this repository uses (through a call site or a declared SDK), with how many call sites each one hits.
 
 For example, against SHAPI's demo service:
 

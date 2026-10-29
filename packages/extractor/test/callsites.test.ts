@@ -81,7 +81,7 @@ describe("parseUrl", () => {
       ],
     });
     expect(parseUrl("{base}/v1/things")).toEqual({ host: null, path: "/v1/things", query: [] });
-    expect(parseUrl("https://{host}/v1")).toEqual({ host: null, path: "/v1", query: [] });
+    expect(parseUrl("https://{host}/v1")).toEqual({ host: null, path: "/v1", query: [], runtimeHost: "{host}" });
     expect(parseUrl(undefined)).toEqual({ host: null, path: null, query: [] });
   });
 });

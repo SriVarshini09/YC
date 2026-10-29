@@ -68,7 +68,8 @@ export async function resolveFile(root: string, url: string): Promise<string | u
   } catch {
     return undefined;
   }
-  if (pathname.includes("\0") || pathname.split("/").some((s) => s === ".." || s.startsWith("."))) return undefined;
+  // Split on backslashes too: Windows reads them as separators, so "/a%5c.env" would reach a dot file.
+  if (pathname.includes("\0") || pathname.split(/[/\\]/).some((s) => s === ".." || s.startsWith("."))) return undefined;
   const rel = pathname.replace(/^\/+/, "");
   const candidates = rel === "" || rel.endsWith("/") ? [`${rel}index.html`] : [rel, `${rel}.html`, `${rel}/index.html`];
   for (const c of candidates) {

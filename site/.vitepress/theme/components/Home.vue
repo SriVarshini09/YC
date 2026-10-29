@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { withBase } from "vitepress";
 import { data } from "../../advisories.data";
+import { aheadOf, daysUntil, inDays as inDaysFrom, isoDay } from "../dates";
 
 // The landing page (site/index.md). Every picture on it is a real SHAPI artifact: the demo project's
 // src/deploy.ts and its api.lock entry, the canary's shape diff, the GitHub advisory, the contract
-// test SHAPI generated, shapi-demo PR #2 and the real `shapi scan` output. The API changes and the
+// test SHAPI generated, the fix PR it opened on the demo repository (shapi-demo #2, which is not public,
+// so the page shows it without a link) and the real `shapi scan` output. The API changes and the
 // numbers come from the advisories loader, so nothing goes stale.
 //
 // Most sections are taller than the screen and pin a stage (position: sticky) while you scroll
@@ -15,12 +17,13 @@ import { data } from "../../advisories.data";
 // with reduced motion the page still follows the scroll but nothing moves on its own.
 
 const INSTALL = "https://github.com/apps/shapi-by-srivarshini/installations/new";
-const days = (d: string) => Math.ceil((Date.parse(d) - Date.parse(data.builtOn)) / 86400000);
-const inDays = (d: string) => (days(d) === 1 ? "tomorrow" : `in ${days(d)} days`);
+// The build date renders first; on mount it becomes the visitor's date, so the counts stay right between deploys.
+const today = ref(data.builtOn);
+const days = (d: string) => daysUntil(d, today.value);
+const inDays = (d: string) => inDaysFrom(d, today.value);
 const short = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-// From tomorrow on: changes that take effect today are no longer "coming up".
-const ahead = data.upcoming.filter((a) => days(a.effectiveDate) >= 1);
-const ringCards = ahead.slice(0, 16);
+const ahead = computed(() => aheadOf(data.all, today.value));
+const ringCards = computed(() => ahead.value.slice(0, 16));
 
 // The demo project (fixtures/demo-ts): which provider each file calls, how many call sites, and what
 // `shapi scan` flags in it: GitHub breaks now (critical), QuickBooks and HubSpot are high, Stripe is fine.
@@ -72,45 +75,47 @@ const PROBLEM = "Your tests mock the API as it was. GitHub started answering 200
 const problemWords = PROBLEM.split(" ").map((w, i, all) => (i < all.length - 1 ? `${w} ` : w));
 
 // "How it works": the pane beside the step at the middle of the screen.
-const PANE_TITLES = ["api.lock", "canary · github · workflow_dispatch", "shapi scan", "shapi fix · recipe status-code-accept-set", "github.com/SriVarshini09/shapi-demo/pull/2"];
+const PANE_TITLES = ["api.lock", "canary · github · workflow_dispatch", "shapi scan", "shapi fix · recipe status-code-accept-set", "pull request · SHAPI: workflow_dispatch returns 200"];
 const pane = ref(0);
 
 // The same morning, two ways: flips at the middle of its section, or with the switch.
 const withShapi = ref(false);
 
 // The real output of `npx shapi-cli scan .` (0.3.0) on the demo project, shortened, printed as you scroll.
-const hubspotDays = days("2026-12-04");
-const TERM: [string, string][] = [
-  ['<span class="c">$</span> npx shapi-cli scan .', ""],
-  ["<b>SHAPI</b>  third-party API changes, caught and fixed", ""],
-  ["scan  .", ""],
-  ["4 files · 5 call sites · 4 providers · 63 ms", "c"],
-  ["", ""],
-  ["Providers", ""],
-  ["  github      2 call sites", ""],
-  ["  hubspot     1 call site    @hubspot/api-client", ""],
-  ["  quickbooks  1 call site", ""],
-  ["  stripe      1 call site    stripe", ""],
-  ["", ""],
-  ["Affected call sites (3)", ""],
-  ['  <span class="crit">CRITICAL</span>  src/deploy.ts:13  POST /repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches', ""],
-  ["            workflow_dispatch returns 200 with a body instead of 204", ""],
-  ["            why: compares the response status to 204", "c"],
-  ['  <span class="high">HIGH</span>      src/accounting.ts:7  GET /v3/company/{realmId}/query', ""],
-  ["            Minor versions below 75 are silently answered as minor version 75", ""],
-  ["            why: sends minorversion=65 (below 75)", "c"],
-  ['  <span class="high">HIGH</span>      src/crm.ts:6  GET /crm-pipelines/v1/pipelines/deals', ""],
-  ["            Pipelines API v1 retired on 2026-12-04", ""],
-  ...((hubspotDays > 0 && hubspotDays <= 90
-    ? [["", ""], ["Deadlines in the next 90 days", ""], [`  2026-12-04 (${hubspotDays} days)  hubspot  Pipelines API v1 retired on 2026-12-04  1 call site`, ""]]
-    : []) as [string, string][]),
-  ["", ""],
-  ["Next", ""],
-  ["  npx shapi-cli fix .  fix the affected call sites test-first", ""],
-  ["  https://app.shapi.dev  fix PRs and a dashboard on every push", "c"],
-];
-const termShown = ref(TERM.length);
-const termHtml = computed(() => TERM.slice(0, termShown.value).map(([l, c]) => (c ? `<span class="${c}">${l}</span>` : l)).join("\n") + (termShown.value < TERM.length ? '\n<span class="caret"></span>' : ""));
+const TERM = computed<[string, string][]>(() => {
+  const hubspotDays = days("2026-12-04");
+  return [
+    ['<span class="c">$</span> npx shapi-cli scan .', ""],
+    ["<b>SHAPI</b>  third-party API changes, caught and fixed", ""],
+    ["scan  .", ""],
+    ["4 files · 5 call sites · 4 providers · 63 ms", "c"],
+    ["", ""],
+    ["Providers", ""],
+    ["  github      2 call sites", ""],
+    ["  hubspot     1 call site    @hubspot/api-client", ""],
+    ["  quickbooks  1 call site", ""],
+    ["  stripe      1 call site    stripe", ""],
+    ["", ""],
+    ["Affected call sites (3)", ""],
+    ['  <span class="crit">CRITICAL</span>  src/deploy.ts:13  POST /repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches', ""],
+    ["            workflow_dispatch returns 200 with a body instead of 204", ""],
+    ["            why: compares the response status to 204", "c"],
+    ['  <span class="high">HIGH</span>      src/accounting.ts:7  GET /v3/company/{realmId}/query', ""],
+    ["            Minor versions below 75 are silently answered as minor version 75", ""],
+    ["            why: sends minorversion=65 (below 75)", "c"],
+    ['  <span class="high">HIGH</span>      src/crm.ts:6  GET /crm-pipelines/v1/pipelines/deals', ""],
+    ["            Pipelines API v1 retired on 2026-12-04", ""],
+    ...((hubspotDays > 0 && hubspotDays <= 90
+      ? [["", ""], ["Deadlines in the next 90 days", ""], [`  2026-12-04 (${hubspotDays} days)  hubspot  Pipelines API v1 retired on 2026-12-04  1 call site`, ""]]
+      : []) as [string, string][]),
+    ["", ""],
+    ["Next", ""],
+    ["  npx shapi-cli fix .  fix the affected call sites test-first (nothing changes until you add --write or --pr)", ""],
+    ["  https://app.shapi.dev  install the GitHub App: every push scanned, verified fix PRs, and a dashboard", "c"],
+  ];
+});
+const termShown = ref(TERM.value.length);
+const termHtml = computed(() => TERM.value.slice(0, termShown.value).map(([l, c]) => (c ? `<span class="${c}">${l}</span>` : l)).join("\n") + (termShown.value < TERM.value.length ? '\n<span class="caret"></span>' : ""));
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -128,6 +133,10 @@ let lenis: { raf(t: number): void; destroy(): void } | undefined;
 let stopListeners = () => {};
 
 onMounted(async () => {
+  // Before the ring's cards are read below: the visitor's date can drop some of them.
+  today.value = isoDay();
+  await nextTick();
+  if (!alive) return;
   const el = root.value!;
   const $ = <T extends Element = HTMLElement>(s: string) => el.querySelector<T>(s)!;
   const $$ = <T extends Element = HTMLElement>(s: string) => [...el.querySelectorAll<T>(s)];
@@ -237,7 +246,8 @@ onMounted(async () => {
   const term = $("#cli");
   function drawTerm() {
     if (!inView(term)) return;
-    termShown.value = reduce ? TERM.length : Math.round(clamp(prog(term) / 0.75) * TERM.length);
+    const n = TERM.value.length;
+    termShown.value = reduce ? n : Math.round(clamp(prog(term) / 0.75) * n);
   }
 
   // 7. your code and the API fit together
