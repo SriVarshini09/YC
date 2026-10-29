@@ -309,6 +309,16 @@ const migrations: Record<string, Migration> = {
       await sql`grant select, insert, update, delete on kysely_migration, kysely_migration_lock to ${sql.raw(APP_ROLE)}`.execute(db);
     },
   },
+  // 0012 was never used: a migration added after 0013 ran must sort after it (Kysely refuses unordered ones).
+  "0014_scans_llm_calls": {
+    async up(db: Kysely<unknown>) {
+      // LLM calls the fix jobs of a scan made, so retried jobs share one budget (see withCallBudget).
+      await sql`alter table scans add column llm_calls integer not null default 0`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`alter table scans drop column if exists llm_calls`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };

@@ -406,6 +406,34 @@ describe("fixes after an upgrade", () => {
   }, 120_000);
 });
 
+describe("LLM budget", () => {
+  it("is kept on the scan, so a retried fix job cannot spend it again", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    const account = await owner.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    await owner.updateTable("accounts").set({ settings: JSON.stringify({ llmFixes: true }) }).where("id", "=", account.account_id).execute();
+    // Only the GitHub finding, and without its recipe: Claude is asked.
+    await owner.deleteFrom("findings").where("scan_id", "=", scanId).where("advisory_id", "!=", "github-workflow-dispatch-204-to-200").execute();
+    await owner.updateTable("findings").set({ advisory_id: "github-dispatch-llm-only" }).where("scan_id", "=", scanId).execute();
+    const base = loadAdvisories(ADVISORIES).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
+    await upsertAdvisories(db, [{ ...base, id: "github-dispatch-llm-only", recipeId: undefined }], { reviewed: true, source: "repo" });
+    const asked: string[] = [];
+    const llm = { fix: async (req: { advisory: { id: string } }) => (asked.push(req.advisory.id), { status: "declined" as const, reason: "test" }) };
+    process.env.SHAPI_LLM_CALLS_PER_JOB = "1";
+    try {
+      await runFixJob({ ...t.fixDeps, llm: llm as never }, { scanId });
+      expect(asked).toEqual(["github-dispatch-llm-only"]);
+      // pg-boss runs the job again (a retry, or after expiry): the scan's one call is spent.
+      await runFixJob({ ...t.fixDeps, llm: llm as never }, { scanId });
+      expect(asked).toHaveLength(1);
+    } finally {
+      delete process.env.SHAPI_LLM_CALLS_PER_JOB;
+      await owner.deleteFrom("advisories").where("id", "=", "github-dispatch-llm-only").execute();
+    }
+  }, 120_000);
+});
+
 describe("advisory fan-out", () => {
   it("re-matches stored api.locks when an advisory is added, without downloading code again", async () => {
     const t = setup();

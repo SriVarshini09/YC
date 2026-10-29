@@ -1,4 +1,5 @@
 import { matchAdvisories, type Advisory, type LockedCallSite } from "@shapi/core";
+import { sql } from "kysely";
 import { withService, type Db } from "@shapi/db";
 import { fetchRepoSnapshot, prTitle, renderPrBody } from "@shapi/github-app";
 import { RECIPES, repairAdvisory, withCallBudget, withSandboxWorkspace, type InstallReport, type AdvisoryRepair, type LlmFixer, type RepairResult, type Workspace } from "@shapi/repair";
@@ -99,7 +100,8 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
     byAdvisory.set(advisory.id, entry);
   }
 
-  const llm = (scan.settings as { llmFixes?: boolean }).llmFixes === true && deps.llm ? withCallBudget(deps.llm) : undefined;
+  // One budget per scan, kept on the scan: a retried job (or one pg-boss expired) cannot spend it again.
+  const llm = (scan.settings as { llmFixes?: boolean }).llmFixes === true && deps.llm ? withCallBudget(deps.llm, undefined, () => takeLlmCall(deps.db, scan.id)) : undefined;
   const report: FixReport = { scanId: scan.id, repairs: [] };
   const manual: { advisory: Advisory; callSites: number }[] = [];
   const todo: { advisory: Advisory; callSites: LockedCallSite[]; shapes: { before?: ResponseShape; after?: ResponseShape; source: string } }[] = [];
@@ -192,6 +194,12 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
   // Only a finished run counts: a failed one throws above, and the job (or the next build) tries again.
   if (!outOfTime) await markEngine(deps, scan.id);
   return report;
+}
+
+/** Count one LLM call for a scan's fixes; returns the count so far, this call included. */
+async function takeLlmCall(db: Db, scanId: string): Promise<number> {
+  const row = await withService(db, (tx) => tx.updateTable("scans").set({ llm_calls: sql`llm_calls + 1` }).where("id", "=", scanId).returning("llm_calls").executeTakeFirstOrThrow());
+  return row.llm_calls;
 }
 
 async function markEngine(deps: Pick<FixDeps, "db" | "engine">, scanId: string): Promise<void> {

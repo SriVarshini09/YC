@@ -479,7 +479,21 @@ describe("LLM spend", () => {
     const req = {} as FixRequest;
     await llm.fix(req);
     await llm.fix(req);
-    expect(await llm.fix(req)).toEqual({ status: "declined", reason: "the 2 LLM calls allowed per fix job are used up (SHAPI_LLM_CALLS_PER_JOB)" });
+    expect(await llm.fix(req)).toEqual({ status: "declined", reason: "the 2 LLM calls allowed are used up (SHAPI_LLM_CALLS_PER_JOB)" });
+    expect(calls).toBe(2);
+  });
+
+  it("shares one budget between runs that count calls in the same place", async () => {
+    let calls = 0;
+    let stored = 0;
+    const fixer = { fix: async () => (calls++, { status: "declined" as const, reason: "no" }) };
+    const take = async () => ++stored;
+    const req = {} as FixRequest;
+    await withCallBudget(fixer, 2, take).fix(req);
+    // A retried job: a new budget, the same count.
+    const retry = withCallBudget(fixer, 2, take);
+    await retry.fix(req);
+    expect((await retry.fix(req)).status).toBe("declined");
     expect(calls).toBe(2);
   });
 

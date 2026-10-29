@@ -23,21 +23,25 @@ export interface LlmFixer {
 }
 
 /**
- * Model calls one fix job (or one `shapi fix` run) may make: each is a high-effort request carrying a
- * whole file. SHAPI_LLM_CALLS_PER_JOB overrides it.
+ * Model calls the fixes of one scan (all its fix job's attempts, retries included) or one `shapi fix` run may
+ * make: each is a high-effort request carrying a whole file. SHAPI_LLM_CALLS_PER_JOB overrides it.
  */
 export const DEFAULT_LLM_CALLS_PER_JOB = 20;
 
 /** Larger files go to no model: the fix needs the whole file back, so the prompt would be all of it. */
 export const MAX_LLM_FILE_BYTES = 200_000;
 
-/** `llm`, declining every call after the first `max`. Make one per job, so retries and big scans cannot run up the bill. */
-export function withCallBudget(llm: LlmFixer, max = callsPerJob()): LlmFixer {
+/**
+ * `llm`, declining every call after the first `max`, so big scans cannot run up the bill. `take` counts one
+ * call and returns how many there have been, this one included: the fix job keeps the count on the scan, so
+ * a retried job shares the budget. By default calls are counted in memory, for this budget only.
+ */
+export function withCallBudget(llm: LlmFixer, max = callsPerJob(), take?: () => Promise<number>): LlmFixer {
   let calls = 0;
+  const next = take ?? (async () => ++calls);
   return {
     async fix(req) {
-      if (calls >= max) return { status: "declined", reason: `the ${max} LLM calls allowed per fix job are used up (SHAPI_LLM_CALLS_PER_JOB)` };
-      calls++;
+      if ((await next()) > max) return { status: "declined", reason: `the ${max} LLM calls allowed are used up (SHAPI_LLM_CALLS_PER_JOB)` };
       return llm.fix(req);
     },
   };
