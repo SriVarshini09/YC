@@ -1,6 +1,7 @@
 {
   "name": "@shapi/sandbox",
   "version": "0.1.0",
+  "private": true,
   "description": "Isolated places to run untrusted repository code: an E2B microVM in production, a temp folder for local development",
   "type": "module",
   "sideEffects": false,

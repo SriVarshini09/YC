@@ -1,6 +1,7 @@
 {
   "name": "@shapi/repair",
   "version": "0.1.0",
+  "private": true,
   "description": "Recipes, contract test generation, and the repair agent",
   "type": "module",
   "main": "./dist/index.js",

@@ -1,6 +1,7 @@
 {
   "name": "@shapi/shapes",
   "version": "0.1.0",
+  "private": true,
   "description": "Response shape inference, shape store, and shape diff",
   "type": "module",
   "main": "./dist/index.js",

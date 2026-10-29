@@ -1,5 +1,5 @@
 import type { Advisory } from "@shapi/core";
-import type { AdvisoryRepair, TestRun } from "@shapi/repair";
+import type { AdvisoryRepair, TestRun, TypeCheck } from "@shapi/repair";
 
 export interface PrBodyInput {
   advisory: Advisory;
@@ -21,7 +21,10 @@ export function prBranch(advisory: Advisory): string {
 export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): string {
   const fixed = repair.sites.filter((s) => s.result.status === "fixed");
   const tests = new Set(fixed.map((s) => s.result.test?.file));
-  const notes = repair.changes.filter((c) => !tests.has(c.file)).flatMap((c) => (c.notes.length ? c.notes : [`\`${c.file}\``]).map((n) => `- ${n}`));
+  // Claude's explanations are model output (the model read the repository's code): shown as literal text.
+  const explanations = new Set(repair.sites.filter((s) => s.result.method === "llm").flatMap((s) => s.result.changes.flatMap((c) => c.notes)));
+  const note = (n: string) => (explanations.has(n) ? `Claude: ${codeSpan(n)}` : n);
+  const notes = repair.changes.filter((c) => !tests.has(c.file)).flatMap((c) => (c.notes.length ? c.notes.map(note) : [`\`${c.file}\``]).map((n) => `- ${n}`));
   const method = repair.method === "llm" ? "Claude, verified by the contract tests" : `deterministic recipe \`${advisory.recipeId}\``;
   const evidence = advisory.evidence;
   const where = (s: (typeof repair.sites)[number]) => `\`${s.callSite.file}:${s.callSite.line}\` (${s.callSite.method} ${s.callSite.endpoint})`;
@@ -43,11 +46,14 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
     ...notes,
     "",
     `### Contract test${fixed.length === 1 ? "" : "s"}`,
-    "Each test calls the code with the response it was written for and the one the provider sends now. Each failed before this change and passes after it.",
+    "Each test calls the code with the response it was written for and the one the provider sends now. Each failed before this change and passes after it. A change that adds type errors is not kept.",
     "",
-    "| Test | Before this change | After this change |",
-    "|---|---|---|",
-    ...fixed.map((s) => `| \`${s.result.test?.file}\` | ${cell(summary(s.result.baseline))} | ${cell(summary(s.result.attempts.find((a) => a.outcome === "passed")?.run))} |`),
+    "| Test | Before this change | After this change | Type check |",
+    "|---|---|---|---|",
+    ...fixed.map(
+      (s) =>
+        `| \`${s.result.test?.file}\` | ${cell(summary(s.result.baseline))} | ${cell(summary(s.result.attempts.find((a) => a.outcome === "passed")?.run))} | ${cell(typeSummary(s.result.typecheck))} |`,
+    ),
     "",
     "### Evidence",
     "| | |",
@@ -73,6 +79,22 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
 /** Text for a Markdown table cell: a "|" (vitest prints "1 failed | 1 passed") would start a new column. */
 export function cell(text: string): string {
   return text.replace(/\|/g, "\\|");
+}
+
+/**
+ * `text` as an inline code span: GitHub renders it literally, so Markdown or HTML in it makes no link,
+ * image, @mention, issue reference or layout change. On one line, and at most `max` characters.
+ */
+export function codeSpan(text: string, max = 500): string {
+  let flat = text.replace(/\s+/g, " ").trim();
+  if (flat.length > max) flat = `${flat.slice(0, max - 1)}…`;
+  const fence = "`".repeat(Math.max(0, ...(flat.match(/`+/g) ?? []).map((r) => r.length)) + 1);
+  return `${fence} ${flat} ${fence}`;
+}
+
+function typeSummary(check: TypeCheck | undefined): string {
+  if (!check) return "not run";
+  return `${check.status === "passed" ? "pass" : check.status === "failed" ? "fail" : "skipped"}: ${codeSpan(check.detail, 300)}`;
 }
 
 function summary(run: TestRun | undefined): string {

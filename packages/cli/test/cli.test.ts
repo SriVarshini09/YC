@@ -108,3 +108,12 @@ describe("shapi scan", () => {
     expect(stderr).toMatch(/^shapi: /);
   });
 });
+
+describe("npm", () => {
+  it("publishes only shapi-cli (scripts/build-npm.ts): every workspace package is private, so none can be published by mistake", () => {
+    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+    const manifests = ["packages", "apps"].flatMap((d) => readdirSync(path.join(root, d)).map((p) => path.join(root, d, p, "package.json")));
+    const published = manifests.map((m) => JSON.parse(readFileSync(m, "utf8")) as { name: string; private?: boolean }).filter((p) => p.private !== true);
+    expect(published.map((p) => p.name)).toEqual([]);
+  });
+});

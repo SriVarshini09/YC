@@ -1,6 +1,7 @@
 {
   "name": "@shapi/core",
   "version": "0.1.0",
+  "private": true,
   "description": "SHAPI contracts: provider registry, api.lock schema, advisory schema, matcher",
   "type": "module",
   "main": "./dist/index.js",

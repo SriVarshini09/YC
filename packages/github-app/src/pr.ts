@@ -85,7 +85,16 @@ export interface UpsertFixPullRequest extends FixPullRequest {
 
 export type FixPrOutcome =
   | { action: "created" | "updated" | "unchanged"; url: string; number: number; branch: string; commit: string }
-  | { action: "skipped"; reason: string; branch: string; url?: string; number?: number; state?: "open" | "closed" };
+  | {
+      action: "skipped";
+      reason: string;
+      branch: string;
+      url?: string;
+      number?: number;
+      state?: "open" | "closed";
+      /** The branch has commits that are not SHAPI's, so SHAPI cannot open the fix until a maintainer deletes it. */
+      foreignBranch?: true;
+    };
 
 /**
  * Open the fix PR, or bring the existing one up to date, keyed by its deterministic branch. A rerun
@@ -131,8 +140,8 @@ export async function upsertFixPr(octokit: Octokit, pr: UpsertFixPullRequest): P
   // A leftover branch is reused only if its head is SHAPI's own commit: never force-push over someone's work,
   // not even after a merge or when a maintainer asked to retry a closed fix.
   if (head && !ours) {
-    if (closedByMaintainer) return { action: "skipped", reason: "someone else pushed to the branch", branch: pr.branch, url: latest.html_url, number: latest.number, state: "closed" };
-    return { action: "skipped", reason: "a branch with this name exists and is not SHAPI's", branch: pr.branch };
+    if (closedByMaintainer) return { action: "skipped", reason: "someone else pushed to the branch", branch: pr.branch, url: latest.html_url, number: latest.number, state: "closed", foreignBranch: true };
+    return { action: "skipped", reason: "a branch with this name exists and is not SHAPI's", branch: pr.branch, foreignBranch: true };
   }
   const base = pr.base ?? (await octokit.rest.repos.get({ owner, repo })).data.default_branch;
   const commit = await commitFix(octokit, owner, repo, pr.baseSha ?? (await branchSha(octokit, owner, repo, base)), pr.files, message);
