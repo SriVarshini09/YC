@@ -1,6 +1,6 @@
 import { CommandExitError, Sandbox as E2BSandbox, TimeoutError } from "e2b";
 import { SHAPI_TEMPLATE } from "./template";
-import { REGISTRY_HOSTS, safeRelative, truncate, type ExecOptions, type ExecResult, type NetworkMode, type Sandbox, type SandboxOptions, type SandboxProvider, type SnapshotFile } from "./types";
+import { DEFAULT_SANDBOX_LIFETIME_MS, REGISTRY_HOSTS, lifetime, safeRelative, truncate, type ExecOptions, type ExecResult, type NetworkMode, type Sandbox, type SandboxOptions, type SandboxProvider, type SnapshotFile } from "./types";
 
 const ROOT = "/home/user/repo";
 /** E2B caps one write request; snapshots go up in batches. */
@@ -31,12 +31,13 @@ export function e2bProvider(opts: E2BProviderOptions): SandboxProvider {
     async create(o: SandboxOptions = {}): Promise<Sandbox> {
       const vm = await E2BSandbox.create(opts.template ?? SHAPI_TEMPLATE, {
         apiKey: opts.apiKey,
-        timeoutMs: o.lifetimeMs ?? 15 * 60_000,
+        timeoutMs: o.lifetimeMs ?? DEFAULT_SANDBOX_LIFETIME_MS,
         metadata: o.labels,
         network: (o.network ?? "off") === "off" ? undefined : network("registry"),
         allowInternetAccess: (o.network ?? "off") !== "off",
       });
       let closed = false;
+      const extend = lifetime(o, (ms) => vm.setTimeout(ms));
       const run = async (cmd: string, cwd: string, eo: ExecOptions): Promise<ExecResult> => {
         try {
           const r = await vm.commands.run(cmd, { cwd, timeoutMs: eo.timeoutMs ?? 120_000, envs: { CI: "1", FORCE_COLOR: "0", ...eo.env } });
@@ -82,6 +83,7 @@ export function e2bProvider(opts: E2BProviderOptions): SandboxProvider {
         async setNetwork(mode: NetworkMode) {
           await vm.updateNetwork(network(mode));
         },
+        extend,
         async close() {
           if (closed) return;
           closed = true;
