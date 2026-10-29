@@ -307,3 +307,50 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
 
   return { fetch, github };
 }
+
+export interface FakeUserRepository {
+  id: number;
+  full_name?: string;
+  /** The user's rights on it, as GitHub reports them; read-only when left out. */
+  permissions?: Partial<Record<"admin" | "maintain" | "push" | "triage" | "pull", boolean>>;
+}
+
+export interface FakeUserInstallation {
+  id: number;
+  /** Who the app is installed on. */
+  account?: { id: number; login?: string; type: "User" | "Organization" };
+  /** The repositories of the installation this user can open on GitHub. */
+  repositories?: FakeUserRepository[];
+}
+
+/**
+ * GitHub as the web app's sign-in sees it: the OAuth token exchange, the signed-in user, the app
+ * installations they can access, and in each the repositories they can open with their permissions.
+ */
+export function fakeUserGitHub(opts: { user?: { id: number; login: string }; installations?: FakeUserInstallation[]; failToken?: boolean } = {}) {
+  const user = opts.user ?? { id: 99, login: "octo" };
+  const installations = opts.installations ?? [];
+  const seen: { url: string; body?: unknown; auth: string | null }[] = [];
+  const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+    const url = new URL(String(input));
+    seen.push({ url: url.href, body: init?.body ? JSON.parse(String(init.body)) : undefined, auth: new Headers(init?.headers).get("authorization") });
+    const json = (body: unknown, status = 200) => {
+      const res = new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+      Object.defineProperty(res, "url", { value: url.href });
+      return res;
+    };
+    if (url.href === "https://github.com/login/oauth/access_token") return opts.failToken ? json({ error: "bad_verification_code" }) : json({ access_token: "ghu_user_token", token_type: "bearer" });
+    if (url.pathname === "/user") return json(user);
+    if (url.pathname === "/user/installations") {
+      return json({ total_count: installations.length, installations: installations.map((i) => ({ id: i.id, account: i.account ?? null })) });
+    }
+    const m = /^\/user\/installations\/(\d+)\/repositories$/.exec(url.pathname);
+    const installation = m ? installations.find((i) => i.id === Number(m[1])) : undefined;
+    if (installation) {
+      const repositories = (installation.repositories ?? []).map((r) => ({ id: r.id, full_name: r.full_name ?? `repo-${r.id}`, permissions: { admin: false, maintain: false, push: false, triage: false, pull: true, ...r.permissions } }));
+      return json({ total_count: repositories.length, repositories });
+    }
+    return json({ message: "not found" }, 404);
+  }) as typeof globalThis.fetch;
+  return { fetch, seen };
+}

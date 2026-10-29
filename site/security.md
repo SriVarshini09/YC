@@ -33,13 +33,19 @@ SHAPI reads your code in order to fix it. This page says exactly what that invol
 | Web sessions (a SHA-256 of the session token only) | Sign-in | 8 hours |
 | Stripe customer and subscription ids | Billing | While installed |
 
-Uninstalling the GitHub App deletes the account and its repositories, scans, findings, fix PR records and billing record at once. Webhook payloads expire 14 days after they're processed. A paid subscription is managed in Stripe: cancel it under *Manage billing* before uninstalling.
+Uninstalling the GitHub App deletes the account and its repositories, scans, findings, fix PR records and billing record at once. Webhook payloads expire 14 days after they're processed. A paid subscription is managed in Stripe, and uninstalling cancels it there first, at once.
 
 The [privacy policy](/legal/privacy) covers the same data in more detail, and the [subprocessors](/legal/subprocessors) page lists every outside service that receives any of it.
 
 ### Isolation between customers
 
-Every account-scoped table in Postgres uses **row-level security** keyed to the account. The app's database role cannot bypass it, so a query that forgets a filter still sees only one customer's rows. The web app only opens accounts your GitHub user can access.
+Every account-scoped table in Postgres uses **row-level security** keyed to the account. The app's database role cannot bypass it, so a query that forgets a filter still sees only one customer's rows. On top of that, the web app checks what your GitHub user may do:
+
+- **Seeing:** you see an account only where SHAPI is installed and you can open at least one of its repositories on GitHub. Inside it, every page shows only the repositories you can open on GitHub, with their problems, fixes and scans. Any other repository's pages are not found.
+- **Pausing** a repository needs write access to it.
+- **Settings and billing** (pull request limits, the check, Claude, Slack alerts, the plan and invoices) need an account admin. For a personal account, that is its owner. For an organization, it is someone who is admin on every repository SHAPI covers there; organization owners are.
+
+SHAPI reads these rights from GitHub when you sign in. After a change on GitHub, sign in again to see it.
 
 ### Claude
 

@@ -41,7 +41,7 @@ export const kindTag = (kind: "affected" | "exposed" | "ok") => (kind === "affec
 export const empty = (text: string) => html`<div class="empty">${text}</div>`;
 
 /** "in effect" once a change applies, otherwise "in N days" colored by urgency. */
-export const dueTag = (daysUntil: number) => (daysUntil < 0 ? tag("in effect", "bad") : tag(`in ${plural(daysUntil, "day")}`, urgency(daysUntil)));
+export const dueTag = (daysUntil: number) => (daysUntil < 0 ? tag("in effect", "bad") : tag(daysUntil === 0 ? "today" : `in ${plural(daysUntil, "day")}`, urgency(daysUntil)));
 
 /** A fix PR's number linked to GitHub, or its branch while it has no number; `button` for the finding page. */
 export function prLink(pr: { url: string | null; number: number | null; branch: string }, style: "text" | "button" = "text"): Html {
@@ -229,7 +229,8 @@ export function activityFeed(events: ActivityEvent[], now: Date): Html {
 
 /* ---------- call sites and GitHub links ---------- */
 
-export const fileUrl = (repo: string, sha: string, file: string, line?: number) => `https://github.com/${repo}/blob/${sha}/${file}${line ? `#L${line}` : ""}`;
+/** A file at a commit on GitHub. The path comes from the customer's repository: each segment is encoded, so `#`, `?` and `%` stay part of it. */
+export const fileUrl = (repo: string, sha: string, file: string, line?: number) => `https://github.com/${repo}/blob/${sha}/${file.split("/").map(encodeURIComponent).join("/")}${line ? `#L${line}` : ""}`;
 export const commitUrl = (repo: string, sha: string) => `https://github.com/${repo}/commit/${sha}`;
 
 export const callSiteText = (site: Pick<LockedCallSite, "method" | "endpoint">) => `${site.method ?? "?"} ${site.endpoint ?? "?"}`;

@@ -35,7 +35,8 @@ const VERBS = new Set(["get", "post", "put", "patch", "delete", "head", "options
 
 /** What a name in the file refers to. */
 type Binding =
-  | { kind: "http-module"; lib: Lib }
+  /** `name`: what `from httpx import Client` imported, so `Client(...)` is a constructor call. */
+  | { kind: "http-module"; lib: Lib; name?: string }
   | { kind: "http-client"; lib: Lib; baseUrl?: string; headers: NameValue[] }
   | { kind: "sdk-module"; provider: Provider; module: string }
   | { kind: "sdk-client"; provider: Provider; module: string };
@@ -82,13 +83,13 @@ function collectImports(root: Node, ctx: FileContext): void {
   for (const st of root.descendantsOfType(["import_statement", "import_from_statement"])) {
     if (!st) continue;
     if (st.type === "import_statement") {
-      // import requests / import httpx as hx / import stripe
+      // import requests / import httpx as hx / import stripe. `import openai.types` binds `openai` to the package.
       for (const item of st.namedChildren) {
         if (!item) continue;
         const dotted = item.type === "aliased_import" ? item.childForFieldName("name") : item;
         const alias = item.type === "aliased_import" ? item.childForFieldName("alias")?.text : dotted?.text.split(".")[0];
         if (!dotted || !alias) continue;
-        bindModule(ctx, alias, dotted.text);
+        bindModule(ctx, alias, item.type === "aliased_import" ? dotted.text : alias);
       }
     } else {
       // from httpx import Client / from openai import OpenAI / from twilio.rest import Client
@@ -105,9 +106,9 @@ function collectImports(root: Node, ctx: FileContext): void {
 }
 
 function bindModule(ctx: FileContext, alias: string, dotted: string): void {
-  const top = dotted.split(".")[0]!;
+  const [top, ...rest] = dotted.split(".") as [string, ...string[]];
   if (HTTP_LIBS.has(top)) {
-    ctx.names.set(alias, { kind: "http-module", lib: top as Lib });
+    ctx.names.set(alias, { kind: "http-module", lib: top as Lib, ...(rest.length ? { name: rest.at(-1) } : {}) });
     return;
   }
   const provider = providerForPythonModule(top);
@@ -136,7 +137,7 @@ function collectClients(root: Node, ctx: FileContext): void {
     const base = ctx.names.get(chain.root);
     if (!base) return;
     if (base.kind === "http-module" || base.kind === "http-client") {
-      const ctor = chain.names.at(-1);
+      const ctor = chain.names.at(-1) ?? (base.kind === "http-module" ? base.name : undefined);
       if (!ctor || !/^(Session|Client|AsyncClient|ClientSession)$/.test(ctor)) return;
       const args = call.childForFieldName("arguments");
       const baseUrl = evalString(ctx, keyword(args, "base_url"));
@@ -172,7 +173,8 @@ function httpCall(ctx: FileContext, call: Node): CallSite | undefined {
     // from requests import get; get(url)
     return undefined;
   }
-  const binding = ctx.names.get(chain.root) ?? ctx.names.get(chain.prefix(chain.names.length - 1));
+  // The client is the whole chain but the verb (`c.get`, `self.http.get`): `c.headers.get(...)` is not a request.
+  const binding = ctx.names.get(chain.prefix(chain.names.length - 1));
   const member = chain.names.at(-1)!;
   if (!binding || (binding.kind !== "http-module" && binding.kind !== "http-client")) return undefined;
   if (binding.kind === "http-module" && chain.names.length !== 1) return undefined;
@@ -251,7 +253,9 @@ function sdkEndpoint(provider: Provider, names: string[]): { method: HttpMethod;
     if (last === "files_upload_v2") return { method: "POST", path: "/api/files.completeUploadExternal" };
     return { method: "POST", path: `/api/${last.replace(/_/g, ".")}` };
   }
-  const ref = getProvider(provider.id)?.python?.methods?.[op];
+  const methods = getProvider(provider.id)?.python?.methods;
+  // An own property only: `client.toString()` is not Object.prototype.toString.
+  const ref = methods && Object.hasOwn(methods, op) ? methods[op] : undefined;
   if (!ref) return undefined;
   const [method, path] = ref.split(" ") as [HttpMethod, string];
   return { method, path };
@@ -401,7 +405,9 @@ function body(path: string[], top: Node, lib: string, c: Collector, depth: numbe
   const field = fieldPath.join(".").replace(/\.\[\]/g, "[]");
   c.fields.add(field);
   if (cut < 0) {
-    for (const s of comparedLiterals(top).strs) {
+    // A number compared for equality is an enum value too, as its decimal text: data["error_code"] == 30036.
+    const { nums, strs, equality } = comparedLiterals(top);
+    for (const s of [...strs, ...(equality ? nums.map(String) : [])]) {
       const set = c.enums.get(field) ?? new Set<string>();
       set.add(s);
       c.enums.set(field, set);
@@ -436,14 +442,14 @@ function iterate(top: Node, loc: Loc, lib: string, c: Collector, depth: number):
   }
 }
 
-/** Literals an expression is compared to: ==, !=, `in (a, b)`, `not in [...]`. */
-function comparedLiterals(node: Node): { nums: number[]; strs: string[] } {
+/** Literals an expression is compared to: ==, !=, `in (a, b)`, `not in [...]`; `equality` when only those operators are used. */
+function comparedLiterals(node: Node): { nums: number[]; strs: string[]; equality: boolean } {
   const nums: number[] = [];
   const strs: string[] = [];
   let cur = node;
   while (cur.parent?.type === "parenthesized_expression") cur = cur.parent;
   const p = cur.parent;
-  if (p?.type !== "comparison_operator") return { nums, strs };
+  if (p?.type !== "comparison_operator") return { nums, strs, equality: false };
   const take = (n: Node | null | undefined) => {
     if (!n) return;
     if (n.type === "integer") nums.push(Number(n.text));
@@ -453,7 +459,8 @@ function comparedLiterals(node: Node): { nums: number[]; strs: string[] } {
     } else if (n.type === "tuple" || n.type === "list" || n.type === "set") n.namedChildren.forEach(take);
   };
   for (const operand of p.namedChildren) if (operand && operand.id !== cur.id) take(operand);
-  return { nums, strs };
+  const equality = p.childrenForFieldName("operators").every((op) => op && ["==", "!=", "in", "not in"].includes(op.text));
+  return { nums, strs, equality };
 }
 
 // ---------------------------------------------------------------------------
@@ -499,7 +506,10 @@ function stringValue(n: Node | undefined): string | undefined {
   return n.namedChildren.filter((c) => c?.type === "string_content" || c?.type === "escape_sequence").map((c) => c!.text).join("");
 }
 
-/** A string expression's value, with unknown parts as {name}: literals, f-strings, `+`, constants, os.getenv defaults. */
+/**
+ * A string expression's value, with unknown parts as {name}: literals, f-strings, `+`, `.format(...)`, `%`,
+ * constants, os.getenv defaults.
+ */
 function evalString(ctx: FileContext, node: Node | undefined, depth = 0): string | undefined {
   if (!node || depth > 8) return undefined;
   const n = unwrap(node);
@@ -522,17 +532,60 @@ function evalString(ctx: FileContext, node: Node | undefined, depth = 0): string
     if (l === undefined && r === undefined) return undefined;
     return (l ?? placeholder(n.childForFieldName("left") ?? undefined)) + (r ?? placeholder(n.childForFieldName("right") ?? undefined));
   }
+  // "%s/v1/%s" % (BASE, name) / "%(id)s" % {"id": x}
+  if (n.type === "binary_operator" && n.childForFieldName("operator")?.text === "%") {
+    const template = evalString(ctx, n.childForFieldName("left") ?? undefined, depth + 1);
+    const right = n.childForFieldName("right");
+    if (template === undefined || !right) return undefined;
+    const r = unwrap(right);
+    const items = r.type === "tuple" ? (r.namedChildren.filter(Boolean) as Node[]) : [r];
+    let next = 0;
+    return template.replace(/%%|%(?:\(([^)]*)\))?[-#0 +]*(?:\*|\d+)?(?:\.(?:\*|\d+))?[diouxXeEfFgGcrsa]/g, (m, key?: string) => {
+      if (m === "%%") return "%";
+      const value = key === undefined ? items[next++] : r.type === "dictionary" ? dictValue(r, key) : undefined;
+      return value ? formatted(ctx, value, depth) : `{${key ?? ""}}`;
+    });
+  }
   if (n.type === "identifier") {
     const init = localAssignment(n) ?? ctx.consts.get(n.text);
     return init && init.id !== node.id ? evalString(ctx, init, depth + 1) : undefined;
   }
   // os.getenv("API_URL", "https://...") / os.environ.get("X", "https://...")
   if (n.type === "call") {
-    const fn = n.childForFieldName("function")?.text;
-    const args = (n.childForFieldName("arguments")?.namedChildren ?? []).filter(Boolean) as Node[];
+    const callee = n.childForFieldName("function");
+    const fn = callee?.text;
+    const argList = n.childForFieldName("arguments");
+    const args = (argList?.namedChildren ?? []).filter(Boolean) as Node[];
     if ((fn === "os.getenv" || fn === "getenv" || fn === "os.environ.get") && args[1]) return evalString(ctx, args[1], depth + 1);
+    // "{}/v1/{name}".format(BASE, name=x)
+    if (callee?.type === "attribute" && callee.childForFieldName("attribute")?.text === "format") {
+      const template = evalString(ctx, callee.childForFieldName("object") ?? undefined, depth + 1);
+      if (template === undefined) return undefined;
+      const positional = args.filter((a) => a.type !== "keyword_argument");
+      let next = 0;
+      return template.replace(/\{\{|\}\}|\{([^{}]*)\}/g, (m, field?: string) => {
+        if (m === "{{") return "{";
+        if (m === "}}") return "}";
+        const key = field!.split(/[.[!:]/)[0]!;
+        const value = key === "" ? positional[next++] : /^\d+$/.test(key) ? positional[Number(key)] : keyword(argList, key);
+        return value ? formatted(ctx, value, depth) : `{${key}}`;
+      });
+    }
   }
   return undefined;
+}
+
+/** A value substituted into a `.format()` or `%` template: its string or number, else a placeholder. */
+function formatted(ctx: FileContext, value: Node, depth: number): string {
+  const v = unwrap(value);
+  if (v.type === "integer" || v.type === "float") return v.text;
+  return evalString(ctx, v, depth + 1) ?? placeholder(v);
+}
+
+/** The value under a string key in a dict literal. */
+function dictValue(dict: Node, key: string): Node | undefined {
+  const pair = dict.namedChildren.find((p) => p?.type === "pair" && stringValue(p.childForFieldName("key") ?? undefined) === key);
+  return pair?.childForFieldName("value") ?? undefined;
 }
 
 /** Inside a function, the value last assigned to `name` before this use (`url = f"{BASE}/v1/x"`). */
@@ -562,12 +615,14 @@ function looseUrls(ctx: FileContext, root: Node, file: string, sites: CallSite[]
   const covered = new Set(sites.map((s) => `${s.provider} ${s.endpoint}`));
   const inCall = (n: Node) => calls.some((c) => n.startIndex >= c.startIndex && n.endIndex <= c.endIndex);
   const candidates: { node: Node; host: string | null; path: string; query: NameValue[]; provider: string }[] = [];
+  // `a + b` and `"…%s…" % x` build strings
+  const builds = (n: Node) => n.type === "binary_operator" && ["+", "%"].includes(n.childForFieldName("operator")?.text ?? "");
   for (const node of root.descendantsOfType(["string", "concatenated_string", "binary_operator"])) {
     if (!node) continue;
-    if (node.type === "binary_operator" && node.childForFieldName("operator")?.text !== "+") continue;
+    if (node.type === "binary_operator" && !builds(node)) continue;
     const p = node.parent;
     // part of a larger string, or a docstring / bare string statement
-    if (p && (p.type === "concatenated_string" || p.type === "interpolation" || p.type === "expression_statement" || (p.type === "binary_operator" && p.childForFieldName("operator")?.text === "+"))) continue;
+    if (p && (p.type === "concatenated_string" || p.type === "interpolation" || p.type === "expression_statement" || builds(p))) continue;
     if (inCall(node)) continue;
     const value = evalString(ctx, node);
     const parts = value === undefined ? undefined : urlParts(value);
@@ -632,7 +687,8 @@ function literal(ctx: FileContext, n: Node | undefined): string | null {
 }
 
 function joinUrl(base: string | undefined, url: string | undefined): string | undefined {
-  if (url === undefined) return base;
+  // An unknown path below a base_url is a runtime segment, not the base itself.
+  if (url === undefined) return base === undefined ? undefined : `${base.replace(/\/+$/, "")}/{}`;
   if (!base || /^[a-z]+:\/\//i.test(url)) return url;
   return base.replace(/\/+$/, "") + "/" + url.replace(/^\/+/, "");
 }

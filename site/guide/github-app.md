@@ -37,7 +37,7 @@ Paste a Slack [incoming webhook](https://api.slack.com/messaging/webhooks) link 
 
 ## The web app
 
-Sign in with GitHub to see each repository's latest scan, its findings with links to the exact lines, fix PR history and recent scans. That is also where you change the limits, the check behavior and the Claude opt-in, and where you pause a repository. SHAPI keeps no GitHub user token: it reads who you are and which installations you can access, then discards the token.
+Sign in with GitHub to see each repository's latest scan, its findings with links to the exact lines, fix PR history and recent scans. That is also where you change the limits, the check behavior and the Claude opt-in, and where you pause a repository. You see only the repositories you can open on GitHub. Pausing one needs write access to it, and the account's settings and billing need an account admin: the owner of a personal account, or for an organization someone who is admin on every repository SHAPI covers there. SHAPI keeps no GitHub user token: it reads who you are, which installations you can access and your permission on each of their repositories, then discards the token.
 
 ## Plans
 

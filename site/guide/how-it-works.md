@@ -9,12 +9,14 @@ SHAPI parses your TypeScript and JavaScript with the TypeScript compiler (throug
 - **HTTP clients:** `fetch`, axios, got, undici, ky, node-fetch
 - **official SDKs** of the providers it knows, for example `@octokit/rest`, `stripe` and `@hubspot/api-client`.
 
+An axios, got or ky instance keeps its base URL, headers and default query for every call, also as a class member (`this.http.get(...)`). An SDK client constructed in one file and imported from another (`import { openai } from "./lib/openai"`) is followed to the file that constructs it. Dependencies and build output are not scanned: `node_modules`, `dist`, `build`, `public` and similar folders, and minified bundles (`*.min.js`, `*.bundle.js`).
+
 Python files are parsed with tree-sitter, and the same things are recorded for them:
 
 - **HTTP clients:** `requests` (including `Session`), `httpx` (including `Client` and `AsyncClient` with `base_url`) and `aiohttp`;
 - **SDKs:** OpenAI, Anthropic, Stripe, Slack (`WebClient`), Twilio and HubSpot.
 
-SHAPI also records URLs of known APIs that no recognized client sends: a project's own request helper, a config object (`baseUrl: "https://..."`), or a connector framework's `url_base` and `path`. Their method is unknown, and they are matched by provider and path. A path that only one provider serves names its provider even when the host is built at runtime: `https://${shop}/admin/api/2026-01/...` is Shopify, and `/crm-pipelines/v1/...` is HubSpot.
+SHAPI also records URLs of known APIs that no recognized client sends: a project's own request helper, a config object (`baseUrl: "https://..."`), or a connector framework's `url_base` and `path`. Their method is unknown, and they are matched by provider and path. A path that only one provider serves names its provider even when the host is built at runtime: `https://${shop}/admin/api/2026-01/...` is Shopify, also with a runtime version (`/admin/api/${version}/...`), and `/crm-pipelines/v1/...` is HubSpot. In TypeScript and JavaScript, a host whose subdomain is built at runtime names its provider by its fixed suffix: `https://${subdomain}.zendesk.com/...` is Zendesk.
 
 Python call sites are matched against the same advisories. Fixes are proposed for TypeScript and JavaScript only, for now.
 
@@ -24,7 +26,7 @@ The result is the **api.lock**: a reviewable map of your third-party API surface
 
 ## 2. Match: affected or exposed
 
-Each [advisory](/advisories) names an endpoint, what changed, and a **trigger**: what a call site must depend on to break. SHAPI matches the api.lock against the advisories and sorts the hits into two groups:
+Each [advisory](/advisories) names an endpoint, what changed, and a **trigger**: what a call site must depend on to break. SHAPI matches the api.lock against the advisories and sorts the hits into three groups:
 
 - **Affected**: the call site depends on exactly what changed, for example `if (res.status !== 204)`.
 - **Exposed**: it calls the changed endpoint but does not depend on the change, for example it only checks `res.ok`.

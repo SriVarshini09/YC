@@ -3,7 +3,7 @@ import { DEFAULT_PR_LIMITS, STOP_LABEL } from "@shapi/github-app";
 import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
 import { DOCS_URL, EMPTY, ICONS, MARK, html, initials, isoDay, navFor, plural, shortSha, timeAgo, type Html, type NavKey, type Shell, type Theme } from "./html";
 import { activityOf } from "./overview";
-import { daysUntil, deadlinesOf, hitsByAdvisory, openProblems, problemsOf, providersOf, type AccountData, type FindingRow, type Problem, type PrRow, type RepoRow, type ScanRow } from "./queries";
+import { autoFixable, daysUntil, deadlinesOf, hasRecipe, hitsByAdvisory, openProblems, problemsOf, providersOf, type AccountData, type FindingRow, type Problem, type PrRow, type RepoRow, type ScanRow } from "./queries";
 import {
   accountHref,
   activityFeed,
@@ -36,6 +36,8 @@ import {
 export interface PageContext {
   user: { login: string; csrf: string };
   theme: Theme;
+  /** An account admin: the sidebar offers Settings and Billing. */
+  admin: boolean;
 }
 
 /** The shell for an account page: sidebar with live counts, and the active entry. */
@@ -50,7 +52,7 @@ export function shellFor(data: AccountData, ctx: PageContext, active: NavKey): S
       login: data.account.login,
       type: data.account.type,
       active,
-      nav: navFor(data.account.id, { findings: { count: problems, bad: problems > 0 }, fixes: { count: open } }),
+      nav: navFor(data.account.id, { findings: { count: problems, bad: problems > 0 }, fixes: { count: open } }, { admin: ctx.admin }),
     },
   };
 }
@@ -88,8 +90,8 @@ ${section("Recent activity", html`<div class="card">${activityFeed(activityOf(da
 }
 
 function repoTable(data: AccountData, repos: RepoRow[], billingEnabled = false): Html {
-  if (!repos.length) return html`<div class="card tight">${empty("No repositories yet. Install the SHAPI GitHub App on a repository and push to its default branch.")}</div>`;
-  const covered = coverage(data.repos, data.billing, billingEnabled);
+  if (!repos.length) return html`<div class="card tight">${empty("No repositories yet. Install the SHAPI GitHub App on a repository: SHAPI scans it right away, then on every push to its default branch.")}</div>`;
+  const covered = coverage(data.planRepos, data.billing, billingEnabled);
   const rows = repos.map((r) => {
     const c = covered.get(r.id);
     const flags = html`${r.paused || r.pausedFromWeb ? tag("paused", "warn") : EMPTY}${r.enabled ? EMPTY : tag("archived", "")}${c && !c.covered && r.enabled ? tag("not covered by plan", "warn", c.reason) : EMPTY}`;
@@ -111,13 +113,18 @@ interface RepoDetail {
   scans: ScanRow[];
 }
 
-export function repositoryPage(data: AccountData, repo: RepoRow, detail: RepoDetail, csrf: string): Html {
+export function repositoryPage(data: AccountData, repo: RepoRow, detail: RepoDetail, csrf: string, opts: { canPause: boolean }): Html {
   const b = accountHref(data);
   const prs = data.prs.filter((p) => p.repository_id === repo.id);
   const findings = data.findings.filter((f) => f.repository_id === repo.id);
-  const pause = html`<form method="post" action="${repoHref(data, repo.id)}/pause" class="inline"><input type="hidden" name="csrf" value="${csrf}">${
-    repo.pausedFromWeb ? html`<button type="submit">Resume SHAPI on this repository</button>` : html`<button type="submit">Pause SHAPI on this repository</button>`
-  }</form>`;
+  // The form names the state it asks for, so a second click or a stale page never flips it back. Pausing needs push access.
+  const pause = opts.canPause
+    ? html`<form method="post" action="${repoHref(data, repo.id)}/pause" class="inline"><input type="hidden" name="csrf" value="${csrf}">${
+        repo.pausedFromWeb
+          ? html`<input type="hidden" name="paused" value="0"><button type="submit">Resume SHAPI on this repository</button>`
+          : html`<input type="hidden" name="paused" value="1"><button type="submit">Pause SHAPI on this repository</button>`
+      }</form>`
+    : EMPTY;
   const actions = html`<a class="button" href="https://github.com/${repo.full_name}">${ICONS.external} GitHub</a>${
     repo.dashboard_issue ? html`<a class="button" href="https://github.com/${repo.full_name}/issues/${repo.dashboard_issue}">Dashboard issue #${repo.dashboard_issue}</a>` : EMPTY
   }${pause}`;
@@ -185,7 +192,7 @@ function callSitesByProvider(data: AccountData, repo: RepoRow, findings: Finding
 <td><span class="mono">${callSiteText(s)}</span></td>
 <td>${kindTag(worst?.kind ?? "ok")}</td>
 <td>${worst ? html`<a href="${findingHref(data, worst.id)}">${worst.advisory?.title ?? worst.advisory_id}</a>${hits.length > 1 ? html` <span class="muted small">+${hits.length - 1} more</span>` : EMPTY}<span class="sub">${worst.reasons.join("; ")}</span>` : html`<span class="muted">—</span>`}</td>
-<td>${fixPrCell(pr, worst)}</td>
+<td>${fixPrCell(data, pr, worst)}</td>
 </tr>`;
     });
     return html`<div class="group-head">${providerMark(id, "sm")}${id === "unknown" ? "Unknown host" : providerName(id)}<span class="meta">${affected ? tag(`${affected} breaking`, "bad") : EMPTY}${exposed ? tag(`${exposed} still working`, "info") : EMPTY}<span>${plural(list.length, "API call")}</span></span></div>
@@ -201,9 +208,9 @@ function scanTable(repo: RepoRow, scans: ScanRow[], now: Date): Html {
 }
 
 /** The fix for a problem: its pull request and state, "on the way" while SHAPI prepares one, "fix by hand" when no automatic fix exists. */
-function fixPrCell(pr: PrRow | undefined, finding: FindingRow | undefined): Html {
+function fixPrCell(data: AccountData, pr: PrRow | undefined, finding: FindingRow | undefined): Html {
   if (pr) return html`${prLink(pr)} ${stateTag(pr.state)}`;
-  if (finding?.kind === "affected") return html`<span class="muted small">${finding.advisory?.recipeId ? "on the way" : "fix by hand"}</span>`;
+  if (finding?.kind === "affected") return html`<span class="muted small">${autoFixable(data, finding.advisory) ? "on the way" : "fix by hand"}</span>`;
   return html`<span class="muted">—</span>`;
 }
 
@@ -240,7 +247,7 @@ function problemTable(data: AccountData, rows: Problem[], status: Problem["statu
 <td><a href="${findingHref(data, first.id)}"><b>${p.advisory?.title ?? p.advisory_id}</b></a><span class="sub">${p.advisory ? html`${providerMark(p.advisory.provider, "sm")} ${providerName(p.advisory.provider)} · <span class="mono">${p.advisory.endpoint.method} ${p.advisory.endpoint.path}</span>` : html`<span class="mono">${callSiteText(first.site)}</span>`}</span></td>
 <td><b>${p.repo}</b><span class="sub"><a class="mono" href="${fileUrl(p.repo, first.sha, first.site.file, first.site.line)}">${first.site.file}:${first.site.line}</a>${more ? ` and ${plural(more, "more place")}` : ""}</span></td>
 <td>${days === undefined ? html`<span class="muted">—</span>` : dueTag(days)}<span class="sub">${p.advisory ? isoDay(p.advisory.effectiveDate) : ""}</span></td>
-<td>${p.status === "breaks" ? fixPrCell(p.pr, first) : html`<span class="muted small">not needed</span>`}</td>
+<td>${p.status === "breaks" ? fixPrCell(data, p.pr, first) : html`<span class="muted small">not needed</span>`}</td>
 </tr>`;
   })}</tbody></table></div>`;
 }
@@ -312,7 +319,7 @@ ${filter.advisory ? html`<div class="filters"><a class="on" href="${b}/advisorie
 <td>${severityTag(a.severity)}</td>
 <td>${dueTag(daysUntil(a.effectiveDate, data.now))}<span class="sub">${isoDay(a.effectiveDate)}</span></td>
 <td>${yourCode(a)}</td>
-<td>${a.recipeId ? tag("automatic", "ok") : tag("by hand", "")}</td>
+<td>${hasRecipe(a) ? tag("automatic", "ok") : tag("by hand", "")}</td>
 </tr>`;
     })}</tbody></table>${rows.length ? EMPTY : empty("No API changes match.")}</div>`,
   )}</div>`;
@@ -337,7 +344,8 @@ interface FindingDetail {
   pr?: Pick<PrRow, "url" | "number" | "branch" | "state" | "stopped" | "repair">;
 }
 
-export function findingPage(account: { id: string }, f: FindingDetail, now: Date): Html {
+/** `claudeFixes`: the fix job asks Claude for this account. `llm`: the server can ask Claude, so Settings offers it. `admin`: the user may open Settings. */
+export function findingPage(account: { id: string }, f: FindingDetail, now: Date, opts: FixOptions): Html {
   const b = `/a/${account.id}`;
   const a = f.advisory;
   const title = a?.title ?? f.advisory_id;
@@ -370,16 +378,25 @@ ${f.others.length ? html`<div><b>Same problem, ${plural(f.others.length, "other 
 ${head(title, a ? `${providerName(a.provider)} · ${f.full_name}` : f.full_name, html`${kindTag(f.kind)}${a ? severityTag(a.severity) : EMPTY}${a ? providerMark(a.provider) : EMPTY}`)}
 <div class="grid cols-2">${changed}${where}</div>
 ${a ? section("Expected vs actual", html`<div class="card">${comparisonView(comparison(a, f.locked))}</div>`) : EMPTY}
-${section("The fix", fixSection(f, b))}`;
+${section("The fix", fixSection(f, b, opts))}`;
 }
 
-function fixSection(f: FindingDetail, b: string): Html {
+interface FixOptions {
+  claudeFixes: boolean;
+  llm: boolean;
+  admin: boolean;
+}
+
+function fixSection(f: FindingDetail, b: string, opts: FixOptions): Html {
   const a = f.advisory;
   const pr = f.pr;
   if (!pr) {
     if (f.kind === "exposed") return html`<div class="card"><p>No fix needed: this code uses the changed API but does not depend on what changed.</p></div>`;
-    if (a && !a.recipeId) return html`<div class="card stack"><p><b>Manual fix.</b> SHAPI has no deterministic recipe for this change, so no PR is opened unless the account turns on Claude fixes in <a href="${b}/settings">Settings</a>.</p><div class="notice">${a.migrationNote}</div></div>`;
-    return html`<div class="card"><p>The fix is on the way. SHAPI opens its pull request after the next fix run, within your PR limits, unless the repository is paused.</p></div>`;
+    if (!autoFixable(opts, a)) {
+      const claude = opts.llm ? (opts.admin ? html` unless the account turns on Claude fixes in <a href="${b}/settings">Settings</a>` : html` unless an account admin turns on Claude fixes in Settings`) : EMPTY;
+      return html`<div class="card stack"><p><b>Manual fix.</b> SHAPI has no deterministic recipe for this change, so no PR is opened${claude}.</p>${a ? html`<div class="notice">${a.migrationNote}</div>` : EMPTY}</div>`;
+    }
+    return html`<div class="card"><p>The fix is on the way. SHAPI opens its pull request after the next fix run, within your PR limits, unless the repository is paused or not covered by the plan.</p></div>`;
   }
   const button = prLink(pr, "button");
   const r = pr.repair;
@@ -435,7 +452,7 @@ ${
     ? html`<div class="card stack"><h2>Test Slack</h2><p class="note">Posts one message to the connected channel.</p><form method="post" action="${b}/slack/test" class="inline"><input type="hidden" name="csrf" value="${csrf}"><button type="submit">Send a test message to Slack</button></form></div>`
     : EMPTY
 }
-<div class="card stack"><h2>Pausing</h2><p class="note">Pause a repository from its page, or tick the box on its SHAPI Dashboard issue. Scans continue; no PRs are opened or updated while paused. Add the <span class="mono">${STOP_LABEL}</span> label to a SHAPI PR to stop updates to that PR.</p></div>
+<div class="card stack"><h2>Pausing</h2><p class="note">Pause a repository from its page (it takes write access to the repository on GitHub), or tick the box on its SHAPI Dashboard issue. Scans continue; no PRs are opened or updated while paused. Add the <span class="mono">${STOP_LABEL}</span> label to a SHAPI PR to stop updates to that PR.</p></div>
 <div class="card stack"><h2>Appearance</h2><p class="note">The app is light by default. Switch to dark with the theme buttons at the bottom of the sidebar.</p></div>
 </div>
 </div>`;
@@ -446,8 +463,8 @@ ${
 export function billingPage(data: AccountData, enabled: boolean, notice: string | undefined, csrf: string): Html {
   const b = accountHref(data);
   if (!enabled) return html`${head("Billing", "Billing is not configured on this server; every repository is covered.")}`;
-  const privates = data.repos.filter((r) => r.private && r.enabled).length;
-  const needed = requiredQuantity(data.repos);
+  const privates = data.planRepos.filter((r) => r.private && r.enabled).length;
+  const needed = requiredQuantity(data.planRepos);
   const billing = data.billing;
   const paying = billing && ["active", "trialing", "past_due"].includes(billing.status);
   const paid = paying ? billing.quantity : 0;
@@ -458,10 +475,10 @@ export function billingPage(data: AccountData, enabled: boolean, notice: string 
     updated: "Your plan now covers every private repository.",
     cancelled: "Checkout was cancelled. Nothing was charged.",
   };
-  const covered = coverage(data.repos, data.billing, true);
+  const covered = coverage(data.planRepos, data.billing, true);
   const uncovered = data.repos.filter((r) => r.enabled && !covered.get(r.id)?.covered);
   return html`${head("Billing", "Public repositories are free, and so is one private repository. Pay only for private repositories beyond that.")}
-${notice && notices[notice] ? html`<div class="notice">${notices[notice]}</div>` : EMPTY}
+${notice && Object.hasOwn(notices, notice) ? html`<div class="notice">${notices[notice]}</div>` : EMPTY}
 <div class="grid cols-3">
 ${statCard({ label: "Plan", value: paying ? "Paid" : "Free", sub: paying ? `${paid} paid private ${paid === 1 ? "repository" : "repositories"} plus ${FREE_PRIVATE_REPOS} free` : `public repositories and ${FREE_PRIVATE_REPOS} private repository` })}
 ${statCard({ label: "Private repositories", value: privates, sub: uncovered.length ? `${uncovered.length} not covered` : "all covered", tone: uncovered.length ? "bad" : "" })}

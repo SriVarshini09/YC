@@ -85,7 +85,7 @@ const pkg = {
   engines: cliPkg.engines,
   license,
   homepage: "https://shapi.dev",
-  // SHAPI's source repository is private; bugs go to the public advisory repository.
+  // Bugs go to the public advisory repository, which takes issues.
   bugs: { url: "https://github.com/SriVarshini09/shapi-advisories/issues", email: "sri@shapi.dev" },
   dependencies,
 };

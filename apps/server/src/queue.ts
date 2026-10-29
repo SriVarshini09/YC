@@ -2,8 +2,7 @@ import { PgBoss } from "pg-boss";
 import type { Db } from "@shapi/db";
 import { claudeFixer, type LlmFixer } from "@shapi/repair";
 import { sandboxFromEnv } from "@shapi/sandbox";
-import { withService } from "@shapi/db";
-import { stripeClient, syncQuantity, type BillingDeps } from "./billing/stripe";
+import { stripeClient, syncAllQuantities, type BillingDeps } from "./billing/stripe";
 import type { Config } from "./config";
 import { githubClients } from "./github/clients";
 import { processDelivery, type ScanRequest } from "./github/events";
@@ -151,7 +150,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
   });
   await boss.work<{ deliveryId: string }>(QUEUES.githubWebhook, { batchSize: 1 }, async ([job]) => {
     if (!job) return;
-    const result = await processDelivery({ db: deps.db, github: requireGithub() }, job.data.deliveryId);
+    const result = await processDelivery({ db: deps.db, github: requireGithub(), billing }, job.data.deliveryId);
     // Committed: now the scans it asked for can start.
     for (const scan of result.scans) await sendScan(boss, scan);
     for (const f of result.fixes) await sendFix(boss, f.scanId, f.repositoryId);
@@ -201,14 +200,9 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
   });
   await boss.work(QUEUES.billingSync, async () => {
     if (!billing) return { synced: 0 };
-    const accounts = await withService(deps.db, (tx) => tx.selectFrom("billing").select("account_id").where("stripe_subscription_id", "is not", null).where("status", "!=", "canceled").execute());
-    const changes = [];
-    for (const a of accounts) {
-      const change = await syncQuantity(billing, a.account_id);
-      if (change) changes.push({ accountId: a.account_id, ...change });
-    }
-    deps.log.info({ accounts: accounts.length, changes }, "billing synced");
-    return { synced: accounts.length, changes };
+    const result = await syncAllQuantities(billing, deps.log);
+    deps.log.info({ accounts: result.synced, changes: result.changes, failed: result.failed }, "billing synced");
+    return result;
   });
   await boss.work(QUEUES.webhookSweep, async () => {
     const result = await sweepWebhooks({

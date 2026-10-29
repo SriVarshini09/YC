@@ -40,6 +40,10 @@ COPY --from=build /out ./
 COPY advisories ./advisories
 COPY fixtures/recordings ./recordings
 COPY --from=build /repo/site/.vitepress/dist ./docs
+# The commit this image is built from (docker build / flyctl deploy --build-arg GIT_SHA=...). It keys
+# rescan-on-upgrade, /version and the Sentry release; a runtime GIT_SHA (flyctl deploy --env) still wins.
+ARG GIT_SHA=dev
+ENV GIT_SHA=$GIT_SHA
 USER node
 EXPOSE 8080
 CMD ["node", "dist/web.js"]
