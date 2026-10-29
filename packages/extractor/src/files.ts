@@ -4,7 +4,9 @@ import { providerForPackage, providerForPythonPackage } from "@shapi/core";
 
 const SOURCE_FILE = /\.(c|m)?[jt]sx?$/;
 const PYTHON_FILE = /\.py$/;
-const SKIP_DIRS = new Set(["node_modules", "dist", "build", "out", "coverage", "vendor", "bower_components", "venv", "__pycache__", "site-packages"]);
+const SKIP_DIRS = new Set(["node_modules", "dist", "build", "out", "coverage", "vendor", "bower_components", "venv", "__pycache__", "site-packages", "public"]);
+/** Minified and bundled output committed next to the source: app.min.js, vendor.bundle.js. */
+const BUNDLE_FILE = /\.(min|bundle)\.(c|m)?js$/;
 /** Python dependency manifests: requirements*.txt and pyproject.toml. */
 const PYTHON_MANIFEST = /^(requirements[\w.-]*\.txt|pyproject\.toml)$/;
 
@@ -29,7 +31,7 @@ export function listRepoFiles(root: string): RepoFiles {
         if (!SKIP_DIRS.has(entry.name)) walk(full);
       } else if (entry.isFile()) {
         if (entry.name === "package.json") manifests.push(full);
-        else if (SOURCE_FILE.test(entry.name) && !entry.name.endsWith(".d.ts")) sources.push(full);
+        else if (SOURCE_FILE.test(entry.name) && !entry.name.endsWith(".d.ts") && !BUNDLE_FILE.test(entry.name)) sources.push(full);
         else if (PYTHON_FILE.test(entry.name)) python.push(full);
         else if (PYTHON_MANIFEST.test(entry.name)) pythonManifests.push(full);
       }
