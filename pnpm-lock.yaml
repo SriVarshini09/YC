@@ -267,6 +267,15 @@ importers:
         specifier: 5.0.0
         version: 5.0.0
 
+  packages/bench:
+    dependencies:
+      '@shapi/core':
+        specifier: workspace:*
+        version: link:../core
+      '@shapi/extractor':
+        specifier: workspace:*
+        version: link:../extractor
+
   packages/canary:
     dependencies:
       '@shapi/core':

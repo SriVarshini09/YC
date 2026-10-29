@@ -1,0 +1,27 @@
+{
+  "name": "@shapi/bench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "APIBreak-Replay: replays real third-party API breakages to measure what SHAPI catches",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "bench:build": "node ../../scripts/run-ts.mjs scripts/build.ts",
+    "bench:run": "node ../../scripts/run-ts.mjs scripts/run.ts"
+  },
+  "dependencies": {
+    "@shapi/core": "workspace:*",
+    "@shapi/extractor": "workspace:*"
+  }
+}
