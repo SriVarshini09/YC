@@ -29,7 +29,7 @@ const githubRoutes = (dispatch: () => Response) => ({
   "GET /rate_limit": () => json(200, { resources: { core: { limit: 60, remaining: 59 } } }),
   "GET /repos/octocat/Hello-World": () => json(200, { id: 1296269, full_name: "octocat/Hello-World", private: false }),
   "GET /repos/actions/checkout/actions/workflows": () => json(200, { total_count: 1, workflows: [{ id: 1, state: "active" }] }),
-  "GET /repos/actions/checkout/actions/runs": () => json(200, { total_count: 1, workflow_runs: [{ id: 9, status: "completed" }] }),
+  "GET /repos/actions/checkout/actions/workflows/test.yml/runs": () => json(200, { total_count: 1, workflow_runs: [{ id: 9, status: "completed" }] }),
   "POST /repos/shapi-dev/canary/actions/workflows/canary.yml/dispatches": dispatch,
 });
 
@@ -42,6 +42,13 @@ describe("workers", () => {
     expect(plan.probes.map((p) => p.id)).toEqual(["github:rate-limit", "github:get-repo", "github:list-workflows", "github:list-runs"]);
     expect(plan.probes[0]!.headers).not.toHaveProperty("Authorization");
     expect(plan.skipped.map((s) => s.id)).toEqual(["github:workflow-dispatch"]);
+  });
+
+  it("github's run listing asks for one stable kind of run: a successful push to main of one workflow, without PRs", () => {
+    const runs = githubWorker.probes({}).probes.find((p) => p.id === "github:list-runs")!;
+    expect(runs.endpoint).toBe("/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs");
+    const query = new URL(runs.url).searchParams;
+    expect(Object.fromEntries(query)).toEqual({ branch: "main", event: "push", status: "success", exclude_pull_requests: "true", per_page: "1" });
   });
 
   it("github adds the workflow_dispatch probe for a configured test repo", () => {
@@ -135,6 +142,41 @@ describe("runOnce", () => {
     store.close();
   });
 
+  it("a rate-limited response or a rejected key is a probe error: nothing is stored and nothing is drafted", async () => {
+    const store = ShapeStore.open(":memory:");
+    await runOnce({ store, env: dispatchEnv, fetch: fakeFetch(githubRoutes(() => new Response(null, { status: 204 }))).fn, workers: [githubWorker] });
+    const answers = [
+      () => json(403, { message: "API rate limit exceeded" }, { "x-ratelimit-remaining": "0" }),
+      () => json(429, { message: "slow down" }, { "retry-after": "60" }),
+      () => json(401, { message: "Bad credentials" }),
+    ];
+    for (const answer of answers) {
+      const routes = Object.fromEntries(Object.keys(githubRoutes(answer)).map((k) => [k, answer]));
+      const report = await runOnce({ store, env: dispatchEnv, fetch: fakeFetch(routes).fn, workers: [githubWorker] });
+      expect(report.results.every((r) => r.error && !r.draft && !r.changed)).toBe(true);
+    }
+    expect(store.endpoints().every((e) => e.observations === 1)).toBe(true);
+    // an anonymous probe that starts answering 401 is a real auth change, and is recorded
+    await runOnce({ store, env, fetch: fakeFetch(githubRoutes(() => json(204, undefined))).fn, workers: [githubWorker] });
+    const anonymous = await runOnce({ store, env, fetch: fakeFetch({ ...githubRoutes(() => json(204, undefined)), "GET /repos/octocat/Hello-World": () => json(401, { message: "Requires authentication" }) }).fn, workers: [githubWorker] });
+    expect(anonymous.results.find((r) => r.id === "github:get-repo")).toMatchObject({ status: 401, changed: true });
+    store.close();
+  });
+
+  it("a misconfigured credential fails only its own provider", async () => {
+    const store = ShapeStore.open(":memory:");
+    const routes = {
+      ...githubRoutes(() => json(204, undefined)),
+      "GET /v1/balance": () => json(200, { object: "balance", available: [] }),
+      "GET /v1/customers": () => json(200, { object: "list", data: [] }),
+      "GET /v1/payment_intents": () => json(200, { object: "list", data: [] }),
+    };
+    const report = await runOnce({ store, env: { ...env, SHAPI_SLACK_BOT_TOKEN: "xoxp-user", SHAPI_STRIPE_TEST_KEY: "sk_test_1" }, fetch: fakeFetch(routes).fn, workers: [githubWorker, slackWorker, stripeWorker] });
+    expect(report.results.filter((r) => r.error).map((r) => [r.id, r.error])).toEqual([["slack:config", "configuration: SHAPI_SLACK_BOT_TOKEN must be a bot token (xoxb-)"]]);
+    expect(report.results.filter((r) => !r.error).map((r) => r.provider)).toEqual(["github", "github", "github", "github", "stripe", "stripe", "stripe"]);
+    store.close();
+  });
+
   it("filters by provider", async () => {
     const store = ShapeStore.open(":memory:");
     const report = await runOnce({ store, env, fetch: fakeFetch(githubRoutes(() => json(204, undefined))).fn, providers: ["stripe"] });
@@ -161,9 +203,48 @@ describe("runEvery", () => {
     expect(store.endpoints().every((e) => e.observations === 3)).toBe(true);
     store.close();
   });
+
+  it("keeps going after a failed run, and stop waits for a run in progress", async () => {
+    const store = ShapeStore.open(":memory:");
+    const { fn } = fakeFetch(githubRoutes(() => json(204, undefined)));
+    const errors: string[] = [];
+    let reports = 0;
+    await new Promise<void>((resolve) => {
+      const stop = runEvery(
+        5,
+        { store, env, fetch: fn, workers: [githubWorker] },
+        () => {
+          if (++reports === 1) throw new Error("EACCES writing a draft");
+          void stop().then(resolve);
+        },
+        (err) => errors.push((err as Error).message),
+      );
+    });
+    expect(errors).toEqual(["EACCES writing a draft"]);
+    expect(reports).toBe(2);
+
+    const slow = (async (input: string | URL | Request, init?: RequestInit) => {
+      await new Promise((r) => setTimeout(r, 20));
+      return fn(input, init);
+    }) as typeof globalThis.fetch;
+    const fresh = ShapeStore.open(":memory:");
+    const stop = runEvery(60_000, { store: fresh, env, fetch: slow, workers: [githubWorker] }, () => {});
+    await stop();
+    // the run that was in progress finished recording before stop resolved
+    expect(fresh.endpoints()).toHaveLength(4);
+    fresh.close();
+    store.close();
+  });
 });
 
 describe("shapi-canary CLI", () => {
+  it("run refuses an unknown provider instead of running nothing", async () => {
+    let err = "";
+    const code = await run(["node", "shapi-canary", "run", "--once", "--provider", "stirpe", "--db", ":memory:"], { stdout: () => {}, stderr: (s) => (err += s) }, env);
+    expect(code).toBe(2);
+    expect(err).toContain("--provider: unknown stirpe");
+  });
+
   it("status lists observed endpoints", async () => {
     const db = path.join(dir, "shapes.db");
     const store = ShapeStore.open(db);

@@ -61,7 +61,15 @@ export async function runOnce(opts: RunOptions): Promise<RunReport> {
 
   for (const worker of opts.workers ?? WORKERS) {
     if (opts.providers && !opts.providers.includes(worker.provider)) continue;
-    const plan = worker.probes(env);
+    let plan: ReturnType<Worker["probes"]>;
+    try {
+      plan = worker.probes(env);
+    } catch (err) {
+      // A misconfigured credential fails its own provider, not every provider after it.
+      const message = err instanceof Error ? err.message : String(err);
+      results.push({ id: `${worker.provider}:config`, provider: worker.provider, method: "", endpoint: "", changed: false, error: `configuration: ${message}`, ms: 0 });
+      continue;
+    }
     skipped.push(...plan.skipped);
     for (const probe of plan.probes) {
       results.push(await runProbe(probe, opts.store, doFetch, now, secret, opts.timeoutMs ?? 15_000));
@@ -88,6 +96,9 @@ async function runProbe(
       signal: AbortSignal.timeout(timeoutMs),
     });
     const body = await res.text();
+    // Not an observation of the API's shape: recording it would draft a breaking "auth" change.
+    const refused = refusal(probe, res);
+    if (refused) return { ...base, status: res.status, error: refused, ms: Math.round(performance.now() - started) };
     const shape = inferShape({ status: res.status, headers: res.headers, body }, { salt: providerSalt(probe.provider, secret) });
     const source = probeSource(probe);
     const previous = await store.latest(probe.provider, probe.method, probe.endpoint, source);
@@ -117,18 +128,40 @@ async function runProbe(
   }
 }
 
-/** Run probes every `intervalMs` (never overlapping). Returns a stop function. */
-export function runEvery(intervalMs: number, opts: RunOptions, onReport: (r: RunReport) => void): () => void {
+/**
+ * Why a response is not an observation of the endpoint, or undefined when it is: a rate limit (GitHub
+ * answers 403 with x-ratelimit-remaining: 0), or SHAPI's own credential being rejected.
+ */
+function refusal(probe: Probe, res: Response): string | undefined {
+  const limited = res.status === 429 || (res.status === 403 && (res.headers.get("x-ratelimit-remaining") === "0" || res.headers.has("retry-after")));
+  if (limited) return `rate limited (HTTP ${res.status}); nothing recorded`;
+  if (probe.auth === "token" && res.status === 401) return "credentials rejected (HTTP 401): check this provider's key; nothing recorded";
+  return undefined;
+}
+
+/**
+ * Run probes every `intervalMs` (never overlapping). A failed run is passed to `onError` and the
+ * schedule goes on. Returns a stop function, which resolves once a run in progress has finished.
+ */
+export function runEvery(intervalMs: number, opts: RunOptions, onReport: (r: RunReport) => void, onError: (err: unknown) => void = () => {}): () => Promise<void> {
   let stopped = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const tick = async () => {
+  let running: Promise<void> = Promise.resolve();
+  const tick = () => {
     if (stopped) return;
-    onReport(await runOnce(opts));
-    if (!stopped) timer = setTimeout(tick, intervalMs);
+    running = (async () => {
+      try {
+        onReport(await runOnce(opts));
+      } catch (err) {
+        onError(err);
+      }
+      if (!stopped) timer = setTimeout(tick, intervalMs);
+    })();
   };
-  void tick();
-  return () => {
+  tick();
+  return async () => {
     stopped = true;
     if (timer) clearTimeout(timer);
+    await running;
   };
 }

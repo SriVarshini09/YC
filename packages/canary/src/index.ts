@@ -2,7 +2,7 @@ import { Command, CommanderError } from "commander";
 import { ShapeStore } from "@shapi/shapes";
 import { draftAdvisory, writeDraft } from "./draft";
 import { loadRecording, replay } from "./replay";
-import { DEFAULT_DB, DEV_SECRET, runEvery, runOnce, type RunReport } from "./scheduler";
+import { DEFAULT_DB, DEV_SECRET, WORKERS, runEvery, runOnce, type RunReport } from "./scheduler";
 
 /** Where machine-drafted advisories go for review (advisories/ itself holds reviewed ones). */
 export const DEFAULT_DRAFTS = "advisories/drafts";
@@ -56,6 +56,8 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
     .option("--drafts <dir>", "write draft advisories for breaking changes here", DEFAULT_DRAFTS)
     .option("--no-drafts", "do not write draft advisories")
     .action(async (opts: { once?: boolean; interval: string; db: string; provider?: string[]; drafts: string | false }) => {
+      const unknown = (opts.provider ?? []).filter((p) => !WORKERS.some((w) => w.provider === p));
+      if (unknown.length) throw new Error(`--provider: unknown ${unknown.join(", ")} (known: ${WORKERS.map((w) => w.provider).join(", ")})`);
       if (!env.SHAPI_SHAPE_SECRET) io.stderr(`shapi-canary: SHAPI_SHAPE_SECRET not set, using the dev secret "${DEV_SECRET}"\n`);
       const store = ShapeStore.open(opts.db);
       const runOpts = { store, env, providers: opts.provider };
@@ -75,14 +77,21 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
       if (!(minutes > 0)) throw new Error(`--interval: expected a positive number of minutes, got ${opts.interval}`);
       io.stdout(`running every ${minutes} min; Ctrl+C to stop\n`);
       await new Promise<void>((resolve) => {
-        const stop = runEvery(minutes * 60_000, runOpts, (report) => {
-          io.stdout(`${new Date().toISOString()}\n${renderReport(report)}`);
-          saveDrafts(report);
-        });
+        const stop = runEvery(
+          minutes * 60_000,
+          runOpts,
+          (report) => {
+            io.stdout(`${new Date().toISOString()}\n${renderReport(report)}`);
+            saveDrafts(report);
+          },
+          (err) => io.stderr(`shapi-canary: run failed: ${err instanceof Error ? err.message : String(err)}\n`),
+        );
         process.once("SIGINT", () => {
-          stop();
-          store.close();
-          resolve();
+          // Close the store only after a run in progress has recorded its results.
+          void stop().then(() => {
+            store.close();
+            resolve();
+          });
         });
       });
     });
