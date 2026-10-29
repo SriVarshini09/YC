@@ -17,6 +17,9 @@ export const SLACK_WEBHOOK = /^https:\/\/hooks\.slack\.com\/services\/[A-Za-z0-9
 
 /** At most this many findings are listed in one message; the rest are counted. */
 const MAX_LISTED = 10;
+/** Slack's limit on a section block's text, and room kept for the "…and N more." line. */
+const MAX_SECTION = 3000;
+const MORE_ROOM = 40;
 
 export interface SlackNotifierDeps {
   db: Db;
@@ -73,15 +76,24 @@ export function slackMessage(n: FindingsNotice & { repository: string; publicUrl
   const what = `${count} new affected call site${count === 1 ? "" : "s"}`;
   const why = n.reason === "push" ? `after the push of \`${n.sha.slice(0, 7)}\`` : "from a new or updated advisory";
   const findings = [...n.findings].sort((a, b) => SEVERITY_RANK[a.advisory.severity] - SEVERITY_RANK[b.advisory.severity] || a.callSite.file.localeCompare(b.callSite.file));
-  const lines = findings.slice(0, MAX_LISTED).map((f) => {
+  const all = findings.slice(0, MAX_LISTED).map((f) => {
     const a = f.advisory;
-    const title = n.advisoriesRepo ? `<https://github.com/${n.advisoriesRepo}/blob/main/advisories/${a.id}.json|${esc(a.title)}>` : esc(a.title);
-    const where = `<${repoUrl}/blob/${n.sha}/${f.callSite.file}#L${f.callSite.line}|${esc(f.callSite.file)}:${f.callSite.line}>`;
+    // HEAD: the advisory repository's default branch, whatever it is called.
+    const title = n.advisoriesRepo ? `<https://github.com/${n.advisoriesRepo}/blob/HEAD/advisories/${encodeURIComponent(a.id)}.json|${esc(a.title)}>` : esc(a.title);
+    // Encoded, so a path with a space, #, | or > cannot break the link or change its text.
+    const file = f.callSite.file.split("/").map(encodeURIComponent).join("/");
+    const where = `<${repoUrl}/blob/${n.sha}/${file}#L${f.callSite.line}|${esc(f.callSite.file)}:${f.callSite.line}>`;
     const days = Math.ceil((Date.parse(a.effectiveDate) - n.now.getTime()) / 86_400_000);
     const deadline = days > 0 ? ` · deadline ${a.effectiveDate} (in ${days} day${days === 1 ? "" : "s"})` : "";
     return `• *${a.severity.toUpperCase()}* ${title}\n   ${where}${deadline}`;
   });
-  if (count > MAX_LISTED) lines.push(`…and ${count - MAX_LISTED} more.`);
+  // Slack rejects the whole message when a section's text is over 3000 characters: list what fits, count the rest.
+  const lines: string[] = [];
+  for (const line of all) {
+    if ([...lines, line].join("\n").length > MAX_SECTION - MORE_ROOM) break;
+    lines.push(line);
+  }
+  if (count > lines.length) lines.push(`…and ${count - lines.length} more.`);
   const dashboard = `${n.publicUrl.replace(/\/+$/, "")}/a/${n.accountId}`;
   return {
     text: `SHAPI: ${what} in ${n.repository}`,

@@ -9,6 +9,7 @@ import type { SnapshotFile } from "@shapi/sandbox";
 import { repositoryCovered } from "../billing/plan";
 import type { Notifier } from "../notify/slack";
 import type { GitHubClients } from "../github/clients";
+import { insertPendingScan } from "../github/events";
 
 export interface ScanDeps {
   db: Db;
@@ -219,18 +220,21 @@ async function queueHeadScan(deps: ScanDeps, repositoryId: string): Promise<stri
     throw err;
   }
   return withService(deps.db, async (tx) => {
-    const pending = await tx.selectFrom("scans").select("id").where("repository_id", "=", repo.id).where("sha", "=", sha).where("status", "in", ["queued", "running"]).executeTakeFirst();
-    if (pending) return undefined;
-    const row = await tx.insertInto("scans").values({ account_id: repo.account_id, repository_id: repo.id, sha, status: "queued" }).returning("id").executeTakeFirstOrThrow();
-    return row.id;
+    const row = await insertPendingScan(tx, { account_id: repo.account_id, repository_id: repo.id, sha });
+    return row?.id;
   });
 }
 
-/** Scans still queued after `minutes`: their job was lost (for example the worker restarted before sending it). */
-export async function staleQueuedScans(db: Db, now: Date, minutes = 10): Promise<string[]> {
-  const rows = await withService(db, (tx) =>
-    tx.selectFrom("scans").select("id").where("status", "=", "queued").where("created_at", "<", new Date(now.getTime() - minutes * 60_000)).orderBy("id").limit(200).execute(),
-  );
+/**
+ * Scans whose job was lost: still queued after `minutes` (for example the worker restarted before sending
+ * it), or still running after `runningMinutes`, longer than the scan job may run (the worker died mid-scan
+ * and the retried job skips a running scan). Running ones go back to queued so their job can claim them.
+ */
+export async function staleQueuedScans(db: Db, now: Date, minutes = 10, runningMinutes = 30): Promise<string[]> {
+  const rows = await withService(db, async (tx) => {
+    await tx.updateTable("scans").set({ status: "queued" }).where("status", "=", "running").where("started_at", "<", new Date(now.getTime() - runningMinutes * 60_000)).execute();
+    return tx.selectFrom("scans").select("id").where("status", "=", "queued").where("created_at", "<", new Date(now.getTime() - minutes * 60_000)).orderBy("id").limit(200).execute();
+  });
   return rows.map((r) => r.id);
 }
 

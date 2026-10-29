@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { sql } from "kysely";
 import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
 import { loadAdvisories } from "@shapi/core";
 import { localWorkspace } from "@shapi/repair";
@@ -13,11 +14,13 @@ import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgr
 import {
   QUEUES,
   githubClients,
+  insertPendingScan,
   processDelivery,
   runAdvisoryFanout,
   runFixJob,
   runScanJob,
   scansToRefix,
+  staleQueuedScans,
   startWorker,
   syncAdvisoriesJob,
   type WorkspaceRunner,
@@ -156,9 +159,54 @@ describe("cloud scan", () => {
     expect(t.github.checkRuns[0]).toMatchObject({ status: "completed", conclusion: "neutral" });
     expect(t.github.checkRuns[0]!.output!.title).toBe("SHAPI could not scan this commit");
   });
+
+  it("a scan left running by a dead worker is queued again by the sweeper and then runs", async () => {
+    const t = setup();
+    const now = new Date();
+    const dead = await queueScan(t.github.refs.get("main")!);
+    const alive = await queueScan("b".repeat(40));
+    const running = (id: string, startedMinutesAgo: number) =>
+      sql`update scans set status = 'running', started_at = ${new Date(now.getTime() - startedMinutesAgo * 60_000)}, created_at = ${new Date(now.getTime() - (startedMinutesAgo + 1) * 60_000)} where id = ${id}`.execute(owner);
+    await running(dead, 31);
+    await running(alive, 15);
+    // The retried job skips a running scan, so without the sweeper it would stay running for good.
+    expect((await runScanJob({ db, github: t.githubClients }, { scanId: dead })).status).toBe("skipped");
+
+    expect(await staleQueuedScans(db, now)).toEqual([dead]);
+    expect((await runScanJob({ db, github: t.githubClients }, { scanId: dead })).status).toBe("succeeded");
+    expect((await owner.selectFrom("scans").select("status").where("id", "=", alive).executeTakeFirstOrThrow()).status).toBe("running");
+  });
+
+  it("allows one pending scan per commit, whoever inserts first", async () => {
+    const repo = await owner.selectFrom("repositories").select(["id", "account_id"]).where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    const scan = { account_id: repo.account_id, repository_id: repo.id, sha: "c".repeat(40) };
+    const [a, b] = await Promise.all([withService(db, (tx) => insertPendingScan(tx, scan)), withService(db, (tx) => insertPendingScan(tx, scan))]);
+    expect([a, b].filter(Boolean)).toHaveLength(1);
+    await expect(owner.insertInto("scans").values({ ...scan, status: "queued" }).execute()).rejects.toThrow(/scans_pending/);
+    // a finished scan does not block the next one of the same commit
+    await owner.updateTable("scans").set({ status: "succeeded" }).where("repository_id", "=", repo.id).execute();
+    expect(await withService(db, (tx) => insertPendingScan(tx, scan))).toBeDefined();
+  });
 });
 
 describe("cloud fix", () => {
+  it("a fix job queued for an older scan fixes the repository's latest one, so its PR keeps newer commits", async () => {
+    const t = setup();
+    const older = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId: older });
+    // main moves on, touching the file the fix changes; its scan's fix job was dropped by the queue (one waits per repository)
+    const deploy = t.github.fileAt("main", "src/deploy.ts")!;
+    const sha = t.github.pushAs("main", "src/deploy.ts", `${deploy}// a newer commit on main\n`);
+    const newer = await queueScan(sha);
+    await runScanJob({ db, github: t.githubClients }, { scanId: newer });
+
+    const report = await runFixJob(t.fixDeps, { scanId: older });
+    expect(report.scanId).toBe(newer);
+    const pr = t.github.pulls.find((p) => p.head.ref === "shapi/github-workflow-dispatch-204-to-200")!;
+    expect(t.github.fileAt(pr.head.ref, "src/deploy.ts")).toContain("// a newer commit on main");
+    expect(t.github.fileAt(pr.head.ref, "src/deploy.ts")).toContain("![200, 204].includes(res.status)");
+  }, 120_000);
+
   it("repairs all three demo findings test-first; two PRs open now and the third waits for the hourly limit", async () => {
     const t = setup();
     const scanId = await queueScan(t.github.refs.get("main")!);
@@ -231,6 +279,18 @@ describe("fixes after an upgrade", () => {
       await owner.insertInto("fix_prs").values({ account_id: account.account_id, repository_id: repositoryId, advisory_id: f.advisory_id, branch: `shapi/${f.advisory_id}`, state: "closed", updated_at: new Date() }).execute();
     }
     expect(await scansToRefix(db, "build-4")).toEqual([]);
+  }, 120_000);
+
+  it("skips repositories the plan does not cover, which would only get a failed scan on every deploy", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    expect(await scansToRefix(db, "build-6", { billingEnforced: true })).toEqual([{ scanId, repositoryId }]);
+    // An older private repository takes the free slot.
+    const account = await owner.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    await owner.insertInto("repositories").values({ account_id: account.account_id, github_repo_id: 778, full_name: "acme/older", default_branch: "main", private: true, created_at: new Date("2020-01-01") }).execute();
+    expect(await scansToRefix(db, "build-6", { billingEnforced: true })).toEqual([]);
+    expect(await scansToRefix(db, "build-6")).toEqual([{ scanId, repositoryId }]);
   }, 120_000);
 
   it("leaves findings no recipe can fix alone unless the account opted in to Claude and the worker has a key", async () => {
@@ -422,7 +482,7 @@ describe("slack alerts", () => {
     expect(posted[0]!.url).toBe(hook);
     expect(posted[0]!.body.text).toBe("SHAPI: 1 new affected call site in acme/demo");
     expect(posted[0]!.body.blocks[1]!.text!.text).toContain(`<https://github.com/acme/demo/blob/${"a".repeat(40)}/`);
-    expect(posted[0]!.body.blocks[1]!.text!.text).toContain(`*${advisory.severity.toUpperCase()}* <https://github.com/SriVarshini09/shapi-advisories/blob/main/advisories/${advisory.id}.json|`);
+    expect(posted[0]!.body.blocks[1]!.text!.text).toContain(`*${advisory.severity.toUpperCase()}* <https://github.com/SriVarshini09/shapi-advisories/blob/HEAD/advisories/${advisory.id}.json|`);
 
     fail = true;
     await expect(notifier(notice)).resolves.toBeUndefined();
@@ -451,5 +511,20 @@ describe("slack message", () => {
     expect(lines[3]).toBe("   <https://github.com/acme/demo/blob/abc1234def/src/crm.ts#L6|src/crm.ts:6> · deadline 2026-12-04 (in 42 days)");
     expect(lines.at(-1)).toBe("…and 2 more.");
     expect(msg.blocks[2]!.elements![0]!.text).toContain("<https://shapi.test/a/7|Open in SHAPI>");
+  });
+
+  it("keeps every section under Slack's 3000 characters, counting what does not fit, and encodes file paths in links", () => {
+    const base = loadAdvisories(ADVISORIES);
+    const site = (file: string, line: number) => ({ file, line, column: 1, provider: "x", kind: "http" as const, client: "fetch", method: "GET" as const, host: null, endpoint: "/", resolved: true, id: "000000000000", surface: { fields: [], statusCodes: [], checksOk: false, enums: [], headers: [], query: [], responseHeaders: [] } });
+    const findings = Array.from({ length: 10 }, (_, i) => ({ advisory: base[i % base.length]!, callSite: site(`src/integrations/github/workflows-${i}.ts`, 100 + i), reasons: [] }));
+    const msg = slackMessage({ accountId: "7", repositoryId: "1", sha: "f".repeat(40), reason: "push", findings, repository: "acme-corp/payments-service", publicUrl: "https://shapi.test", advisoriesRepo: "SriVarshini09/shapi-advisories", now: new Date("2026-10-23T00:00:00Z") }) as { blocks: { text?: { text: string } }[] };
+    for (const b of msg.blocks) expect(b.text?.text.length ?? 0).toBeLessThanOrEqual(3000);
+    const lines = msg.blocks[1]!.text!.text.split("\n");
+    const listed = lines.filter((l) => l.startsWith("• ")).length;
+    expect(listed).toBeLessThan(10);
+    expect(lines.at(-1)).toBe(`…and ${10 - listed} more.`);
+
+    const odd = slackMessage({ accountId: "7", repositoryId: "1", sha: "abc", reason: "push", findings: [{ advisory: base[0]!, callSite: site("src/a b#|>.ts", 3), reasons: [] }], repository: "acme/demo", publicUrl: "https://shapi.test", now: new Date("2026-10-23T00:00:00Z") }) as { blocks: { text?: { text: string } }[] };
+    expect(odd.blocks[1]!.text!.text).toContain("<https://github.com/acme/demo/blob/abc/src/a%20b%23%7C%3E.ts#L3|src/a b#|&gt;.ts:3>");
   });
 });

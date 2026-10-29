@@ -1,11 +1,12 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { copyFileSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createDb, listAdvisories, migrateToLatest, upsertAdvisories, type Db } from "@shapi/db";
 import { fakeRepoGitHub } from "../../../test-utils/fake-github";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
-import { loadConfig, syncAdvisoriesFromGitHub } from "../src/index";
+import { loadConfig, syncAdvisoriesFromGitHub, syncAdvisoriesJob } from "../src/index";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const bundled = readdirSync(path.join(root, "advisories")).filter((f) => f.endsWith(".json")).length;
@@ -76,6 +77,26 @@ describe("advisory sync from the public repository", () => {
     expect(ids).not.toContain("reddit-logged-out-json-403");
     expect(ids).toContain("github-workflow-dispatch-204-to-200");
     expect(ids).toContain("from-elsewhere");
+  });
+
+  it("reads the repository's default branch, whatever it is called", async () => {
+    const files = Object.fromEntries(readdirSync(path.join(root, "advisories")).filter((f) => f.endsWith(".json")).map((f) => [`advisories/${f}`, readFileSync(path.join(root, "advisories", f), "utf8")]));
+    const gh = fakeRepoGitHub("SriVarshini09/shapi-advisories", files, { defaultBranch: "trunk" });
+    expect((await syncAdvisoriesFromGitHub(db, "SriVarshini09/shapi-advisories", { fetch: gh.fetch })).advisories).toBe(bundled);
+    expect(gh.github.calls.some((c) => c.path === "/repos/SriVarshini09/shapi-advisories/tarball/trunk")).toBe(true);
+  });
+
+  it("the folder sync removes advisories deleted from the folder", async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), "shapi-advisories-"));
+    try {
+      for (const f of readdirSync(path.join(root, "advisories")).filter((f) => f.endsWith(".json"))) copyFileSync(path.join(root, "advisories", f), path.join(dir, f));
+      await syncAdvisoriesJob(db, dir);
+      rmSync(path.join(dir, "reddit-logged-out-json-403.json"));
+      expect((await syncAdvisoriesJob(db, dir)).removed).toContain("reddit-logged-out-json-403");
+      expect((await listAdvisories(db)).map((a) => a.id)).not.toContain("reddit-logged-out-json-403");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("config accepts owner/name only", () => {

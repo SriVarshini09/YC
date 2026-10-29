@@ -118,6 +118,26 @@ describe("dashboard", () => {
     expect((await upsertDashboard(octokit, { ...target, issueNumber: first.number }, "<!-- shapi-dashboard -->\nthree\n")).action).toBe("closed");
     expect(github.issues[0]!.body).toContain("two");
   });
+
+  it("carries boxes a maintainer changed after the body was rendered into the new body", async () => {
+    const { fetch, github } = fakeRepoGitHub("acme/demo", { "README.md": "hi" });
+    const octokit = new Octokit({ auth: "t", request: { fetch } });
+    const body = (paused: boolean) => `<!-- shapi-dashboard -->
+- [${paused ? "x" : " "}] <!-- shapi:pause --> Pause
+- [ ] <!-- shapi:create:a.b --> A
+- [ ] <!-- shapi:create:ab --> B
+`;
+    const { number } = await upsertDashboard(octokit, { owner: "acme", repo: "demo" }, body(false));
+    const seen = parseDashboard(github.issues[0]!.body);
+    // while the job ran: pause ticked, "open now" ticked on the first fix
+    github.tick(number, "pause");
+    github.tick(number, "create:a.b");
+    const result = await upsertDashboard(octokit, { owner: "acme", repo: "demo", issueNumber: number }, body(false), seen);
+    expect(parseDashboard(result.body)).toEqual({ paused: true, createNow: new Set(["a.b"]), retry: new Set() });
+    expect(github.issues[0]!.body).toBe(result.body);
+    // without what the body was rendered from, the new body wins as before
+    expect(parseDashboard((await upsertDashboard(octokit, { owner: "acme", repo: "demo", issueNumber: number }, body(false))).body).paused).toBe(false);
+  });
 });
 
 describe("upsertFixPr", () => {
