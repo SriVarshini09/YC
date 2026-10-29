@@ -82,4 +82,4 @@ One line per task: task, summary file, PR, status.
 - PB-33 second review, extractor: Gemini siblings stop double-reporting, skips, Bolt app methods: [summary](PB-33-review7-extractor.md) · PR: [#83](https://github.com/SriVarshini09/YC/pull/83) · merged
 - PB-34 third review: Claude budget per fix job, first-run admin rights, late pushes, safe PR test counts: [summary](PB-34-review8-fixes.md) · PR: [#86](https://github.com/SriVarshini09/YC/pull/86) · merged
 - PB-35 scans skip SHAPI's own contract tests, so a merged fix stays fixed: [summary](PB-35-skip-generated-tests.md) · PR: [#88](https://github.com/SriVarshini09/YC/pull/88) · merged
-- PB-37 APIBreak-Replay v0: replays 14 real API breakages; baseline flag recall 4/14: [summary](PB-37-apibreak-replay-v0.md) · PR: open
+- PB-37 APIBreak-Replay v0: replays 14 real API breakages; baseline flag recall 4/14: [summary](PB-37-apibreak-replay-v0.md) · PR: [#91](https://github.com/SriVarshini09/YC/pull/91) · open
