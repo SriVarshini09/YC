@@ -61,6 +61,8 @@ interface SdkClient {
   options?: Node;
   /** The file that constructs the client, when another file imports it. */
   ctx?: FileContext;
+  /** The `client` a Bolt listener receives (a Web API client), not the Bolt App itself. */
+  boltListener?: boolean;
 }
 
 interface FileContext {
@@ -102,16 +104,26 @@ export function extractFromFile(sf: SourceFile, file: string): FoundCall[] {
 
 const contexts = new WeakMap<SourceFile, FileContext>();
 
+/** A file's symbol table, kept only once it is complete, so a file that fails to build fails on its own turn too. */
 function contextOf(sf: SourceFile): FileContext {
   let ctx = contexts.get(sf);
   if (!ctx) {
     ctx = { sf, imports: new Map(), consts: new Map(), http: new Map(), sdk: new Map() };
-    contexts.set(sf, ctx);
     collectImports(ctx);
     collectConsts(ctx);
     collectClients(ctx);
+    contexts.set(sf, ctx);
   }
   return ctx;
+}
+
+/** Another file's symbol table, or undefined when it fails to build: that file is reported as skipped, not the importer. */
+function importedContext(sf: SourceFile): FileContext | undefined {
+  try {
+    return contextOf(sf);
+  } catch {
+    return undefined;
+  }
 }
 
 const positions = new WeakMap<SourceFile, (pos: number) => { line: number; column: number }>();
@@ -273,7 +285,8 @@ function importedClient(ctx: FileContext, name: string, depth = 0): SdkClient | 
   if (ctx.importedSdk.has(name)) return ctx.importedSdk.get(name);
   ctx.importedSdk.set(name, undefined); // an import cycle ends here
   const target = resolveModule(ctx.sf, ref.module);
-  const client = target ? exportedClient(contextOf(target), ref.imported, depth + 1) : undefined;
+  const targetCtx = target && importedContext(target);
+  const client = targetCtx ? exportedClient(targetCtx, ref.imported, depth + 1) : undefined;
   ctx.importedSdk.set(name, client);
   return client;
 }
@@ -296,7 +309,8 @@ function exportedClient(ctx: FileContext, exported: string, depth: number): SdkC
     const from = named ? named.getName() : decl.isNamespaceExport() && !decl.getNamespaceExport() ? exported : undefined;
     if (from !== undefined && spec?.startsWith(".")) {
       const target = resolveModule(ctx.sf, spec);
-      const client = target ? exportedClient(contextOf(target), from, depth + 1) : undefined;
+      const targetCtx = target && importedContext(target);
+      const client = targetCtx ? exportedClient(targetCtx, from, depth + 1) : undefined;
       if (client) return client;
     }
   }
@@ -490,6 +504,10 @@ function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined
   if (!client) return undefined;
 
   const operation = chain.names.join(".");
+  // stripe.toString(), stripe.customers.valueOf(): Object.prototype's members, not API methods
+  if (chain.names[chain.names.length - 1]! in Object.prototype && !tableEndpoint(client, operation)) return undefined;
+  // A Bolt App's own methods (app.command, app.event, app.start) register listeners or run the app; app.client is the Web API.
+  if (client.pkg === "@slack/bolt" && !client.boltListener && !operation.startsWith("client.")) return undefined;
   // client.messages(sid).fetch() is a call of its own only when the table knows it; in
   // openai.responses.create({ … }).then(…) the API call is the inner one.
   if (operation.includes("()") && !tableEndpoint(client, operation)) return undefined;
@@ -593,7 +611,7 @@ function boltListenerClient(ctx: FileContext, name: string, at: Node): SdkClient
     const chain = Node.isCallExpression(listen) && listen.getArguments().includes(fn) ? chainOf(listen.getExpression()) : undefined;
     if (!chain || chain.names.length !== 1 || !BOLT_LISTENERS.has(chain.names[0]!)) return undefined;
     const app = ctx.sdk.get(chain.root) ?? importedClient(ctx, chain.root);
-    return app?.pkg === "@slack/bolt" ? app : undefined;
+    return app?.pkg === "@slack/bolt" ? { ...app, boltListener: true } : undefined;
   }
   return undefined;
 }

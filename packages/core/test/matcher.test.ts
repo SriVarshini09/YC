@@ -36,6 +36,13 @@ describe("pathMatches", () => {
     // an unknown segment in the call site does not match a literal in the pattern
     expect(pathMatches("/repos/{}/{}/{}", { path: "/repos/{owner}/{repo}/pulls" })).toBe(false);
   });
+
+  it("matches {?} only against a value the code builds at runtime", () => {
+    expect(pathMatches("/v1beta/models/{model}:generateContent", { path: "/*/models/{?}:*" })).toBe(true);
+    expect(pathMatches("/v1beta/models/{}:generateContent", { path: "/*/models/{?}:*" })).toBe(true);
+    expect(pathMatches("/v1beta/models/gemini-2.5-pro:generateContent", { path: "/*/models/{?}:*" })).toBe(false);
+    expect(pathMatches("/v1beta/models/{model}:generateContent", { path: "/*/models/*:*" })).toBe(true);
+  });
 });
 
 describe("matchAdvisories", () => {

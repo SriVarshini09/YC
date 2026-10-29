@@ -140,13 +140,18 @@ function segmentsMayMatch(site: string[], pattern: string[]): boolean {
  * Pattern `{name}` matches one segment, `*` matches within a segment, `**` any
  * number of segments. A call-site parameter (`{owner}`, `{}`) stands for an
  * unknown value, so it matches a pattern parameter or wildcard but not a literal.
+ * Pattern `{?}` matches only a call-site parameter: in `/*\/models/{?}:*` the model is
+ * passed at runtime (as the Gemini SDK does), which a path naming the model is not.
  */
 export function pathMatches(endpoint: string, pattern: Pick<EndpointPattern, "path">): boolean {
   const sample = endpoint.replace(/\{[^}]*\}/g, "\u0000");
   let re = "";
   const src = pattern.path;
   for (let i = 0; i < src.length; ) {
-    if (src.startsWith("/**", i)) {
+    if (src.startsWith("{?}", i)) {
+      re += "\u0000";
+      i += 3;
+    } else if (src.startsWith("/**", i)) {
       re += "(?:/.*)?";
       i += 3;
     } else if (src.startsWith("**", i)) {
