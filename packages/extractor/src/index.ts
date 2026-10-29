@@ -50,12 +50,16 @@ export function extractCallSites(rootDir: string): ExtractResult {
 
   const found: FoundCall[] = [];
   const loose: CallSite[] = [];
-  for (const abs of sources) {
+  // Every file first, so a client imported from another file can be followed to where it is constructed.
+  const files = sources.map((abs) => {
     const rel = toPosix(path.relative(root, abs));
     const sf = project.createSourceFile(`/${rel}`, readFileSync(abs, "utf8"), {
       overwrite: true,
       scriptKind: SCRIPT_KINDS[path.extname(abs)] ?? ScriptKind.TS,
     });
+    return { rel, sf };
+  });
+  for (const { rel, sf } of files) {
     const inFile = extractFromFile(sf, rel);
     for (const f of inFile) {
       addResponseSurface(f);
