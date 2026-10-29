@@ -49,7 +49,7 @@ We may suspend an account that does these things, and we'll tell you why unless 
 - **Free:** public repositories and one private repository.
 - **Paid:** each further private repository is charged monthly per repository, at the price shown in the web app before you pay. Payments are handled by Stripe.
 - **No surprise charges:** adding private repositories doesn't raise your bill on its own. The web app asks before you pay for more.
-- **Cancelling:** cancel any time under *Manage billing*. You keep the paid plan until the end of the period you've paid for. Uninstalling the GitHub App doesn't cancel a subscription, so cancel it first.
+- **Cancelling:** cancel any time under *Manage billing*. You keep the paid plan until the end of the period you've paid for. Uninstalling the GitHub App cancels the subscription at once, without a refund for the current period.
 - **Refunds:** paid periods aren't refunded, except where the law requires.
 - **Price changes:** we'll give at least 30 days' notice in the web app and to your Stripe billing email before a new price applies to you.
 
