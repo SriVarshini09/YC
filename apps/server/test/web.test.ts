@@ -10,7 +10,7 @@ import { MARK } from "../src/web/html";
 import { landingPage } from "../src/web/landing";
 import { healthOf, loadAccount, withCatchDetail } from "../src/web/queries";
 import { sameToken } from "../src/web/auth";
-import { dueTag, fileUrl } from "../src/web/views";
+import { dueTag, fileUrl, providerMark } from "../src/web/views";
 
 let pg: TestPostgres;
 let db: Db;
@@ -916,5 +916,50 @@ describe("web app review fixes", () => {
     await owner.deleteFrom("scans").where("account_id", "=", mine.account).execute();
     const data = await loadAccount(db, mine.account, { readable: ["1"] });
     expect(healthOf(data).why).toBe("The score appears after the first scan.");
+  });
+});
+
+describe("dashboard polish", () => {
+  it("sends a missing repository or problem back to the account, with a reason", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    for (const path of ["r/999", "f/999"]) {
+      const res = await app.inject({ url: `/a/${mine.account}/${path}`, headers: { cookie } });
+      expect(res.statusCode, path).toBe(404);
+      expect(res.body, path).toContain("This repository or problem does not exist, or your GitHub user cannot open it.");
+      expect(res.body, path).toContain(`<a class="button" href="/a/${mine.account}">Back to the overview</a>`);
+    }
+    await app.close();
+  });
+
+  it("can be used from the keyboard and a screen reader: a skip link, the current page and theme marked", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const body = (await app.inject({ url: `/a/${mine.account}/fixes`, headers: { cookie } })).body;
+    expect(body).toContain('<a class="skip" href="#main">Skip to content</a>');
+    expect(body).toContain('<main class="main" id="main">');
+    expect(body).toContain(`<a href="/a/${mine.account}/fixes" class="active" aria-current="page">`);
+    expect(body).toMatch(/value="light" class="on" aria-pressed="true"/);
+    const repo = (await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } })).body;
+    expect(repo).toContain('<nav class="crumbs" aria-label="Breadcrumb">');
+    const css = (await app.inject("/static/app.css")).body;
+    expect(css).toContain(":focus-visible { outline: 2px solid var(--fg);");
+    await app.close();
+  });
+
+  it("marks providers the code does not call with a style and a tooltip, not a stray dot", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const body = (await app.inject({ url: `/a/${mine.account}/advisories`, headers: { cookie } })).body;
+    expect(body).toContain('class="off"');
+    expect(body).toContain('title="Not called from your code"');
+    expect(body).not.toContain(" ·</a>");
+    await app.close();
+  });
+
+  it("draws provider monograms from the name, not from a parenthesised aside", () => {
+    expect(String(providerMark("atlassian"))).toContain(">At</text>");
+    expect(String(providerMark("x"))).toContain(">X</text>");
+    expect(String(providerMark("quickbooks"))).toContain(">QO</text>");
   });
 });

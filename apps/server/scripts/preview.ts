@@ -2,7 +2,9 @@
 //   pnpm build && pnpm --filter @shapi/server preview
 // Starts a throwaway Postgres, seeds one account (repositories, scans with api.lock files, findings,
 // fix PRs with their verification), then serves the app. Open http://localhost:8788/preview/login to be
-// signed in as "octocat"; add ?theme=dark for the dark theme. Nothing here talks to GitHub or Stripe.
+// signed in as "octocat", an admin; add ?theme=dark for the dark theme, ?as=member for a user who is not an
+// admin, ?next=/a/2 or /a/3 for the first-run accounts and
+// /a/4 for an account where nothing breaks. Nothing here talks to GitHub or Stripe.
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import cookie from "@fastify/cookie";
@@ -264,7 +266,7 @@ async function seed(db: Db) {
 
 const accountId = await seed(owner);
 
-/** Two first-run accounts: one whose first scan is running (account 2), one with nothing installed yet (account 3). */
+/** Two first-run accounts: one whose first scan is running (account 2), one with nothing installed yet (account 3); and an all-clear account (4). */
 async function seedFirstRun(db: Db) {
   const scanning = await db.insertInto("accounts").values({ github_installation_id: 999002, login: "newco", type: "Organization", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
   const repos = [
@@ -281,6 +283,12 @@ async function seedFirstRun(db: Db) {
       .execute();
   }
   await db.insertInto("accounts").values({ github_installation_id: 999003, login: "fresh-start", type: "User", settings: JSON.stringify({}) }).execute();
+  // Account 4: scanned, and nothing breaks, for the all-clear Overview.
+  const quiet = await db.insertInto("accounts").values({ github_installation_id: 999004, login: "quietco", type: "Organization", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
+  const sha = "7".repeat(40);
+  const repo = await db.insertInto("repositories").values({ account_id: quiet.id, github_repo_id: 6100, full_name: "quietco/site", default_branch: "main", private: false, last_scan_sha: sha, last_scanned_at: hours(5) }).returning("id").executeTakeFirstOrThrow();
+  const lock = createApiLock({ callSites: [site("src/mail.ts", 12, "resend", "POST", "api.resend.com", "/emails", { surface: surface({ fields: ["id"] }) })], declared: [] }, "shapi preview");
+  await db.insertInto("scans").values({ account_id: quiet.id, repository_id: repo.id, sha, status: "succeeded", api_lock: JSON.stringify(lock), created_at: hours(5.1), started_at: hours(5.05), finished_at: hours(5) }).execute();
 }
 await seedFirstRun(owner);
 const db = createDb({ connectionString: pg.url });
@@ -298,15 +306,18 @@ const app = buildApp({
 await app.register(cookie, { secret: sessionSecret });
 app.get("/preview/login", async (req, reply) => {
   // The preview user may do everything: admin on every repository, and owner of the personal account.
-  const installationIds = ["999001", "999002", "999003"];
+  // ?as=member signs in "monalisa" instead, who can read every repository but not push or administer,
+  // so there is no Settings or Billing and no pause button.
+  const member = (req.query as { as?: string }).as === "member";
+  const installationIds = ["999001", "999002", "999003", "999004"];
   const repos = await owner.selectFrom("repositories").innerJoin("accounts", "accounts.id", "repositories.account_id").select(["accounts.github_installation_id", "repositories.github_repo_id"]).execute();
   const access = Object.fromEntries(
     installationIds.map((id) => {
       const ids = repos.filter((r) => String(r.github_installation_id) === id).map((r) => String(r.github_repo_id));
-      return [id, { read: ids, push: ids, admin: ids, owner: true }];
+      return [id, member ? { read: ids, push: [], admin: [], owner: false } : { read: ids, push: ids, admin: ids, owner: true }];
     }),
   );
-  const { token } = await createSession(db, { id: "1", login: "octocat", installationIds, access });
+  const { token } = await createSession(db, member ? { id: "2", login: "monalisa", installationIds, access } : { id: "1", login: "octocat", installationIds, access });
   reply.setCookie(SESSION_COOKIE, token, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 8 * 3600, signed: true });
   const theme = (req.query as { theme?: string }).theme;
   if (theme === "dark" || theme === "light") reply.setCookie("shapi_theme", theme, { httpOnly: true, sameSite: "lax", path: "/" });
