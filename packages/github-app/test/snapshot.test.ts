@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -34,6 +35,37 @@ describe("repository snapshots from GitHub", () => {
     expect(files.map((f) => f.path).sort()).toEqual(["package.json", "src/a.ts"]);
     expect(String(files.find((f) => f.path === "src/a.ts")!.content)).toBe("export const a = 1;\n");
     await expect(parseTarball(await githubTarball(), { maxFiles: 1, maxBytes: 100_000, maxFileBytes: 1024 })).rejects.toThrow(/larger than the sandbox limit/);
+  });
+
+  it("unpacks the download as it streams in, and stops reading it once a limit is hit", async () => {
+    const top = path.join(tmp, "acme-big-abc1234");
+    mkdirSync(top, { recursive: true });
+    for (let i = 0; i < 40; i++) writeFileSync(path.join(top, `f${i}.bin`), randomBytes(20_000));
+    const chunks: Buffer[] = [];
+    for await (const c of create({ gzip: true, cwd: tmp, portable: true }, ["acme-big-abc1234"])) chunks.push(c as Buffer);
+    const archive = Buffer.concat(chunks);
+    let pulled = 0;
+    const stream = () => {
+      let offset = 0;
+      return new ReadableStream<Uint8Array>({
+        pull(controller) {
+          if (offset >= archive.length) return controller.close();
+          const chunk = archive.subarray(offset, offset + 16_384);
+          offset += chunk.length;
+          pulled += chunk.length;
+          controller.enqueue(chunk);
+        },
+      });
+    };
+    const fetch = (async () => new Response(stream(), { status: 200, headers: { "content-type": "application/x-gzip" } })) as typeof globalThis.fetch;
+    const octokit = new Octokit({ auth: "t", request: { fetch } });
+    await expect(fetchRepoSnapshot(octokit, { owner: "acme", repo: "big", ref: "abc1234" }, { maxFiles: 3, maxBytes: 10_000_000, maxFileBytes: 100_000 })).rejects.toThrow(/larger than the sandbox limit/);
+    expect(pulled).toBeLessThan(archive.length / 2);
+
+    pulled = 0;
+    const all = await fetchRepoSnapshot(octokit, { owner: "acme", repo: "big", ref: "abc1234" }, { maxFiles: 100, maxBytes: 10_000_000, maxFileBytes: 100_000 });
+    expect(all).toHaveLength(40);
+    expect(pulled).toBe(archive.length);
   });
 
   it("downloads the tarball for one commit with the given (read-only) client", async () => {

@@ -149,6 +149,12 @@ describe("check runs", () => {
     expect(checkRunOutput(match, { failOnAffected: true }).conclusion).toBe("failure");
   });
 
+  it("escapes a | in an advisory title so the summary table keeps its columns", () => {
+    const piped = { ...advisory, title: "Returns 200 | 204" };
+    const r = checkRunOutput({ affected: [{ advisory: piped, callSite: site("src/a.ts", 1), reasons: [] }], exposed: [], upcoming: [] });
+    expect(r.output.summary).toContain("| Returns 200 \\| 204 (`github-workflow-dispatch-204-to-200`) | `src/a.ts:1` |");
+  });
+
   it("starts a check run and completes it, sending annotations 50 at a time", async () => {
     const gh = fakeGitHub({
       "POST /repos/acme/demo/check-runs": () => json(201, { id: 77 }),
@@ -190,6 +196,13 @@ describe("redelivery", () => {
     expect(plan.redeliver.map((x) => x.id)).toEqual([2, 4]);
     expect(plan.givenUp).toEqual(["dead"]);
     expect(planRedeliveries([d(2, "timeout", 0, "2026-10-22T10:01:00Z"), d(3, "b", 0, "2026-10-22T10:02:00Z")], { received: new Set(), limit: 1 }).redeliver.map((x) => x.id)).toEqual([2]);
+  });
+
+  it("does not retry a guid whose original attempt fell out of the listed window", () => {
+    // Attempts 1 and 2 aged out; counting only the two left would retry it again, every day.
+    const retried = (id: number, at: string): HookDelivery => ({ ...d(id, "old", 500, at), redelivery: true });
+    const plan = planRedeliveries([retried(3, "2026-10-22T10:00:00Z"), retried(4, "2026-10-22T10:05:00Z")], { received: new Set() });
+    expect(plan).toEqual({ redeliver: [], givenUp: ["old"] });
   });
 
   it("pages through GitHub's delivery log until it is older than the window", async () => {

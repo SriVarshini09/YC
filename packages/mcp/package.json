@@ -1,6 +1,7 @@
 {
   "name": "@shapi/mcp",
   "version": "0.1.0",
+  "private": true,
   "description": "MCP server exposing SHAPI to coding agents: scan, advisories, impact, apply_fix",
   "type": "module",
   "bin": {

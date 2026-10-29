@@ -74,7 +74,7 @@ describe("shapi fix", () => {
     expect(body).toContain("deterministic recipe `status-code-accept-set`");
     expect(body).toContain("### Affected call sites (1 of 1 fixed here)");
     expect(body).toContain("- [x] `src/deploy.ts:13` (POST /repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches): fixed, test `test/shapi/github-workflow-dispatch-204-to-200.test.ts`");
-    expect(body).toContain("| `test/shapi/github-workflow-dispatch-204-to-200.test.ts` | fail (1 failed | 1 passed) | pass (2 passed) |");
+    expect(body).toContain("| `test/shapi/github-workflow-dispatch-204-to-200.test.ts` | fail (1 failed \\| 1 passed) | pass (2 passed) |");
     expect(body).toContain("| Provider notice | none (undocumented change) |");
     expect(body).toContain("| Shapes from | recording github-workflow-dispatch-204-to-200.json |");
     expect(body).toContain("| Blast radius | 1 affected call site in this repo |");

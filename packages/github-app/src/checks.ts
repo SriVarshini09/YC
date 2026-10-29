@@ -1,5 +1,6 @@
 import type { Octokit } from "@octokit/rest";
 import type { Finding, MatchResult } from "@shapi/core";
+import { cell } from "./body";
 
 export const CHECK_NAME = "SHAPI";
 
@@ -51,7 +52,7 @@ export function checkRunOutput(match: Pick<MatchResult, "affected" | "exposed" |
   const lines: string[] = [];
   if (affected.length) {
     lines.push("### Affected", "", "| Advisory | Call site | Effective |", "|---|---|---|");
-    for (const f of affected) lines.push(`| ${f.advisory.title} (\`${f.advisory.id}\`) | \`${f.callSite.file}:${f.callSite.line}\` | ${f.advisory.effectiveDate} |`);
+    for (const f of affected) lines.push(`| ${cell(f.advisory.title)} (\`${f.advisory.id}\`) | \`${f.callSite.file}:${f.callSite.line}\` | ${f.advisory.effectiveDate} |`);
     lines.push("");
   }
   if (exposed.length) lines.push(`${plural(exposed.length, "more call site")} call a changed endpoint but do not depend on what changed.`, "");

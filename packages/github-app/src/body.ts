@@ -47,7 +47,7 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
     "",
     "| Test | Before this change | After this change |",
     "|---|---|---|",
-    ...fixed.map((s) => `| \`${s.result.test?.file}\` | ${summary(s.result.baseline)} | ${summary(s.result.attempts.find((a) => a.outcome === "passed")?.run)} |`),
+    ...fixed.map((s) => `| \`${s.result.test?.file}\` | ${cell(summary(s.result.baseline))} | ${cell(summary(s.result.attempts.find((a) => a.outcome === "passed")?.run))} |`),
     "",
     "### Evidence",
     "| | |",
@@ -57,7 +57,7 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
     `| Change class | ${advisory.changeClass} |`,
     `| First observed | ${advisory.firstObserved ?? "unknown"} |`,
     `| Provider notice | ${advisory.publishedNotice ? `[${advisory.publishedNotice.date ?? "link"}](${advisory.publishedNotice.url})` : "none (undocumented change)"} |`,
-    `| Shapes from | ${shapeSource} |`,
+    `| Shapes from | ${cell(shapeSource)} |`,
     ...(evidence ? [`| Observed | ${evidence.before.status} at ${evidence.before.observedAt} → ${evidence.after.status} at ${evidence.after.observedAt} (${evidence.source}) |`] : []),
     `| Blast radius | ${repair.sites.length} affected call site${repair.sites.length === 1 ? "" : "s"} in this repo |`,
     `| Sources | ${advisory.sources.map((s, i) => `[${i + 1}](${s})`).join(" ")} |`,
@@ -68,6 +68,11 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
     "Opened by [SHAPI](https://shapi.dev). A change is kept only when its contract test failed before it and passes after it.",
   ];
   return lines.join("\n") + "\n";
+}
+
+/** Text for a Markdown table cell: a "|" (vitest prints "1 failed | 1 passed") would start a new column. */
+export function cell(text: string): string {
+  return text.replace(/\|/g, "\\|");
 }
 
 function summary(run: TestRun | undefined): string {
