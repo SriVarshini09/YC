@@ -82,4 +82,4 @@ One line per task: task, summary file, PR, status.
 - PB-33 second review, extractor: Gemini siblings stop double-reporting, skips, Bolt app methods: [summary](PB-33-review7-extractor.md) · PR: [#83](https://github.com/SriVarshini09/YC/pull/83) · merged
 - PB-34 third review: Claude budget per fix job, first-run admin rights, late pushes, safe PR test counts: [summary](PB-34-review8-fixes.md) · PR: [#86](https://github.com/SriVarshini09/YC/pull/86) · merged
 - PB-35 scans skip SHAPI's own contract tests, so a merged fix stays fixed: [summary](PB-35-skip-generated-tests.md) · PR: [#88](https://github.com/SriVarshini09/YC/pull/88) · merged
-- PB-36 scans use 40% less memory: no token nodes, so a 2 MB repository fits the worker: [summary](PB-36-scan-memory.md) · PR: open
+- PB-36 scans use 40% less memory: no token nodes, so a 2 MB repository fits the worker: [summary](PB-36-scan-memory.md) · PR: [#90](https://github.com/SriVarshini09/YC/pull/90) · open
