@@ -481,6 +481,32 @@ describe("web pages", () => {
   });
 });
 
+describe("not found and robots", () => {
+  it("shows a page to people for unknown addresses, and JSON to everything else", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const page = await app.inject({ url: "/no/such/page", headers: { accept: "text/html,application/xhtml+xml" } });
+    expect(page.statusCode).toBe(404);
+    expect(page.headers["content-type"]).toBe("text/html; charset=utf-8");
+    expect(page.body).toContain("Page not found");
+    expect(page.body).toContain('href="/"');
+    expect(page.headers["content-security-policy"]).toContain("default-src 'none'");
+    const api = await app.inject({ method: "POST", url: "/no/such/hook", payload: {} });
+    expect(api.statusCode).toBe(404);
+    expect(api.json()).toMatchObject({ error: "Not Found", statusCode: 404 });
+    expect((await app.inject({ url: "/no/such/page" })).headers["content-type"]).toContain("application/json");
+    await app.close();
+  });
+
+  it("serves robots.txt that keeps sign-in and account pages out of search engines", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const res = await app.inject({ url: "/robots.txt" });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toBe("text/plain; charset=utf-8");
+    expect(res.body).toBe("User-agent: *\nDisallow: /a/\nDisallow: /auth/\nDisallow: /login\n");
+    await app.close();
+  });
+});
+
 describe("account pages after review", () => {
   const repair = {
     method: "recipe",

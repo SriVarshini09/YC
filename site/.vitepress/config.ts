@@ -5,6 +5,7 @@ export default defineConfig({
   title: "SHAPI",
   description: "Find the code that breaks when a third-party API changes, and fix it test-first.",
   cleanUrls: true,
+  sitemap: { hostname: "https://shapi.dev" },
   // One light theme: Stone and Ink (theme/custom.css).
   appearance: false,
   lastUpdated: true,
@@ -71,9 +72,9 @@ export default defineConfig({
         ],
       },
     ],
-    socialLinks: [{ icon: "github", link: "https://github.com/SriVarshini09/YC" }],
+    // The public advisory database: SHAPI's source repository is private.
+    socialLinks: [{ icon: "github", link: "https://github.com/SriVarshini09/shapi-advisories" }],
     search: { provider: "local" },
-    editLink: { pattern: "https://github.com/SriVarshini09/YC/edit/main/site/:path", text: "Edit this page on GitHub" },
     footer: {
       message:
         'shapi-cli is Apache-2.0. Advisories are CC BY 4.0. <a href="/legal/privacy">Privacy</a> · <a href="/legal/terms">Terms</a> · <a href="/security">Security</a>',

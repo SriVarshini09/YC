@@ -1,6 +1,6 @@
 {
   "name": "shapi",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Scan a repo for third-party API dependencies and the breaking changes that hit them",
   "type": "module",
   "bin": {

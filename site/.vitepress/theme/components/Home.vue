@@ -78,11 +78,12 @@ const pane = ref(0);
 // The same morning, two ways: flips at the middle of its section, or with the switch.
 const withShapi = ref(false);
 
-// The real output of `npx shapi-cli scan .` on the demo project, printed as you scroll.
+// The real output of `npx shapi-cli scan .` (0.3.0) on the demo project, shortened, printed as you scroll.
 const hubspotDays = days("2026-12-04");
 const TERM: [string, string][] = [
   ['<span class="c">$</span> npx shapi-cli scan .', ""],
-  ["SHAPI scan  .", ""],
+  ["<b>SHAPI</b>  third-party API changes, caught and fixed", ""],
+  ["scan  .", ""],
   ["4 files · 5 call sites · 4 providers · 63 ms", "c"],
   ["", ""],
   ["Providers", ""],
@@ -103,6 +104,10 @@ const TERM: [string, string][] = [
   ...((hubspotDays > 0 && hubspotDays <= 90
     ? [["", ""], ["Deadlines in the next 90 days", ""], [`  2026-12-04 (${hubspotDays} days)  hubspot  Pipelines API v1 retired on 2026-12-04  1 call site`, ""]]
     : []) as [string, string][]),
+  ["", ""],
+  ["Next", ""],
+  ["  npx shapi-cli fix .  fix the affected call sites test-first", ""],
+  ["  https://app.shapi.dev  fix PRs and a dashboard on every push", "c"],
 ];
 const termShown = ref(TERM.length);
 const termHtml = computed(() => TERM.slice(0, termShown.value).map(([l, c]) => (c ? `<span class="${c}">${l}</span>` : l)).join("\n") + (termShown.value < TERM.length ? '\n<span class="caret"></span>' : ""));

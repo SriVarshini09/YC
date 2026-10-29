@@ -1,7 +1,7 @@
 # Data processing agreement
 
 ::: warning Draft
-This agreement applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 28, 2026.
+This agreement applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 29, 2026.
 :::
 
 This data processing agreement ("DPA") is part of the [terms of service](/legal/terms) between you ("Customer") and SHAPI. It applies when SHAPI processes personal data for you that is protected by the EU GDPR, the UK GDPR or similar data protection laws. If this DPA and the terms conflict, this DPA wins for personal data.
@@ -40,7 +40,7 @@ SHAPI and its subprocessors process data in the United States. Where a transfer 
 
 ## 5. Signing
 
-This DPA applies automatically; no signature is needed. If your organization needs a signed copy, [open an issue](https://github.com/SriVarshini09/YC/issues/new) titled "DPA request", without confidential details, and we'll arrange it privately.
+This DPA applies automatically; no signature is needed. If your organization needs a signed copy, email [sri@shapi.dev](mailto:sri@shapi.dev) with the subject "DPA request".
 
 ## Annex: security measures
 

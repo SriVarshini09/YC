@@ -22,7 +22,7 @@ const { values } = parseArgs({
     "callback-url": { type: "string" },
     org: { type: "string" },
     name: { type: "string", default: "SHAPI" },
-    homepage: { type: "string", default: "https://github.com/SriVarshini09/YC" },
+    homepage: { type: "string", default: "https://shapi.dev" },
     public: { type: "boolean", default: false },
     port: { type: "string", default: "3999" },
     out: { type: "string", default: fileURLToPath(new URL("../../../.shapi", import.meta.url)) },
