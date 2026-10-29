@@ -113,6 +113,7 @@ export function toJsonReport(o: ScanOutcome): unknown {
     filesScanned: o.filesScanned,
     affected: o.match.affected.map(finding),
     exposed: o.match.exposed.map(finding),
+    possible: o.match.possible.map(finding),
     upcoming: o.match.upcoming.map((u) => ({
       advisory: u.advisory.id,
       provider: u.advisory.provider,

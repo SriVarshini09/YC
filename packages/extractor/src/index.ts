@@ -2,7 +2,7 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 import { Project, ScriptKind } from "ts-morph";
 import type { CallSite } from "@shapi/core";
-import { extractFromFile, type FoundCall } from "./callsites";
+import { extractFromFile, looseUrlSites, type FoundCall } from "./callsites";
 import { addResponseSurface } from "./surface";
 import { declaredProviders, declaredPythonProviders, listRepoFiles, toPosix, type DeclaredProvider } from "./files";
 import { extractPython, pythonParserLoaded } from "./python";
@@ -49,16 +49,19 @@ export function extractCallSites(rootDir: string): ExtractResult {
   });
 
   const found: FoundCall[] = [];
+  const loose: CallSite[] = [];
   for (const abs of sources) {
     const rel = toPosix(path.relative(root, abs));
     const sf = project.createSourceFile(`/${rel}`, readFileSync(abs, "utf8"), {
       overwrite: true,
       scriptKind: SCRIPT_KINDS[path.extname(abs)] ?? ScriptKind.TS,
     });
-    for (const f of extractFromFile(sf, rel)) {
+    const inFile = extractFromFile(sf, rel);
+    for (const f of inFile) {
       addResponseSurface(f);
       found.push(f);
     }
+    loose.push(...looseUrlSites(sf, rel, inFile));
   }
   found.sort((a, b) => a.site.file.localeCompare(b.site.file) || a.site.line - b.site.line || a.site.column - b.site.column);
 
@@ -76,7 +79,7 @@ export function extractCallSites(rootDir: string): ExtractResult {
       skipped.push({ file: rel, reason: err instanceof Error ? err.message : String(err) });
     }
   }
-  const callSites = [...found.map((f) => f.site), ...pythonSites].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column);
+  const callSites = [...found.map((f) => f.site), ...loose, ...pythonSites].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column);
 
   return {
     root,

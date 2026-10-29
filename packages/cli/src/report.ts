@@ -36,6 +36,12 @@ export function renderText(o: ScanOutcome, color: boolean): string {
   for (const f of match.affected) out.push(...renderFinding(f, paint));
   out.push("");
 
+  if (match.possible.length > 0) {
+    out.push(paint("bold", `Possibly affected, check these (${match.possible.length})`));
+    for (const f of match.possible) out.push(...renderFinding(f, paint));
+    out.push("");
+  }
+
   if (match.exposed.length > 0) {
     out.push(paint("bold", `Exposed, not affected (${match.exposed.length})`));
     for (const f of match.exposed) {
