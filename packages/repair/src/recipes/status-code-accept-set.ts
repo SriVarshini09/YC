@@ -1,5 +1,5 @@
 import { Node, SyntaxKind, type CallExpression, type SourceFile } from "ts-morph";
-import type { Edit, Recipe, RecipeContext } from "../recipe";
+import { codeSpan, swap, type Edit, type Recipe, type RecipeContext } from "../recipe";
 
 const STATUS_PROPS = new Set(["status", "statusCode"]);
 
@@ -18,7 +18,8 @@ export const statusCodeAcceptSet: Recipe = {
     if (oldCodes.length === 0 || accept.length === oldCodes.length) return [];
     const list = `[${accept.join(", ")}]`;
     const edits: Edit[] = [];
-    const where = (n: Node) => `${sourceFile.getFilePath().slice(1)}:${n.getStartLineNumber()}`;
+    // Notes are Markdown for the PR body: the repository's paths and code go in code spans (see Edit.note).
+    const where = (n: Node) => codeSpan(`${sourceFile.getFilePath().slice(1)}:${n.getStartLineNumber()}`);
 
     for (const status of statusExpressions(call)) {
       let cur: Node = status;
@@ -33,7 +34,7 @@ export const statusCodeAcceptSet: Recipe = {
         const equal = op === SyntaxKind.EqualsEqualsEqualsToken || op === SyntaxKind.EqualsEqualsToken;
         if (!negated && !equal) continue;
         const text = `${negated ? "!" : ""}${list}.includes(${status.getText()})`;
-        edits.push({ start: parent.getStart(), end: parent.getEnd(), text, note: `${where(parent)} \`${parent.getText()}\` → \`${text}\`` });
+        edits.push({ start: parent.getStart(), end: parent.getEnd(), text, note: `${where(parent)} ${swap(parent.getText(), text)}` });
       } else if (Node.isSwitchStatement(parent) && parent.getExpression() === cur) {
         const cases = parent.getClauses().filter(Node.isCaseClause);
         const present = new Set(cases.map((c) => c.getExpression()).filter(Node.isNumericLiteral).map((l) => Number(l.getLiteralValue())));
@@ -55,7 +56,7 @@ export const statusCodeAcceptSet: Recipe = {
         const merged = [...new Set([...values, ...accept])].sort((a, b) => a - b);
         if (merged.length === values.length) continue;
         const text = `[${merged.join(", ")}]`;
-        edits.push({ start: arr.getStart(), end: arr.getEnd(), text, note: `${where(arr)} \`${arr.getText()}\` → \`${text}\`` });
+        edits.push({ start: arr.getStart(), end: arr.getEnd(), text, note: `${where(arr)} ${swap(arr.getText(), text)}` });
       }
     }
     return edits;

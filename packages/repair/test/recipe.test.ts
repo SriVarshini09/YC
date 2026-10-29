@@ -46,7 +46,7 @@ describe("status-code-accept-set on fixtures/demo-ts", () => {
     expect(outcome.change.file).toBe("src/deploy.ts");
     expect(outcome.change.after).toContain("if (![200, 204].includes(res.status)) {");
     expect(outcome.change.after).not.toContain("res.status !== 204");
-    expect(outcome.change.notes).toEqual(["src/deploy.ts:22 `res.status !== 204` → `![200, 204].includes(res.status)`"]);
+    expect(outcome.change.notes).toEqual(["` src/deploy.ts:22 ` ` res.status !== 204 ` → ` ![200, 204].includes(res.status) `"]);
     // nothing else in the file changes
     expect(outcome.change.after.replace("![200, 204].includes(res.status)", "res.status !== 204")).toBe(before);
   });

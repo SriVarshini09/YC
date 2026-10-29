@@ -1,5 +1,7 @@
 import type { Advisory } from "@shapi/core";
-import type { AdvisoryRepair, TestRun, TypeCheck } from "@shapi/repair";
+import { codeSpan, type AdvisoryRepair, type TestRun, type TypeCheck } from "@shapi/repair";
+
+export { codeSpan };
 
 export interface PrBodyInput {
   advisory: Advisory;
@@ -24,16 +26,18 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
   // Claude's explanations are model output (the model read the repository's code): shown as literal text.
   const explanations = new Set(repair.sites.filter((s) => s.result.method === "llm").flatMap((s) => s.result.changes.flatMap((c) => c.notes)));
   const note = (n: string) => (explanations.has(n) ? `Claude: ${codeSpan(n)}` : n);
-  const notes = repair.changes.filter((c) => !tests.has(c.file)).flatMap((c) => (c.notes.length ? c.notes.map(note) : [`\`${c.file}\``]).map((n) => `- ${n}`));
+  // Recipe notes put the repository's code and paths in code spans already (see Edit.note).
+  const notes = repair.changes.filter((c) => !tests.has(c.file)).flatMap((c) => (c.notes.length ? c.notes.map(note) : [codeSpan(c.file)]).map((n) => `- ${n}`));
   const method = repair.method === "llm" ? "Claude, verified by the contract tests" : `deterministic recipe \`${advisory.recipeId}\``;
   const evidence = advisory.evidence;
-  const where = (s: (typeof repair.sites)[number]) => `\`${s.callSite.file}:${s.callSite.line}\` (${s.callSite.method} ${s.callSite.endpoint})`;
+  const where = (s: (typeof repair.sites)[number]) => `${codeSpan(`${s.callSite.file}:${s.callSite.line}`)} (${codeSpan(`${s.callSite.method} ${s.callSite.endpoint}`)})`;
   const siteLine = (s: (typeof repair.sites)[number]) =>
     s.result.status === "fixed"
       ? `- [x] ${where(s)}: fixed, test \`${s.result.test?.file}\``
       : s.result.status === "already-handled"
         ? `- [x] ${where(s)}: already handles the change`
-        : `- [ ] ${where(s)}: not fixed here (${s.result.reason ?? s.result.status}); needs a manual change`;
+        : // The reason can quote the test run's output, which the repository's code prints.
+          `- [ ] ${where(s)}: not fixed here (${codeSpan(s.result.reason ?? s.result.status, 300)}); needs a manual change`;
   const lines = [
     `**${advisory.provider}** changed \`${advisory.endpoint.method} ${advisory.endpoint.path}\`: ${advisory.title}.`,
     "",
@@ -79,17 +83,6 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
 /** Text for a Markdown table cell: a "|" (vitest prints "1 failed | 1 passed") would start a new column. */
 export function cell(text: string): string {
   return text.replace(/\|/g, "\\|");
-}
-
-/**
- * `text` as an inline code span: GitHub renders it literally, so Markdown or HTML in it makes no link,
- * image, @mention, issue reference or layout change. On one line, and at most `max` characters.
- */
-export function codeSpan(text: string, max = 500): string {
-  let flat = text.replace(/\s+/g, " ").trim();
-  if (flat.length > max) flat = `${flat.slice(0, max - 1)}…`;
-  const fence = "`".repeat(Math.max(0, ...(flat.match(/`+/g) ?? []).map((r) => r.length)) + 1);
-  return `${fence} ${flat} ${fence}`;
 }
 
 function typeSummary(check: TypeCheck | undefined): string {
