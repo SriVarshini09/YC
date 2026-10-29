@@ -325,7 +325,11 @@ async function handleIssue(tx: Tx, payload: WebhookPayload, fixes: FixRequest[])
 /** Set some keys of repositories.settings in one statement, keeping the others as they are now (not as read earlier). */
 export const mergeSettings = (keys: Record<string, unknown>) => sql<string>`repositories.settings || ${JSON.stringify(keys)}::jsonb`;
 
-/** The repository's latest successful scan: where a fix job runs when a maintainer asks for one. */
+/**
+ * The repository's latest successful scan: where a fix job runs when a maintainer asks for one. Latest by
+ * when it was queued (its commit's push), like the web app, not by when it finished: a retried older scan
+ * can finish last.
+ */
 export async function latestScanId(tx: Tx, repositoryId: string): Promise<string | undefined> {
   const row = await tx
     .selectFrom("scans")
@@ -333,7 +337,7 @@ export async function latestScanId(tx: Tx, repositoryId: string): Promise<string
     .where("repository_id", "=", repositoryId)
     .where("status", "=", "succeeded")
     .where("api_lock", "is not", null)
-    .orderBy("finished_at", "desc")
+    .orderBy("created_at", "desc")
     .limit(1)
     .executeTakeFirst();
   return row?.id;

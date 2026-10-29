@@ -225,7 +225,7 @@ export async function scansToRefix(db: Db, engine: string, opts: { llm?: boolean
       .where("repositories.enabled", "=", true)
       .where("accounts.suspended_at", "is", null)
       .orderBy("scans.repository_id")
-      .orderBy("scans.finished_at", "desc")
+      .orderBy("scans.created_at", "desc")
       .execute();
     const stale = latest.filter((s) => s.fix_engine !== engine);
     if (!stale.length) return [];

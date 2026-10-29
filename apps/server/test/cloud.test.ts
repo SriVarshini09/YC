@@ -26,6 +26,7 @@ import {
   syncAdvisoriesJob,
   type WorkspaceRunner,
 } from "../src/index";
+import { latestScanId } from "../src/github/events";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const ADVISORIES = path.join(root, "advisories");
@@ -215,6 +216,21 @@ describe("cloud fix", () => {
     expect(t.github.fileAt(pr.head.ref, "src/deploy.ts")).toContain("// a newer commit on main");
     expect(t.github.fileAt(pr.head.ref, "src/deploy.ts")).toContain("![200, 204].includes(res.status)");
   }, 120_000);
+
+  it("the latest scan is the newest queued, not the last to finish: a retried older scan does not replace a newer commit's fixes", async () => {
+    const at = (minutes: number) => new Date(Date.UTC(2026, 9, 1, 12, minutes));
+    const repo = await owner.selectFrom("repositories").select(["id", "account_id"]).where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    const scan = (sha: string, created: number, finished: number) =>
+      owner
+        .insertInto("scans")
+        .values({ account_id: repo.account_id, repository_id: repo.id, sha, status: "succeeded", api_lock: JSON.stringify({}), created_at: at(created), finished_at: at(finished) })
+        .returning("id")
+        .executeTakeFirstOrThrow();
+    // Push A, then push B; A's scan failed once and its retry finished after B's.
+    await scan("a".repeat(40), 0, 30);
+    const b = await scan("b".repeat(40), 5, 10);
+    expect(await withService(db, (tx) => latestScanId(tx, repositoryId))).toBe(b.id);
+  });
 
   it("repairs all three demo findings test-first; two PRs open now and the third waits for the hourly limit", async () => {
     const t = setup();
