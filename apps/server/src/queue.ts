@@ -96,7 +96,8 @@ export interface WorkerDeps {
     | "billing"
     | "SHAPI_PUBLIC_URL"
     | "GIT_SHA"
-  >;
+  > &
+    Partial<Pick<Config, "OBSERVATION_RETENTION_DAYS">>;
   env: Record<string, string | undefined>;
   log: Logger;
   fetch?: typeof globalThis.fetch;
@@ -144,7 +145,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     return { written: result.written, removed: result.removed.length };
   });
   await boss.work(QUEUES.canaryRun, async () => {
-    const result = await runCanaryJob({ db: deps.db, env: deps.env, providers: deps.config.canaryProviders, fetch: deps.fetch });
+    const result = await runCanaryJob({ db: deps.db, env: deps.env, providers: deps.config.canaryProviders, fetch: deps.fetch, retentionDays: deps.config.OBSERVATION_RETENTION_DAYS });
     deps.log.info(result, "canary run finished");
     return result;
   });

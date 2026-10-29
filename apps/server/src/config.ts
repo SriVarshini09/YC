@@ -41,6 +41,8 @@ const ConfigSchema = z.object({
   WEBHOOK_SWEEP_CRON: z.string().default("*/10 * * * *"),
   /** Days to keep processed webhook payloads. */
   WEBHOOK_RETENTION_DAYS: z.coerce.number().int().positive().default(14),
+  /** Days of repeated canary observations to keep (the newest observation of every distinct shape is always kept). */
+  OBSERVATION_RETENTION_DAYS: z.coerce.number().int().positive().default(30),
   SHAPI_RECORDINGS: z.string().default(DEFAULT_RECORDINGS),
   /** Cron for re-matching stored api.locks against the advisory database (it also runs after every advisory sync). */
   FANOUT_CRON: z.string().default("17 3 * * *"),

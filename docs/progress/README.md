@@ -60,3 +60,4 @@ One line per task: task, summary file, PR, status.
 - PB-12 docs site (shapi.dev) served from Fly by the web process: [summary](PB-12-docs-on-fly.md) · PR: [#62](https://github.com/SriVarshini09/YC/pull/62) · merged
 - PB-13 CLI onboarding (title, next steps with the app link, `shapi-cli` command, no `npx shapi`): [summary](PB-13-cli-onboarding.md) · PR: [#63](https://github.com/SriVarshini09/YC/pull/63) · open
 - PB-14 no links to the private repo (contact sri@shapi.dev), HTML 404, robots.txt, shapi-cli 0.3.0: [summary](PB-14-links-404-cli-0-3-0.md) · PR: [#64](https://github.com/SriVarshini09/YC/pull/64) · open
+- PB-16 prune repeated canary observations (newest of each shape kept): [summary](PB-16-prune-observations.md) · PR: pending · open
