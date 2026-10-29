@@ -76,7 +76,9 @@ describe("shapi scan", () => {
     git("commit", "-q", "-m", "fixture");
     const { code, stdout } = await shapi("scan", "--repo", repo, "--now", "2026-10-21");
     expect(code).toBe(1);
-    expect(stdout).toContain(`SHAPI scan  ${repo}`);
+    expect(stdout).toContain(`SHAPI  third-party API changes, caught and fixed\nscan  ${repo}`);
+    expect(stdout).toContain("Next\n  npx shapi-cli fix ");
+    expect(stdout).toContain("https://app.shapi.dev");
     expect(stdout).toMatch(/CRITICAL\s+src\/jobs\.ts:2/);
   });
 

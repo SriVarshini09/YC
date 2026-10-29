@@ -24,7 +24,7 @@ Install it to get the `shapi` command:
 
 ```sh
 npm install -g shapi-cli
-shapi scan path/to/repo
+shapi scan path/to/repo        # or: shapi-cli scan path/to/repo
 ```
 
 ## What it checks

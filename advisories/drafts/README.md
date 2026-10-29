@@ -5,7 +5,7 @@ Machine-drafted advisories land here: the canary (`pnpm canary run`) writes one 
 `loadAdvisories` and `shapi scan` skip this folder by default. To see what a draft would flag in a repo, run:
 
 ```bash
-npx shapi scan <repo> --advisories advisories/drafts
+pnpm exec shapi scan <repo> --advisories advisories/drafts
 ```
 
 Review: check the evidence against the provider's docs and changelog, fix the title, summary and migration note, add sources, set `status`, then move the file up to `advisories/`.
