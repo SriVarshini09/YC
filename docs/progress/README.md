@@ -81,4 +81,4 @@ One line per task: task, summary file, PR, status.
 - PB-32 second review, server: fix-job time limits, repository events, admin rights after new repos: [summary](PB-32-review7-server.md) · PR: [#84](https://github.com/SriVarshini09/YC/pull/84) · merged
 - PB-33 second review, extractor: Gemini siblings stop double-reporting, skips, Bolt app methods: [summary](PB-33-review7-extractor.md) · PR: [#83](https://github.com/SriVarshini09/YC/pull/83) · merged
 - PB-34 third review: Claude budget per fix job, first-run admin rights, late pushes, safe PR test counts: [summary](PB-34-review8-fixes.md) · PR: [#86](https://github.com/SriVarshini09/YC/pull/86) · merged
-- PB-35 scans skip SHAPI's own contract tests, so a merged fix stays fixed: [summary](PB-35-skip-generated-tests.md) · PR: open
+- PB-35 scans skip SHAPI's own contract tests, so a merged fix stays fixed: [summary](PB-35-skip-generated-tests.md) · PR: [#88](https://github.com/SriVarshini09/YC/pull/88) · open
