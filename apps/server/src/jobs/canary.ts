@@ -7,6 +7,8 @@ export interface CanaryJobOptions {
   providers?: string[];
   fetch?: typeof globalThis.fetch;
   now?: () => Date;
+  /** Days of repeated shapes to keep; older repeats are deleted after each run (the newest of each shape stays). */
+  retentionDays?: number;
 }
 
 export interface CanaryJobResult {
@@ -15,6 +17,8 @@ export interface CanaryJobResult {
   failed: number;
   skipped: number;
   drafts: string[];
+  /** Old observations deleted because a newer one has the same shape. */
+  pruned: number;
 }
 
 /**
@@ -22,8 +26,9 @@ export interface CanaryJobResult {
  * draft advisory (unreviewed, hidden from matching) for every breaking change.
  */
 export async function runCanaryJob(opts: CanaryJobOptions): Promise<CanaryJobResult> {
+  const store = new PgShapeStore(opts.db);
   const report: RunReport = await runOnce({
-    store: new PgShapeStore(opts.db),
+    store,
     env: opts.env,
     providers: opts.providers,
     fetch: opts.fetch,
@@ -31,11 +36,14 @@ export async function runCanaryJob(opts: CanaryJobOptions): Promise<CanaryJobRes
   });
   const drafts = report.results.flatMap((r) => (r.draft ? [r.draft] : []));
   if (drafts.length > 0) await upsertAdvisories(opts.db, drafts, { reviewed: false, source: "canary" });
+  const now = opts.now?.() ?? new Date();
+  const pruned = await store.prune(new Date(now.getTime() - (opts.retentionDays ?? 30) * 86_400_000));
   return {
     probes: report.results.length,
     changed: report.results.filter((r) => r.changed).length,
     failed: report.results.filter((r) => r.error).length,
     skipped: report.skipped.length,
     drafts: drafts.map((d) => d.id),
+    pruned,
   };
 }

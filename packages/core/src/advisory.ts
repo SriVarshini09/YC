@@ -52,6 +52,11 @@ export const TriggerSchema = z
      * one of `values` (a comma-separated value such as `metric=a,b` matches when any item does).
      */
     query: z.array(z.object({ name: z.string(), below: z.number().optional(), values: z.array(z.string()).optional() })).optional(),
+    /**
+     * Affected when the request body sets this top-level field, optionally to one of these values
+     * (for example `model` set to a retired model). A value the scanner cannot read statically is not a match.
+     */
+    body: z.array(z.object({ field: z.string().min(1), values: z.array(z.string()).min(1).optional() })).optional(),
     /** Every call to the endpoint is affected (sunsets, auth and scope changes). */
     any: z.boolean().optional(),
   })

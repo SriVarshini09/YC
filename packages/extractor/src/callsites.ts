@@ -270,7 +270,9 @@ function fetchStyle(
   }
   // got and ky take query parameters as `searchParams: { … }`.
   const params = opts && (lib === "got" || lib === "ky") ? resolveObject(ctx, propertyValue(opts, "searchParams")) : undefined;
-  return httpSite(ctx, call, lib, joinUrl(baseURL, evalString(ctx, urlArg)), method, opts ? optsArg : undefined, params);
+  // fetch-style bodies are `body: JSON.stringify({ … })`; got and ky also take `json: { … }`.
+  const body = opts ? bodyEntries(ctx, (lib === "got" || lib === "ky" ? propertyValue(opts, "json") : undefined) ?? propertyValue(opts, "body")) : [];
+  return httpSite(ctx, call, lib, joinUrl(baseURL, evalString(ctx, urlArg)), method, opts ? optsArg : undefined, params, body);
 }
 
 /** axios(config) | axios(url, config) | axios.get(url, config) | axios.post(url, data, config) | axios.request(config) */
@@ -284,7 +286,7 @@ function axiosStyle(ctx: FileContext, call: CallExpression, verb: HttpMethod | u
     const base = evalString(ctx, propertyValue(firstObj, "baseURL")) ?? baseURL;
     const method = methodFrom(ctx, propertyValue(firstObj, "method")) ?? (propertyValue(firstObj, "method") ? null : "GET");
     const params = resolveObject(ctx, propertyValue(firstObj, "params"));
-    return httpSite(ctx, call, "axios", joinUrl(base, url), method, first, params);
+    return httpSite(ctx, call, "axios", joinUrl(base, url), method, first, params, bodyEntries(ctx, propertyValue(firstObj, "data")));
   }
   const hasBody = verb === "POST" || verb === "PUT" || verb === "PATCH";
   const config = hasBody ? args[2] : args[1];
@@ -292,7 +294,8 @@ function axiosStyle(ctx: FileContext, call: CallExpression, verb: HttpMethod | u
   let method: HttpMethod | null = verb ?? "GET";
   if (!verb && cfg) method = methodFrom(ctx, propertyValue(cfg, "method")) ?? "GET";
   const params = cfg ? resolveObject(ctx, propertyValue(cfg, "params")) : undefined;
-  return httpSite(ctx, call, "axios", joinUrl(baseURL, evalString(ctx, first)), method, config, params);
+  const body = bodyEntries(ctx, hasBody ? args[1] : cfg ? propertyValue(cfg, "data") : undefined);
+  return httpSite(ctx, call, "axios", joinUrl(baseURL, evalString(ctx, first)), method, config, params, body);
 }
 
 function httpSite(
@@ -303,11 +306,13 @@ function httpSite(
   method: HttpMethod | null,
   options?: Node,
   params?: Node,
+  body: NameValue[] = [],
 ): FoundCall {
   const { host, path, query } = parseUrl(url);
   const surface = emptySurface();
   surface.headers = headersOf(ctx, options);
   surface.query = [...query, ...objectEntries(ctx, params)];
+  if (body.length) surface.body = body;
   const provider = providerOf(host, path);
   return {
     call,
@@ -377,6 +382,10 @@ function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined
   const apiVersion = client.options ? propertyValue(client.options, "apiVersion") : undefined;
   if (apiVersion) surface.headers.push({ name: `${client.provider.id}-version`, value: evalString(ctx, apiVersion) ?? null });
   surface.headers.sort((a, b) => a.name.localeCompare(b.name));
+  // An SDK method's parameters are the request body: openai.chat.completions.create({ model, … }).
+  // Octokit's request(route, params) mixes path, query and body parameters, so it is left out.
+  const body = route === undefined && operation !== "graphql" ? bodyEntries(ctx, options) : [];
+  if (body.length) surface.body = body;
   return {
     call,
     options,
@@ -462,6 +471,14 @@ function objectEntries(ctx: FileContext, obj: Node | undefined): NameValue[] {
     }
   }
   return out;
+}
+
+/** Top-level fields of a request body: an object literal (or a const holding one), or JSON.stringify of one. */
+function bodyEntries(ctx: FileContext, node: Node | undefined): NameValue[] {
+  if (!node) return [];
+  const expr = unwrap(node);
+  if (Node.isCallExpression(expr) && expr.getExpression().getText() === "JSON.stringify") return objectEntries(ctx, resolveObject(ctx, expr.getArguments()[0]));
+  return objectEntries(ctx, resolveObject(ctx, node));
 }
 
 /** The object literal an argument refers to, following one level of same-file const. */

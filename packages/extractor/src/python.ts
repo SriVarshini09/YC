@@ -195,6 +195,9 @@ function httpCall(ctx: FileContext, call: Node): CallSite | undefined {
   const surface = emptySurface();
   surface.headers = [...(binding.kind === "http-client" ? binding.headers : []), ...dictEntries(ctx, keyword(args, "headers"))].map((h) => ({ ...h, name: h.name.toLowerCase() }));
   surface.query = [...query, ...dictEntries(ctx, keyword(args, "params"))];
+  // requests/httpx/aiohttp: json={...} (or data={...} for form bodies).
+  const body = dictEntries(ctx, keyword(args, "json") ?? keyword(args, "data"));
+  if (body.length) surface.body = body;
   const provider = providerOf(host, path);
   return { file: "", line: 0, column: 0, provider, kind: "http", client: binding.lib, method, host, endpoint: path, resolved: Boolean(provider && path && method), surface };
 }
@@ -211,6 +214,11 @@ function sdkCall(ctx: FileContext, call: Node): CallSite | undefined {
   // On a client, one unknown word (client.close()) is not one either.
   if (!ep && (binding.kind === "sdk-module" || names.length < 2)) return undefined;
   const surface = emptySurface();
+  // An SDK method's keyword arguments are the request body: client.chat.completions.create(model="gpt-4o", …).
+  const body = (call.childForFieldName("arguments")?.namedChildren ?? [])
+    .filter((a): a is Node => a?.type === "keyword_argument")
+    .map((a) => ({ name: a.childForFieldName("name")!.text, value: literal(ctx, a.childForFieldName("value") ?? undefined) }));
+  if (body.length) surface.body = body;
   const host = binding.provider.hosts.find((h) => !h.startsWith("*.")) ?? null;
   return {
     file: "",
