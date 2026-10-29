@@ -10,6 +10,7 @@ export interface Finding {
 
 export interface UpcomingDeadline {
   advisory: Advisory;
+  /** Whole days from today to the effective date, both as UTC calendar days (0 on the day itself). */
   daysUntil: number;
   /** Call sites that call the advisory's endpoint, affected or exposed. */
   callSites: number;
@@ -23,6 +24,7 @@ export interface MatchResult {
   /**
    * The path is built at runtime where the change is narrower than the call: `/v24.0/{endpoint}`
    * against Meta's ad-account paths (`/v24.0/act_…`). Affected if the runtime value reaches the changed endpoint.
+   * Also a matching path whose HTTP method or host SHAPI cannot tell (a URL no recognized client sends).
    */
   possible: Finding[];
   /** Advisories for providers in this repo that take effect within the horizon. */
@@ -48,9 +50,8 @@ export function matchAdvisories(lock: ApiLock, advisories: Advisory[], options: 
   for (const advisory of advisories) {
     for (const callSite of lock.callSites) {
       if (!endpointMatches(callSite, advisory)) {
-        if (endpointMayMatch(callSite, advisory) && triggerReasons(callSite, advisory.trigger).length > 0) {
-          possible.push({ advisory, callSite, reasons: [`builds the path at runtime (${describe(callSite)}); affected if it reaches ${advisory.endpoint.path}`] });
-        }
+        const why = mayMatchReason(callSite, advisory);
+        if (why && triggerReasons(callSite, advisory.trigger).length > 0) possible.push({ advisory, callSite, reasons: [why] });
         continue;
       }
       hitsPerAdvisory.set(advisory.id, (hitsPerAdvisory.get(advisory.id) ?? 0) + 1);
@@ -83,22 +84,41 @@ export function endpointMatches(site: LockedCallSite, advisory: Advisory): boole
 }
 
 /**
- * The call site's path has a runtime segment where the pattern is narrower than "any value": the
- * runtime value may or may not reach the changed endpoint. Literal segments still have to agree.
+ * The call site may reach the changed endpoint, but something the pattern needs is unknown: the HTTP
+ * method or host (a URL that no recognized client sends, an SDK whose host is per-customer), or a
+ * runtime segment where the pattern is narrower than "any value". Literal segments still have to agree.
  */
 export function endpointMayMatch(site: LockedCallSite, advisory: Advisory): boolean {
+  return mayMatchReason(site, advisory) !== undefined;
+}
+
+function mayMatchReason(site: LockedCallSite, advisory: Advisory): string | undefined {
   const pattern = advisory.endpoint;
-  if (site.provider !== advisory.provider || site.endpoint === null) return false;
-  if (pattern.method !== "*" && site.method !== null && site.method !== pattern.method) return false;
-  if (pattern.hosts && site.host && !pattern.hosts.includes(site.host)) return false;
-  if (!/\{[^}]*\}/.test(site.endpoint)) return false;
+  if (site.provider !== advisory.provider || site.endpoint === null) return undefined;
+  if (pattern.method !== "*" && site.method !== null && site.method !== pattern.method) return undefined;
+  if (pattern.hosts && site.host && !pattern.hosts.includes(site.host)) return undefined;
+  if (pathMatches(site.endpoint, pattern)) {
+    // The path matches, so only the method or the host kept it from matching outright.
+    const unknown = [
+      ...(pattern.method !== "*" && site.method === null ? [`the method (affected if it is ${pattern.method})`] : []),
+      ...(pattern.hosts && site.host === null ? [`the host (affected if it is ${pattern.hosts.join(" or ")})`] : []),
+    ];
+    return unknown.length ? `calls ${describe(site)}, but SHAPI cannot tell ${unknown.join(" or ")}` : undefined;
+  }
+  return runtimePathMayMatch(site.endpoint, pattern.path)
+    ? `builds the path at runtime (${describe(site)}); affected if it reaches ${pattern.path}`
+    : undefined;
+}
+
+function runtimePathMayMatch(endpoint: string, patternPath: string): boolean {
+  if (!/\{[^}]*\}/.test(endpoint)) return false;
   // Evidence, not just "anything could match": a literal segment of the pattern (Meta's "v24.0") has to
   // appear in the known part of the path, before the first runtime segment.
-  const known = segments(site.endpoint);
+  const known = segments(endpoint);
   const runtimeAt = known.findIndex(isRuntime);
-  const literals = segments(pattern.path).filter((p) => !/[*{]/.test(p));
+  const literals = segments(patternPath).filter((p) => !/[*{]/.test(p));
   if (!literals.some((l) => known.slice(0, runtimeAt < 0 ? known.length : runtimeAt).includes(l))) return false;
-  return segmentsMayMatch(known, segments(pattern.path));
+  return segmentsMayMatch(known, segments(patternPath));
 }
 
 const segments = (p: string) => p.split("/").filter(Boolean);
@@ -158,9 +178,10 @@ function triggerReasons(site: LockedCallSite, trigger: Trigger): string[] {
     const read = s.fields.filter((f) => f === field || f.startsWith(`${field}.`) || f.startsWith(`${field}[]`));
     if (read.length) reasons.push(`reads ${read.join(", ")}`);
   }
-  for (const { field } of trigger.enums ?? []) {
+  for (const { field, values } of trigger.enums ?? []) {
     const e = s.enums.find((x) => x.field === field);
-    if (e) reasons.push(`compares ${field} to ${e.values.map((v) => JSON.stringify(v)).join(", ")}`);
+    const hit = e && (values ? e.values.filter((v) => values.includes(v)) : e.values);
+    if (hit?.length) reasons.push(`compares ${field} to ${hit.map((v) => JSON.stringify(v)).join(", ")}`);
   }
   for (const h of trigger.headers ?? []) {
     const set = s.headers.find((x) => x.name === h.name.toLowerCase());

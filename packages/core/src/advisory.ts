@@ -25,11 +25,14 @@ const IsoDate = z.iso.date();
  */
 export const EndpointPatternSchema = z.object({
   method: z.union([z.enum(HTTP_METHODS), z.literal("*")]),
-  path: z.string().startsWith("/"),
+  path: z.string().regex(/^\//, "path must start with /"),
   /** Limit to these hosts (for providers whose hosts behave differently). */
   hosts: z.array(z.string()).optional(),
 });
 export type EndpointPattern = z.infer<typeof EndpointPatternSchema>;
+
+/** Trigger lists that can make a call site affected. `newStatusCodes` only suppresses `statusCodes`. */
+const TRIGGER_CONDITIONS = ["statusCodes", "fields", "enums", "headers", "query", "body"] as const;
 
 /** The part of a call site's dependency surface that makes it affected rather than merely exposed. */
 export const TriggerSchema = z
@@ -43,8 +46,11 @@ export const TriggerSchema = z
     newStatusCodes: z.array(z.number().int()).optional(),
     /** Affected when the code reads one of these body fields (or a field beneath it). */
     fields: z.array(z.string()).optional(),
-    /** Affected when the code compares this field against string values. */
-    enums: z.array(z.object({ field: z.string() })).optional(),
+    /**
+     * Affected when the code compares this field against literal values (numbers count as their decimal
+     * string), optionally only when one of them is in `values`.
+     */
+    enums: z.array(z.object({ field: z.string(), values: z.array(z.string()).min(1).optional() })).optional(),
     /** Affected when the request sets this header (optionally to one of these values). */
     headers: z.array(z.object({ name: z.string(), values: z.array(z.string()).optional() })).optional(),
     /**
@@ -60,7 +66,10 @@ export const TriggerSchema = z
     /** Every call to the endpoint is affected (sunsets, auth and scope changes). */
     any: z.boolean().optional(),
   })
-  .refine((t) => Object.values(t).some((v) => v !== undefined && v !== false), "trigger needs at least one condition");
+  .refine(
+    (t) => t.any === true || TRIGGER_CONDITIONS.some((k) => (t[k]?.length ?? 0) > 0),
+    "trigger needs at least one condition: any, or a non-empty statusCodes, fields, enums, headers, query or body",
+  );
 export type Trigger = z.infer<typeof TriggerSchema>;
 
 /**
@@ -95,7 +104,7 @@ export const AdvisorySchema = z.object({
   firstObserved: IsoDate.nullable(),
   /** The provider's own notice, if there was one. */
   publishedNotice: z.object({ date: IsoDate.nullable(), url: z.url() }).nullable(),
-  /** When the change takes (or took) effect. */
+  /** When the change takes (or took) effect, as a UTC calendar day. */
   effectiveDate: IsoDate,
   severity: z.enum(SEVERITIES),
   migrationNote: z.string().min(1),
@@ -136,6 +145,22 @@ export function loadAdvisories(dir: string): Advisory[] {
 
 export const SEVERITY_RANK: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
 
+/**
+ * The JSON Schema for advisory files. Input mode leaves unknown keys allowed, as zod strips them, and the
+ * two "at least one" refinements, which JSON Schema cannot derive from zod, are spelled out.
+ */
 export function advisoryJsonSchema(): unknown {
-  return z.toJSONSchema(AdvisorySchema);
+  return z.toJSONSchema(AdvisorySchema, {
+    io: "input",
+    override: ({ zodSchema, jsonSchema }) => {
+      if (zodSchema === TriggerSchema) {
+        jsonSchema.anyOf = [
+          { required: ["any"], properties: { any: { const: true } } },
+          ...TRIGGER_CONDITIONS.map((k) => ({ required: [k], properties: { [k]: { type: "array" as const, minItems: 1 } } })),
+        ];
+      } else if (zodSchema === FixSchema) {
+        jsonSchema.anyOf = Object.keys(jsonSchema.properties ?? {}).map((k) => ({ required: [k] }));
+      }
+    },
+  });
 }

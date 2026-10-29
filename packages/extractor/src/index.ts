@@ -1,6 +1,6 @@
 import path from "node:path";
 import { readFileSync } from "node:fs";
-import { Project, ScriptKind } from "ts-morph";
+import { Project, ScriptKind, type SourceFile } from "ts-morph";
 import type { CallSite } from "@shapi/core";
 import { extractFromFile, looseUrlSites, type FoundCall } from "./callsites";
 import { addResponseSurface } from "./surface";
@@ -50,26 +50,36 @@ export function extractCallSites(rootDir: string): ExtractResult {
 
   const found: FoundCall[] = [];
   const loose: CallSite[] = [];
+  const skipped: ExtractResult["skipped"] = [];
+  const failed = (rel: string, err: unknown) => skipped.push({ file: rel, reason: err instanceof Error ? err.message : String(err) });
   // Every file first, so a client imported from another file can be followed to where it is constructed.
-  const files = sources.map((abs) => {
+  const files: { rel: string; sf: SourceFile }[] = [];
+  for (const abs of sources) {
     const rel = toPosix(path.relative(root, abs));
-    const sf = project.createSourceFile(`/${rel}`, readFileSync(abs, "utf8"), {
-      overwrite: true,
-      scriptKind: SCRIPT_KINDS[path.extname(abs)] ?? ScriptKind.TS,
-    });
-    return { rel, sf };
-  });
-  for (const { rel, sf } of files) {
-    const inFile = extractFromFile(sf, rel);
-    for (const f of inFile) {
-      addResponseSurface(f);
-      found.push(f);
+    try {
+      const sf = project.createSourceFile(`/${rel}`, readFileSync(abs, "utf8"), {
+        overwrite: true,
+        scriptKind: SCRIPT_KINDS[path.extname(abs)] ?? ScriptKind.TS,
+      });
+      files.push({ rel, sf });
+    } catch (err) {
+      failed(rel, err);
     }
-    loose.push(...looseUrlSites(sf, rel, inFile));
+  }
+  // A file the extractor fails on is listed as skipped instead of failing the whole scan.
+  for (const { rel, sf } of files) {
+    try {
+      const inFile = extractFromFile(sf, rel);
+      for (const f of inFile) addResponseSurface(f);
+      const looseInFile = looseUrlSites(sf, rel, inFile);
+      found.push(...inFile);
+      loose.push(...looseInFile);
+    } catch (err) {
+      failed(rel, err);
+    }
   }
   found.sort((a, b) => a.site.file.localeCompare(b.site.file) || a.site.line - b.site.line || a.site.column - b.site.column);
 
-  const skipped: ExtractResult["skipped"] = [];
   const pythonSites: CallSite[] = [];
   for (const abs of python) {
     const rel = toPosix(path.relative(root, abs));
@@ -80,7 +90,7 @@ export function extractCallSites(rootDir: string): ExtractResult {
     try {
       pythonSites.push(...extractPython(readFileSync(abs, "utf8"), rel));
     } catch (err) {
-      skipped.push({ file: rel, reason: err instanceof Error ? err.message : String(err) });
+      failed(rel, err);
     }
   }
   const callSites = [...found.map((f) => f.site), ...loose, ...pythonSites].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column);

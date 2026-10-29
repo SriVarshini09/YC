@@ -1,0 +1,37 @@
+{
+  "id": "openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses",
+  "provider": "openai",
+  "title": "gpt-4o, gpt-4o-mini, gpt-4.1 and gpt-4.1-mini snapshots shut down on 2027-01-14 (Responses API)",
+  "summary": "OpenAI shuts down gpt-4o-2024-08-06, gpt-4o-2024-11-20, gpt-4o-mini-2024-07-18, gpt-4.1-2025-04-14 and gpt-4.1-mini-2025-04-14 on 2027-01-14, and fine-tunes of these models follow the same date. This advisory covers calls to the Responses API (POST /v1/responses) that send one of these models; openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14 covers chat completions. The notice lists dated snapshots and does not say what happens to the undated gpt-4o or gpt-4o-mini aliases.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/v1/responses"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "body": [
+      {
+        "field": "model",
+        "values": [
+          "gpt-4o-2024-08-06",
+          "gpt-4o-2024-11-20",
+          "gpt-4o-mini-2024-07-18",
+          "gpt-4.1-2025-04-14",
+          "gpt-4.1-mini-2025-04-14"
+        ]
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-10-14",
+    "url": "https://developers.openai.com/api/docs/deprecations"
+  },
+  "effectiveDate": "2027-01-14",
+  "severity": "medium",
+  "migrationNote": "Replace these model names with gpt-6-luna (OpenAI's recommended replacement) in request bodies and config, re-run fine-tunes on a supported base model, and compare output quality before 2027-01-14. The same model names are also used on the Responses API.",
+  "sources": [
+    "https://developers.openai.com/api/docs/deprecations"
+  ],
+  "status": "verified"
+}
