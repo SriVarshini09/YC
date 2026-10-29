@@ -243,6 +243,37 @@ describe("fix delivery", () => {
     expect(t.github.fileAt("shapi/low", "src/c.ts")).toBe("fixed low\n");
   });
 
+  it("a fix whose branch has a maintainer's commits needs them, not a tick: the dashboard says to delete the branch", async () => {
+    const t = setup();
+    const now = new Date();
+    // someone made shapi/crit by hand before SHAPI got to it
+    t.github.refs.set("shapi/crit", t.github.refs.get("main")!);
+    t.github.pushAs("shapi/crit", "src/a.ts", "theirs\n");
+    const run = await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")], now });
+    expect(run.outcomes).toEqual([{ advisoryId: "crit", action: "skipped", reason: "a branch with this name exists and is not SHAPI's", url: undefined }]);
+    let body = t.github.issues[0]!.body;
+    expect(body).not.toContain("## Waiting");
+    expect(body).not.toContain("shapi:create:crit");
+    expect(body).toContain("## Needs you\n\n- Change crit: the branch `shapi/crit` has commits that are not SHAPI's, so SHAPI leaves it alone. Delete the branch and SHAPI opens the fix on its next scan.");
+    expect(t.github.fileAt("shapi/crit", "src/a.ts")).toBe("theirs\n");
+
+    // a fix PR closed without merging, retried from the dashboard after a maintainer pushed to its branch
+    t.github.refs.delete("shapi/crit");
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")], now });
+    const closed = t.github.pulls.find((p) => p.head.ref === "shapi/crit")!;
+    t.github.close(closed.number);
+    t.github.pushAs("shapi/crit", "src/a.ts", "theirs again\n");
+    const later = new Date(now.getTime() + 2 * 3600_000);
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")], now: later });
+    t.github.tick(t.github.issues[0]!.number, "retry:crit");
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")], now: later });
+    body = t.github.issues[0]!.body;
+    expect(body).toContain(`## Needs you\n\n- [ ] <!-- shapi:retry:crit --> Change crit [#${closed.number}](`);
+    expect(body).toContain("Delete the branch, then tick to open the fix again.");
+    expect(body).not.toContain("## Closed without merging");
+    expect(t.github.fileAt("shapi/crit", "src/a.ts")).toBe("theirs again\n");
+  });
+
   it("pause on the dashboard stops all changes; dashboard edits arrive by webhook, bot edits are ignored", async () => {
     const t = setup();
     const now = new Date();

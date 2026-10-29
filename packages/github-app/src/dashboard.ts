@@ -10,6 +10,8 @@ export interface DashboardInput {
   open: { advisory: Advisory; number: number; url: string; stopped?: boolean }[];
   waiting: { advisory: Advisory; reason: string }[];
   closed: { advisory: Advisory; number?: number; url?: string }[];
+  /** Fixes SHAPI cannot open because their branch has someone else's commits (SHAPI never force-pushes over them). */
+  blocked?: { advisory: Advisory; branch: string; number?: number; url?: string }[];
   /** Affected call sites with no automatic fix yet. */
   manual: { advisory: Advisory; callSites: number }[];
   upcoming: { advisory: Advisory; daysUntil: number }[];
@@ -49,6 +51,16 @@ export function renderDashboard(d: DashboardInput): string {
   section(
     "Waiting",
     d.waiting.map((w) => `- [ ] <!-- shapi:create:${w.advisory.id} --> ${w.advisory.title} (${w.reason}). Tick to open it now.`),
+  );
+  section(
+    "Needs you",
+    (d.blocked ?? []).map((b) => {
+      const why = `the branch \`${b.branch}\` has commits that are not SHAPI's, so SHAPI leaves it alone`;
+      // A fix closed without merging is opened again only when asked, so its row keeps the retry box.
+      return b.number
+        ? `- [ ] <!-- shapi:retry:${b.advisory.id} --> ${b.advisory.title}${pr(b.number, b.url)}: ${why}. Delete the branch, then tick to open the fix again.`
+        : `- ${b.advisory.title}: ${why}. Delete the branch and SHAPI opens the fix on its next scan.`;
+    }),
   );
   section(
     "Closed without merging",
