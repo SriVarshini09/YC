@@ -18,7 +18,7 @@ npx shapi-cli scan .
 
 - **Providers**: the third-party APIs your code calls (GitHub, Stripe, QuickBooks, HubSpot, Xero, Meta Graph, Slack, OpenAI and more) and how many call sites each has.
 - **Affected call sites**: code that depends on exactly what an API changed, with the file and line, the reason, and how to fix it.
-- **Possibly affected** (when there are any): calls whose path, HTTP method or host is only known at runtime, which an API change may reach. Check these by hand.
+- **Possibly affected** (when there are any): calls whose path, HTTP method, host or model is only known at runtime, which an API change may reach. Check these by hand.
 - **Exposed, not affected** (when there are any): calls to an endpoint that changed, which don't depend on what changed. Nothing to fix.
 - **Deadlines in the next 90 days**: announced changes, such as a version sunset, for the providers this repository uses (through a call site or a declared SDK), with how many call sites each one hits.
 

@@ -66,7 +66,8 @@ export async function run(model: string) {
   await ai.models.generateContent({ model: "gemini-3.6-flash", contents: "hi" }); // exposed: google-gemini-2-0-flash-shutdown-sdk
   await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", { method: "POST" }); // affected: google-gemini-2-0-flash-shutdown
   await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent", { method: "POST" });
-  await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/\${model}:generateContent\`, { method: "POST" }); // exposed: google-gemini-2-0-flash-shutdown-sdk
+  await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/\${model}:generateContent\`, { method: "POST" }); // possible: google-gemini-2-0-flash-shutdown-sdk google-gemini-2-5-flash-image-shutdown-sdk google-gemini-2-5-preview-tts-shutdown-sdk
+  await ai.models.generateContent({ model, contents: "hi" }); // possible: google-gemini-2-0-flash-shutdown-sdk google-gemini-2-5-flash-image-shutdown-sdk google-gemini-2-5-preview-tts-shutdown-sdk
 }
 `,
   "src/xero.ts": `import { XeroClient } from "xero-node";
