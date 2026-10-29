@@ -192,6 +192,44 @@ describe("Python edge cases", () => {
     expect(r.callSites[0]!.surface.fields).toEqual(["error_code", "num_segments"]);
   });
 
+  it("names the provider of a host built at runtime from its fixed suffix, as the TypeScript side does", () => {
+    const r = scan({
+      "a.py":
+        'import requests\ndef f(sub, t):\n    requests.get(f"https://{sub}.zendesk.com/api/v2/tickets/{t}")\n' +
+        '    return wrapper.send(f"https://{sub}.zendesk.com/api/v2/users")\n',
+    });
+    expect(r.callSites.map((s) => `${s.client} ${s.provider} ${s.method} ${s.host} ${s.endpoint} ${s.resolved}`)).toEqual([
+      "requests zendesk GET null /api/v2/tickets/{t} true",
+      // a loose URL: provider and endpoint known, method unknown, and resolved as lockfile.ts documents
+      "url zendesk null null /api/v2/users true",
+    ]);
+  });
+
+  it("leaves the host null on SDK calls of a provider with per-tenant hosts", () => {
+    const r = scan({ "a.py": 'from twilio.rest import Client\nclient = Client(sid, token)\nclient.messages.create(to="+1", body="x")\n' });
+    expect(r.callSites.map((s) => `${s.provider} ${s.operation} ${s.host}`)).toEqual(["twilio messages.create null"]);
+  });
+
+  it("records status codes only for ==, != and in comparisons, not orderings", () => {
+    const r = scan({
+      "a.py":
+        'import requests\ndef f():\n    r = requests.get("https://api.github.com/rate_limit")\n' +
+        '    if r.status_code >= 400 or 200 <= r.status_code < 300:\n        pass\n    if r.status_code == 404 or r.status_code not in (200, 201):\n        pass\n' +
+        '    data = r.json()\n    if data["state"] > "m":\n        pass\n',
+    });
+    expect(r.callSites[0]!.surface.statusCodes).toEqual([200, 201, 404]);
+    expect(r.callSites[0]!.surface.enums).toEqual([]);
+  });
+
+  it("does not take aiohttp.web route definitions for HTTP calls", () => {
+    const r = scan({
+      "a.py":
+        'import aiohttp\nfrom aiohttp import web\nimport aiohttp.web as aweb\nasync def handler(request):\n    async with aiohttp.ClientSession() as s:\n        await s.get("https://api.github.com/rate_limit")\n' +
+        'app = web.Application()\napp.add_routes([web.get("/x", handler), web.post("/y", handler), aweb.put("/z", handler)])\napp.router.add_get("/w", handler)\n',
+    });
+    expect(describeSites(r)).toEqual(["aiohttp github GET /rate_limit"]);
+  });
+
   it("reads only dependency lists from pyproject.toml, with extras in brackets", () => {
     const r = scan({
       "a.py": "x = 1\n",
