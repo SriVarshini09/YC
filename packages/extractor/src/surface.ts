@@ -1,6 +1,7 @@
 import { Node, SyntaxKind, type CallExpression } from "ts-morph";
 import type { Surface } from "@shapi/core";
 import type { FoundCall } from "./callsites";
+import { descendantsOfKind } from "./walk";
 
 /**
  * How a client wraps the response: where the status code lives and how the
@@ -150,7 +151,7 @@ function referencesOf(name: string, decl: Node): Node[] {
         Node.isFunctionDeclaration(n) || Node.isMethodDeclaration(n) || Node.isCaseClause(n),
     ) ?? decl.getSourceFile();
   const after = decl.getEnd();
-  return scope.getDescendantsOfKind(SyntaxKind.Identifier).filter((id) => {
+  return descendantsOfKind(scope, SyntaxKind.Identifier).filter((id) => {
     if (id.getText() !== name || id.getStart() < after) return false;
     const p = id.getParent();
     if (Node.isPropertyAccessExpression(p) && p.getNameNode() === id) return false;
