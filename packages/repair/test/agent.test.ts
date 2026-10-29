@@ -46,22 +46,34 @@ function demoRepo(name: string) {
   return { dir, callSite, original: readFileSync(path.join(dir, callSite.file), "utf8") };
 }
 
+/** Repaired in a workspace the test keeps, so it can look at what was left there. */
 async function repair(dir: string, callSite: ReturnType<typeof demoRepo>["callSite"], opts: { llm?: LlmFixer; noRecipe?: boolean } = {}) {
+  const workspace = localWorkspace(dir);
+  sandboxes.push(workspace.location);
   const result = await repairCallSite({
-    repoDir: dir,
+    workspace,
     advisory: opts.noRecipe ? { ...advisory, recipeId: undefined } : advisory,
     callSite,
     ...shapes,
     recipes: RECIPES,
     llm: opts.llm,
   });
-  if (result.sandbox) sandboxes.push(result.sandbox);
   return result;
 }
 
 const fixedText = (original: string) => original.replace("res.status !== 204", "res.status !== 200 && res.status !== 204");
 
 describe("repairCallSite", () => {
+  it("with only a repoDir, removes its temp copy (which can hold .env files) when it returns", async () => {
+    const { dir, callSite } = demoRepo("temp-copy");
+    const site = await repairCallSite({ repoDir: dir, advisory, callSite, ...shapes, recipes: RECIPES });
+    expect(site.status).toBe("fixed");
+    expect(existsSync(site.sandbox!)).toBe(false);
+    const all = await repairAdvisory({ repoDir: dir, advisory, callSites: [callSite], ...shapes, recipes: RECIPES });
+    expect(all.status).toBe("fixed");
+    expect(existsSync(all.sandbox!)).toBe(false);
+  }, 60_000);
+
   it("fixes the demo call site with the recipe, test-first, without touching the repo", async () => {
     const { dir, callSite, original } = demoRepo("recipe");
     const result = await repair(dir, callSite);

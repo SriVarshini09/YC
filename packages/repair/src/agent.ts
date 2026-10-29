@@ -12,7 +12,8 @@ import { localWorkspace, type Workspace } from "./workspace";
 export interface RepairInput {
   /**
    * Where to work: a sandbox workspace (the hosted service), or else a temp copy of `repoDir`
-   * (the CLI on the developer's own checkout). The original repository is never modified.
+   * (the CLI on the developer's own checkout), removed when the repair returns. The original
+   * repository is never modified.
    */
   workspace?: Workspace;
   repoDir?: string;
@@ -68,7 +69,8 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
   if (!/\.(c|m)?[jt]sx?$/.test(callSite.file)) {
     return { status: "unsupported", changes: [], attempts: [], reason: `fixes support TypeScript and JavaScript; ${callSite.file} is scanned only` };
   }
-  const ws = input.workspace ?? localWorkspace(input.repoDir!);
+  if (!input.workspace) return inTempCopy(input.repoDir!, (workspace) => repairCallSite({ ...input, workspace }));
+  const ws = input.workspace;
   const original = await ws.read(callSite.file);
   if (original === undefined) return { status: "unsupported", sandbox: ws.location, changes: [], attempts: [], reason: `${callSite.file} is not in the repository` };
   const test = generateContractTest({ callSite, advisory, before: input.before, after: input.after, sourceText: original, file: input.testFile });
@@ -189,6 +191,16 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
   return rejected(ws, ran, baseline, attempts);
 }
 
+/** Run `fn` in a temp copy of `repoDir` (it can hold the repository's .env files), removed afterwards. */
+async function inTempCopy<T>(repoDir: string, fn: (ws: Workspace) => Promise<T>): Promise<T> {
+  const ws = localWorkspace(repoDir);
+  try {
+    return await fn(ws);
+  } finally {
+    await ws.dispose();
+  }
+}
+
 /** The message of a failure vitest reports with `mark` (the line it prints, not a code frame quoting the test). */
 function marked(output: string, mark: string): string | undefined {
   return new RegExp(`^\\s*(?:→\\s*|[\\w$.]+: )${mark}: (.*)$`, "m").exec(output)?.[1]?.trim();
@@ -259,7 +271,8 @@ export interface AdvisoryRepair {
  */
 export async function repairAdvisory(input: AdvisoryRepairInput): Promise<AdvisoryRepair> {
   if (!input.workspace && !input.repoDir) throw new Error("repairAdvisory needs a workspace or a repoDir");
-  const ws = input.workspace ?? localWorkspace(input.repoDir!);
+  if (!input.workspace) return inTempCopy(input.repoDir!, (workspace) => repairAdvisory({ ...input, workspace }));
+  const ws = input.workspace;
   const seen = new Set<string>();
   const order = input.callSites
     .filter((s) => {
