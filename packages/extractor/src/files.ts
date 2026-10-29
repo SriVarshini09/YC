@@ -4,7 +4,7 @@ import { providerForPackage, providerForPythonPackage } from "@shapi/core";
 
 const SOURCE_FILE = /\.(c|m)?[jt]sx?$/;
 const PYTHON_FILE = /\.py$/;
-const SKIP_DIRS = new Set(["node_modules", "dist", "build", "out", "coverage", "vendor", "bower_components", "venv", "__pycache__", "site-packages", "public"]);
+const SKIP_DIRS = new Set(["node_modules", "dist", "build", "out", "coverage", "vendor", "bower_components", "venv", "__pycache__", "site-packages"]);
 /** Minified and bundled output committed next to the source: app.min.js, vendor.bundle.js. */
 const BUNDLE_FILE = /\.(min|bundle)\.(c|m)?js$/;
 /** Python dependency manifests: requirements*.txt and pyproject.toml. */
@@ -24,11 +24,15 @@ export function listRepoFiles(root: string): RepoFiles {
   const python: string[] = [];
   const pythonManifests: string[] = [];
   const walk = (dir: string) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const entries = readdirSync(dir, { withFileTypes: true });
+    // Static files a framework serves as they are (Next.js, Vite, Laravel): public/ at the root or next to a package.json.
+    // Elsewhere (src/public/, a Python package named public) it is source.
+    const servesPublic = dir === root || entries.some((e) => e.isFile() && e.name === "package.json");
+    for (const entry of entries) {
       if (entry.name.startsWith(".")) continue;
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (!SKIP_DIRS.has(entry.name)) walk(full);
+        if (!SKIP_DIRS.has(entry.name) && !(entry.name === "public" && servesPublic)) walk(full);
       } else if (entry.isFile()) {
         if (entry.name === "package.json") manifests.push(full);
         else if (SOURCE_FILE.test(entry.name) && !entry.name.endsWith(".d.ts") && !BUNDLE_FILE.test(entry.name)) sources.push(full);

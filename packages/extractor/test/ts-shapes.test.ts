@@ -240,4 +240,15 @@ describe("large generated files (B10)", () => {
     expect(result.filesScanned).toBe(1);
     expect(result.callSites.map((s) => s.file)).toEqual(["src/app.ts"]);
   });
+
+  it("skips public/ only at the root and next to a package.json, where frameworks serve static files from", () => {
+    const call = 'fetch("https://api.github.com/repos/a/b");\n';
+    const result = scan({
+      "apps/web/package.json": "{}",
+      "apps/web/public/app.js": call,
+      "src/public/api.ts": call,
+      "lib/public/client.js": call,
+    });
+    expect(result.callSites.map((s) => s.file)).toEqual(["lib/public/client.js", "src/public/api.ts"]);
+  });
 });

@@ -21,7 +21,8 @@ const IsoDate = z.iso.date();
 
 /**
  * Which call sites an advisory applies to. `path` is a pattern: `{name}` matches
- * one segment, `*` matches within a segment, `**` matches any number of segments.
+ * one segment, `*` matches within a segment, `**` matches any number of segments,
+ * and `{?}` matches only a value the code builds at runtime, never a literal.
  */
 export const EndpointPatternSchema = z.object({
   method: z.union([z.enum(HTTP_METHODS), z.literal("*")]),

@@ -95,6 +95,22 @@ app.event("app_mention", async ({ event, client: web }) => {
     ]);
     expect(affectedIds(files)).toEqual(["3 slack-files-upload-retired", "7 slack-files-upload-retired"]);
   });
+
+  it("does not record the App's own methods, which register listeners or run the app, as Web API calls", () => {
+    const sites = sitesOf({
+      "a.ts": `import { App } from "@slack/bolt";
+const app = new App({ token: "xoxb", signingSecret: "s" });
+app.command("/x", async ({ ack, client }) => {
+  await ack();
+  await client.chat.postMessage({ channel: "C1", text: "hi" });
+});
+app.event("app_mention", async () => {});
+app.error(async () => {});
+await app.start(3000);
+`,
+    });
+    expect(sites.map(line)).toEqual(["5 chat.postMessage POST slack /api/chat.postMessage"]);
+  });
 });
 
 describe("Twilio resources picked by sid", () => {
