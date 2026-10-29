@@ -278,7 +278,8 @@ const migrations: Record<string, Migration> = {
     // and administer on GitHub, read at sign-in. Older sessions lack it, so they end: users sign in again.
     async up(db: Kysely<unknown>) {
       await sql`delete from sessions`.execute(db);
-      await sql`alter table sessions add column access jsonb not null`.execute(db);
+      // The default (no access) covers sessions an old machine still creates while a deploy rolls out.
+      await sql`alter table sessions add column access jsonb not null default '{}'::jsonb`.execute(db);
     },
     async down(db: Kysely<unknown>) {
       await sql`alter table sessions drop column if exists access`.execute(db);
