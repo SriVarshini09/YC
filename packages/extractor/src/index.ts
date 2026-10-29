@@ -1,7 +1,7 @@
 import path from "node:path";
 import { readFileSync } from "node:fs";
 import { Project, ScriptKind, type SourceFile } from "ts-morph";
-import type { CallSite } from "@shapi/core";
+import { GENERATED_TEST_HEADER, type CallSite } from "@shapi/core";
 import { extractFromFile, looseUrlSites, type FoundCall } from "./callsites";
 import { addResponseSurface } from "./surface";
 import { declaredProviders, declaredPythonProviders, listRepoFiles, toPosix, type DeclaredProvider } from "./files";
@@ -54,10 +54,17 @@ export function extractCallSites(rootDir: string): ExtractResult {
   const failed = (rel: string, err: unknown) => skipped.push({ file: rel, reason: err instanceof Error ? err.message : String(err) });
   // Every file first, so a client imported from another file can be followed to where it is constructed.
   const files: { rel: string; sf: SourceFile }[] = [];
+  // SHAPI's own contract tests name the old request on purpose: they are not call sites.
+  let generated = 0;
   for (const abs of sources) {
     const rel = toPosix(path.relative(root, abs));
     try {
-      const sf = project.createSourceFile(`/${rel}`, readFileSync(abs, "utf8"), {
+      const text = readFileSync(abs, "utf8");
+      if (text.replace(/^\uFEFF/, "").startsWith(GENERATED_TEST_HEADER)) {
+        generated++;
+        continue;
+      }
+      const sf = project.createSourceFile(`/${rel}`, text, {
         overwrite: true,
         scriptKind: SCRIPT_KINDS[path.extname(abs)] ?? ScriptKind.TS,
       });
@@ -97,7 +104,7 @@ export function extractCallSites(rootDir: string): ExtractResult {
 
   return {
     root,
-    filesScanned: sources.length + python.length - skipped.length,
+    filesScanned: sources.length - generated + python.length - skipped.length,
     callSites,
     declared: [...declaredProviders(root, manifests), ...declaredPythonProviders(root, pythonManifests)],
     found,
