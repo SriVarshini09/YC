@@ -1,3 +1,7 @@
+---
+description: "The terms for using SHAPI's hosted GitHub App and web app."
+---
+
 # Terms of service
 
 ::: warning Draft

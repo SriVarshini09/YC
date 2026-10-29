@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { withBase } from "vitepress";
 import { data } from "../../advisories.data";
 import { aheadOf, daysUntil, inDays as inDaysFrom, isoDay } from "../dates";
+import { ringSlots } from "../ring";
 
 // The landing page (site/index.md). Every picture on it is a real SHAPI artifact: the demo project's
 // src/deploy.ts and its api.lock entry, the canary's shape diff, the GitHub advisory, the contract
@@ -81,7 +82,7 @@ const pane = ref(0);
 // The same morning, two ways: flips at the middle of its section, or with the switch.
 const withShapi = ref(false);
 
-// The real output of `npx shapi-cli scan .` (0.3.0) on the demo project, shortened, printed as you scroll.
+// The real output of `npx shapi-cli scan .` (0.3.1) on the demo project, shortened, printed as you scroll.
 const TERM = computed<[string, string][]>(() => {
   const hubspotDays = days("2026-12-04");
   return [
@@ -222,11 +223,14 @@ onMounted(async () => {
   const helix = $("#changes"), ring = $(".ring"), cards = $$(".adv");
   function drawHelix(t: number) {
     if (!inView(helix)) return;
-    // on phones the ring is wider than the screen, so one card at a time faces you
-    const p = prog(helix), R = innerWidth < 640 ? 260 : Math.min(580, innerWidth * 0.42), step = 360 / cards.length;
+    // on phones the ring is wider than the screen, so one card at a time faces you; a smaller ring holds
+    // fewer cards, so they don't overlap
+    const p = prog(helix), R = innerWidth < 640 ? 260 : Math.min(580, innerWidth * 0.42), n = ringSlots(R, 226, cards.length), step = 360 / n;
     const rot = -p * 300 - (reduce ? 0 : t / 280);
     ring.style.transform = `translateY(${(0.5 - p) * 50}px) rotateX(${-7 + (my - 0.5) * 6}deg) rotateY(${rot}deg)`;
     cards.forEach((c, i) => {
+      c.style.visibility = i < n ? "" : "hidden";
+      if (i >= n) return;
       const front = Math.cos(((i * step + rot) * Math.PI) / 180);
       c.style.transform = `rotateY(${i * step}deg) translateZ(${R}px)`;
       c.style.opacity = (0.1 + 0.9 * Math.pow(Math.max(0, front), 1.6)).toFixed(3);
@@ -247,7 +251,8 @@ onMounted(async () => {
   function drawTerm() {
     if (!inView(term)) return;
     const n = TERM.value.length;
-    termShown.value = reduce ? n : Math.round(clamp(prog(term) / 0.75) * n);
+    // the command itself is there from the start, so the terminal never shows empty
+    termShown.value = reduce ? n : Math.max(1, Math.round(clamp(prog(term) / 0.75) * n));
   }
 
   // 7. your code and the API fit together

@@ -1,3 +1,7 @@
+---
+description: "How SHAPI maps your third-party API calls into an api.lock, matches them against advisories, and fixes what breaks."
+---
+
 # How SHAPI works
 
 Third-party APIs change behavior without a new version number. GitHub's `workflow_dispatch` started answering `200` with a body instead of `204`. QuickBooks began answering every minor version below 75 as 75. HubSpot retires its v1 pipelines API on December 4, 2026. Code written against the old behavior keeps compiling and breaks at runtime. SHAPI finds that code before your users do.
