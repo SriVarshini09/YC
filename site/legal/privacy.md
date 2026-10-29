@@ -80,7 +80,7 @@ SHAPI is hosted in the United States, and its service providers process data in 
 
 ## Your choices and rights
 
-- **Delete everything:** uninstall the GitHub App from your GitHub settings. SHAPI deletes your account and its data at once. Cancel a paid subscription under *Manage billing* first, because uninstalling doesn't cancel it.
+- **Delete everything:** uninstall the GitHub App from your GitHub settings. SHAPI deletes your account and its data at once. Uninstalling also cancels a paid subscription in Stripe, at once.
 - **Stop using Claude:** turn the setting off in the web app.
 - **Access, correction, deletion or objection:** depending on where you live, you may have these rights under laws such as the GDPR or the CCPA. Ask for any of them as described below, and we'll respond within 30 days.
 
