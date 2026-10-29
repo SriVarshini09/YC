@@ -4,7 +4,7 @@ import { createServer, type Server } from "node:net";
 import { describe, expect, it } from "vitest";
 import { sql } from "kysely";
 import { createDb } from "@shapi/db";
-import { startTestPostgres } from "../../../test-utils/postgres";
+import { startTestPostgres, startTimeoutMs } from "../../../test-utils/postgres";
 
 /** A port something else listens on, as when two test files pick the same free port. */
 async function busyPort(): Promise<{ port: number; server: Server }> {
@@ -37,6 +37,12 @@ describe("test Postgres", () => {
   it("a start that takes longer than its time limit is killed, with a clear error", async () => {
     await expect(startTestPostgres("shapi_slow", { attempts: 2, timeoutMs: 1 })).rejects.toThrow(/did not start \(2 attempts\): port \d+: timed out after 1 ms \| port \d+: timed out after 1 ms/);
   }, 60_000);
+
+  it("takes its start time limit from SHAPI_TEST_PG_START_TIMEOUT_MS, 30 s by default", () => {
+    expect(startTimeoutMs({})).toBe(30_000);
+    expect(startTimeoutMs({ SHAPI_TEST_PG_START_TIMEOUT_MS: "45000" })).toBe(45_000);
+    for (const bad of ["", "0", "-5", "soon", "1.5"]) expect(startTimeoutMs({ SHAPI_TEST_PG_START_TIMEOUT_MS: bad }), bad).toBe(30_000);
+  });
 
   it("stop() resolves even when the data folder cannot be removed yet, and twice in a row", async () => {
     const pg = await startTestPostgres("shapi_stop");
