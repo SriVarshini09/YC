@@ -122,7 +122,7 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
       const outcome = await upsertFixPr(octokit, { repo: repo.full_name, branch: prBranch(d.advisory), title: fix.title, body: fix.body, commitMessage: fix.commitMessage, files: fix.files, baseSha: fix.sha, labels: [PR_LABEL], retryClosed: intents.retry.has(d.advisory.id) });
       await withService(deps.db, (tx) => recordOutcome(tx, repo, d.advisory.id, outcome, now, fix.repair));
       // A maintainer's branch: no box to tick, since SHAPI cannot open the fix until they delete the branch.
-      if (outcome.action === "skipped" && outcome.foreignBranch) blocked.push({ advisory: d.advisory, branch: outcome.branch, number: outcome.number, url: outcome.url });
+      if (outcome.action === "skipped" && outcome.foreignBranch) blocked.push({ advisory: d.advisory, branch: outcome.branch, number: outcome.number, url: outcome.url, retried: intents.retry.has(d.advisory.id) });
       else if (outcome.action === "skipped" && !outcome.state) waiting.push({ advisory: d.advisory, reason: outcome.reason });
       report.outcomes.push({ advisoryId: d.advisory.id, action: outcome.action, reason: outcome.action === "skipped" ? outcome.reason : undefined, url: outcome.url });
     } catch (err) {

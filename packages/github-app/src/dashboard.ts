@@ -11,7 +11,7 @@ export interface DashboardInput {
   waiting: { advisory: Advisory; reason: string }[];
   closed: { advisory: Advisory; number?: number; url?: string }[];
   /** Fixes SHAPI cannot open because their branch has someone else's commits (SHAPI never force-pushes over them). */
-  blocked?: { advisory: Advisory; branch: string; number?: number; url?: string }[];
+  blocked?: { advisory: Advisory; branch: string; number?: number; url?: string; retried?: boolean }[];
   /** Affected call sites with no automatic fix yet. */
   manual: { advisory: Advisory; callSites: number }[];
   upcoming: { advisory: Advisory; daysUntil: number }[];
@@ -57,8 +57,10 @@ export function renderDashboard(d: DashboardInput): string {
     (d.blocked ?? []).map((b) => {
       const why = `the branch \`${b.branch}\` has commits that are not SHAPI's, so SHAPI leaves it alone`;
       // A fix closed without merging is opened again only when asked, so its row keeps the retry box.
+      // Ticked while the branch was still there: the box comes back unticked, so say why nothing was opened.
+      const retried = b.retried ? " You ticked this, but the branch still has those commits, so nothing was opened." : "";
       return b.number
-        ? `- [ ] <!-- shapi:retry:${b.advisory.id} --> ${b.advisory.title}${pr(b.number, b.url)}: ${why}. Delete the branch, then tick to open the fix again.`
+        ? `- [ ] <!-- shapi:retry:${b.advisory.id} --> ${b.advisory.title}${pr(b.number, b.url)}: ${why}.${retried} Delete the branch, then tick to open the fix again.`
         : `- ${b.advisory.title}: ${why}. Delete the branch and SHAPI opens the fix on its next scan.`;
     }),
   );
