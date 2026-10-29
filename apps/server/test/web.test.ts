@@ -119,13 +119,23 @@ describe("web sign-in", () => {
     expect(res.body).toContain('href="/login"');
     expect(res.body).toContain("https://github.com/apps/shapi-test/installations/new");
     expect(res.body).not.toContain("<script");
-    expect(res.body).toContain('<a href="https://srivarshini09.github.io/YC/legal/privacy">Privacy</a>');
+    expect(res.body).toContain('<a href="https://shapi.dev/legal/privacy">Privacy</a>');
     // the public landing page: what SHAPI does, with numbers read from the server
     expect(res.body).toContain("keeps working.");
     expect(res.body).toContain('id="how"');
     expect(res.body).toMatch(/<b>\d+<\/b><span>reviewed API changes<\/span>/);
     expect(res.headers["content-security-policy"]).toContain("default-src 'none'");
     expect(res.headers["x-frame-options"]).toBe("DENY");
+    await app.close();
+  });
+
+  it("sends pages on Fly's default hostname to the public URL, but not health checks", async () => {
+    const app = buildApp({ db, config: { ...config, webApp: { ...webApp, publicUrl: "https://app.shapi.dev" } }, fetch: fakeGitHub().fetch });
+    const res = await app.inject({ url: "/login?next=%2Fa%2F1", headers: { host: "shapi-app.fly.dev" } });
+    expect(res.statusCode).toBe(301);
+    expect(res.headers.location).toBe("https://app.shapi.dev/login?next=%2Fa%2F1");
+    expect((await app.inject({ url: "/healthz", headers: { host: "shapi-app.fly.dev" } })).statusCode).toBe(200);
+    expect((await app.inject({ url: "/", headers: { host: "app.shapi.dev" } })).statusCode).toBe(200);
     await app.close();
   });
 

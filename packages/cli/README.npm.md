@@ -1,4 +1,4 @@
-<p align="center"><a href="https://srivarshini09.github.io/YC/"><img src="https://raw.githubusercontent.com/SriVarshini09/YC/main/brand/png/shapi-lockup-horizontal-light-on-bg-1024.png" alt="SHAPI" width="320"></a></p>
+<p align="center"><a href="https://shapi.dev/"><img src="https://raw.githubusercontent.com/SriVarshini09/YC/main/brand/png/shapi-lockup-horizontal-light-on-bg-1024.png" alt="SHAPI" width="320"></a></p>
 
 # shapi-cli
 
@@ -43,7 +43,7 @@ Node.js 22 or later.
 
 ## More
 
-- Documentation: https://srivarshini09.github.io/YC/
+- Documentation: https://shapi.dev/
 - The GitHub App watches your repositories, posts a check on each push, and opens verified fix pull requests: https://github.com/SriVarshini09/YC
 - Report a problem: https://github.com/SriVarshini09/YC/issues
 

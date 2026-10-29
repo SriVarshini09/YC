@@ -243,7 +243,7 @@ ${MOTION_CSS}
 </div>
 </div>
 <div class="cards">
-<div class="card back">${svgFile(H, INK)}<div class="who"><b>Name Surname</b><span>Founder · srivarshini09.github.io/YC</span></div></div>
+<div class="card back">${svgFile(H, INK)}<div class="who"><b>Name Surname</b><span>Founder · shapi.dev</span></div></div>
 <div class="card front">${svgFile(LAYOUT.stacked, PAPER).replace("<svg ", '<svg style="width:46%" ')}</div>
 </div>
 <div class="site">

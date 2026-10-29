@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://srivarshini09.github.io/YC/">
+  <a href="https://shapi.dev/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="brand/motion/shapi-logo-animated-dark.svg">
       <img src="brand/motion/shapi-logo-animated-light.svg" alt="SHAPI" height="64">
@@ -9,7 +9,7 @@
 
 Self-maintaining APIs. SHAPI maps the third-party APIs a codebase depends on (`api.lock`: every call site, and the status codes, fields, enums, headers and query params each one relies on) and flags the call sites that a known breaking change actually hits.
 
-Documentation: https://srivarshini09.github.io/YC/
+Documentation: https://shapi.dev/
 
 ## Try it
 
