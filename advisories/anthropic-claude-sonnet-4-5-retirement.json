@@ -1,0 +1,35 @@
+{
+  "id": "anthropic-claude-sonnet-4-5-retirement",
+  "provider": "anthropic",
+  "title": "Claude Sonnet 4.5 retires on 2026-11-30",
+  "summary": "Anthropic retires claude-sonnet-4-5-20250929 on the Claude API on 2026-11-30 (announced 2026-09-30). Only calls that send this model are hit; requests to a retired model fail.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/v1/messages"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "body": [
+      {
+        "field": "model",
+        "values": [
+          "claude-sonnet-4-5-20250929",
+          "claude-sonnet-4-5"
+        ]
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-09-30",
+    "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations"
+  },
+  "effectiveDate": "2026-11-30",
+  "severity": "medium",
+  "migrationNote": "Change the model to claude-sonnet-5-5 (Anthropic's recommended replacement) and follow the Sonnet 4.5 to 5.5 migration guide, because some request shapes Sonnet 4.5 accepts (for example sampling parameters or forced tool use) can return 400 on newer models. Amazon Bedrock and Google-managed Google Cloud set their own retirement dates.",
+  "sources": [
+    "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+    "https://platform.claude.com/docs/en/release-notes/overview"
+  ],
+  "status": "verified"
+}
