@@ -144,3 +144,53 @@ describe("possibly affected", () => {
     expect(result.possible).toEqual([]);
   });
 });
+
+describe("method or host unknown", () => {
+  const byId = (id: string) => advisories.filter((a) => a.id === id);
+  const slack = (over: Partial<CallSite>) => site({ provider: "slack", host: "slack.com", client: "url", method: null, endpoint: "/api/files.upload", ...over });
+
+  it("flags a matching path with an unknown method as possibly affected", () => {
+    const lock = createApiLock({ callSites: [slack({}), slack({ endpoint: "/api/chat.postMessage" }), slack({ method: "GET" }), slack({ client: "fetch", method: "POST" })], declared: [] }, "test");
+    const result = matchAdvisories(lock, byId("slack-files-upload-retired"), { now });
+    expect(result.possible.map((f) => [f.callSite.line, f.reasons])).toEqual([
+      [lock.callSites[0]!.line, ["calls ? /api/files.upload, but SHAPI cannot tell the method (affected if it is POST)"]],
+    ]);
+    expect(result.affected.map((f) => f.callSite.line)).toEqual([lock.callSites[3]!.line]);
+    expect(result.exposed).toEqual([]);
+  });
+
+  it("flags a matching path with an unknown host as possibly affected when the advisory names hosts", () => {
+    const sf = (host: string | null) => site({ provider: "salesforce", host, method: "POST", endpoint: "/services/Soap/u/58.0" });
+    const lock = createApiLock({ callSites: [sf(null), sf("acme.my.salesforce.com"), sf("login.salesforce.com")], declared: [] }, "test");
+    const result = matchAdvisories(lock, byId("salesforce-soap-login-use-any-api-auth-required"), { now });
+    expect(result.possible.map((f) => [f.callSite.line, f.reasons])).toEqual([
+      [lock.callSites[0]!.line, ["calls POST /services/Soap/u/58.0, but SHAPI cannot tell the host (affected if it is login.salesforce.com or test.salesforce.com)"]],
+    ]);
+    expect(result.affected.map((f) => f.callSite.line)).toEqual([lock.callSites[2]!.line]);
+  });
+});
+
+describe("enum value triggers", () => {
+  const neo = advisories.filter((a) => a.id === "quickbooks-companyinfo-neoenabled-removed");
+  const qbo = (values: string[]) =>
+    site({ provider: "quickbooks", host: "quickbooks.api.intuit.com", method: "GET", endpoint: "/v3/company/{realm}/companyinfo/{realm}", surface: { enums: [{ field: "CompanyInfo.NameValue[].Name", values }] } });
+
+  it("is affected only when the field is compared to a listed value", () => {
+    const lock = createApiLock({ callSites: [qbo(["IndustryType", "NeoEnabled"]), qbo(["IndustryType"])], declared: [] }, "test");
+    const result = matchAdvisories(lock, neo, { now });
+    expect(result.affected.map((f) => [f.callSite.line, f.reasons])).toEqual([[lock.callSites[0]!.line, ['compares CompanyInfo.NameValue[].Name to "NeoEnabled"']]]);
+    expect(result.exposed.map((f) => f.callSite.line)).toEqual([lock.callSites[1]!.line]);
+  });
+});
+
+describe("days until a deadline", () => {
+  const lock = createApiLock({ callSites: [], declared: [{ provider: "hubspot", package: "@hubspot/api-client" }] }, "test");
+  const days = (at: string) => matchAdvisories(lock, advisories, { now: new Date(at) }).upcoming.find((u) => u.advisory.id === "hubspot-pipelines-v1-sunset")?.daysUntil;
+
+  it("counts UTC calendar days, whatever the local time zone (the deadline is 2026-12-04)", () => {
+    expect(days("2026-12-03T23:30:00Z")).toBe(1);
+    // 23:30 on Dec 3 in California is already Dec 4 in UTC
+    expect(days("2026-12-03T23:30:00-08:00")).toBe(0);
+    expect(days("2026-12-04T00:30:00+09:00")).toBe(1);
+  });
+});

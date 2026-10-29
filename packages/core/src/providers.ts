@@ -97,7 +97,8 @@ export function providerForPythonPackage(name: string): Provider | undefined {
 export function sdkEndpoint(provider: Provider, chain: string): { method: HttpMethod; path: string } | undefined {
   const methods = provider.sdkMethods ?? {};
   const key = chain.replace(/^rest\./, "");
-  const ref = methods[key];
+  // Own keys only: a chain such as "toString" or "constructor" must not find Object.prototype's members.
+  const ref = Object.hasOwn(methods, key) ? methods[key] : undefined;
   if (!ref) return undefined;
   const [method, path] = ref.split(" ") as [HttpMethod, string];
   return { method, path };

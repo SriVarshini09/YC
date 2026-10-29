@@ -20,7 +20,7 @@ export interface ExtractResult {
   declared: DeclaredProvider[];
   /** TypeScript and JavaScript call sites with their AST nodes, for passes that need them. */
   found: FoundCall[];
-  /** Files that were not scanned, with why (Python files before loadPythonParser(), files that fail to parse). */
+  /** Files that were not scanned, with why (Python files before loadPythonParser(), files that fail to parse or that the extractor fails on). */
   skipped: { file: string; reason: string }[];
 }
 
@@ -50,22 +50,26 @@ export function extractCallSites(rootDir: string): ExtractResult {
 
   const found: FoundCall[] = [];
   const loose: CallSite[] = [];
+  const skipped: ExtractResult["skipped"] = [];
   for (const abs of sources) {
     const rel = toPosix(path.relative(root, abs));
-    const sf = project.createSourceFile(`/${rel}`, readFileSync(abs, "utf8"), {
-      overwrite: true,
-      scriptKind: SCRIPT_KINDS[path.extname(abs)] ?? ScriptKind.TS,
-    });
-    const inFile = extractFromFile(sf, rel);
-    for (const f of inFile) {
-      addResponseSurface(f);
-      found.push(f);
+    // A file the extractor fails on is listed as skipped instead of failing the whole scan.
+    try {
+      const sf = project.createSourceFile(`/${rel}`, readFileSync(abs, "utf8"), {
+        overwrite: true,
+        scriptKind: SCRIPT_KINDS[path.extname(abs)] ?? ScriptKind.TS,
+      });
+      const inFile = extractFromFile(sf, rel);
+      for (const f of inFile) addResponseSurface(f);
+      const looseInFile = looseUrlSites(sf, rel, inFile);
+      found.push(...inFile);
+      loose.push(...looseInFile);
+    } catch (err) {
+      skipped.push({ file: rel, reason: err instanceof Error ? err.message : String(err) });
     }
-    loose.push(...looseUrlSites(sf, rel, inFile));
   }
   found.sort((a, b) => a.site.file.localeCompare(b.site.file) || a.site.line - b.site.line || a.site.column - b.site.column);
 
-  const skipped: ExtractResult["skipped"] = [];
   const pythonSites: CallSite[] = [];
   for (const abs of python) {
     const rel = toPosix(path.relative(root, abs));
