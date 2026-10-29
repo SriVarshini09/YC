@@ -3,7 +3,7 @@ import type { ExecResult, NetworkMode, Sandbox, SandboxProvider, SnapshotFile } 
 import { RUNNER_VITEST, sandboxWorkspace, withSandboxWorkspace } from "@shapi/repair";
 
 /** A sandbox that records every step, so the order of network changes and commands can be checked. */
-function recordingSandbox(opts: { installExit?: number; vitestInstalled?: boolean; testExit?: number } = {}) {
+function recordingSandbox(opts: { installExit?: number; vitestInstalled?: boolean; testExit?: number; closeFails?: boolean } = {}) {
   const files = new Map<string, string>();
   const log: string[] = [];
   let network: NetworkMode = "off";
@@ -29,8 +29,12 @@ function recordingSandbox(opts: { installExit?: number; vitestInstalled?: boolea
       network = mode;
       log.push(`network ${mode}`);
     },
+    async extend(ms: number) {
+      log.push(`extend ${ms}`);
+    },
     async close() {
       log.push("close");
+      if (opts.closeFails) throw new Error("kill failed");
     },
   };
   return { sandbox, log, files };
@@ -52,9 +56,12 @@ describe("sandbox workspace", () => {
     expect(log).toEqual([
       "write 3",
       "network registry",
+      // each command first makes sure the sandbox lives long enough for it
+      `extend ${10 * 60_000 + 2 * 60_000}`,
       "exec[registry] npm ci --no-audit --no-fund",
       "network off",
       "write 1",
+      `extend ${120_000 + 2 * 60_000}`,
       "exec[off] node node_modules/vitest/vitest.mjs run test/shapi/x.test.ts --reporter verbose --no-color",
     ]);
     expect(ws.install).toMatchObject({ packageManager: "npm", exitCode: 0, addedVitest: false });
@@ -84,6 +91,26 @@ describe("sandbox workspace", () => {
     expect(log.at(-1)).toBe("network off");
   });
 
+  it("runs the contract test with SHAPI's config when the repo has a vitest config, and deletes files", async () => {
+    const { sandbox, log, files } = recordingSandbox({ vitestInstalled: true });
+    const ws = await sandboxWorkspace(sandbox, [...npmRepo, { path: "vitest.config.ts", content: "export default {}" }]);
+    await ws.runTest("test/shapi/x.test.ts");
+    expect(files.get("test/shapi/vitest.config.mjs")).toContain('import repo from "../../vitest.config.ts";');
+    expect(log.at(-1)).toBe("exec[off] node node_modules/vitest/vitest.mjs run test/shapi/x.test.ts --config test/shapi/vitest.config.mjs --reporter verbose --no-color");
+    await ws.remove("src/new.ts");
+    expect(log.at(-1)).toBe("exec[off] node -e require('node:fs').rmSync(process.argv[1], { force: true }) src/new.ts");
+  });
+
+  it("type-checks with the repository's own TypeScript, if it has one", async () => {
+    const without = recordingSandbox({ vitestInstalled: true });
+    expect(await (await sandboxWorkspace(without.sandbox, npmRepo)).typecheck!("tsconfig.json")).toBeUndefined();
+    const withTs = recordingSandbox({ vitestInstalled: true });
+    withTs.files.set("node_modules/typescript/package.json", "{}");
+    const ws = await sandboxWorkspace(withTs.sandbox, npmRepo);
+    expect((await ws.typecheck!("packages/a/tsconfig.json"))?.passed).toBe(true);
+    expect(withTs.log.at(-1)).toBe("exec[off] node node_modules/typescript/lib/tsc.js --noEmit -p packages/a/tsconfig.json --pretty false");
+  });
+
   it("always destroys the sandbox, also when the work throws", async () => {
     const rec = recordingSandbox({ vitestInstalled: true });
     const provider: SandboxProvider = { name: "local", create: async () => rec.sandbox };
@@ -92,5 +119,10 @@ describe("sandbox workspace", () => {
     const ok = recordingSandbox({ vitestInstalled: true });
     expect(await withSandboxWorkspace({ name: "local", create: async () => ok.sandbox }, npmRepo, async (ws) => (await ws.runTest("t.ts")).passed)).toBe(true);
     expect(ok.log.at(-1)).toBe("close");
+  });
+
+  it("reports why the work failed even when destroying the sandbox fails too", async () => {
+    const rec = recordingSandbox({ vitestInstalled: true, closeFails: true });
+    await expect(withSandboxWorkspace({ name: "local", create: async () => rec.sandbox }, npmRepo, async () => Promise.reject(new Error("boom")))).rejects.toThrow("boom");
   });
 });

@@ -87,6 +87,13 @@ describe("status-code-accept-set forms", () => {
     expect(after(run("then", then))).toContain(".then((res) => [200, 204].includes(res.status));");
   });
 
+  it("leaves a same-named variable in an inner scope alone", () => {
+    const src = `export async function f(o: string, r: string, w: string, others: Response[]) {\n  const res = await fetch(${URL}, { method: "POST" });\n  if (res.status !== 204) throw new Error("x");\n  return others.filter((res) => res.status === 204).length;\n}\n`;
+    const out = after(run("shadowed", src));
+    expect(out).toContain("if (![200, 204].includes(res.status)) throw");
+    expect(out).toContain("others.filter((res) => res.status === 204)");
+  });
+
   it("reports why it did not apply", () => {
     const src = `export async function f(o: string, r: string, w: string) {\n  const res = await fetch(${URL}, { method: "POST" });\n  if (res.status !== 204) throw new Error("x");\n}\n`;
     const { site } = fixture("reasons", src);

@@ -4,7 +4,7 @@ SHAPI reads your code in order to fix it. This page says exactly what that invol
 
 ## The CLI
 
-`shapi scan` and `shapi fix` run on your machine. `scan` parses your files and runs nothing. `fix` runs a generated contract test against a temporary copy of your repository. Nothing is uploaded, except:
+`shapi scan` and `shapi fix` run on your machine. `scan` parses your files and runs nothing. `fix` runs a generated contract test against a temporary copy of your repository, deleted when the run ends, with none of your environment's tokens or keys. Nothing is uploaded, except:
 
 - **With `--pr`:** the changed files go to GitHub, through your own token.
 - **With `--llm`:** the affected file, the advisory, the contract test and its failing output go to Anthropic's API, through your own key.
@@ -19,7 +19,7 @@ SHAPI reads your code in order to fix it. This page says exactly what that invol
   - Only the npm and Yarn registries are reachable during the install.
   - **The network is limited to the package registries** during the dependency install, where install scripts run, and **switched off entirely** before your code or tests run.
   - The VM contains no tokens or SHAPI credentials.
-  - It is destroyed after the job and lives at most 15 minutes.
+  - It is destroyed after the job. It starts with a 15-minute lifetime, extended while the job works, and never lives past 60 minutes.
 
 ### What SHAPI stores
 
@@ -43,7 +43,7 @@ Every account-scoped table in Postgres uses **row-level security** keyed to the 
 
 ### Claude
 
-Off by default, and the setting appears only when Claude is enabled on the server. When an account turns on *Use Claude when no deterministic recipe fits*, the affected file, the advisory, the contract test and its failing output are sent to Anthropic's API for that call site. The proposed change is kept only if the contract test passes in the sandbox.
+Off by default, and the setting appears only when Claude is enabled on the server. When an account turns on *Use Claude when no deterministic recipe fits*, the affected file, the advisory, the contract test and its failing output are sent to Anthropic's API for that call site. The proposed change may touch only source files, and is kept only if the contract test passes in the sandbox and the code still type-checks. A fix job makes at most 20 Claude calls.
 
 ### Other safeguards
 

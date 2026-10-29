@@ -1,4 +1,4 @@
-import type { FieldShape, ResponseShape } from "@shapi/shapes";
+import { pathSegments, type FieldShape, type ResponseShape } from "@shapi/shapes";
 
 interface Node {
   field?: FieldShape;
@@ -30,16 +30,8 @@ export function synthesizeBody(shape: ResponseShape): unknown {
   return value(root, shape.body.rootType === "array" ? "array" : "object");
 }
 
-/** "a.b[].c" → ["a", "b", "[]", "c"]; "[].id" → ["[]", "id"]. */
-function tokens(path: string): string[] {
-  const out: string[] = [];
-  for (const part of path.split(".")) {
-    const m = /^([^[]*)((?:\[\])*)$/.exec(part)!;
-    if (m[1]) out.push(m[1]);
-    for (let i = 0; i < m[2]!.length / 2; i++) out.push("[]");
-  }
-  return out;
-}
+/** "a.b[].c" → ["a", "b", "[]", "c"]; a key holding "." or "[" is escaped in shape paths ("filter\[name]"). */
+const tokens = pathSegments;
 
 function value(node: Node, forced?: "array" | "object"): unknown {
   const types = node.field?.types.filter((t) => t !== "null") ?? [];

@@ -6,7 +6,7 @@ import { createApiLock, loadAdvisories, matchAdvisories, pathMatches, type Advis
 import { extractCallSites } from "@shapi/extractor";
 import { ShapeStore, type ResponseShape } from "@shapi/shapes";
 import { loadRecording, replay } from "@shapi/canary";
-import { RECIPES, claudeFixer, localWorkspace, repairAdvisory, type RepairResult } from "@shapi/repair";
+import { RECIPES, claudeFixer, localWorkspace, repairAdvisory, withCallBudget, type RepairResult } from "@shapi/repair";
 import { authFromEnv, octokitFor, prBranch, prTitle, renderPrBody, repoFromUrl, upsertFixPr, type OpenedPullRequest } from "@shapi/github-app";
 import { DEFAULT_ADVISORIES } from "./scan";
 import { bundledDir } from "./paths";
@@ -62,7 +62,7 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
     const { affected } = matchAdvisories(lock, advisories, { now });
     if (affected.length === 0) deps.log("No affected call sites: nothing to fix.");
 
-    const llm = opts.llm ? claudeFixer() : undefined;
+    const llm = opts.llm ? withCallBudget(claudeFixer()) : undefined;
     const outcomes: FixOutcome[] = [];
     // One repair per advisory covering all of its call sites, so --write and --pr carry them together.
     const byAdvisory = new Map<string, Finding[]>();
@@ -79,7 +79,9 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
         }
         continue;
       }
-      const repair = await repairAdvisory({ workspace: localWorkspace(dir), advisory, callSites: findings.map((f) => f.callSite), before: shapes.before, after: shapes.after, recipes: RECIPES, llm });
+      // The temp copy holds the whole checkout (.env files too): it goes as soon as the repair is done.
+      const workspace = localWorkspace(dir);
+      const repair = await repairAdvisory({ workspace, advisory, callSites: findings.map((f) => f.callSite), before: shapes.before, after: shapes.after, recipes: RECIPES, llm }).finally(() => workspace.dispose());
       const mine: FixOutcome[] = [];
       for (const { callSite, result } of repair.sites) {
         const finding = findings.find((f) => f.callSite.file === callSite.file && f.callSite.line === callSite.line && f.callSite.column === callSite.column)!;

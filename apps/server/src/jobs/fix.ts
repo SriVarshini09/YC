@@ -1,7 +1,7 @@
 import { matchAdvisories, type Advisory, type LockedCallSite } from "@shapi/core";
 import { withService, type Db } from "@shapi/db";
 import { fetchRepoSnapshot, prTitle, renderPrBody } from "@shapi/github-app";
-import { RECIPES, repairAdvisory, withSandboxWorkspace, type InstallReport, type LlmFixer, type RepairResult, type Workspace } from "@shapi/repair";
+import { RECIPES, repairAdvisory, withCallBudget, withSandboxWorkspace, type InstallReport, type LlmFixer, type RepairResult, type Workspace } from "@shapi/repair";
 import type { SandboxProvider, SnapshotFile } from "@shapi/sandbox";
 import type { GitHubClients } from "../github/clients";
 import { repositoryCovered } from "../billing/plan";
@@ -93,7 +93,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
     byAdvisory.set(advisory.id, entry);
   }
 
-  const llm = (scan.settings as { llmFixes?: boolean }).llmFixes === true ? deps.llm : undefined;
+  const llm = (scan.settings as { llmFixes?: boolean }).llmFixes === true && deps.llm ? withCallBudget(deps.llm) : undefined;
   const report: FixReport = { scanId: scan.id, repairs: [] };
   const manual: { advisory: Advisory; callSites: number }[] = [];
   const todo: { advisory: Advisory; callSites: LockedCallSite[]; shapes: { before?: ResponseShape; after?: ResponseShape; source: string } }[] = [];

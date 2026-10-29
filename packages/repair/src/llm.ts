@@ -22,6 +22,32 @@ export interface LlmFixer {
   fix(request: FixRequest): Promise<FixProposal>;
 }
 
+/**
+ * Model calls one fix job (or one `shapi fix` run) may make: each is a high-effort request carrying a
+ * whole file. SHAPI_LLM_CALLS_PER_JOB overrides it.
+ */
+export const DEFAULT_LLM_CALLS_PER_JOB = 20;
+
+/** Larger files go to no model: the fix needs the whole file back, so the prompt would be all of it. */
+export const MAX_LLM_FILE_BYTES = 200_000;
+
+/** `llm`, declining every call after the first `max`. Make one per job, so retries and big scans cannot run up the bill. */
+export function withCallBudget(llm: LlmFixer, max = callsPerJob()): LlmFixer {
+  let calls = 0;
+  return {
+    async fix(req) {
+      if (calls >= max) return { status: "declined", reason: `the ${max} LLM calls allowed per fix job are used up (SHAPI_LLM_CALLS_PER_JOB)` };
+      calls++;
+      return llm.fix(req);
+    },
+  };
+}
+
+function callsPerJob(): number {
+  const n = Number(process.env.SHAPI_LLM_CALLS_PER_JOB);
+  return Number.isInteger(n) && n >= 0 && process.env.SHAPI_LLM_CALLS_PER_JOB !== "" ? n : DEFAULT_LLM_CALLS_PER_JOB;
+}
+
 /** The model the plan names for the repair agent; SHAPI_REPAIR_MODEL overrides it. */
 export const DEFAULT_REPAIR_MODEL = "claude-fable-5-1";
 
@@ -66,6 +92,8 @@ export function claudeFixer(opts: { client?: Anthropic; model?: string } = {}): 
   const model = opts.model ?? process.env.SHAPI_REPAIR_MODEL ?? DEFAULT_REPAIR_MODEL;
   return {
     async fix(req) {
+      const size = Buffer.byteLength(req.file.content);
+      if (size > MAX_LLM_FILE_BYTES) return { status: "declined", reason: `${req.file.path} is too large to send to the model (${Math.round(size / 1000)} kB, limit ${MAX_LLM_FILE_BYTES / 1000} kB)` };
       let response: Anthropic.Beta.BetaMessage;
       try {
         response = await client.beta.messages.create({
