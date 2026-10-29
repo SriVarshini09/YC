@@ -70,7 +70,8 @@ describe("app registration and auth", () => {
   it("asks for the minimum permissions and events", () => {
     const m = appManifest({ name: "SHAPI", url: "https://shapi.dev", webhookUrl: "https://hooks.example/x", redirectUrl: "http://localhost:3999/callback", public: false });
     expect(m.default_permissions).toEqual({ metadata: "read", contents: "write", pull_requests: "write", checks: "write", issues: "write" });
-    expect(m.default_events).toEqual(["push", "pull_request", "issues"]);
+    // "repository": archiving a repository disables it, unarchiving scans it again (metadata: read is enough).
+    expect(m.default_events).toEqual(["push", "pull_request", "issues", "repository"]);
     expect(m.hook_attributes).toEqual({ url: "https://hooks.example/x", active: true });
     expect(Object.keys(APP_PERMISSIONS)).not.toContain("administration");
     expect(APP_EVENTS).not.toContain("issue_comment");
