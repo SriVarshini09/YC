@@ -82,7 +82,7 @@ const pkg = {
   files: ["bin", "dist", "advisories", "recordings", "README.md", "LICENSE"],
   engines: cliPkg.engines,
   license,
-  homepage: "https://github.com/SriVarshini09/YC#readme",
+  homepage: "https://shapi.dev",
   repository: { type: "git", url: "git+https://github.com/SriVarshini09/YC.git", directory: "packages/cli" },
   bugs: { url: "https://github.com/SriVarshini09/YC/issues" },
   dependencies,
