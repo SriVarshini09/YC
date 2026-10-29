@@ -1,7 +1,7 @@
 # GitHub App
 
 ::: info Early access
-Anyone can [install the GitHub App](https://github.com/apps/shapi-by-srivarshini/installations/new). It's free during early access, and SHAPI asks before anything is charged. Tell us what breaks: [open an issue](https://github.com/SriVarshini09/YC/issues).
+Anyone can [install the GitHub App](https://github.com/apps/shapi-by-srivarshini/installations/new). It's free during early access, and SHAPI asks before anything is charged. Tell us what breaks: [open an issue](https://github.com/SriVarshini09/shapi-advisories/issues) or email [sri@shapi.dev](mailto:sri@shapi.dev).
 :::
 
 ## What it does

@@ -161,6 +161,17 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
     scope.get("/favicon.svg", async (_req, reply) => reply.type("image/svg+xml").header("cache-control", cached).send(FAVICON_SVG));
     scope.get("/favicon.ico", async (_req, reply) => reply.type("image/x-icon").header("cache-control", cached).send(FAVICON_ICO));
     scope.get("/apple-touch-icon.png", async (_req, reply) => reply.type("image/png").header("cache-control", cached).send(APPLE_TOUCH_ICON));
+    // The landing page may be indexed; sign-in and account pages are not for search engines.
+    scope.get("/robots.txt", async (_req, reply) =>
+      reply.type("text/plain; charset=utf-8").header("cache-control", cached).send("User-agent: *\nDisallow: /a/\nDisallow: /auth/\nDisallow: /login\n"),
+    );
+    // Unknown addresses: a page for people, and Fastify's usual JSON for everything else (webhook senders, scripts).
+    scope.setNotFoundHandler(async (req, reply) => {
+      const forPeople = (req.method === "GET" || req.method === "HEAD") && String(req.headers.accept ?? "").includes("text/html");
+      if (!forPeople) return reply.code(404).send({ message: `Route ${req.method}:${req.url} not found`, error: "Not Found", statusCode: 404 });
+      const { session } = await sessionOf(req);
+      return send(reply, page("Not found", messagePage("Page not found", "There is nothing at this address.", { href: "/", label: "Go to SHAPI" }), bare(req, session)), 404);
+    });
     scope.get("/static/inter.woff2", async (_req, reply) => reply.type("font/woff2").header("cache-control", "public, max-age=604800, immutable").send(await readFile(FONT_FILE)));
     scope.get("/static/serif.woff2", async (_req, reply) => reply.type("font/woff2").header("cache-control", "public, max-age=604800, immutable").send(await readFile(SERIF_FILE)));
     scope.get("/static/serif-italic.woff2", async (_req, reply) => reply.type("font/woff2").header("cache-control", "public, max-age=604800, immutable").send(await readFile(SERIF_ITALIC_FILE)));

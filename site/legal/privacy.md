@@ -1,7 +1,7 @@
 # Privacy policy
 
 ::: warning Draft
-This policy applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 28, 2026.
+This policy applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 29, 2026.
 :::
 
 SHAPI is operated by its founder and is not yet incorporated. In this policy, "SHAPI", "we" and "us" mean the SHAPI project and its operator. This policy covers the hosted GitHub App and web app, the `shapi-cli` command-line tool, and this documentation site.
@@ -90,8 +90,8 @@ SHAPI is a tool for software developers and isn't directed at children under 16.
 
 ## Changes
 
-We'll post changes to this page. The page's history is public in the [repository](https://github.com/SriVarshini09/YC/commits/main/site/legal/privacy.md). Significant changes will be summarized at the top of this page before they take effect.
+We'll post changes to this page, with the date at the top. Significant changes will be summarized at the top of this page before they take effect.
 
 ## Contact
 
-SHAPI doesn't have a privacy email address yet. To make a request, [open an issue](https://github.com/SriVarshini09/YC/issues/new) titled "Privacy request". Don't include personal details in the issue; we'll reply there to arrange a private channel. To report a security problem, use the repository's [private vulnerability reporting](https://github.com/SriVarshini09/YC/security/advisories/new).
+To make a request, email [sri@shapi.dev](mailto:sri@shapi.dev) with the subject "Privacy request". To report a security problem, email the same address with the subject "Security" (see [Security](/security)).

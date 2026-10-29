@@ -85,8 +85,8 @@ const pkg = {
   engines: cliPkg.engines,
   license,
   homepage: "https://shapi.dev",
-  repository: { type: "git", url: "git+https://github.com/SriVarshini09/YC.git", directory: "packages/cli" },
-  bugs: { url: "https://github.com/SriVarshini09/YC/issues" },
+  // SHAPI's source repository is private; bugs go to the public advisory repository.
+  bugs: { url: "https://github.com/SriVarshini09/shapi-advisories/issues", email: "sri@shapi.dev" },
   dependencies,
 };
 writeFileSync(path.join(out, "package.json"), `${JSON.stringify(pkg, null, 2)}\n`);

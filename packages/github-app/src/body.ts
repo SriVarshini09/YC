@@ -65,7 +65,7 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
     `Migration note: ${advisory.migrationNote}`,
     "",
     "---",
-    "Opened by [SHAPI](https://github.com/SriVarshini09/YC). A change is kept only when its contract test failed before it and passes after it.",
+    "Opened by [SHAPI](https://shapi.dev). A change is kept only when its contract test failed before it and passes after it.",
   ];
   return lines.join("\n") + "\n";
 }

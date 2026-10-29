@@ -54,4 +54,4 @@ Off by default, and the setting appears only when Claude is enabled on the serve
 
 ## Reporting a vulnerability
 
-Please report security issues privately through the repository's **Security → Report a vulnerability** page on GitHub, not in a public issue.
+Please report security issues privately by email to [sri@shapi.dev](mailto:sri@shapi.dev) with the subject "Security", not in a public issue.

@@ -11,28 +11,21 @@ SHAPI ships an MCP server and an agent skill, so Claude Code, Cursor and other M
 | `impact` | For one advisory, list the affected and exposed call sites, with reasons. Read-only. |
 | `apply_fix` | Repair test-first. `mode=dry-run` (default) returns the diff; `write` and `pr` change things, and the skill tells the agent to ask you first. |
 
-## Set up
+## Use it today: the CLI
 
-The MCP server runs from a clone of the SHAPI repository:
-
-```sh
-git clone https://github.com/SriVarshini09/YC.git shapi
-cd shapi && pnpm install && pnpm build
-```
-
-Register it with Claude Code, using the absolute path to your clone:
+Any coding agent that can run commands can use SHAPI through the CLI, with nothing to install:
 
 ```sh
-claude mcp add shapi -- node /path/to/shapi/packages/mcp/bin/shapi-mcp.js
+npx shapi-cli scan .                # what's affected, and why
+npx shapi-cli fix .                 # a dry run: each fix with its contract test, nothing written
+npx shapi-cli fix . --write         # write the fixes (ask before running this)
 ```
 
-In Cursor, add the same command to `.cursor/mcp.json`.
+Tell the agent to use `shapi-cli`, never `shapi`: the npm package named `shapi` is someone else's.
 
-Install the skill, which tells the agent when and how to use the tools:
+## The MCP server (preview)
 
-```sh
-npx skills add SriVarshini09/YC --skill shapi -a claude-code cursor
-```
+The MCP server and the agent skill aren't published yet. To try them early, [open an issue](https://github.com/SriVarshini09/shapi-advisories/issues) or email [sri@shapi.dev](mailto:sri@shapi.dev). Once you have them, register the server with Claude Code (`claude mcp add shapi -- node <path>/packages/mcp/bin/shapi-mcp.js`) or in Cursor's `.cursor/mcp.json`.
 
 Optional environment for the server:
 

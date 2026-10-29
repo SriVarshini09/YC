@@ -1,7 +1,7 @@
 # Terms of service
 
 ::: warning Draft
-These terms apply to SHAPI's early access, which is open to everyone now. They have not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 27, 2026.
+These terms apply to SHAPI's early access, which is open to everyone now. They have not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 29, 2026.
 :::
 
 These terms are an agreement between you and SHAPI. SHAPI is operated by its founder and is not yet incorporated; "SHAPI", "we" and "us" mean the SHAPI project and its operator. If you use SHAPI for an organization, you accept these terms for that organization and confirm you're allowed to.
@@ -11,7 +11,7 @@ These terms are an agreement between you and SHAPI. SHAPI is operated by its fou
 SHAPI finds code that breaks when a third-party API changes, and proposes fixes. It has three parts:
 
 - **The hosted service:** the SHAPI GitHub App and web app. These terms apply to it.
-- **`shapi-cli`:** open source under the [Apache License 2.0](https://github.com/SriVarshini09/YC/blob/main/packages/cli/LICENSE). That license governs your use of the CLI; these terms don't.
+- **`shapi-cli`:** licensed under the [Apache License 2.0](https://unpkg.com/shapi-cli/LICENSE) (the `LICENSE` file in the npm package). That license governs your use of the CLI; these terms don't.
 - **The advisory database:** open data under [CC BY 4.0](https://github.com/SriVarshini09/shapi-advisories), governed by that license.
 
 The GitHub App is in early access. Features may change, and we may limit who can install it.
@@ -67,7 +67,7 @@ To the extent the law allows, SHAPI isn't liable for indirect, incidental, speci
 
 ## 10. Changes to these terms
 
-We'll post changes on this page; its [history](https://github.com/SriVarshini09/YC/commits/main/site/legal/terms.md) is public. For a significant change, we'll give at least 30 days' notice before it applies to you. Continuing to use SHAPI after that means you accept the new terms.
+We'll post changes on this page, with the date at the top. For a significant change, we'll give at least 30 days' notice before it applies to you. Continuing to use SHAPI after that means you accept the new terms.
 
 ## 11. Governing law
 
@@ -75,4 +75,4 @@ These terms are governed by the laws of the State of Delaware, USA, without rega
 
 ## 12. Contact
 
-[Open an issue](https://github.com/SriVarshini09/YC/issues/new) on GitHub. For anything private, say so in the issue without the details, and we'll arrange a private channel.
+Email [sri@shapi.dev](mailto:sri@shapi.dev). For a public question or a bug, you can also [open an issue](https://github.com/SriVarshini09/shapi-advisories/issues).
