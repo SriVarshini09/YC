@@ -16,7 +16,7 @@ SHAPI maps every third-party API call site in a repository, records what each on
 | `impact` | Explain one advisory: which call sites break and why, which are only exposed | none |
 | `apply_fix` | Repair affected call sites; `mode`: `dry-run` (default), `write`, `pr`; `llm: true` for Claude fallback | `write` edits files, `pr` opens a GitHub PR |
 
-All tools take an optional `path` (repository directory, default: the project root).
+`scan`, `impact` and `apply_fix` take an optional `path` (repository directory, default: the project root); `scan` can take `repo` (a git URL) instead. `advisories` takes only filters: `provider` and `upcomingWithinDays`.
 
 ## Workflow
 
@@ -25,7 +25,7 @@ All tools take an optional `path` (repository directory, default: the project ro
 3. **Dry-run the fix.** Call `apply_fix` with `mode: "dry-run"` and the `advisoryId`. Show the user the diff it returns: the source change and the generated contract test. Say whether a recipe or Claude produced it, and that the test failed before and passed after.
 4. **Ask, then write or open a PR.** Only after the user agrees, call `apply_fix` again with `mode: "write"` (edits the working tree) or `mode: "pr"` (opens a pull request on the repo's GitHub origin). Never choose `write` or `pr` on your own.
 5. **When there is no recipe**, `apply_fix` reports the call site as rejected. Offer `llm: true`: it asks Claude for a fix, and it costs API usage and needs `ANTHROPIC_API_KEY` in the server's environment. The fix is still kept only if the contract test passes.
-6. **When a finding is skipped** for lack of before/after shapes, say so. The provider's endpoint needs canary observations (`pnpm canary run`) or a recorded response sequence before SHAPI can generate a test.
+6. **When a finding is skipped** for lack of before/after shapes, say so. SHAPI needs canary observations of the provider's endpoint or a recorded response sequence before it can generate a test, and neither can be added from the user's repository: report the call site as needing a manual fix, with the advisory's migration note.
 
 ## Rules
 

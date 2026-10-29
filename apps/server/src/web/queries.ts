@@ -1,6 +1,7 @@
 import { sql } from "kysely";
 import { AdvisorySchema, ApiLockSchema, SEVERITY_RANK, type Advisory, type ApiLock, type LockedCallSite } from "@shapi/core";
 import { withTenant, type Db, type FixRepair } from "@shapi/db";
+import { RECIPES } from "@shapi/repair";
 import { plural } from "./html";
 import type { Health } from "./views";
 
@@ -8,10 +9,13 @@ import type { Health } from "./views";
  * Everything the account pages read, loaded in one tenant transaction: repositories with their latest
  * scan, the findings of each repository's latest successful scan, every fix PR, the advisory database,
  * and recent scans. One account's data is small enough to load whole; the pages derive their views from it.
+ * Only the repositories the signed-in user can open on GitHub are read, and only their scans, findings and PRs.
  */
 
 export interface RepoRow {
   id: string;
+  /** GitHub's id, which the session's access lists use. */
+  github_repo_id: string;
   full_name: string;
   default_branch: string;
   private: boolean;
@@ -104,21 +108,39 @@ export interface AccountData {
   advisories: Map<string, Advisory>;
   scans: (ScanRow & { repo: string })[];
   billing?: BillingRow;
+  /** Every repository of the account, the user's or not, with only what the plan rules read: coverage depends on all of them. */
+  planRepos: { id: string; private: boolean; enabled: boolean; created_at: Date }[];
+  /** The fix job asks Claude when no recipe fits: the account turned it on and the server has a key. */
+  claudeFixes: boolean;
   now: Date;
 }
 
+/** SHAPI has the recipe the advisory names (an advisory may name one only a newer build has). */
+export const hasRecipe = (advisory: Advisory | undefined) => Boolean(advisory?.recipeId && RECIPES[advisory.recipeId]);
+
+/** The fix job makes a fix for this change by itself, as jobs/fix.ts decides: a recipe SHAPI has, or Claude. */
+export const autoFixable = (data: Pick<AccountData, "claudeFixes">, advisory: Advisory | undefined) => Boolean(advisory && (hasRecipe(advisory) || data.claudeFixes));
+
+/** Rows of the repositories in `ids` (SHAPI's ids); `= any` also takes an empty list. */
+const inRepos = (ids: string[]) => sql<boolean>`repository_id = any(${ids}::bigint[])`;
+
 /**
- * Load an account's pages' data. Only small columns are read for history: the api.lock is read for the
- * latest successful scan of each repository (its providers and size), and in full only for `lockRepo`.
+ * Load an account's pages' data. `readable` is the GitHub repository ids the user can open: the pages show
+ * those repositories only. Only small columns are read for history: the api.lock is read for the latest
+ * successful scan of each repository (its providers and size), and in full only for `lockRepo`.
  */
-export async function loadAccount(db: Db, accountId: string, opts: { lockRepo?: string; now?: Date } = {}): Promise<AccountData> {
+export async function loadAccount(db: Db, accountId: string, opts: { readable: readonly string[]; lockRepo?: string; llmAvailable?: boolean; now?: Date }): Promise<AccountData> {
   const now = opts.now ?? new Date();
   return withTenant(db, accountId, async (tx) => {
     const account = await tx.selectFrom("accounts").select(["id", "login", "type", "settings"]).where("id", "=", accountId).executeTakeFirstOrThrow();
-    const repoRows = await tx.selectFrom("repositories").selectAll().orderBy("full_name").execute();
+    const allRepos = await tx.selectFrom("repositories").selectAll().orderBy("full_name").execute();
+    const readable = new Set(opts.readable);
+    const repoRows = allRepos.filter((r) => readable.has(String(r.github_repo_id)));
+    const ids = repoRows.map((r) => r.id);
     const latest = await tx
       .selectFrom("scans")
       .select(["id", "repository_id", "sha", "status", "finished_at", "created_at", "error"])
+      .where(inRepos(ids))
       .distinctOn("repository_id")
       .orderBy("repository_id")
       .orderBy("created_at", "desc")
@@ -129,6 +151,7 @@ export async function loadAccount(db: Db, accountId: string, opts: { lockRepo?: 
       .select(["id", "repository_id", "sha"])
       .distinctOn("repository_id")
       .where("status", "=", "succeeded")
+      .where(inRepos(ids))
       .orderBy("repository_id")
       .orderBy("created_at", "desc")
       .execute();
@@ -155,10 +178,11 @@ export async function loadAccount(db: Db, accountId: string, opts: { lockRepo?: 
     const prRows = await tx
       .selectFrom("fix_prs")
       .select(["id", "repository_id", "advisory_id", "branch", "number", "url", "state", "stopped", "created_at", "updated_at", "closed_at", REPAIR_SUMMARY.as("repair")])
+      .where(inRepos(ids))
       .orderBy("updated_at", "desc")
       .execute();
     const advisoryRows = await tx.selectFrom("advisories").select("data").where("reviewed", "=", true).execute();
-    const recent = await tx.selectFrom("scans").select(["id", "repository_id", "sha", "status", "finished_at", "created_at", "error"]).orderBy("created_at", "desc").limit(25).execute();
+    const recent = await tx.selectFrom("scans").select(["id", "repository_id", "sha", "status", "finished_at", "created_at", "error"]).where(inRepos(ids)).orderBy("created_at", "desc").limit(25).execute();
     const billing = await tx.selectFrom("billing").select(["status", "quantity", "stripe_customer_id", "current_period_end", "cancel_at"]).executeTakeFirst();
 
     // Validated like the matcher does: one malformed row must not take every account page down.
@@ -194,6 +218,7 @@ export async function loadAccount(db: Db, accountId: string, opts: { lockRepo?: 
       const workingIds = new Set(mine.filter((f) => f.kind === "exposed" && !breakingIds.has(f.advisory_id)).map((f) => f.advisory_id));
       return {
         id: r.id,
+        github_repo_id: String(r.github_repo_id),
         full_name: r.full_name,
         default_branch: r.default_branch,
         private: r.private,
@@ -213,7 +238,8 @@ export async function loadAccount(db: Db, accountId: string, opts: { lockRepo?: 
         mergedPrs: prs.filter((p) => p.repository_id === r.id && p.state === "merged").length,
       };
     });
-    return { account, repos, findings, prs, advisories, scans: recent.map((s) => ({ ...s, repo: repoName.get(s.repository_id) ?? "" })), billing, now };
+    const planRepos = allRepos.map((r) => ({ id: r.id, private: r.private, enabled: r.enabled, created_at: r.created_at }));
+    return { account, repos, findings, prs, advisories, scans: recent.map((s) => ({ ...s, repo: repoName.get(s.repository_id) ?? "" })), billing, planRepos, claudeFixes: opts.llmAvailable === true && (account.settings as { llmFixes?: boolean }).llmFixes === true, now };
   });
 }
 
@@ -222,8 +248,12 @@ function byFinding(a: FindingRow, b: FindingRow): number {
   return (a.kind === b.kind ? 0 : a.kind === "affected" ? -1 : 1) || rank(a) - rank(b) || a.repo.localeCompare(b.repo) || a.site.file.localeCompare(b.site.file) || a.site.line - b.site.line;
 }
 
-/** One finding with what its page needs: the repository, the advisory, the call site's surface, and the fix PR for it. */
-export async function loadFinding(db: Db, accountId: string, findingId: string) {
+/**
+ * One finding with what its page needs: the repository, the advisory, the call site's surface, and the fix PR
+ * for it. Undefined unless its repository is among `readable` (GitHub ids). The advisory is validated and
+ * reviewed like loadAccount's, or left out.
+ */
+export async function loadFinding(db: Db, accountId: string, findingId: string, readable: readonly string[]) {
   return withTenant(db, accountId, async (tx) => {
     const f = await tx
       .selectFrom("findings")
@@ -245,8 +275,10 @@ export async function loadFinding(db: Db, accountId: string, findingId: string) 
         "repositories.full_name",
         "repositories.default_branch",
         "advisories.data as advisory",
+        "advisories.reviewed",
       ])
       .where("findings.id", "=", findingId)
+      .where(sql<boolean>`repositories.github_repo_id = any(${[...readable]}::bigint[])`)
       .executeTakeFirst();
     if (!f) return undefined;
     const pr = await tx.selectFrom("fix_prs").selectAll().where("repository_id", "=", f.repository_id).where("advisory_id", "=", f.advisory_id).executeTakeFirst();
@@ -256,7 +288,8 @@ export async function loadFinding(db: Db, accountId: string, findingId: string) 
     // The same problem elsewhere in this repository: same scan, same API change.
     const siblings = await tx.selectFrom("findings").select(["id", "kind", "call_site"]).where("scan_id", "=", f.scan_id).where("advisory_id", "=", f.advisory_id).where("id", "!=", f.id).orderBy("id").execute();
     const others = siblings.map((o) => ({ id: o.id, kind: o.kind, file: (o.call_site as FindingRow["site"]).file, line: (o.call_site as FindingRow["site"]).line }));
-    return { ...f, site, locked, others, advisory: (f.advisory as Advisory | null) ?? undefined, pr: pr ? { ...pr, repair: pr.repair } : undefined };
+    const advisory = f.reviewed ? AdvisorySchema.safeParse(f.advisory) : undefined;
+    return { ...f, site, locked, others, advisory: advisory?.success ? advisory.data : undefined, pr: pr ? { ...pr, repair: pr.repair } : undefined };
   });
 }
 
@@ -370,7 +403,7 @@ const SEVERITY_COST: Record<string, number> = { critical: 8, high: 5, medium: 3,
  */
 export function healthOf(data: AccountData): Health {
   const scanned = data.repos.filter((r) => r.lockSha);
-  if (!scanned.length) return { score: null, verdict: "No scan yet", why: "The score appears after the first push to a default branch." };
+  if (!scanned.length) return { score: null, verdict: "No scan yet", why: "The score appears after the first scan." };
   const affected = data.findings.filter((f) => f.kind === "affected");
   const failed = data.repos.filter((r) => r.scan?.status === "failed").length;
   const callSites = Math.max(1, scanned.reduce((n, r) => n + r.callSites, 0));
@@ -429,7 +462,7 @@ export function attentionOf(data: AccountData): AttentionItem[] {
     seen.add(key);
     const pr = data.prs.find((p) => pairKey(p.repository_id, p.advisory_id) === key);
     if (pr && pr.state !== "closed") continue;
-    items.push(pr ? { kind: "closed", finding: f, pr } : { kind: f.advisory?.recipeId ? "pending" : "manual", finding: f });
+    items.push(pr ? { kind: "closed", finding: f, pr } : { kind: autoFixable(data, f.advisory) ? "pending" : "manual", finding: f });
   }
   for (const repo of data.repos) if (repo.scan?.status === "failed") items.push({ kind: "scan-failed", repo });
   for (const deadline of deadlinesOf(data)) if (deadline.daysUntil >= 0 && deadline.daysUntil <= 30 && (deadline.breaking || deadline.working)) items.push({ kind: "deadline", deadline });

@@ -10,6 +10,7 @@ import {
   type Provider,
   type Surface,
 } from "@shapi/core";
+import { posix } from "node:path";
 import { Node, SyntaxKind, type CallExpression, type SourceFile } from "ts-morph";
 
 export function emptySurface(): Surface {
@@ -49,12 +50,17 @@ interface ImportRef {
 interface HttpInstance {
   lib: HttpLib;
   baseURL?: string;
+  /** The instance's options (`headers` apply to every call) and its default query (`params`, `searchParams`). */
+  options?: Node;
+  params?: Node;
 }
 
 interface SdkClient {
   provider: Provider;
   pkg: string;
   options?: Node;
+  /** The file that constructs the client, when another file imports it. */
+  ctx?: FileContext;
 }
 
 interface FileContext {
@@ -65,19 +71,24 @@ interface FileContext {
   declared?: Map<string, Node[]>;
   http: Map<string, HttpInstance>;
   sdk: Map<string, SdkClient>;
+  /** SDK clients that imported names resolve to in other files, once looked up. */
+  importedSdk?: Map<string, SdkClient | undefined>;
 }
 
+/**
+ * Call sites in one file. SDK clients imported from another file of the same project (`import { openai }
+ * from "./lib/openai"`) are followed to the module that constructs them, so the project should hold every
+ * source file before this runs.
+ */
 export function extractFromFile(sf: SourceFile, file: string): FoundCall[] {
-  const ctx: FileContext = { sf, imports: new Map(), consts: new Map(), http: new Map(), sdk: new Map() };
-  collectImports(ctx);
-  collectConsts(ctx);
-  collectClients(ctx);
+  const ctx = contextOf(sf);
+  const position = positionsOf(sf);
 
   const found: FoundCall[] = [];
   for (const call of sf.getDescendantsOfKind(SyntaxKind.CallExpression)) {
     const hit = matchHttp(ctx, call) ?? matchSdk(ctx, call);
     if (!hit) continue;
-    const { line, column } = sf.getLineAndColumnAtPos(call.getStart());
+    const { line, column } = position(call.getStart());
     hit.site.file = file;
     hit.site.line = line;
     hit.site.column = column;
@@ -88,6 +99,59 @@ export function extractFromFile(sf: SourceFile, file: string): FoundCall[] {
 
 // ---------------------------------------------------------------------------
 // Per-file symbol tables
+
+const contexts = new WeakMap<SourceFile, FileContext>();
+
+function contextOf(sf: SourceFile): FileContext {
+  let ctx = contexts.get(sf);
+  if (!ctx) {
+    ctx = { sf, imports: new Map(), consts: new Map(), http: new Map(), sdk: new Map() };
+    contexts.set(sf, ctx);
+    collectImports(ctx);
+    collectConsts(ctx);
+    collectClients(ctx);
+  }
+  return ctx;
+}
+
+const positions = new WeakMap<SourceFile, (pos: number) => { line: number; column: number }>();
+
+/**
+ * 1-based line and column of a position, as `sf.getLineAndColumnAtPos` gives them (lines end at "\n",
+ * columns count from the last "\n" or "\r"), without scanning the text from the start for every call.
+ */
+function positionsOf(sf: SourceFile): (pos: number) => { line: number; column: number } {
+  let fn = positions.get(sf);
+  if (!fn) {
+    const text = sf.getFullText();
+    const afterLf: number[] = [];
+    const afterCr: number[] = [];
+    for (let i = 0; i < text.length; i++) {
+      const ch = text.charCodeAt(i);
+      if (ch === 10) afterLf.push(i + 1);
+      else if (ch === 13) afterCr.push(i + 1);
+    }
+    // how many of the sorted starts are at or before pos
+    const count = (starts: number[], pos: number) => {
+      let lo = 0;
+      let hi = starts.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (starts[mid]! <= pos) lo = mid + 1;
+        else hi = mid;
+      }
+      return lo;
+    };
+    fn = (pos) => {
+      const lf = count(afterLf, pos);
+      const cr = count(afterCr, pos);
+      const lineStart = Math.max(lf ? afterLf[lf - 1]! : 0, cr ? afterCr[cr - 1]! : 0);
+      return { line: lf + 1, column: pos - lineStart + 1 };
+    };
+    positions.set(sf, fn);
+  }
+  return fn;
+}
 
 function collectImports(ctx: FileContext) {
   for (const decl of ctx.sf.getImportDeclarations()) {
@@ -101,7 +165,13 @@ function collectImports(ctx: FileContext) {
       ctx.imports.set(local, { module, imported: named.getName() });
     }
   }
-  // CommonJS: const x = require("m"); const { a, b: c } = require("m");
+  // TypeScript: import x = require("m");
+  for (const decl of ctx.sf.getDescendantsOfKind(SyntaxKind.ImportEqualsDeclaration)) {
+    const ref = decl.getModuleReference();
+    const arg = Node.isExternalModuleReference(ref) ? ref.getExpression() : undefined;
+    if (arg && Node.isStringLiteral(arg)) ctx.imports.set(decl.getName(), { module: arg.getLiteralValue(), imported: "default" });
+  }
+  // CommonJS: const x = require("m"); const { a, b: c } = require("m"); const x = require("m").default;
   for (const decl of ctx.sf.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
     const module = requiredModule(decl.getInitializer());
     if (!module) continue;
@@ -117,6 +187,8 @@ function collectImports(ctx: FileContext) {
 }
 
 function requiredModule(node: Node | undefined): string | undefined {
+  // require("m").default: the ES module's default export, which is what `require("m")` means here too
+  if (node && Node.isPropertyAccessExpression(node) && node.getName() === "default") node = node.getExpression();
   if (!node || !Node.isCallExpression(node)) return undefined;
   const callee = node.getExpression();
   const arg = node.getArguments()[0];
@@ -133,7 +205,9 @@ function collectConsts(ctx: FileContext) {
     if (list === "const" && init && Node.isIdentifier(decl.getNameNode())) {
       ctx.consts.set(decl.getName(), init);
       ctx.declared ??= new Map();
-      ctx.declared.set(decl.getName(), [...(ctx.declared.get(decl.getName()) ?? []), init]);
+      const same = ctx.declared.get(decl.getName());
+      if (same) same.push(init);
+      else ctx.declared.set(decl.getName(), [init]);
     }
   }
 }
@@ -151,11 +225,10 @@ function collectClients(ctx: FileContext) {
     if (Node.isPropertyAccessExpression(callee)) {
       const lib = httpLibOf(ctx, callee.getExpression());
       if (lib && ["create", "extend"].includes(callee.getName())) {
-        const opts = args[0];
-        const base = Node.isObjectLiteralExpression(opts)
-          ? (evalString(ctx, propertyValue(opts, "baseURL")) ?? evalString(ctx, propertyValue(opts, "prefixUrl")))
-          : undefined;
-        ctx.http.set(key, { lib, baseURL: base });
+        const opts = resolveObject(ctx, args[0]);
+        const base = opts ? (evalString(ctx, propertyValue(opts, "baseURL")) ?? evalString(ctx, propertyValue(opts, "prefixUrl"))) : undefined;
+        const params = opts ? resolveObject(ctx, propertyValue(opts, lib === "axios" ? "params" : "searchParams")) : undefined;
+        ctx.http.set(key, { lib, baseURL: base, options: opts, params });
         return;
       }
     }
@@ -183,6 +256,70 @@ function collectClients(ctx: FileContext) {
       bind(left.getText(), bin.getRight());
     }
   }
+  // export default new Stripe(key), for files that import it ("default" is never a variable's name)
+  for (const exp of ctx.sf.getExportAssignments()) {
+    if (!exp.isExportEquals()) bind("default", exp.getExpression());
+  }
+}
+
+/**
+ * The SDK client a file imports from another file of the project: `import { openai } from "./lib/openai"`
+ * where lib/openai.ts has `export const openai = new OpenAI()`, through re-exports and `export default`.
+ */
+function importedClient(ctx: FileContext, name: string, depth = 0): SdkClient | undefined {
+  const ref = ctx.imports.get(name);
+  if (!ref || !ref.module.startsWith(".") || ref.imported === "*" || depth > 4) return undefined;
+  ctx.importedSdk ??= new Map();
+  if (ctx.importedSdk.has(name)) return ctx.importedSdk.get(name);
+  ctx.importedSdk.set(name, undefined); // an import cycle ends here
+  const target = resolveModule(ctx.sf, ref.module);
+  const client = target ? exportedClient(contextOf(target), ref.imported, depth + 1) : undefined;
+  ctx.importedSdk.set(name, client);
+  return client;
+}
+
+function exportedClient(ctx: FileContext, exported: string, depth: number): SdkClient | undefined {
+  if (depth > 4) return undefined;
+  let local: string | undefined;
+  if (exported === "default") {
+    const exp = ctx.sf.getExportAssignments().find((e) => !e.isExportEquals());
+    const expr = exp ? unwrap(exp.getExpression()) : undefined;
+    local = expr && Node.isIdentifier(expr) ? expr.getText() : "default";
+  } else if (ctx.sf.getVariableStatements().some((s) => s.isExported() && s.getDeclarations().some((d) => d.getName() === exported))) {
+    local = exported;
+  }
+  for (const decl of ctx.sf.getExportDeclarations()) {
+    const spec = decl.getModuleSpecifierValue();
+    const named = decl.getNamedExports().find((n) => (n.getAliasNode()?.getText() ?? n.getName()) === exported);
+    if (named && spec === undefined) local = named.getName();
+    // export { openai as ai } from "./openai" / export * from "./openai"
+    const from = named ? named.getName() : decl.isNamespaceExport() && !decl.getNamespaceExport() ? exported : undefined;
+    if (from !== undefined && spec?.startsWith(".")) {
+      const target = resolveModule(ctx.sf, spec);
+      const client = target ? exportedClient(contextOf(target), from, depth + 1) : undefined;
+      if (client) return client;
+    }
+  }
+  if (local === undefined) return undefined;
+  const own = ctx.sdk.get(local);
+  if (own) return { ...own, ctx };
+  // import { openai } from "./client"; export { openai };
+  return importedClient(ctx, local, depth);
+}
+
+const MODULE_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"];
+
+/** The project's source file a relative import names: "./lib/openai", "./lib/openai.js" (for openai.ts), "./lib". */
+function resolveModule(from: SourceFile, specifier: string): SourceFile | undefined {
+  const project = from.getProject();
+  const base = posix.join(posix.dirname(from.getFilePath()), specifier);
+  const stem = base.replace(/\.(c|m)?jsx?$/, "");
+  const candidates = [base, ...MODULE_EXTENSIONS.map((ext) => stem + ext), ...MODULE_EXTENSIONS.map((ext) => `${base}/index${ext}`)];
+  for (const candidate of candidates) {
+    const sf = project.getSourceFile(candidate);
+    if (sf) return sf;
+  }
+  return undefined;
 }
 
 function moduleOfCallee(ctx: FileContext, callee: Node): string | undefined {
@@ -197,7 +334,7 @@ function httpLibOf(ctx: FileContext, node: Node): HttpLib | undefined {
   const ref = ctx.imports.get(node.getText());
   if (ref) {
     const lib = HTTP_MODULES[ref.module];
-    if (lib === "undici") return ref.imported === "*" ? "undici" : undefined;
+    // undici has no default export, but `require("undici")` is the module object
     return lib && (ref.imported === "default" || ref.imported === "*") ? lib : undefined;
   }
   return undefined;
@@ -223,34 +360,40 @@ function matchHttp(ctx: FileContext, call: CallExpression): FoundCall | undefine
       if (lib === "axios" && ref.imported === "default") return axiosStyle(ctx, call, undefined, undefined);
       if ((lib === "got" || lib === "ky") && ref.imported === "default") return fetchStyle(ctx, call, lib, args[0], args[1]);
     }
-    const inst = ctx.http.get(name);
-    if (inst?.lib === "axios") return axiosStyle(ctx, call, undefined, inst.baseURL);
-    if (inst) return fetchStyle(ctx, call, inst.lib, args[0], args[1], undefined, inst.baseURL);
-    return undefined;
   }
 
-  // axios.get(url) / got.post(url) / undici.request(url) / api.get(path)
+  // api(path) / this.http(path): an instance called directly
+  const self = instanceOf(ctx, callee);
+  if (self?.lib === "axios") return axiosStyle(ctx, call, undefined, self);
+  if (self) return fetchStyle(ctx, call, self.lib, args[0], args[1], undefined, self);
+
+  // axios.get(url) / got.post(url) / undici.request(url) / api.get(path) / this.http.get(path)
   if (Node.isPropertyAccessExpression(callee)) {
     const target = callee.getExpression();
     const member = callee.getName();
     const lib = httpLibOf(ctx, target);
-    const inst = Node.isIdentifier(target) ? ctx.http.get(target.getText()) : undefined;
+    const inst = instanceOf(ctx, target);
     const effective = lib ?? inst?.lib;
     if (!effective) return undefined;
-    const base = inst?.baseURL;
     if (effective === "undici") {
       return member === "fetch" || member === "request" ? fetchStyle(ctx, call, "undici", args[0], args[1]) : undefined;
     }
     if (effective === "axios") {
-      if (member === "request") return axiosStyle(ctx, call, undefined, base);
-      if (VERBS.has(member)) return axiosStyle(ctx, call, member.toUpperCase() as HttpMethod, base);
+      if (member === "request") return axiosStyle(ctx, call, undefined, inst);
+      if (VERBS.has(member)) return axiosStyle(ctx, call, member.toUpperCase() as HttpMethod, inst);
       return undefined;
     }
     if (VERBS.has(member)) {
-      return fetchStyle(ctx, call, effective, args[0], args[1], member.toUpperCase() as HttpMethod, base);
+      return fetchStyle(ctx, call, effective, args[0], args[1], member.toUpperCase() as HttpMethod, inst);
     }
   }
   return undefined;
+}
+
+/** The HTTP instance an expression names: `api`, or a class member `this.http`. */
+function instanceOf(ctx: FileContext, node: Node): HttpInstance | undefined {
+  const chain = chainOf(node);
+  return chain && chain.names.length === 0 ? ctx.http.get(chain.root) : undefined;
 }
 
 function fetchStyle(
@@ -260,7 +403,7 @@ function fetchStyle(
   urlArg: Node | undefined,
   optsArg: Node | undefined,
   verb?: HttpMethod,
-  baseURL?: string,
+  inst?: HttpInstance,
 ): FoundCall {
   const opts = resolveObject(ctx, optsArg);
   let method: HttpMethod | null = verb ?? "GET";
@@ -272,21 +415,21 @@ function fetchStyle(
   const params = opts && (lib === "got" || lib === "ky") ? resolveObject(ctx, propertyValue(opts, "searchParams")) : undefined;
   // fetch-style bodies are `body: JSON.stringify({ … })`; got and ky also take `json: { … }`.
   const body = opts ? bodyEntries(ctx, (lib === "got" || lib === "ky" ? propertyValue(opts, "json") : undefined) ?? propertyValue(opts, "body")) : [];
-  return httpSite(ctx, call, lib, joinUrl(baseURL, evalString(ctx, urlArg)), method, opts ? optsArg : undefined, params, body);
+  return httpSite(ctx, call, lib, joinUrl(inst?.baseURL, evalString(ctx, urlArg)), method, opts ? optsArg : undefined, params, body, inst);
 }
 
 /** axios(config) | axios(url, config) | axios.get(url, config) | axios.post(url, data, config) | axios.request(config) */
-function axiosStyle(ctx: FileContext, call: CallExpression, verb: HttpMethod | undefined, baseURL: string | undefined): FoundCall {
+function axiosStyle(ctx: FileContext, call: CallExpression, verb: HttpMethod | undefined, inst: HttpInstance | undefined): FoundCall {
   const args = call.getArguments();
   const first = args[0];
   const firstObj = resolveObject(ctx, first);
   if (!verb && firstObj && !isStringish(first)) {
     // config object form
     const url = evalString(ctx, propertyValue(firstObj, "url"));
-    const base = evalString(ctx, propertyValue(firstObj, "baseURL")) ?? baseURL;
+    const base = evalString(ctx, propertyValue(firstObj, "baseURL")) ?? inst?.baseURL;
     const method = methodFrom(ctx, propertyValue(firstObj, "method")) ?? (propertyValue(firstObj, "method") ? null : "GET");
     const params = resolveObject(ctx, propertyValue(firstObj, "params"));
-    return httpSite(ctx, call, "axios", joinUrl(base, url), method, first, params, bodyEntries(ctx, propertyValue(firstObj, "data")));
+    return httpSite(ctx, call, "axios", joinUrl(base, url), method, first, params, bodyEntries(ctx, propertyValue(firstObj, "data")), inst);
   }
   const hasBody = verb === "POST" || verb === "PUT" || verb === "PATCH";
   const config = hasBody ? args[2] : args[1];
@@ -295,7 +438,7 @@ function axiosStyle(ctx: FileContext, call: CallExpression, verb: HttpMethod | u
   if (!verb && cfg) method = methodFrom(ctx, propertyValue(cfg, "method")) ?? "GET";
   const params = cfg ? resolveObject(ctx, propertyValue(cfg, "params")) : undefined;
   const body = bodyEntries(ctx, hasBody ? args[1] : cfg ? propertyValue(cfg, "data") : undefined);
-  return httpSite(ctx, call, "axios", joinUrl(baseURL, evalString(ctx, first)), method, config, params, body);
+  return httpSite(ctx, call, "axios", joinUrl(inst?.baseURL, evalString(ctx, first)), method, config, params, body, inst);
 }
 
 function httpSite(
@@ -307,13 +450,17 @@ function httpSite(
   options?: Node,
   params?: Node,
   body: NameValue[] = [],
+  inst?: HttpInstance,
 ): FoundCall {
-  const { host, path, query } = parseUrl(url);
+  const { host, path, query, runtimeHost } = parseUrl(url);
   const surface = emptySurface();
-  surface.headers = headersOf(ctx, options);
-  surface.query = [...query, ...objectEntries(ctx, params)];
+  // the instance's headers and default query apply unless the call sets the same name
+  const headers = headersOf(ctx, options);
+  const own = [...query, ...objectEntries(ctx, params)];
+  surface.headers = [...headersOf(ctx, inst?.options).filter((h) => !headers.some((o) => o.name === h.name)), ...headers];
+  surface.query = [...objectEntries(ctx, inst?.params).filter((q) => !own.some((o) => o.name === q.name)), ...own];
   if (body.length) surface.body = body;
-  const provider = providerOf(host, path);
+  const provider = providerOf(host, path, runtimeHost);
   return {
     call,
     options,
@@ -339,7 +486,7 @@ function httpSite(
 function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined {
   const chain = chainOf(call.getExpression());
   if (!chain || chain.names.length === 0) return undefined;
-  let client = ctx.sdk.get(chain.root);
+  let client = ctx.sdk.get(chain.root) ?? importedClient(ctx, chain.root);
   if (!client) {
     const ref = ctx.imports.get(chain.root);
     const provider = ref ? providerForPackage(ref.module) : undefined;
@@ -376,11 +523,13 @@ function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined
     }
   }
 
-  const host = client.provider.hosts.find((h) => !h.startsWith("*.")) ?? null;
+  // A provider with per-tenant hosts (`*.myshopify.com`) serves its SDK's calls from a host only known at runtime.
+  const host = client.provider.hosts.some((h) => h.startsWith("*.")) ? null : (client.provider.hosts[0] ?? null);
   const surface = emptySurface();
-  surface.headers = [...headersOf(ctx, client.options, "defaultHeaders"), ...headersOf(ctx, options)];
+  const clientCtx = client.ctx ?? ctx;
+  surface.headers = [...headersOf(clientCtx, client.options, "defaultHeaders"), ...headersOf(ctx, options)];
   const apiVersion = client.options ? propertyValue(client.options, "apiVersion") : undefined;
-  if (apiVersion) surface.headers.push({ name: `${client.provider.id}-version`, value: evalString(ctx, apiVersion) ?? null });
+  if (apiVersion) surface.headers.push({ name: `${client.provider.id}-version`, value: evalString(clientCtx, apiVersion) ?? null });
   surface.headers.sort((a, b) => a.name.localeCompare(b.name));
   // An SDK method's parameters are the request body: openai.chat.completions.create({ model, … }).
   // Octokit's request(route, params) mixes path, query and body parameters, so it is left out.
@@ -551,7 +700,7 @@ export function evalString(ctx: { consts: Map<string, Node>; declared?: Map<stri
     const [p, base] = expr.getArguments();
     const pathPart = evalString(ctx, p, depth + 1);
     const basePart = evalString(ctx, base, depth + 1);
-    return pathPart !== undefined && basePart !== undefined ? joinUrl(basePart, pathPart) : (pathPart ?? undefined);
+    return pathPart !== undefined && basePart !== undefined ? resolveUrl(basePart, pathPart) : (pathPart ?? undefined);
   }
   return undefined;
 }
@@ -579,20 +728,38 @@ function placeholder(node: Node): string {
   return "{}";
 }
 
-/** The provider a URL belongs to: by its host, or by a path only one provider serves when the host is built at runtime. */
-export function providerOf(host: string | null, path: string | null): string | null {
+/**
+ * The provider a URL belongs to: by its host; when the host is built at runtime, by its fixed suffix
+ * (`{sub}.zendesk.com` is on `*.zendesk.com`) or by a path only one provider serves.
+ */
+export function providerOf(host: string | null, path: string | null, runtimeHost?: string): string | null {
   if (host) return providerForHost(host)?.id ?? null;
-  return path ? (providerForPath(path)?.id ?? null) : null;
+  const bySuffix = runtimeHost ? providerForRuntimeHost(runtimeHost) : undefined;
+  if (bySuffix) return bySuffix;
+  return path ? (providerForPathTemplate(path)?.id ?? null) : null;
+}
+
+/** `{sub}.zendesk.com`, `{dc}.api.mailchimp.com`: the labels after the last runtime part, on a provider's `*.` host. */
+function providerForRuntimeHost(runtimeHost: string): string | undefined {
+  const suffix = /\}([^{}]*)$/.exec(runtimeHost)?.[1];
+  if (!suffix || !/^\.[a-z0-9-]+\.[a-z0-9.-]+$/.test(suffix)) return undefined;
+  // "_" never appears in a provider's host list, so only a "*." pattern can match
+  return providerForHost(`_${suffix}`)?.id;
+}
+
+/** A path signature whose version segment is a runtime value: `/admin/api/{version}/...` is Shopify's. */
+function providerForPathTemplate(path: string) {
+  return providerForPath(path) ?? (/\{[^}]*\}/.test(path) ? providerForPath(path.replace(/\/\{[^}]*\}(?=\/|$)/g, "/0000-00")) : undefined);
 }
 
 /** An absolute URL, or a path that names its provider on its own (`/admin/api/2026-01/...`, `crm-pipelines/v1/...`). */
-export function urlParts(value: string): { host: string | null; path: string | null; query: NameValue[] } | undefined {
+export function urlParts(value: string): ReturnType<typeof parseUrl> | undefined {
   // {{shop}} (template engines) reads like {shop}
   const v = value.trim().replace(/\{\{\s*([^{}]*?)\s*\}\}/g, "{$1}");
   if (/^(?:https?:)?\/\//i.test(v)) return parseUrl(v);
   // "{HUB}/crm-pipelines/v1/...": a base from elsewhere, then a path that names its provider
   const asPath = "/" + v.replace(/^\{[^}]*\}(?=\/)/, "").replace(/^\/+/, "");
-  if (providerForPath(asPath.split(/[?#]/)[0]!)) return parseUrl(asPath);
+  if (providerForPathTemplate(asPath.split(/[?#]/)[0]!)) return parseUrl(asPath);
   return undefined;
 }
 
@@ -609,7 +776,11 @@ export function looseUrlSites(sf: SourceFile, file: string, found: FoundCall[]):
   const ctx: FileContext = { sf, imports: new Map(), consts: new Map(), http: new Map(), sdk: new Map() };
   collectConsts(ctx);
   const covered = new Set(found.map((f) => `${f.site.provider} ${f.site.endpoint}`));
-  const inFoundCall = (node: Node) => found.some((f) => node.getPos() >= f.call.getPos() && node.getEnd() <= f.call.getEnd());
+  const calls = new Set<unknown>(found.map((f) => f.call.compilerNode));
+  const inFoundCall = (node: Node) => {
+    for (let n = node.compilerNode.parent; n; n = n.parent) if (calls.has(n)) return true;
+    return false;
+  };
   const candidates: { node: Node; host: string | null; path: string; query: NameValue[]; provider: string }[] = [];
   for (const node of sf.getDescendants()) {
     if (!Node.isStringLiteral(node) && !Node.isNoSubstitutionTemplateLiteral(node) && !Node.isTemplateExpression(node) && !isConcat(node)) continue;
@@ -620,19 +791,42 @@ export function looseUrlSites(sf: SourceFile, file: string, found: FoundCall[]):
     const value = evalString(ctx, node);
     const parts = value === undefined ? undefined : urlParts(value);
     if (!parts?.path || parts.path === "/") continue;
-    const provider = providerOf(parts.host, parts.path);
+    const provider = providerOf(parts.host, parts.path, parts.runtimeHost);
     if (provider) candidates.push({ node, host: parts.host, path: parts.path, query: parts.query, provider });
   }
+  // every path in the file, by provider and sorted, to find bases without comparing each pair
+  const paths = new Map<string, string[]>();
+  const addPath = (provider: string | null, p: string | null) => {
+    if (!provider || !p) return;
+    const list = paths.get(provider);
+    if (list) list.push(p);
+    else paths.set(provider, [p]);
+  };
+  for (const c of candidates) addPath(c.provider, c.path);
+  for (const f of found) addPath(f.site.provider, f.site.endpoint);
+  for (const list of paths.values()) list.sort();
+  const extended = (provider: string, base: string) => {
+    const list = paths.get(provider) ?? [];
+    const prefix = `${base}/`;
+    let lo = 0;
+    let hi = list.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (list[mid]! < prefix) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo < list.length && list[lo]!.startsWith(prefix);
+  };
+  const position = positionsOf(sf);
   const sites: CallSite[] = [];
   const seen = new Set<string>();
   for (const c of candidates) {
     const key = `${c.provider} ${c.path}`;
     if (covered.has(key) || seen.has(key)) continue;
     // a base: another URL in the file extends it
-    if (candidates.some((o) => o.provider === c.provider && o.path !== c.path && o.path.startsWith(`${c.path}/`))) continue;
-    if (found.some((f) => f.site.provider === c.provider && f.site.endpoint?.startsWith(`${c.path}/`))) continue;
+    if (extended(c.provider, c.path)) continue;
     seen.add(key);
-    const { line, column } = sf.getLineAndColumnAtPos(c.node.getStart());
+    const { line, column } = position(c.node.getStart());
     const surface = emptySurface();
     surface.query = c.query;
     sites.push({ file, line, column, provider: c.provider, kind: "http", client: "url", method: null, host: c.host, endpoint: c.path, resolved: true, surface });
@@ -650,13 +844,57 @@ function joinUrl(base: string | undefined, url: string | undefined): string | un
   return base.replace(/\/+$/, "") + "/" + url.replace(/^\/+/, "");
 }
 
-export function parseUrl(url: string | undefined): { host: string | null; path: string | null; query: NameValue[] } {
+/**
+ * `new URL(ref, base)`: an absolute path replaces the base's path, and a relative one replaces the base's
+ * last segment, with "." and ".." resolved. Bases without a scheme and host are joined as before.
+ */
+function resolveUrl(base: string, ref: string): string {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(ref)) return ref;
+  const b = /^((?:[a-z][a-z0-9+.-]*:)?\/\/[^/?#]*)([^?#]*)/i.exec(base);
+  if (!b) return joinUrl(base, ref)!;
+  const origin = b[1]!;
+  const basePath = b[2]!;
+  if (ref.startsWith("//")) return (/^[a-z][a-z0-9+.-]*:/i.exec(base)?.[0] ?? "") + ref;
+  if (ref.startsWith("?") || ref.startsWith("#")) return origin + (basePath || "/") + ref;
+  const at = ref.search(/[?#]/);
+  const refPath = at < 0 ? ref : ref.slice(0, at);
+  const tail = at < 0 ? "" : ref.slice(at);
+  const joined = refPath.startsWith("/") ? refPath : basePath.slice(0, basePath.lastIndexOf("/") + 1) + refPath;
+  const parts = ("/" + joined.replace(/^\/+/, "")).split("/");
+  const out: string[] = [];
+  parts.forEach((s, i) => {
+    const last = i === parts.length - 1;
+    if (s === "." || s === "..") {
+      if (s === ".." && out.length > 1) out.pop();
+      if (last) out.push("");
+    } else out.push(s);
+  });
+  return origin + out.join("/") + tail;
+}
+
+/** Decode a query name or value; a malformed escape stays as written. */
+function decodeQuery(s: string): string {
+  try {
+    return decodeURIComponent(s.replace(/\+/g, " "));
+  } catch {
+    return s;
+  }
+}
+
+/**
+ * Host, path and query of a URL. A host built at runtime (`{sub}.zendesk.com`) is null, and is kept as
+ * `runtimeHost` so its fixed suffix can still name the provider. Userinfo and port are not part of the host.
+ */
+export function parseUrl(url: string | undefined): { host: string | null; path: string | null; query: NameValue[]; runtimeHost?: string } {
   if (url === undefined) return { host: null, path: null, query: [] };
   let host: string | null = null;
+  let runtimeHost: string | undefined;
   let rest = url;
   const m = /^(?:[a-z]+:)?\/\/([^/?#]+)(.*)$/i.exec(url);
   if (m) {
-    host = m[1]!.includes("{") ? null : m[1]!.toLowerCase();
+    const authority = m[1]!.replace(/^.*@/, "").replace(/:(\d+|\{[^{}]*\})$/, "").toLowerCase();
+    if (authority.includes("{")) runtimeHost = authority;
+    else host = authority;
     rest = m[2] || "/";
   } else if (!url.startsWith("/")) {
     // "{base}/repos/x": unknown base, keep the path after it
@@ -672,7 +910,7 @@ export function parseUrl(url: string | undefined): { host: string | null; path: 
     .filter(Boolean)
     .map((pair) => {
       const [name, ...value] = pair.split("=");
-      return { name: name!, value: value.length ? value.join("=") : null };
+      return { name: decodeQuery(name!), value: value.length ? decodeQuery(value.join("=")) : null };
     });
-  return { host, path: path || "/", query };
+  return runtimeHost === undefined ? { host, path: path || "/", query } : { host, path: path || "/", query, runtimeHost };
 }

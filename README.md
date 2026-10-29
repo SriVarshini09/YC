@@ -13,7 +13,7 @@ Documentation: https://shapi.dev/
 
 ## Try it
 
-Requires Node 22+ and pnpm.
+Requires Node 22.14 or later (not 23 or 25) and pnpm.
 
 ```bash
 pnpm install
@@ -25,7 +25,7 @@ pnpm exec shapi scan fixtures/demo-ts
 
 (In this repository `pnpm exec shapi` runs the local build. Anywhere else use `npx shapi-cli`: the npm package named `shapi` is not SHAPI.)
 
-The demo flags `src/deploy.ts`, which requires `res.status === 204` from GitHub's workflow_dispatch endpoint (it started answering 200), plus a QuickBooks call pinned to minor version 65 and a HubSpot v1 call with a deadline on 2026-12-04. The command exits 1 because a critical finding exists (`--fail-on none` to disable).
+The demo flags `src/deploy.ts`, which throws unless `res.status` is exactly 204 from GitHub's workflow_dispatch endpoint (it started answering 200), plus a QuickBooks call pinned to minor version 65 and a HubSpot v1 call with a deadline on 2026-12-04. The command exits 1 because a critical finding exists (`--fail-on none` to disable).
 
 Other flags: `--json`, `--out api.lock`, `--repo <git url>`, `--advisories <dir>`.
 
@@ -35,7 +35,7 @@ Other flags: `--json`, `--out api.lock`, `--repo <git url>`, `--advisories <dir>
 pnpm exec shapi fix fixtures/demo-ts
 ```
 
-For each affected TypeScript or JavaScript call site whose advisory has a fix recipe, `shapi fix` generates a contract test (from the advisory's fix, or from recorded before/after responses), confirms it fails, applies the recipe (or asks Claude with `--llm` when no recipe fits), and keeps the change only if the test then passes. Other call sites are reported with the provider's migration steps; Python is scan-only for now. `--write` writes the fix into the repo; `--pr` opens a pull request with the fix, the test and the evidence (`--repo <github url> --pr` works on a repo you haven't cloned). Example: [shapi-demo PR #2](https://github.com/SriVarshini09/shapi-demo/pull/2).
+For each affected TypeScript or JavaScript call site whose advisory has a fix recipe, `shapi fix` generates a contract test (from the advisory's fix, or from recorded before/after responses), confirms it fails, applies the recipe (or asks Claude with `--llm` when no recipe fits), and keeps the change only if the test then passes. Other call sites are reported with the provider's migration steps; Python is scan-only for now. `--write` writes the fix into the repo; `--pr` opens a pull request with the fix, the test and the evidence (`--repo <github url> --pr` works on a repo you haven't cloned). [What a fix PR contains](https://shapi.dev/guide/fixes#what-a-fix-pr-contains).
 
 ## Use it from your editor
 
@@ -68,10 +68,13 @@ Canary probes call provider APIs, store response shapes in `.shapi/shapes.db` (P
 - `packages/repair`: recipes, contract test generation, repair agent (Claude fallback)
 - `packages/github-app`: pull request delivery and the dashboard issue (GitHub App, or a token for `shapi fix --pr`)
 - `packages/mcp`: MCP server for coding agents (`scan`, `advisories`, `impact`, `apply_fix`)
-- `packages/cli`: `shapi` command
+- `packages/cli`: `shapi` command (published to npm as `shapi-cli` by `packages/cli/scripts/build-npm.ts`)
+- `packages/db`: the hosted service's Postgres schema, migrations and queries
+- `packages/sandbox`: the isolated microVM (E2B) where the hosted service installs dependencies and runs contract tests
+- `apps/server`: the hosted service: web app, GitHub App webhooks, worker, and the docs site on shapi.dev
 - `advisories/`: seeded advisories (open JSON format)
 - `fixtures/demo-ts`: demo service
-- `site/`: documentation site (VitePress, published to GitHub Pages)
+- `site/`: documentation site (VitePress), built into the server image and served at https://shapi.dev
 - `docs/progress/`: one summary per task
 
 ## License

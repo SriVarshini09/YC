@@ -109,6 +109,21 @@ function bindFrom(expr: Node, loc: Location, env: Envelope, c: Collector, depth:
     if (Node.isIdentifier(left)) bindName(left, loc, parent, env, c, depth);
     return;
   }
+  // .then((r) => r.json()).then((d) => ...): what a .then callback returns is what the .then call resolves to
+  const fn =
+    Node.isArrowFunction(parent) && parent.getBody() === cur
+      ? parent
+      : Node.isReturnStatement(parent)
+        ? parent.getFirstAncestor((a) => Node.isFunctionLikeDeclaration(a) || Node.isFunctionExpression(a))
+        : undefined;
+  const thenCall = fn?.getParent();
+  if (Node.isCallExpression(thenCall) && thenCall.getArguments()[0] === fn) {
+    const callee = thenCall.getExpression();
+    if (Node.isPropertyAccessExpression(callee) && callee.getName() === "then") {
+      bindFrom(thenCall, loc, env, c, depth + 1);
+      return;
+    }
+  }
   // Used in place: (await fetch(url)).status === 204, got(url).json()
   use(cur, loc, env, c, depth);
 }

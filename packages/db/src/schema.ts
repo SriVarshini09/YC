@@ -168,6 +168,8 @@ export interface SessionsTable {
   login: string;
   /** GitHub App installations the user could access when signing in: the accounts the session may open. */
   installation_ids: ColumnType<string[], string, string>;
+  /** Per installation id: GitHub repository ids the user can read, push to and administer, and whether the installation is on the user's own account. */
+  access: ColumnType<Record<string, { read: string[]; push: string[]; admin: string[]; owner: boolean }>, string, string>;
   csrf: string;
   created_at: CreatedAt;
   expires_at: Timestamp;

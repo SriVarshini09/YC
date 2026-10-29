@@ -23,9 +23,9 @@ export interface AdvisoryData {
   verified: number;
   withFix: number;
   providers: string[];
-  /** Effective today or later, soonest first. */
-  upcoming: AdvisoryRow[];
+  /** Soonest first. */
   all: AdvisoryRow[];
+  /** The build date. Pages that count days from "today" start from it and move to the visitor's date in the browser. */
   builtOn: string;
 }
 
@@ -55,15 +55,13 @@ export default defineLoader({
         url: `https://github.com/SriVarshini09/shapi-advisories/blob/main/advisories/${path.basename(`${a.id}.json`)}`,
       }))
       .sort((a, b) => a.effectiveDate.localeCompare(b.effectiveDate) || a.id.localeCompare(b.id));
-    const today = new Date().toISOString().slice(0, 10);
     return {
       total: all.length,
       verified: all.filter((a) => a.status === "verified").length,
       withFix: all.filter((a) => a.fix).length,
       providers: [...new Set(all.map((a) => a.provider))].sort(),
-      upcoming: all.filter((a) => a.effectiveDate >= today),
       all,
-      builtOn: today,
+      builtOn: new Date().toISOString().slice(0, 10),
     };
   },
 });

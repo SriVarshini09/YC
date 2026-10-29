@@ -13,7 +13,7 @@ Try: *"Use SHAPI to check fixtures/demo-ts for third-party API breakages and fix
 
 ## In another repository
 
-1. Install the skill (the repo is private; the installer uses your `gh` login):
+1. Install the skill (the installer reads it from SHAPI's GitHub repository, with your `gh` login when the repository needs one):
 
    ```bash
    npx skills add SriVarshini09/YC --skill shapi -a claude-code cursor
@@ -22,7 +22,7 @@ Try: *"Use SHAPI to check fixtures/demo-ts for third-party API breakages and fix
 2. Register the MCP server, pointing at your SHAPI checkout. Claude Code:
 
    ```bash
-   claude mcp add shapi -- node C:/Users/ptula/OneDrive/Desktop/YC/SHAPI/packages/mcp/bin/shapi-mcp.js
+   claude mcp add shapi -- node <path-to-shapi>/packages/mcp/bin/shapi-mcp.js
    ```
 
    Cursor: add the same `command`/`args` to `.cursor/mcp.json` in that repo, with the absolute path.
