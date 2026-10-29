@@ -113,8 +113,8 @@ const markSvg = LOGO_SVG.replace(/ viewBox="[^"]*"/, ' viewBox="0 0 47.88 47.88"
   .replace(/<g class="sp-bar">.*?<\/g>/s, "");
 export const MARK = new Html(markSvg.includes('class="sp-left"') && !markSvg.includes("sp-word") && !markSvg.includes("sp-bar") ? markSvg : LOGO_SVG);
 
-/** The sidebar entries for one account, in order. Counts are filled in by the page. */
-export function navFor(accountId: string, counts: Partial<Record<NavKey, { count: number; bad?: boolean }>> = {}): NavItem[] {
+/** The sidebar entries for one account, in order. Counts are filled in by the page. Settings and Billing are for account admins. */
+export function navFor(accountId: string, counts: Partial<Record<NavKey, { count: number; bad?: boolean }>> = {}, opts: { admin?: boolean } = {}): NavItem[] {
   const base = `/a/${accountId}`;
   const item = (key: NavKey, label: string, href: string): NavItem => ({ key, label, href, icon: ICONS[key], ...(counts[key] ?? {}) });
   return [
@@ -123,8 +123,7 @@ export function navFor(accountId: string, counts: Partial<Record<NavKey, { count
     item("fixes", "Fixes", `${base}/fixes`),
     item("repositories", "Repositories", `${base}/repositories`),
     item("advisories", "API changes", `${base}/advisories`),
-    item("settings", "Settings", `${base}/settings`),
-    item("billing", "Billing", `${base}/billing`),
+    ...(opts.admin ? [item("settings", "Settings", `${base}/settings`), item("billing", "Billing", `${base}/billing`)] : []),
   ];
 }
 
@@ -147,8 +146,7 @@ function sidebar(shell: Shell): Html {
   <nav class="nav">
     <div class="group">Monitor</div>
     ${workspace.nav.slice(0, 5).map(navLink(workspace.active))}
-    <div class="group">Account</div>
-    ${workspace.nav.slice(5).map(navLink(workspace.active))}
+    ${workspace.nav.length > 5 ? html`<div class="group">Account</div>${workspace.nav.slice(5).map(navLink(workspace.active))}` : EMPTY}
   </nav>`
       : EMPTY
   }

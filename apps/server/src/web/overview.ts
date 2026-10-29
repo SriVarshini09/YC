@@ -1,6 +1,7 @@
 import { DOCS_URL, EMPTY, ICONS, MARK, html, plural, shortSha, timeAgo, type Html } from "./html";
 import {
   attentionOf,
+  autoFixable,
   deadlinesOf,
   firstScanPending,
   healthOf,
@@ -34,9 +35,9 @@ import type { FixRepair, FixTestRun } from "@shapi/db";
  * detail. Before the first scan it is a welcome or a scanning page, with a setup checklist until the
  * account has its first verified fix.
  */
-export function overviewPage(data: AccountData, opts: { installLink?: string } = {}): Html {
+export function overviewPage(data: AccountData, opts: { installLink?: string; admin?: boolean } = {}): Html {
   const setup = setupOf(data);
-  const checklist = setup.complete ? EMPTY : setupCard(data, setup, opts.installLink);
+  const checklist = setup.complete ? EMPTY : setupCard(data, setup, opts.installLink, opts.admin === true);
   if (!data.repos.length) return html`${welcomeCard(data, opts.installLink)}${checklist}`;
   if (firstScanPending(data)) return html`${scanningCard(data)}${checklist}`;
 
@@ -117,7 +118,9 @@ function catchCard(data: AccountData, c: LatestCatch | undefined): Html {
   const story = site
     ? html`${finding?.reasons.length ? html`<p class="catch-why"><b>Why it broke:</b> ${finding.reasons.join("; ")}</p>` : EMPTY}<div class="catch-flow">${testChip(site.before, "before")}<span class="flow-arrow">${ICONS.arrow}</span>${testChip(site.after, "after")}${pr ? stateTag(pr.state) : EMPTY}</div>${source ? miniDiff(source) : EMPTY}${proofSteps(pr!.repair!)}`
     : html`<p class="catch-why">${finding?.reasons.join("; ") ?? ""}</p><p class="note">${
-        advisory?.recipeId ? "SHAPI opens a fix PR after the next fix run, within the account's PR limits." : `No automatic fix for this change. ${advisory?.migrationNote ?? ""}`
+        autoFixable(data, advisory)
+          ? "SHAPI opens a fix PR after the next fix run, within the account's PR limits, unless the repository is paused or not covered by the plan."
+          : `No automatic fix for this change. ${advisory?.migrationNote ?? ""}`
       }</p>`;
   return html`<div class="card catch">
 <div class="catch-head">${providerMark(provider)}<div><p class="eyebrow">${providerName(provider)} · ${repo} · ${timeAgo(when, data.now)}</p><h3>${finding ? html`<a href="${findingHref(data, finding.id)}">${title}</a>` : title}</h3></div></div>
@@ -183,21 +186,22 @@ function attentionRow(data: AccountData, item: AttentionItem): Html {
         "warn",
         ICONS.deadlines,
         html`${item.deadline.advisory.title}`,
-        `${providerName(item.deadline.advisory.provider)} · takes effect in ${plural(item.deadline.daysUntil, "day")}`,
+        `${providerName(item.deadline.advisory.provider)} · takes effect ${item.deadline.daysUntil === 0 ? "today" : `in ${plural(item.deadline.daysUntil, "day")}`}`,
       );
     case "pending":
-      return row(findingHref(data, item.finding.id), "", ICONS.pr, html`Fix on the way: ${item.finding.advisory?.title ?? item.finding.advisory_id}`, `${item.finding.repo} · SHAPI opens it on the next fix run`);
+      return row(findingHref(data, item.finding.id), "", ICONS.pr, html`Fix on the way: ${item.finding.advisory?.title ?? item.finding.advisory_id}`, `${item.finding.repo} · SHAPI opens it on the next fix run, if the plan covers the repository`);
   }
 }
 
 /* ---------- first run ---------- */
 
-function setupCard(data: AccountData, setup: Setup, installLink: string | undefined): Html {
+function setupCard(data: AccountData, setup: Setup, installLink: string | undefined, admin: boolean): Html {
   const b = accountHref(data);
   const cta = (key: string, state: string): Html => {
     if (state === "done") return EMPTY;
     if (key === "install" && installLink) return html`<a class="button primary" href="${installLink}">Install the app</a>`;
-    if (key === "slack") return html`<a class="button" href="${b}/settings">Connect Slack</a>`;
+    // Settings are for account admins only.
+    if (key === "slack" && admin) return html`<a class="button" href="${b}/settings">Connect Slack</a>`;
     if (key === "fix" && state === "active") return html`<a class="button primary" href="${b}/fixes?state=open">Review the fix</a>`;
     return EMPTY;
   };

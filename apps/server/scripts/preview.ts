@@ -297,7 +297,16 @@ const app = buildApp({
 });
 await app.register(cookie, { secret: sessionSecret });
 app.get("/preview/login", async (req, reply) => {
-  const { token } = await createSession(db, { id: "1", login: "octocat", installationIds: ["999001", "999002", "999003"] });
+  // The preview user may do everything: admin on every repository, and owner of the personal account.
+  const installationIds = ["999001", "999002", "999003"];
+  const repos = await owner.selectFrom("repositories").innerJoin("accounts", "accounts.id", "repositories.account_id").select(["accounts.github_installation_id", "repositories.github_repo_id"]).execute();
+  const access = Object.fromEntries(
+    installationIds.map((id) => {
+      const ids = repos.filter((r) => String(r.github_installation_id) === id).map((r) => String(r.github_repo_id));
+      return [id, { read: ids, push: ids, admin: ids, owner: true }];
+    }),
+  );
+  const { token } = await createSession(db, { id: "1", login: "octocat", installationIds, access });
   reply.setCookie(SESSION_COOKIE, token, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 8 * 3600, signed: true });
   const theme = (req.query as { theme?: string }).theme;
   if (theme === "dark" || theme === "light") reply.setCookie("shapi_theme", theme, { httpOnly: true, sameSite: "lax", path: "/" });

@@ -27,7 +27,7 @@ When you install the GitHub App, GitHub sends SHAPI information about the instal
 
 ### Signing in to the web app
 
-When you sign in with GitHub, SHAPI reads your GitHub user id, your login and the GitHub App installations you can access. It stores them in a session that expires after 8 hours. SHAPI keeps no GitHub token for you: it discards the token right after sign-in.
+When you sign in with GitHub, SHAPI reads your GitHub user id, your login, the GitHub App installations you can access, and which of their repositories you can read, write to or administer. It stores them in a session that expires after 8 hours. SHAPI keeps no GitHub token for you: it discards the token right after sign-in.
 
 ### Billing
 

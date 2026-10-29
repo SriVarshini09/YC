@@ -2,6 +2,7 @@ import { generateKeyPairSync, randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import Stripe from "stripe";
 import { createDb, migrateToLatest, withService, type Db } from "@shapi/db";
+import { fakeUserGitHub } from "../../../test-utils/fake-github";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { buildApp, coverage, githubClients, handleStripeEvent, loadConfig, processDelivery, requiredQuantity, runScanJob, syncAllQuantities, syncQuantity, stripeClient, type BillingDeps } from "../src/index";
 
@@ -121,17 +122,12 @@ async function signIn(app: ReturnType<typeof buildApp>) {
 }
 
 function appWith(stripe: ReturnType<typeof fakeStripe>) {
+  // Billing is for account admins: the user is admin on every repository of acme.
+  const repositories = [100, 101, 102, 103, 200].map((id) => ({ id, permissions: { admin: true, push: true } }));
+  const github = fakeUserGitHub({ user: { id: 1, login: "octo" }, installations: [{ id: 4242, account: { id: 500, login: "acme", type: "Organization" }, repositories }] });
   const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
-    const url = new URL(String(input));
-    if (url.host === "api.stripe.com") return stripe.fetch(input, init);
-    const json = (body: unknown) => {
-      const res = new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
-      Object.defineProperty(res, "url", { value: url.href });
-      return res;
-    };
-    if (url.href === "https://github.com/login/oauth/access_token") return json({ access_token: "ghu_x" });
-    if (url.pathname === "/user") return json({ id: 1, login: "octo" });
-    return json({ total_count: 1, installations: [{ id: 4242 }] });
+    if (new URL(String(input)).host === "api.stripe.com") return stripe.fetch(input, init);
+    return github.fetch(input, init);
   }) as typeof globalThis.fetch;
   return buildApp({ db, config, fetch });
 }
