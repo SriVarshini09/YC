@@ -135,7 +135,7 @@ function sidebar(shell: Shell): Html {
   const shown = theme === "dark" ? "dark" : "light";
   const themeForm = user
     ? html`<form method="post" action="/theme" class="theme"><input type="hidden" name="csrf" value="${user.csrf}"><span>Theme</span>${(["light", "dark"] as const).map(
-        (t) => html`<button type="submit" name="theme" value="${t}" class="${t === shown ? "on" : ""}">${t[0]!.toUpperCase() + t.slice(1)}</button>`,
+        (t) => html`<button type="submit" name="theme" value="${t}" class="${t === shown ? "on" : ""}" aria-pressed="${t === shown ? "true" : "false"}">${t[0]!.toUpperCase() + t.slice(1)}</button>`,
       )}</form>`
     : EMPTY;
   return html`<aside class="side">
@@ -143,7 +143,7 @@ function sidebar(shell: Shell): Html {
   ${
     workspace
       ? html`<div class="account"><span class="avatar">${initials(workspace.login)}</span><span class="who"><b>${workspace.login}</b><span>${workspace.type}</span></span><a href="/" title="Switch account">Switch</a></div>
-  <nav class="nav">
+  <nav class="nav" aria-label="${workspace.login}">
     <div class="group">Monitor</div>
     ${workspace.nav.slice(0, 5).map(navLink(workspace.active))}
     ${workspace.nav.length > 5 ? html`<div class="group">Account</div>${workspace.nav.slice(5).map(navLink(workspace.active))}` : EMPTY}
@@ -159,7 +159,7 @@ function sidebar(shell: Shell): Html {
 }
 
 const navLink = (active?: NavKey) => (item: NavItem) =>
-  html`<a href="${item.href}" class="${item.key === active ? "active" : ""}">${item.icon}<span class="label">${item.label}</span>${
+  html`<a href="${item.href}" class="${item.key === active ? "active" : ""}"${item.key === active ? html` aria-current="page"` : EMPTY}>${item.icon}<span class="label">${item.label}</span>${
     item.count ? html`<span class="count ${item.bad ? "bad" : ""}">${item.count}</span>` : EMPTY
   }</a>`;
 
@@ -178,7 +178,7 @@ export function page(title: string, body: Html, shell: Shell = {}): string {
 ${shell.refresh ? html`<meta http-equiv="refresh" content="${shell.refresh}">` : EMPTY}
 </head>
 <body>
-${shell.landing ? body : shell.bare ? html`<main class="hero">${body}</main>` : html`${sidebar(shell)}<main class="main"><div class="wrap">${body}</div></main>`}
+${shell.landing ? body : shell.bare ? html`<main class="hero">${body}</main>` : html`<a class="skip" href="#main">Skip to content</a>${sidebar(shell)}<main class="main" id="main"><div class="wrap">${body}</div></main>`}
 </body>
 </html>`}`;
 }

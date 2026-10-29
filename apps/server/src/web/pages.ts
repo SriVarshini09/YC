@@ -142,10 +142,8 @@ ${head(repo.full_name, "", actions)}
 <div>${flags}${repo.pausedFromWeb || repo.paused ? html` <span class="note">Scans continue; no PRs are opened or updated while paused.</span>` : EMPTY}</div>
 ${strip}
 ${section("API calls by provider", callSitesByProvider(data, repo, findings, prs))}
-<div class="grid cols-2">
 <div id="fixes">${section("Fixes", prTable(data, prs, { repo: false }))}</div>
-<div>${section("Recent scans", scanTable(repo, detail.scans, data.now))}</div>
-</div>`;
+${section("Recent scans", scanTable(repo, detail.scans, data.now))}`;
 }
 
 type SiteRow = Pick<LockedCallSite, "file" | "line" | "method" | "endpoint"> & Partial<Pick<LockedCallSite, "client" | "operation" | "provider">> & { sha: string };
@@ -203,7 +201,7 @@ function callSitesByProvider(data: AccountData, repo: RepoRow, findings: Finding
 function scanTable(repo: RepoRow, scans: ScanRow[], now: Date): Html {
   if (!scans.length) return html`<div class="card tight">${empty("None yet.")}</div>`;
   return html`<div class="card tight"><table><thead><tr><th>Commit</th><th>Status</th><th>When</th></tr></thead><tbody>${scans.map(
-    (s) => html`<tr><td><a class="mono" href="${commitUrl(repo.full_name, s.sha)}">${shortSha(s.sha)}</a>${s.error ? html`<span class="sub">${s.error}</span>` : EMPTY}</td><td>${stateTag(s.status)}</td><td class="muted">${timeAgo(s.finished_at ?? s.created_at, now)}</td></tr>`,
+    (s) => html`<tr><td><a class="mono" href="${commitUrl(repo.full_name, s.sha)}">${shortSha(s.sha)}</a>${s.error ? html`<span class="sub">${s.error}</span>` : EMPTY}</td><td>${stateTag(s.status)}</td><td class="muted nowrap">${timeAgo(s.finished_at ?? s.created_at, now)}</td></tr>`,
   )}</tbody></table></div>`;
 }
 
@@ -272,10 +270,10 @@ function prTable(data: AccountData, prs: PrRow[], opts: { repo: boolean }): Html
     const fixed = p.repair?.sites.filter((s) => s.status === "fixed").length ?? 0;
     return html`<tr>
 <td><b>${prLink(p)}</b>${opts.repo ? html`<span class="sub">${p.repo}</span>` : EMPTY}</td>
-<td>${f ? html`<a href="${findingHref(data, f.id)}">${p.advisory?.title ?? p.advisory_id}</a>` : html`${p.advisory?.title ?? p.advisory_id}`}<span class="sub">${p.advisory ? `${providerName(p.advisory.provider)} · ` : ""}${p.repo}</span></td>
+<td>${f ? html`<a href="${findingHref(data, f.id)}">${p.advisory?.title ?? p.advisory_id}</a>` : html`${p.advisory?.title ?? p.advisory_id}`}${p.advisory ? html`<span class="sub">${providerName(p.advisory.provider)}</span>` : EMPTY}</td>
 <td>${stateTag(p.state)}${p.stopped ? html` ${tag("stopped", "warn")}` : EMPTY}</td>
 <td>${p.repair ? html`${tag(`${fixed} of ${plural(p.repair.sites.length, "place")} fixed`, fixed === p.repair.sites.length ? "ok" : "warn")}<span class="sub">${p.repair.method === "llm" ? "Claude, checked by tests" : "test failed before, passes after"}</span>` : html`<span class="muted small">details on the PR</span>`}</td>
-<td class="muted">${timeAgo(p.updated_at, data.now)}</td>
+<td class="muted nowrap">${timeAgo(p.updated_at, data.now)}</td>
 </tr>`;
   })}</tbody></table></div>`;
 }
@@ -297,7 +295,7 @@ export function advisoriesPage(data: AccountData, filter: { provider?: string; a
   };
   rows = rows.sort((x, y) => relevance(x) - relevance(y) || daysUntil(x.effectiveDate, data.now) - daysUntil(y.effectiveDate, data.now));
   const filters = html`<div class="filters"><a class="${filter.provider ? "" : "on"}" href="${b}/advisories#all">All · ${all.length}</a>${providers.map(
-    (p) => html`<a class="${p === filter.provider ? "on" : ""}" href="${b}/advisories?provider=${encodeURIComponent(p)}#all">${providerName(p)}${present.has(p) ? "" : " ·"}</a>`,
+    (p) => html`<a class="${p === filter.provider ? "on" : present.has(p) ? "" : "off"}" href="${b}/advisories?provider=${encodeURIComponent(p)}#all"${present.has(p) ? EMPTY : html` title="Not called from your code"`}>${providerName(p)}</a>`,
   )}</div>`;
   const yourCode = (a: Advisory) => {
     const h = hits.get(a.id);
@@ -453,7 +451,7 @@ ${
     : EMPTY
 }
 <div class="card stack"><h2>Pausing</h2><p class="note">Pause a repository from its page (it takes write access to the repository on GitHub), or tick the box on its SHAPI Dashboard issue. Scans continue; no PRs are opened or updated while paused. Add the <span class="mono">${STOP_LABEL}</span> label to a SHAPI PR to stop updates to that PR.</p></div>
-<div class="card stack"><h2>Appearance</h2><p class="note">The app is light by default. Switch to dark with the theme buttons at the bottom of the sidebar.</p></div>
+<div class="card stack"><h2>Appearance</h2><p class="note">The app is light by default. Switch to dark with the Theme buttons under your name in the sidebar.</p></div>
 </div>
 </div>`;
 }
@@ -498,7 +496,7 @@ ${!paying && needed > 0 ? form("checkout", `Upgrade to cover ${needed} more priv
 ${paying && needed > paid ? form("add-repos", `Add ${needed - paid} repositor${needed - paid === 1 ? "y" : "ies"} to the plan`, true) : EMPTY}
 ${billing?.stripe_customer_id ? form("portal", "Manage billing and invoices") : EMPTY}
 </div>
-<p class="note">Prices and invoices come from Stripe. Removing private repositories lowers the plan automatically; adding them never raises it without this button.${!paying && needed > 0 ? html` Upgrading means you accept the <a href="${DOCS_URL}/legal/terms">terms of service</a>.` : ""}</p>
+<p class="note">Prices and invoices come from Stripe. Removing private repositories lowers the plan automatically; adding them raises it only when you click to add them here.${!paying && needed > 0 ? html` Upgrading means you accept the <a href="${DOCS_URL}/legal/terms">terms of service</a>.` : ""}</p>
 </div>
 ${uncovered.length ? section("Not covered by the plan", html`<div class="card tight"><table><tbody>${uncovered.map((r) => html`<tr><td><a href="${repoHref(data, r.id)}">${r.full_name}</a></td><td class="muted">${(covered.get(r.id) as { reason?: string }).reason ?? ""}</td></tr>`)}</tbody></table></div>`) : EMPTY}`;
 }

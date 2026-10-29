@@ -169,7 +169,13 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       loadAccount(deps.db, ctx.account.id, { readable: ctx.access.read, llmAvailable: deps.llmAvailable === true, ...opts });
     const csrfOk = (session: Session, body: unknown) => sameToken((body as { csrf?: string } | undefined)?.csrf, session.csrf);
     const installLink = deps.config?.appSlug ? `https://github.com/apps/${deps.config.appSlug}/installations/new` : undefined;
-    const notFound = (req: FastifyRequest, reply: FastifyReply, session: Session) => send(reply, page("Not found", messagePage("Not found", "Nothing here."), bare(req, session)), 404);
+    /** A repository or problem in an account the user can open, that is not there for them. */
+    const notFound = (req: FastifyRequest, reply: FastifyReply, ctx: { session: Session; account: { id: string } }) =>
+      send(
+        reply,
+        page("Not found", messagePage("Not found", "This repository or problem does not exist, or your GitHub user cannot open it.", { href: `/a/${ctx.account.id}`, label: "Back to the overview" }), bare(req, ctx.session)),
+        404,
+      );
     const expired = (req: FastifyRequest, reply: FastifyReply, session: Session) => send(reply, page("Error", messagePage("Form expired", "Go back and try again."), bare(req, session)), 403);
 
     scope.get("/static/app.css", async (_req, reply) => reply.type("text/css; charset=utf-8").header("cache-control", "public, max-age=3600").send(STYLES));
@@ -397,10 +403,10 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       const ctx = await accountFor(req, reply);
       if (!ctx) return;
       const repoId = idParam.safeParse((req.params as { repoId?: string }).repoId);
-      if (!repoId.success) return notFound(req, reply, ctx.session);
+      if (!repoId.success) return notFound(req, reply, ctx);
       const data = await dataFor(ctx, { lockRepo: repoId.data });
       const repo = data.repos.find((r) => r.id === repoId.data);
-      if (!repo) return notFound(req, reply, ctx.session);
+      if (!repo) return notFound(req, reply, ctx);
       const scans = await withTenant(deps.db, ctx.account.id, (tx) =>
         tx.selectFrom("scans").select(["id", "repository_id", "sha", "status", "error", "created_at", "finished_at"]).where("repository_id", "=", repo.id).orderBy("created_at", "desc").limit(10).execute(),
       );
@@ -413,7 +419,7 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       if (!ctx) return;
       if (!csrfOk(ctx.session, req.body)) return expired(req, reply, ctx.session);
       const repoId = idParam.safeParse((req.params as { repoId?: string }).repoId);
-      if (!repoId.success) return notFound(req, reply, ctx.session);
+      if (!repoId.success) return notFound(req, reply, ctx);
       // The state the form asks for, never a toggle: a double submit or a page from before someone else's click keeps it.
       const wanted = (req.body as { paused?: string } | undefined)?.paused;
       if (wanted !== "1" && wanted !== "0") return expired(req, reply, ctx.session);
@@ -432,7 +438,7 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
         // Resumed: deliver the fixes that waited now, from the latest scan, instead of at the next push.
         return { resumedScan: was && !paused ? await latestScanId(tx, repo.id) : undefined };
       });
-      if (done === "missing") return notFound(req, reply, ctx.session);
+      if (done === "missing") return notFound(req, reply, ctx);
       if ("forbidden" in done) {
         return send(reply, page("Write access needed", messagePage("Write access needed", `Pausing SHAPI changes what it does in ${done.forbidden}, so it needs write access to that repository on GitHub.`, { href: `/a/${ctx.account.id}/r/${repoId.data}`, label: "Back to the repository" }), bare(req, ctx.session)), 403);
       }
@@ -447,9 +453,9 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       const ctx = await accountFor(req, reply);
       if (!ctx) return;
       const findingId = idParam.safeParse((req.params as { findingId?: string }).findingId);
-      if (!findingId.success) return notFound(req, reply, ctx.session);
+      if (!findingId.success) return notFound(req, reply, ctx);
       const [data, finding] = await Promise.all([dataFor(ctx), loadFinding(deps.db, ctx.account.id, findingId.data, ctx.access.read)]);
-      if (!finding) return notFound(req, reply, ctx.session);
+      if (!finding) return notFound(req, reply, ctx);
       const opts = { claudeFixes: data.claudeFixes, llm: deps.llmAvailable === true, admin: ctx.access.admin };
       return send(reply, page(finding.advisory?.title ?? finding.advisory_id, findingPage(ctx.account, finding, data.now, opts), shellFor(data, ctx.ctx, "findings")));
     });

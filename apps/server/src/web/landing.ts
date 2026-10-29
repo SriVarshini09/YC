@@ -143,7 +143,8 @@ function trust(title: string, text: string): Html {
 
 /**
  * The hero's picture, from the GitHub incident below and SHAPI's demo project (src/deploy.ts): the code
- * works, GitHub changes, line 22 breaks, SHAPI types the fix. Each state is stacked in place and shown in turn by a CSS loop (no script); with
+ * works, GitHub changes, line 22 breaks, SHAPI types the fix. Long lines are shortened with "…" so they fit the card. Each state is stacked
+ * in place and shown in turn by a CSS loop (no script); with
  * reduced motion only the fixed state shows.
  */
 function storyCard(): Html {
@@ -152,7 +153,7 @@ function storyCard(): Html {
   const line = (n: number, code: Html | string) => html`<span class="ln"><span class="no">${n}</span><span>${code}</span></span>`;
   return html`<div class="story" role="img" aria-label="GitHub changes its API, a line of code breaks, and SHAPI fixes it with a tested pull request">
 <div class="story-bar"><span class="file">src/deploy.ts</span><span class="stack-cell story-badges"><span class="tag s1">works</span><span class="tag warn s2">changed</span><span class="tag bad s3">breaks</span><span class="tag ok s4">fixed</span></span></div>
-<pre class="story-code">${line(13, html`<span class="k">const</span> res = <span class="k">await</span> fetch(\`…/dispatches\`, {`)}${line(14, '  method: "POST",')}${line(21, "});")}<span class="ln hot"><span class="no">22</span><span class="stack-cell"><span class="txt before">${before}</span><span class="txt after">${after}</span></span></span>${line(23, "  throw new Error(`deploy dispatch failed with ${res.status}`);")}${line(24, "}")}</pre>
+<pre class="story-code">${line(13, html`<span class="k">const</span> res = <span class="k">await</span> fetch(\`…/dispatches\`, {`)}${line(14, '  method: "POST",')}${line(21, "});")}<span class="ln hot"><span class="no">22</span><span class="stack-cell"><span class="txt before">${before}</span><span class="txt after">${after}</span></span></span>${line(23, "  throw new Error(`… failed with ${res.status}`);")}${line(24, "}")}</pre>
 <div class="story-event stack-cell">
 <p class="s1"><i></i><span>Watching <b>GitHub</b> for changes to the endpoints this code calls.</span></p>
 <p class="s2"><i></i><span><b>GitHub changed.</b> workflow_dispatch now answers 200 with a body, not 204.</span></p>

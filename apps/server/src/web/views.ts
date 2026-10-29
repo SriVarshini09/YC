@@ -50,7 +50,7 @@ export function prLink(pr: { url: string | null; number: number | null; branch: 
 }
 
 export function crumbs(items: { label: string; href?: string }[]): Html {
-  return html`<nav class="crumbs">${items.map((c, i) => html`${i ? html`<span>/</span>` : EMPTY}${c.href ? html`<a href="${c.href}">${c.label}</a>` : html`<span>${c.label}</span>`}`)}</nav>`;
+  return html`<nav class="crumbs" aria-label="Breadcrumb">${items.map((c, i) => html`${i ? html`<span aria-hidden="true">/</span>` : EMPTY}${c.href ? html`<a href="${c.href}">${c.label}</a>` : html`<span aria-current="page">${c.label}</span>`}`)}</nav>`;
 }
 
 export function section(title: string, body: Html, more?: { label: string; href: string }): Html {
@@ -121,7 +121,8 @@ export const providerName = (id: string) => getProvider(id)?.name ?? id;
  * Inline SVG with presentation attributes, because the CSP allows no inline styles.
  */
 export function providerMark(id: string, size: "" | "sm" = ""): Html {
-  const name = id === "unknown" ? "?" : providerName(id);
+  // A parenthesised aside is not part of the monogram: Atlassian (Jira, Confluence) is At, X (Twitter) is X.
+  const name = id === "unknown" ? "?" : providerName(id).replace(/\s*\([^)]*\)/g, "").trim() || providerName(id);
   const words = name.split(/[\s-]+/).filter(Boolean);
   // Initials for multi-word names (QuickBooks Online: QO), the first two letters otherwise (Stripe: St), so same-letter providers stay apart.
   const letters = id === "unknown" ? "?" : words.length > 1 ? words.map((w) => w[0]!.toUpperCase()).join("").slice(0, 2) : name.slice(0, 2);
@@ -150,7 +151,7 @@ export function providerGrid(providers: ProviderStatus[], href: (id: string) => 
   return html`<div class="providers">${providers.map((p) => {
     const tone = providerTone(p);
     const status = tone === "bad" ? plural(p.breaking, "problem") : tone === "warn" ? (p.working ? "changed, still works" : p.nextDeadline === 0 ? "changes today" : `changes in ${plural(p.nextDeadline!, "day")}`) : "healthy";
-    return html`<a class="provider" href="${href(p.id)}">${providerMark(p.id)}<span><span class="name">${providerName(p.id)}</span><span class="sub"><span class="dot ${tone}"></span>${status} · ${plural(p.callSites, "API call")}</span></span></a>`;
+    return html`<a class="provider" href="${href(p.id)}">${providerMark(p.id)}<span><span class="name">${providerName(p.id)}</span><span class="sub"><span class="dot ${tone}"></span>${status}</span><span class="sub calls">${plural(p.callSites, "API call")}</span></span></a>`;
   })}</div>`;
 }
 
