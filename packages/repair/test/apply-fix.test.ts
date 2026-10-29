@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -86,7 +87,8 @@ export async function pageName(pageId: string, token: string) {
     expect(result.status).toBe("fixed");
     const after = result.changes[0]!.after;
     expect(after).toContain('"https://api.hubapi.com/crm/pipelines/2026-09/deals"');
-    expect(after).toContain("[(p.id ?? p.pipelineId), p.stages.map((s) => (s.id ?? s.stageId))]");
+    // The parameter types do not know the new names yet, so the reads are cast for tsc.
+    expect(after).toContain("[((p as any).id ?? p.pipelineId), p.stages.map((s) => ((s as any).id ?? s.stageId))]");
   }, 60_000);
 
   it("sets a version header and an axios params value", () => {
@@ -130,7 +132,7 @@ describe("apply-fix: response renames", () => {
     expect(sites).toHaveLength(1);
     const result = await repairOnly(dir, advisory, sites[0]!);
     expect(result.status).toBe("fixed");
-    expect(result.changes[0]!.after).toContain("(e.folderIdV2 ?? e.folderId)");
+    expect(result.changes[0]!.after).toContain("((e as any).folderIdV2 ?? e.folderId)");
     expect(result.test!.content).toContain("returns the same result for the old and the new response");
   }, 60_000);
 
@@ -155,6 +157,23 @@ describe("apply-fix: response renames", () => {
     const after = result.changes[0]!.after;
     expect(after).toContain('if (["embedded","embedded_page"].includes(session.ui_mode)) return "in-page";');
     expect(after).toContain('case "hosted_page":\n    case "hosted":');
+  }, 60_000);
+
+  it("does not call a function that returns nothing already-handled: there is no result to compare", async () => {
+    const advisory = byId("hubspot-marketing-emails-folderid-removed");
+    const { dir, sites } = repo(
+      `const seen: string[] = [];
+export async function syncFolders(token: string): Promise<void> {
+  const res = await fetch("https://api.hubapi.com/marketing/v3/emails", { headers: { Authorization: \`Bearer \${token}\` } });
+  const body = await res.json();
+  for (const e of body.results) seen.push(e.folderId);
+}
+`,
+      advisory,
+    );
+    const result = await repairOnly(dir, advisory, sites[0]!);
+    expect(result.status).toBe("unsupported");
+    expect(result.reason).toBe("syncFolders() returns nothing, so there is no result to compare");
   }, 60_000);
 
   it("reports an already-correct call site instead of changing it", async () => {
@@ -234,4 +253,163 @@ describe("repairAdvisory: every call site of an advisory in one change", () => {
     expect(repair.changes.map((c) => c.file)).toEqual(["src/a.ts", "test/shapi/quickbooks-minorversion-below-75-ignored.2.test.ts"]);
     expect(repair.changes[0]!.after.match(/minorversion=75/g)).toHaveLength(1);
   }, 120_000);
+});
+
+/** Errors from `tsc --strict` on `files` (path → text), written to a fresh folder. */
+function tsc(files: Record<string, string>): string[] {
+  const dir = path.join(tmp, `tsc${++n}`);
+  for (const [file, text] of Object.entries(files)) {
+    mkdirSync(path.join(dir, path.dirname(file)), { recursive: true });
+    writeFileSync(path.join(dir, file), text);
+  }
+  const compilerOptions = { strict: true, noEmit: true, target: "es2022", module: "esnext", moduleResolution: "bundler", lib: ["es2022", "dom"], types: [] };
+  writeFileSync(path.join(dir, "tsconfig.json"), JSON.stringify({ compilerOptions, include: ["**/*.ts"] }));
+  const run = spawnSync(process.execPath, [path.join(root, "node_modules", "typescript", "lib", "tsc.js"), "-p", dir, "--pretty", "false"], { encoding: "utf8" });
+  return `${run.stdout}${run.stderr}`.split("\n").filter((l) => l.includes("error TS"));
+}
+
+/** The recipe's output for the one call site `advisory` affects in `source`. */
+function fixed(source: string, advisory: Advisory): string {
+  const { sites } = repo(source, advisory);
+  const outcome = runRecipe(RECIPES, advisory, sites[0]!, source);
+  if (outcome.status !== "applied") throw new Error(`${outcome.status}: ${outcome.reason}`);
+  return outcome.change.after;
+}
+
+describe("apply-fix: the output type-checks", () => {
+  const emails = byId("hubspot-marketing-emails-folderid-removed");
+  const uiMode = byId("stripe-checkout-session-ui-mode-values-renamed");
+
+  it("casts a renamed field read on a type that does not declare the new name yet", () => {
+    const source = `export async function emailFolders(token: string) {
+  const res = await fetch("https://api.hubapi.com/marketing/v3/emails", { headers: { Authorization: \`Bearer \${token}\` } });
+  const body = (await res.json()) as { results: { folderId: string }[] };
+  return body.results.map((e) => e.folderId);
+}
+`;
+    expect(tsc({ "app.ts": source })).toEqual([]);
+    const after = fixed(source, emails);
+    expect(after).toContain("((e as any).folderIdV2 ?? e.folderId)");
+    expect(tsc({ "app.ts": after })).toEqual([]);
+  });
+
+  it("leaves a type that already declares the new name uncast", () => {
+    const source = `export async function emailFolders(token: string) {
+  const res = await fetch("https://api.hubapi.com/marketing/v3/emails", { headers: { Authorization: \`Bearer \${token}\` } });
+  const body = (await res.json()) as { results: { folderId: string; folderIdV2?: string }[] };
+  return body.results.map((e) => e.folderId);
+}
+`;
+    const after = fixed(source, emails);
+    expect(after).toContain("(e.folderIdV2 ?? e.folderId)");
+    expect(tsc({ "app.ts": after })).toEqual([]);
+  });
+
+  it("widens comparisons with a nullable union that lacks the new values", () => {
+    const source = `type UiMode = "hosted" | "embedded";
+
+export async function checkoutKind(id: string, key: string) {
+  const res = await fetch(\`https://api.stripe.com/v1/checkout/sessions/\${id}\`, { headers: { Authorization: \`Bearer \${key}\` } });
+  const session = (await res.json()) as { ui_mode: UiMode | null };
+  if (session.ui_mode === "embedded") return "in-page";
+  switch (session.ui_mode) {
+    case "hosted":
+      return "redirect";
+    default:
+      return "other";
+  }
+}
+`;
+    expect(tsc({ "app.ts": source })).toEqual([]);
+    const after = fixed(source, uiMode);
+    expect(after).toContain('if ((["embedded","embedded_page"] as unknown[]).includes(session.ui_mode)) return "in-page";');
+    expect(after).toContain('case "hosted_page" as string:\n    case "hosted":');
+    expect(tsc({ "app.ts": after })).toEqual([]);
+  });
+
+  it("casts where the type comes from a package it cannot see (the Stripe SDK)", () => {
+    const source = `import Stripe from "stripe";
+
+const stripe = new Stripe("sk_test_shapi");
+
+export async function checkoutKind(id: string) {
+  const session = await stripe.checkout.sessions.retrieve(id);
+  return session.ui_mode === "hosted" ? "redirect" : "in-page";
+}
+`;
+    // Stripe's own declaration: a nullable union of the old values
+    const types = `declare module "stripe" {
+  export default class Stripe {
+    constructor(key: string);
+    checkout: { sessions: { retrieve(id: string): Promise<{ ui_mode: "hosted" | "embedded" | null }> } };
+  }
+}
+`;
+    expect(tsc({ "app.ts": source, "stripe.d.ts": types })).toEqual([]);
+    const after = fixed(source, uiMode);
+    expect(tsc({ "app.ts": after, "stripe.d.ts": types })).toEqual([]);
+  });
+
+  it("the HubSpot pipelines fix type-checks with the code's own parameter types", () => {
+    const source = `export async function stageIds(token: string) {
+  const res = await fetch("https://api.hubapi.com/crm-pipelines/v1/pipelines/deals", { headers: { Authorization: \`Bearer \${token}\` } });
+  const body = await res.json();
+  return body.results.map((p: { pipelineId: string; stages: { stageId: string }[] }) => [p.pipelineId, p.stages.map((s) => s.stageId)]);
+}
+`;
+    expect(tsc({ "app.ts": fixed(source, byId("hubspot-pipelines-v1-sunset")) })).toEqual([]);
+  });
+});
+
+describe("apply-fix: field reads it must not rewrite", () => {
+  it("skips receivers with side effects and every kind of write", () => {
+    const advisory = byId("hubspot-marketing-emails-folderid-removed");
+    const source = `import axios from "axios";
+
+export async function folder(id: string, copy: any, xs: string[]) {
+  const f = (await axios.get(\`https://api.hubapi.com/marketing/v3/emails/\${id}\`)).data.folderId;
+  copy.folderId++;
+  --copy.folderId;
+  copy.folderId += 1;
+  copy.folderId ??= "x";
+  delete copy.folderId;
+  [copy.folderId] = xs;
+  ({ folderId: copy.folderId } = { folderId: "y" });
+  for (copy.folderId of xs);
+  return [f, copy.folderId];
+}
+`;
+    // Only the plain read changes: \`(await axios.get(…)).data\` evaluated twice would send the request twice.
+    expect(fixed(source, advisory)).toBe(source.replace("return [f, copy.folderId];", "return [f, (copy.folderIdV2 ?? copy.folderId)];"));
+  });
+
+  it("rewrites a renamed field inside a renamed-value comparison once, not as two overlapping edits", () => {
+    const base = byId("stripe-checkout-session-ui-mode-values-renamed");
+    const advisory: Advisory = { ...base, id: "test-field-and-enum", fix: { fields: [{ from: "ui_mode", to: "mode" }], enums: [{ field: "ui_mode", values: [{ from: "hosted", to: "hosted_page" }] }] } };
+    const source = `export async function checkoutKind(id: string, key: string) {
+  const res = await fetch(\`https://api.stripe.com/v1/checkout/sessions/\${id}\`, { headers: { Authorization: \`Bearer \${key}\` } });
+  const session = await res.json();
+  return session.ui_mode === "hosted" ? "redirect" : "in-page";
+}
+`;
+    expect(fixed(source, advisory)).toContain('return ["hosted","hosted_page"].includes((session.mode ?? session.ui_mode)) ? "redirect" : "in-page";');
+  });
+});
+
+describe("apply-fix: query values", () => {
+  it("does not lower a value that is already at or above the advisory's threshold", () => {
+    const advisory = byId("quickbooks-minorversion-below-75-ignored");
+    const source = `import axios from "axios";
+
+const reports = axios.create({ baseURL: "https://quickbooks.api.intuit.com/v3/company/1/reports?minorversion=80" });
+
+export async function invoices(realmId: string, token: string) {
+  const res = await fetch(\`https://quickbooks.api.intuit.com/v3/company/\${realmId}/query?query=x&minorversion=65\`, { headers: { Authorization: \`Bearer \${token}\` } });
+  return [await res.json(), reports];
+}
+`;
+    const after = fixed(source, advisory);
+    expect(after).toContain("&minorversion=75`");
+    expect(after).toContain("reports?minorversion=80");
+  });
 });

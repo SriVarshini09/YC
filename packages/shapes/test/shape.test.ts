@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classify, inferShape, providerSalt, redactShape, shapeHash, type ResponseShape } from "@shapi/shapes";
+import { MAX_DEPTH, classify, inferShape, pathSegments, providerSalt, redactShape, shapeHash, type ResponseShape } from "@shapi/shapes";
 
 const salt = providerSalt("github", "test-secret");
 const field = (shape: ResponseShape, path: string) => shape.body.fields.find((f) => f.path === path);
@@ -120,5 +120,30 @@ describe("classify", () => {
     expect(classify("A sentence with spaces")).toBe("text");
     expect(classify(-3)).toBe("negative");
     expect(classify(false)).toBe("false");
+  });
+});
+
+describe("inferShape: awkward bodies", () => {
+  const infer = (body: string) => inferShape({ status: 200, headers: {}, body }, { salt });
+
+  it("escapes keys holding a dot or a bracket, and reads them back", () => {
+    const shape = infer(JSON.stringify({ "a.b": 1, "filter[name]": "x", a: { b: 2 } }));
+    expect(shape.body.fields.map((f) => f.path)).toEqual(["a", "a.b", "a\\.b", "filter\\[name]"]);
+    expect(pathSegments("a\\.b")).toEqual(["a.b"]);
+    expect(pathSegments("filter\\[name].x[].y")).toEqual(["filter[name]", "x", "[]", "y"]);
+    expect(pathSegments("[].id")).toEqual(["[]", "id"]);
+  });
+
+  it("records values below MAX_DEPTH by type only instead of overflowing the stack", () => {
+    let body = "1";
+    for (let i = 0; i < 20_000; i++) body = `{"a":${body}}`;
+    const shape = infer(body);
+    expect(shape.body.fields).toHaveLength(MAX_DEPTH);
+    expect(shape.body.fields.at(-1)?.types).toEqual(["object"]);
+  });
+
+  it("hashes the same headers the same in any key order", () => {
+    const s = infer("{}");
+    expect(shapeHash({ ...s, headers: { "content-type": "application/json", sunset: "x" } })).toBe(shapeHash({ ...s, headers: { sunset: "x", "content-type": "application/json" } }));
   });
 });

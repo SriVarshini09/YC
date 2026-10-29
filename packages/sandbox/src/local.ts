@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { safeRelative, truncate, type ExecOptions, type ExecResult, type Sandbox, type SandboxOptions, type SandboxProvider, type SnapshotFile } from "./types";
+import { DEFAULT_SANDBOX_LIFETIME_MS, lifetime, safeRelative, truncate, type ExecOptions, type ExecResult, type Sandbox, type SandboxOptions, type SandboxProvider, type SnapshotFile } from "./types";
 
 /**
  * A temp folder on this machine. NOT isolated: code runs with this machine's network, files and
@@ -13,8 +13,16 @@ export function localProvider(): SandboxProvider {
     name: "local",
     async create(o: SandboxOptions = {}): Promise<Sandbox> {
       const root = mkdtempSync(path.join(os.tmpdir(), "shapi-sandbox-"));
-      const lifetime = setTimeout(() => rmSync(root, { recursive: true, force: true }), o.lifetimeMs ?? 15 * 60_000);
-      lifetime.unref();
+      const destroy = (ms: number) => {
+        const timer = setTimeout(() => rmSync(root, { recursive: true, force: true }), ms);
+        timer.unref();
+        return timer;
+      };
+      let timer = destroy(o.lifetimeMs ?? DEFAULT_SANDBOX_LIFETIME_MS);
+      const extend = lifetime(o, (ms) => {
+        clearTimeout(timer);
+        timer = destroy(ms);
+      });
       let closed = false;
       return {
         provider: "local",
@@ -62,10 +70,11 @@ export function localProvider(): SandboxProvider {
         async setNetwork() {
           // A local folder has the machine's network; nothing to change.
         },
+        extend,
         async close() {
           if (closed) return;
           closed = true;
-          clearTimeout(lifetime);
+          clearTimeout(timer);
           rmSync(root, { recursive: true, force: true, maxRetries: 3 });
         },
       };

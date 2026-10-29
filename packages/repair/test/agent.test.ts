@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,7 +8,23 @@ import { createApiLock, loadAdvisories, matchAdvisories } from "@shapi/core";
 import { extractCallSites } from "@shapi/extractor";
 import { ShapeStore } from "@shapi/shapes";
 import { loadRecording, replay } from "@shapi/canary";
-import { RECIPES, claudeFixer, repairCallSite, runRecipe, testsRan, type FixRequest, type LlmFixer, type Workspace } from "@shapi/repair";
+import {
+  MAX_LLM_FILE_BYTES,
+  RECIPES,
+  claudeFixer,
+  localWorkspace,
+  repairAdvisory,
+  repairCallSite,
+  runFailure,
+  runRecipe,
+  runTestFile,
+  testsRan,
+  withCallBudget,
+  type FixRequest,
+  type LlmFixer,
+  type TestRun,
+  type Workspace,
+} from "@shapi/repair";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const advisory = loadAdvisories(path.join(root, "advisories")).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
@@ -132,6 +148,7 @@ describe("repairCallSite", () => {
       location: "fake:1",
       read: async (f) => files.get(f),
       write: async (f, c) => void files.set(f, c),
+      remove: async (f) => void files.delete(f),
       runTest: async (f) => (runs.push(f), { passed: false, exitCode: 1, output: startupCrash }),
     };
     const result = await repairCallSite({ workspace: ws, advisory, callSite, ...shapes, recipes: RECIPES });
@@ -147,6 +164,7 @@ describe("repairCallSite", () => {
     expect(testsRan("      Tests  2 passed (2)")).toBe(true);
     expect(testsRan(" Test Files  1 failed (1)\n      Tests  no tests")).toBe(false);
     expect(testsRan("Startup Error")).toBe(false);
+    expect(runFailure(" RUN  v5.0.5 /tmp/shapi-repair-x\n\nNo test files found, exiting with code 1")).toBe("No test files found, exiting with code 1");
   });
 
   it("rejects without an LLM when there is no recipe", async () => {
@@ -202,5 +220,275 @@ describe("claudeFixer", () => {
     expect(await claudeFixer({ client: text.client }).fix(request)).toEqual({ status: "declined", reason: "No safe change exists." });
     const bad = fakeClient({ content: [{ type: "tool_use", id: "t1", name: "submit_fix", input: { files: [] } } as unknown as Anthropic.Beta.BetaToolUseBlock] });
     expect(await claudeFixer({ client: bad.client }).fix(request)).toMatchObject({ status: "declined" });
+  });
+});
+
+/** vitest's output for a contract test that failed the way the advisory says, and for one that passed. */
+const BROKEN: TestRun = {
+  passed: false,
+  exitCode: 1,
+  output: " FAIL  test/shapi/x.test.ts > triggerDeploy\nError: SHAPI breakage: triggerDeploy() fails on the response github sends now: deploy dispatch failed with 200\n      Tests  1 failed | 1 passed (2)",
+};
+const PASSED: TestRun = { passed: true, exitCode: 0, output: "      Tests  2 passed (2)" };
+
+/** A workspace in memory: `run` answers each test run (numbered from 0, the baseline). */
+function memoryWorkspace(seed: Record<string, string>, run: (n: number, files: Map<string, string>, file: string) => TestRun) {
+  const files = new Map(Object.entries(seed));
+  const written: string[] = [];
+  let n = 0;
+  const ws: Workspace = {
+    location: "memory:1",
+    read: async (f) => files.get(f),
+    write: async (f, c) => {
+      if (f === "src/folder.ts") throw new Error("EISDIR: illegal operation on a directory, open 'src/folder.ts'");
+      written.push(f);
+      files.set(f, c);
+    },
+    remove: async (f) => void files.delete(f),
+    runTest: async (f) => run(n++, files, f),
+  };
+  return { ws, files, written };
+}
+
+const proposing = (files: { path: string; content: string }[]): LlmFixer => ({ fix: async () => ({ status: "proposed", files, explanation: "x", model: "stub" }) });
+
+describe("repairCallSite: what an LLM change has to get past", () => {
+  const { callSite, original } = demoRepo("llm-guards");
+  const testFile = "test/shapi/github-workflow-dispatch-204-to-200.test.ts";
+  const attempt = (llm: LlmFixer, run: (n: number) => TestRun = (n) => (n === 0 ? BROKEN : PASSED)) => {
+    const mem = memoryWorkspace({ [callSite.file]: original }, run);
+    return { mem, result: repairCallSite({ workspace: mem.ws, advisory: { ...advisory, recipeId: undefined }, callSite, ...shapes, recipes: RECIPES, llm }) };
+  };
+
+  it("only writes source files: never config, manifests, CI, setup files or any contract test, in any letter case", async () => {
+    for (const target of [
+      "vitest.config.ts",
+      "package.json",
+      "tsconfig.json",
+      ".github/workflows/ci.yml",
+      "test/setup.ts",
+      "src/__mocks__/deploy.ts",
+      "src/types.d.ts",
+      "TEST/Shapi/github-workflow-dispatch-204-to-200.test.ts",
+      "test/shapi/github-workflow-dispatch-204-to-200.2.test.ts",
+      "C:/Users/someone/evil.ts",
+      "src",
+    ]) {
+      const { mem, result } = attempt(proposing([{ path: target, content: "export {};" }]));
+      const r = await result;
+      expect(r.status, target).toBe("rejected");
+      expect(r.attempts.at(-1)?.detail, target).toContain(`refused to write ${target}`);
+      expect(mem.written, target).toEqual([testFile]);
+    }
+  });
+
+  it("does not count a run that ran no test as passing", async () => {
+    const noTests: TestRun = { passed: true, exitCode: 0, output: "No test files found, exiting with code 0" };
+    const r = await attempt(proposing([{ path: callSite.file, content: fixedText(original) }]), (n) => (n === 0 ? BROKEN : noTests)).result;
+    expect(r.status).toBe("rejected");
+    expect(r.attempts.at(-1)).toMatchObject({ method: "llm", outcome: "failed" });
+  });
+
+  it("undoes a rejected change exactly: a path given twice, and a file it created", async () => {
+    const { mem, result } = attempt(
+      proposing([
+        { path: callSite.file, content: "A" },
+        { path: callSite.file, content: "B" },
+        { path: "src/new.ts", content: "N" },
+      ]),
+      () => BROKEN,
+    );
+    expect((await result).status).toBe("rejected");
+    expect(mem.files.get(callSite.file)).toBe(original);
+    expect(mem.files.has("src/new.ts")).toBe(false);
+    // only the last content given for a path is tried: one write, then the restore
+    expect(mem.written.filter((f) => f === callSite.file)).toHaveLength(2);
+  });
+
+  it("turns a failing write or a throwing fixer into a rejected attempt instead of failing the job", async () => {
+    const write = attempt(proposing([{ path: callSite.file, content: fixedText(original) }, { path: "src/folder.ts", content: "x" }]));
+    const w = await write.result;
+    expect(w.status).toBe("rejected");
+    expect(w.attempts.at(-1)?.detail).toBe("the LLM attempt failed: EISDIR: illegal operation on a directory, open 'src/folder.ts'");
+    expect(write.mem.files.get(callSite.file)).toBe(original);
+    const throwing = attempt({ fix: async () => Promise.reject(new TypeError("socket hang up")) });
+    const r = await throwing.result;
+    expect(r.status).toBe("rejected");
+    expect(r.attempts.at(-1)).toMatchObject({ method: "llm", outcome: "failed", detail: "the LLM attempt failed: socket hang up" });
+  });
+
+  it("does not try a fix when the baseline failed for another reason than the API change", async () => {
+    const asked: FixRequest[] = [];
+    const other: TestRun = { passed: false, exitCode: 1, output: " FAIL  test/shapi/x.test.ts\nTypeError: Cannot read properties of undefined (reading 'owner')\n      Tests  2 failed (2)" };
+    const mem = memoryWorkspace({ [callSite.file]: original }, () => other);
+    const llm: LlmFixer = { fix: async (req) => (asked.push(req), { status: "declined", reason: "x" }) };
+    const r = await repairCallSite({ workspace: mem.ws, advisory, callSite, ...shapes, recipes: RECIPES, llm });
+    expect(r.status).toBe("unsupported");
+    expect(r.reason).toBe("the contract test fails before it reaches the API change: TypeError: Cannot read properties of undefined (reading 'owner')");
+    expect(asked).toEqual([]);
+    expect(mem.files.get(callSite.file)).toBe(original);
+  });
+});
+
+/** A one-file TypeScript repo linking the monorepo's node_modules (TypeScript, vitest, @types/node), with a strict tsconfig unless told otherwise. */
+function tsRepo(name: string, source: string, opts: { tsconfig?: boolean } = {}) {
+  const dir = path.join(tmp, name);
+  mkdirSync(path.join(dir, "src"), { recursive: true });
+  writeFileSync(path.join(dir, "package.json"), JSON.stringify({ name, private: true, type: "module" }));
+  if (opts.tsconfig !== false) {
+    const compilerOptions = { strict: true, target: "es2022", module: "esnext", moduleResolution: "bundler", lib: ["es2022", "dom"], types: ["node"], noEmit: true };
+    writeFileSync(path.join(dir, "tsconfig.json"), JSON.stringify({ compilerOptions, include: ["src"] }));
+  }
+  writeFileSync(path.join(dir, "src", "app.ts"), source);
+  symlinkSync(path.join(root, "node_modules"), path.join(dir, "node_modules"), "junction");
+  const sites = matchAdvisories(createApiLock(extractCallSites(dir), "test"), [advisory], { now: new Date("2026-10-23") }).affected.map((f) => f.callSite);
+  return { dir, callSite: sites[0]!, sites };
+}
+
+const DISPATCH = `export async function deploy(owner: string, repo: string, workflow: string): Promise<void> {
+  const res = await fetch(\`https://api.github.com/repos/\${owner}/\${repo}/actions/workflows/\${workflow}/dispatches\`, { method: "POST" });
+  if (res.status !== 204) throw new Error(\`deploy dispatch failed with \${res.status}\`);
+}
+`;
+
+describe("repairCallSite: the fix must type-check", () => {
+  it("type-checks a recipe fix with the repo's tsconfig", async () => {
+    const { dir, callSite } = tsRepo("tsc-recipe", DISPATCH);
+    const result = await repair(dir, callSite);
+    expect(result.status).toBe("fixed");
+    expect(result.typecheck).toEqual({ status: "passed", detail: "tsc --noEmit -p tsconfig.json: no new errors" });
+  }, 120_000);
+
+  it("rejects a change that passes the test but adds a type error", async () => {
+    const { dir, callSite } = tsRepo("tsc-llm", DISPATCH);
+    const llm = proposing([{ path: callSite.file, content: `${fixedText(DISPATCH)}export const port: number = "8080";\n` }]);
+    const result = await repair(dir, callSite, { llm, noRecipe: true });
+    expect(result.status).toBe("rejected");
+    const last = result.attempts.at(-1)!;
+    expect(last).toMatchObject({ method: "llm", outcome: "failed" });
+    expect(last.run?.passed).toBe(true);
+    expect(last.detail).toContain("the test passes, but tsc --noEmit -p tsconfig.json: 1 new error: src/app.ts: TS2322 Type 'string' is not assignable to type 'number'.");
+  }, 120_000);
+
+  it("says so when it could not type-check, without blocking the fix", async () => {
+    const { dir, callSite } = tsRepo("tsc-none", DISPATCH, { tsconfig: false });
+    const result = await repair(dir, callSite);
+    expect(result.status).toBe("fixed");
+    expect(result.typecheck).toEqual({ status: "skipped", detail: "not type-checked: no tsconfig.json above src/app.ts" });
+  }, 120_000);
+});
+
+const BREAKAGE_LINE = "SHAPI breakage: deploy() fails on the response github sends now: deploy dispatch failed with 200";
+
+describe("repairCallSite: contract tests that prove the right thing", () => {
+  it("imports a default export as the default", async () => {
+    const { dir, callSite } = tsRepo("default-export", DISPATCH.replace("export async function deploy", "export default async function deploy"), { tsconfig: false });
+    const result = await repair(dir, callSite);
+    expect(result.test?.content).toContain('import deploy from "../../src/app";');
+    expect(result.status).toBe("fixed");
+  }, 120_000);
+
+  it("does not take a crash on the generated arguments for the API change", async () => {
+    const source = DISPATCH.replace("owner: string, repo: string, workflow: string", "target: Target").replace("${owner}/${repo}/actions/workflows/${workflow}", "${target.owner.trim()}/x/actions/workflows/y");
+    const { dir, callSite } = tsRepo("args-crash", `import type { Target } from "./types";\n${source}`, { tsconfig: false });
+    const result = await repair(dir, callSite, { llm: proposing([]) });
+    expect(result.status).toBe("unsupported");
+    expect(result.reason).toMatch(/^the contract test fails before it reaches the API change: TypeError: Cannot read properties of undefined/);
+    expect(result.attempts).toEqual([]);
+  }, 120_000);
+
+  it("runs the contract test in a repo whose vitest config only includes its own tests", async () => {
+    const { dir, callSite } = tsRepo("vitest-include", DISPATCH, { tsconfig: false });
+    writeFileSync(path.join(dir, "vitest.config.ts"), `import { defineConfig } from "vitest/config";\nexport default defineConfig({ test: { include: ["src/**/*.test.ts"], exclude: ["test/**"] } });\n`);
+    const result = await repair(dir, callSite);
+    expect(result.baseline?.output).toContain(BREAKAGE_LINE);
+    expect(result.status).toBe("fixed");
+  }, 120_000);
+});
+
+describe("repairAdvisory: the combined change", () => {
+  it("runs every fixed site's test again on the combined change, and does not report a site whose fix a later one undid", async () => {
+    const two = `${DISPATCH}\n${DISPATCH.replace("function deploy", "function redeploy")}`;
+    const { sites } = tsRepo("combined", two, { tsconfig: false });
+    expect(sites.map((s) => s.line)).toEqual([2, 7]);
+    const accept = (line: string) => line.replace("res.status !== 204", "res.status !== 200 && res.status !== 204");
+    // Each proposal accepts 200 on its own site's check line and puts every other check line back as it was.
+    const llm: LlmFixer = {
+      async fix(req) {
+        const own = req.callSite.line + 1;
+        const content = two.split("\n").map((l, i) => (i + 1 === own ? accept(l) : l)).join("\n");
+        return { status: "proposed", files: [{ path: req.file.path, content }], explanation: `site ${req.callSite.line}`, model: "stub" };
+      },
+    };
+    // A test passes when its own site's check line accepts 200.
+    const siteOf = new Map([
+      ["test/shapi/github-workflow-dispatch-204-to-200.test.ts", 7],
+      ["test/shapi/github-workflow-dispatch-204-to-200.2.test.ts", 2],
+    ]);
+    const mem = memoryWorkspace({ "src/app.ts": two }, (_n, files, file) => (files.get("src/app.ts")!.split("\n")[siteOf.get(file)!]!.includes("!== 200") ? PASSED : BROKEN));
+    const result = await repairAdvisory({ workspace: mem.ws, advisory: { ...advisory, recipeId: undefined }, callSites: sites, ...shapes, recipes: RECIPES, llm });
+    expect(result.sites.map((s) => [s.callSite.line, s.result.status])).toEqual([
+      [7, "rejected"],
+      [2, "fixed"],
+    ]);
+    expect(result.sites[0]!.result.reason).toBe("its contract test fails on the combined change of all the call sites");
+    expect(result.status).toBe("partial");
+    expect(result.changes.map((c) => c.file)).toEqual(["src/app.ts", "test/shapi/github-workflow-dispatch-204-to-200.2.test.ts"]);
+  });
+});
+
+describe("local workspace", () => {
+  it("is deleted by dispose(), leaving the checkout and its node_modules alone", async () => {
+    const dir = path.join(tmp, "dispose");
+    for (const d of ["node_modules/dep", "packages/a/node_modules/inner", "packages/a/dist", "dist"]) mkdirSync(path.join(dir, d), { recursive: true });
+    writeFileSync(path.join(dir, "node_modules", "dep", "index.js"), "");
+    writeFileSync(path.join(dir, "packages", "a", "node_modules", "inner", "index.js"), "");
+    writeFileSync(path.join(dir, "packages", "a", "dist", "index.js"), "built");
+    writeFileSync(path.join(dir, "dist", "out.js"), "");
+    writeFileSync(path.join(dir, ".env"), "SECRET=1");
+    const ws = localWorkspace(dir);
+    // a package's committed dist/ is code the call site can import; nested node_modules are linked like the root's
+    expect(await ws.read("packages/a/dist/index.js")).toBe("built");
+    expect(existsSync(path.join(ws.location, "packages", "a", "node_modules", "inner", "index.js"))).toBe(true);
+    expect(existsSync(path.join(ws.location, "dist"))).toBe(false);
+    await ws.remove("packages/a/dist/index.js");
+    expect(await ws.read("packages/a/dist/index.js")).toBeUndefined();
+    await ws.dispose();
+    expect(existsSync(ws.location)).toBe(false);
+    for (const f of ["node_modules/dep/index.js", "packages/a/node_modules/inner/index.js", "packages/a/dist/index.js", ".env"]) expect(existsSync(path.join(dir, f)), f).toBe(true);
+  });
+
+  it("runs the repo's tests without the caller's tokens in the environment", () => {
+    const dir = path.join(tmp, "env");
+    mkdirSync(path.join(dir, "test"), { recursive: true });
+    writeFileSync(path.join(dir, "package.json"), "{}");
+    writeFileSync(path.join(dir, "test", "env.test.ts"), `import { expect, it } from "vitest";\nit("sees no token", () => expect(process.env.SHAPI_TEST_TOKEN).toBeUndefined());\n`);
+    process.env.SHAPI_TEST_TOKEN = "secret";
+    try {
+      expect(runTestFile(dir, "test/env.test.ts").output).toContain("1 passed");
+    } finally {
+      delete process.env.SHAPI_TEST_TOKEN;
+    }
+  }, 60_000);
+});
+
+describe("LLM spend", () => {
+  it("declines once a job's call budget is used up", async () => {
+    let calls = 0;
+    const llm = withCallBudget({ fix: async () => (calls++, { status: "declined", reason: "no" }) }, 2);
+    const req = {} as FixRequest;
+    await llm.fix(req);
+    await llm.fix(req);
+    expect(await llm.fix(req)).toEqual({ status: "declined", reason: "the 2 LLM calls allowed per fix job are used up (SHAPI_LLM_CALLS_PER_JOB)" });
+    expect(calls).toBe(2);
+  });
+
+  it("does not send a file larger than the limit", async () => {
+    let called = false;
+    const client = { beta: { messages: { create: async () => ((called = true), {}) } } } as unknown as Anthropic;
+    const big = { path: "src/huge.ts", content: "x".repeat(MAX_LLM_FILE_BYTES + 1) };
+    const proposal = await claudeFixer({ client }).fix({ file: big } as FixRequest);
+    expect(proposal).toEqual({ status: "declined", reason: "src/huge.ts is too large to send to the model (200 kB, limit 200 kB)" });
+    expect(called).toBe(false);
   });
 });

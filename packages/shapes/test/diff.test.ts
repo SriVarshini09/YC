@@ -72,3 +72,21 @@ describe("diffShapes", () => {
     expect(d.changes[0]).toMatchObject({ kind: "field-removed", path: "secret_field" });
   });
 });
+
+describe("diffShapes: changes that are not a contract change", () => {
+  it("treats integer and number as one JSON type", () => {
+    expect(kinds(diffShapes(shape(200, { price: 10 }), shape(200, { price: 10.5 })))).toEqual([]);
+    expect(kinds(diffShapes(shape(200, { price: 10.5 }), shape(200, { price: 11 })))).toEqual([]);
+    expect(kinds(diffShapes(shape(200, { price: 10 }), shape(200, { price: "10" })))).toEqual(["breaking:type-changed:price"]);
+  });
+
+  it("does not read an array that came back empty as its items' fields removed", () => {
+    expect(kinds(diffShapes(shape(200, { items: [{ id: 1 }] }), shape(200, { items: [] })))).toEqual([]);
+    expect(kinds(diffShapes(shape(200, [{ id: 1 }]), shape(200, [])))).toEqual([]);
+    expect(kinds(diffShapes(shape(200, { items: [{ id: 1 }], total: 1 }), shape(200, { items: [] })))).toEqual(["breaking:field-removed:total"]);
+  });
+
+  it("tells a dotted key from a nested object", () => {
+    expect(kinds(diffShapes(shape(200, { "a.b": 1 }), shape(200, { a: { b: 1 } })))).toEqual(["breaking:field-removed:a\\.b", "non-breaking:field-added:a"]);
+  });
+});

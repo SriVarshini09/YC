@@ -95,7 +95,8 @@ export async function checkoutKind(id: string) {
     const result = await repair(dir, advisory, site);
     expect(result.status).toBe("fixed");
     expect(result.baseline?.passed).toBe(false);
-    expect(result.changes[0]!.after).toContain('["hosted","hosted_page"].includes(session.ui_mode)');
+    // Stripe's own type for ui_mode is a nullable union without the new values: the list is widened for tsc.
+    expect(result.changes[0]!.after).toContain('(["hosted","hosted_page"] as unknown[]).includes(session.ui_mode)');
     expect(result.test!.content).toContain('vi.mock("stripe"');
   }, 60_000);
 

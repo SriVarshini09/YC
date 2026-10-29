@@ -1,10 +1,11 @@
 import path from "node:path";
 import type { Advisory, LockedCallSite } from "@shapi/core";
 import type { ResponseShape } from "@shapi/shapes";
-import { generateContractTest } from "./contract";
+import { BREAKAGE, CONTRACT_DIR, UNTESTABLE, generateContractTest } from "./contract";
 import type { LlmFixer } from "./llm";
 import { runRecipe, type FileChange, type Recipe } from "./recipe";
 import { runFailure, testsRan, type TestRun } from "./runner";
+import { checkTypes, typeBaseline, type TypeBaseline, type TypeCheck } from "./typecheck";
 import { localWorkspace, type Workspace } from "./workspace";
 
 export interface RepairInput {
@@ -45,14 +46,20 @@ export interface RepairResult {
   baseline?: TestRun;
   attempts: Attempt[];
   reason?: string;
+  /**
+   * For a fix: whether the repository still type-checks (`tsc --noEmit` with its tsconfig, no new
+   * errors), or why that was not checked. A fix with new type errors is not kept.
+   */
+  typecheck?: TypeCheck;
 }
 
 const PROTECTED = new Set([".git", "node_modules", "dist", "coverage", ".shapi"]);
 
 /**
  * Repair one affected call site, test-first:
- * 1. work in a copy of the repo, 2. write the generated contract test and confirm it fails,
- * 3. apply the advisory's recipe, or ask the LLM fixer, 4. keep the change only if the test passes.
+ * 1. work in a copy of the repo, 2. write the generated contract test and confirm it fails the way
+ * the advisory says, 3. apply the advisory's recipe, or ask the LLM fixer, 4. keep the change only if
+ * the test passes and, in a TypeScript repository, tsc reports no new errors.
  */
 export async function repairCallSite(input: RepairInput): Promise<RepairResult> {
   const { advisory, callSite } = input;
@@ -68,41 +75,60 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
 
   await ws.write(test.file, test.content);
   const testChange: FileChange = { file: test.file, before: "", after: test.content, notes: ["generated contract test"] };
+  const ran = { file: test.file, content: test.content };
 
   const baseline = await ws.runTest(test.file);
   // The baseline only confirms the breakage if the test really ran and failed; a broken environment proves nothing.
   if (!baseline.passed && !testsRan(baseline.output)) {
-    return {
-      status: "unsupported",
-      sandbox: ws.location,
-      changes: [],
-      test: { file: test.file, content: test.content },
-      baseline,
-      attempts: [],
-      reason: `the contract test could not run: ${runFailure(baseline.output)}`,
-    };
+    return { status: "unsupported", sandbox: ws.location, changes: [], test: ran, baseline, attempts: [], reason: `the contract test could not run: ${runFailure(baseline.output)}` };
   }
   if (baseline.passed) {
     return {
       status: "already-handled",
       sandbox: ws.location,
       changes: [],
-      test: { file: test.file, content: test.content },
+      test: ran,
       baseline,
       attempts: [],
-      reason: "the contract test already passes against the new response",
+      reason:
+        test.kind === "recorded"
+          ? "the code handles the new response without an error (the contract test checks that it runs, not what it returns)"
+          : "the contract test already passes against the new response",
+    };
+  }
+  // ...and only if it failed the way the advisory says: not on the generated arguments, an import or a missing setting.
+  const untestable = marked(baseline.output, UNTESTABLE);
+  if (untestable !== undefined || marked(baseline.output, BREAKAGE) === undefined) {
+    return {
+      status: "unsupported",
+      sandbox: ws.location,
+      changes: [],
+      test: ran,
+      baseline,
+      attempts: [],
+      reason: untestable ?? `the contract test fails before it reaches the API change: ${runFailure(baseline.output)}`,
     };
   }
 
   const attempts: Attempt[] = [];
+  let types: TypeBaseline | undefined;
+  /** Run the test on a change and type-check it; the type baseline is taken before the first change is written. */
+  const verify = async (write: () => Promise<void>): Promise<{ run: TestRun; typecheck?: TypeCheck }> => {
+    types ??= await typeBaseline(ws, callSite.file);
+    await write();
+    const run = await ws.runTest(test.file);
+    // A passing run must have run the test: "no test files found" exits 0 too.
+    if (!run.passed || !testsRan(run.output)) return { run: { ...run, passed: false } };
+    return { run, typecheck: await checkTypes(ws, types) };
+  };
+  const failure = (typecheck: TypeCheck | undefined, detail: string) => (typecheck?.status === "failed" ? `${detail}; the test passes, but ${typecheck.detail}` : detail);
+
   const recipe = runRecipe(input.recipes, advisory, callSite, original);
   if (recipe.status === "applied") {
-    await ws.write(callSite.file, recipe.change.after);
-    const run = await ws.runTest(test.file);
-    attempts.push({ method: "recipe", outcome: run.passed ? "passed" : "failed", detail: recipe.recipe, run });
-    if (run.passed) {
-      return { status: "fixed", method: "recipe", sandbox: ws.location, changes: [recipe.change, testChange], test: { file: test.file, content: test.content }, baseline, attempts };
-    }
+    const { run, typecheck } = await verify(() => ws.write(callSite.file, recipe.change.after));
+    const kept = run.passed && typecheck?.status !== "failed";
+    attempts.push({ method: "recipe", outcome: kept ? "passed" : "failed", detail: kept ? recipe.recipe : failure(typecheck, recipe.recipe), run });
+    if (kept) return { status: "fixed", method: "recipe", sandbox: ws.location, changes: [recipe.change, testChange], test: ran, baseline, attempts, typecheck };
     await ws.write(callSite.file, original);
   } else {
     attempts.push({ method: "recipe", outcome: "skipped", detail: recipe.reason });
@@ -110,40 +136,78 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
 
   if (!input.llm) {
     attempts.push({ method: "llm", outcome: "skipped", detail: "no LLM fixer configured" });
-    return rejected(ws, test, baseline, attempts);
+    return rejected(ws, ran, baseline, attempts);
   }
 
-  const proposal = await input.llm.fix({
-    advisory,
-    callSite,
-    file: { path: callSite.file, content: original },
-    test: { path: test.file, content: test.content },
-    failingOutput: baseline.output,
-  });
-  if (proposal.status !== "proposed") {
-    attempts.push({ method: "llm", outcome: "skipped", detail: proposal.reason });
-    return rejected(ws, test, baseline, attempts);
-  }
-
-  const changes: FileChange[] = [];
-  for (const f of proposal.files) {
-    const rel = path.posix.normalize(f.path.replaceAll("\\", "/"));
-    if (rel.startsWith("..") || path.posix.isAbsolute(rel) || rel === test.file || rel.split("/").some((s) => PROTECTED.has(s))) {
-      attempts.push({ method: "llm", outcome: "failed", detail: `refused to write ${f.path}: outside the repo, the test, or a protected folder` });
-      await restore(ws, changes);
-      return rejected(ws, test, baseline, attempts);
+  // What the LLM wrote, in order, with whether each file existed, so a rejected attempt can be undone exactly.
+  const changes: (FileChange & { created: boolean })[] = [];
+  try {
+    const proposal = await input.llm.fix({
+      advisory,
+      callSite,
+      file: { path: callSite.file, content: original },
+      test: { path: test.file, content: test.content },
+      failingOutput: baseline.output,
+    });
+    if (proposal.status !== "proposed") {
+      attempts.push({ method: "llm", outcome: "skipped", detail: proposal.reason });
+      return rejected(ws, ran, baseline, attempts);
     }
-    const before = (await ws.read(rel)) ?? "";
-    await ws.write(rel, f.content);
-    changes.push({ file: rel, before, after: f.content, notes: [proposal.explanation] });
-  }
-  const run = await ws.runTest(test.file);
-  attempts.push({ method: "llm", outcome: run.passed ? "passed" : "failed", detail: `${proposal.model}: ${proposal.explanation}`, run });
-  if (run.passed) {
-    return { status: "fixed", method: "llm", sandbox: ws.location, changes: [...changes, testChange], test: { file: test.file, content: test.content }, baseline, attempts };
+    // A path given twice keeps its last content.
+    const files = new Map<string, string>();
+    for (const f of proposal.files) {
+      const rel = path.posix.normalize(f.path.replaceAll("\\", "/"));
+      const refusal = refuseWrite(rel, test.file);
+      if (refusal) {
+        attempts.push({ method: "llm", outcome: "failed", detail: `refused to write ${f.path}: ${refusal}` });
+        return rejected(ws, ran, baseline, attempts);
+      }
+      files.delete(rel);
+      files.set(rel, f.content);
+    }
+    const { run, typecheck } = await verify(async () => {
+      for (const [rel, content] of files) {
+        const before = await ws.read(rel);
+        await ws.write(rel, content);
+        changes.push({ file: rel, before: before ?? "", after: content, notes: [proposal.explanation], created: before === undefined });
+      }
+    });
+    const kept = run.passed && typecheck?.status !== "failed";
+    const detail = `${proposal.model}: ${proposal.explanation}`;
+    attempts.push({ method: "llm", outcome: kept ? "passed" : "failed", detail: kept ? detail : failure(typecheck, detail), run });
+    if (kept) {
+      return { status: "fixed", method: "llm", sandbox: ws.location, changes: [...changes.map(({ file, before, after, notes }) => ({ file, before, after, notes })), testChange], test: ran, baseline, attempts, typecheck };
+    }
+  } catch (err) {
+    // One bad proposal (a path that is a folder, an SDK error) fails this attempt, not the whole job.
+    attempts.push({ method: "llm", outcome: "failed", detail: `the LLM attempt failed: ${err instanceof Error ? err.message : String(err)}` });
   }
   await restore(ws, changes);
-  return rejected(ws, test, baseline, attempts);
+  return rejected(ws, ran, baseline, attempts);
+}
+
+/** The message of a failure vitest reports with `mark` (the line it prints, not a code frame quoting the test). */
+function marked(output: string, mark: string): string | undefined {
+  return new RegExp(`^\\s*(?:→\\s*|[\\w$.]+: )${mark}: (.*)$`, "m").exec(output)?.[1]?.trim();
+}
+
+const SOURCE = /\.(c|m)?[jt]sx?$/;
+
+/**
+ * Why the LLM may not write `rel` (normalized, repo-relative), or undefined when it may. It may only
+ * change source files: not the contract tests, config (vitest, tsconfig, package.json), setup files,
+ * mocks, type declarations or CI, any of which could make a test pass without fixing the code.
+ * Compared case-insensitively: on Windows and macOS `Test/Shapi/x.test.ts` is the contract test.
+ */
+function refuseWrite(rel: string, testFile: string): string | undefined {
+  const lower = rel.toLowerCase();
+  const parts = lower.split("/");
+  const name = parts.at(-1) ?? "";
+  if (rel.startsWith("..") || path.posix.isAbsolute(rel) || rel.includes(":")) return "outside the repository";
+  if (lower === testFile.toLowerCase() || lower.startsWith(`${CONTRACT_DIR}/`)) return "the contract tests are not to be edited";
+  if (parts.some((s) => PROTECTED.has(s) || s === ".github" || s === "__mocks__")) return "a protected folder";
+  if (!SOURCE.test(name) || /\.d\.[cm]?ts$|\.config\.|setup|^(vitest|vite|jest)\./.test(name)) return "only source files may change (not config, setup, mocks or type declarations)";
+  return undefined;
 }
 
 function rejected(ws: Workspace, test: { file: string; content: string }, baseline: TestRun, attempts: Attempt[]): RepairResult {
@@ -151,16 +215,16 @@ function rejected(ws: Workspace, test: { file: string; content: string }, baseli
     status: "rejected",
     sandbox: ws.location,
     changes: [],
-    test: { file: test.file, content: test.content },
+    test,
     baseline,
     attempts,
     reason: "no change made the contract test pass",
   };
 }
 
-/** Put LLM-written files back to their content before the attempt. */
-async function restore(ws: Workspace, changes: FileChange[]): Promise<void> {
-  for (const c of changes) await ws.write(c.file, c.before);
+/** Undo LLM-written files, last first: overwritten files get their content back, created ones are deleted. */
+async function restore(ws: Workspace, changes: (FileChange & { created: boolean })[]): Promise<void> {
+  for (const c of [...changes].reverse()) await (c.created ? ws.remove(c.file) : ws.write(c.file, c.before));
 }
 
 export interface AdvisoryRepairInput extends Omit<RepairInput, "callSite" | "testFile"> {
@@ -211,13 +275,30 @@ export async function repairAdvisory(input: AdvisoryRepairInput): Promise<Adviso
     sites.push({ callSite, result });
   }
 
+  // Each site's test ran right after its own change, and a later site's change can undo an earlier one:
+  // with several fixes, every test runs again on the combined code, and a site whose test fails now is not fixed.
+  const changed = sites.filter((s) => s.result.status === "fixed");
+  if (changed.length > 1) {
+    for (const s of changed) {
+      const run = await ws.runTest(s.result.test!.file);
+      if (run.passed && testsRan(run.output)) continue;
+      s.result = {
+        ...s.result,
+        status: "rejected",
+        reason: "its contract test fails on the combined change of all the call sites",
+        attempts: [...s.result.attempts, { method: s.result.method!, outcome: "failed", detail: "contract test run again on the combined change", run }],
+      };
+    }
+  }
+
   const fixed = sites.filter((s) => s.result.status === "fixed");
   const needed = sites.filter((s) => s.result.status !== "already-handled");
-  const tests = new Set(fixed.map((s) => s.result.test?.file));
-  const sourceFiles = [...new Set(fixed.flatMap((s) => s.result.changes.filter((c) => !tests.has(c.file)).map((c) => c.file)))].sort();
+  const tests = new Set(changed.map((s) => s.result.test?.file));
+  // Source files come from every site that changed the code, so the change is exactly the tree that was tested.
+  const sourceFiles = fixed.length === 0 ? [] : [...new Set(changed.flatMap((s) => s.result.changes.filter((c) => !tests.has(c.file)).map((c) => c.file)))].sort();
   const changes: FileChange[] = [];
   for (const file of sourceFiles) {
-    const notes = fixed.flatMap((s) => s.result.changes.filter((c) => c.file === file).flatMap((c) => c.notes));
+    const notes = changed.flatMap((s) => s.result.changes.filter((c) => c.file === file).flatMap((c) => c.notes));
     changes.push({ file, before: originals.get(file) ?? "", after: (await ws.read(file)) ?? "", notes });
   }
   for (const s of fixed) if (s.result.test) changes.push({ file: s.result.test.file, before: "", after: s.result.test.content, notes: ["generated contract test"] });

@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
-import { run, type FixDeps } from "shapi";
+import { fix, run, type FixDeps } from "shapi";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const tmp = mkdtempSync(path.join(os.tmpdir(), "shapi-fix-cli-"));
@@ -72,6 +72,15 @@ describe("shapi fix", () => {
     expect(body).toContain("| Provider notice | none (undocumented change) |");
     expect(body).toContain("| Shapes from | recording github-workflow-dispatch-204-to-200.json |");
     expect(body).toContain("| Blast radius | 1 affected call site in this repo |");
+  }, 120_000);
+
+  it("deletes its temporary copy of the repository (with its .env) once the repair is done, also on a dry run", async () => {
+    const dir = demo("cleanup");
+    const outcomes = await fix(dir, { advisory: "github-workflow-dispatch-204-to-200", db: path.join(tmp, "none.db") }, { log: () => {} });
+    const copy = outcomes[0]?.result?.sandbox;
+    expect(outcomes[0]?.result?.status).toBe("fixed");
+    expect(copy).toContain("shapi-repair-");
+    expect(existsSync(copy!)).toBe(false);
   }, 120_000);
 
   it("refuses --pr without a GitHub repository", async () => {

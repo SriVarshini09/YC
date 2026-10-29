@@ -92,21 +92,27 @@ function statusExpressions(call: Node): Node[] {
 function fromBinding(name: Node, decl: Node, sf: SourceFile): Node[] {
   const out: Node[] = [];
   if (Node.isIdentifier(name)) {
-    for (const ref of references(name.getText(), decl, sf)) {
+    for (const ref of references(name, decl, sf)) {
       const p = ref.getParent();
       if (Node.isPropertyAccessExpression(p) && p.getExpression() === ref && STATUS_PROPS.has(p.getName())) out.push(p);
     }
   } else if (Node.isObjectBindingPattern(name)) {
     for (const el of name.getElements()) {
       const prop = el.getPropertyNameNode()?.getText() ?? el.getName();
-      if (STATUS_PROPS.has(prop) && Node.isIdentifier(el.getNameNode())) out.push(...references(el.getName(), decl, sf));
+      const local = el.getNameNode();
+      if (STATUS_PROPS.has(prop) && Node.isIdentifier(local)) out.push(...references(local, decl, sf));
     }
   }
   return out;
 }
 
-/** Same-scope identifier references after the declaration (matches the extractor's intra-file dataflow). */
-function references(name: string, decl: Node, sf: SourceFile): Node[] {
+/**
+ * Same-scope identifier references after the declaration (matches the extractor's intra-file dataflow).
+ * A same-named binding inside, such as `others.filter((res) => res.status === 204)`, is another variable.
+ */
+function references(binding: Node, decl: Node, sf: SourceFile): Node[] {
+  const name = binding.getText();
+  const symbol = binding.getSymbol();
   const scope =
     decl.getFirstAncestor(
       (n) =>
@@ -115,6 +121,7 @@ function references(name: string, decl: Node, sf: SourceFile): Node[] {
     ) ?? sf;
   return scope.getDescendantsOfKind(SyntaxKind.Identifier).filter((id) => {
     if (id.getText() !== name || id.getStart() < decl.getEnd()) return false;
+    if (symbol && id.getSymbol() !== symbol) return false;
     const p = id.getParent();
     if (Node.isPropertyAccessExpression(p) && p.getNameNode() === id) return false;
     if (Node.isPropertyAssignment(p) && p.getNameNode() === id) return false;
