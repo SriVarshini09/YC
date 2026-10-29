@@ -33,7 +33,14 @@ export function createServer(opts: ServerOptions = {}): McpServer {
   const cwd = opts.cwd ?? process.cwd();
   const advisoriesDir = opts.advisoriesDir ?? process.env.SHAPI_ADVISORIES ?? DEFAULT_ADVISORIES;
   const db = opts.db ?? process.env.SHAPI_DB ?? path.join(cwd, ".shapi", "shapes.db");
-  const resolve = (p?: string) => path.resolve(cwd, p ?? ".");
+  // Paths stay inside the project the editor started the server in, unless SHAPI_MCP_ANY_PATH=1.
+  const anyPath = process.env.SHAPI_MCP_ANY_PATH === "1";
+  const resolve = (p?: string) => {
+    const resolved = path.resolve(cwd, p ?? ".");
+    const rel = path.relative(cwd, resolved);
+    if (!anyPath && (rel.startsWith("..") || path.isAbsolute(rel))) throw new Error(`path ${p} is outside the project (${cwd}); set SHAPI_MCP_ANY_PATH=1 to allow it`);
+    return resolved;
+  };
   const server = new McpServer({ name: "shapi", version: VERSION });
 
   server.registerTool(
@@ -44,7 +51,8 @@ export function createServer(opts: ServerOptions = {}): McpServer {
         "Map every third-party API call site in a repository (provider, endpoint, file:line, and what the code depends on: status codes, fields, enums, headers, query params) " +
         "and match them against SHAPI's breaking-change advisories. Returns affected call sites, exposed ones, and provider deadlines in the next 90 days. Read-only.",
       inputSchema: { path: pathArg, repo: z.string().optional().describe("A git URL to clone and scan instead of a local directory.") },
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      // With `repo` it clones from the network.
+      annotations: { readOnlyHint: true, openWorldHint: true },
     },
     async ({ path: p, repo }) => {
       try {
@@ -66,6 +74,7 @@ export function createServer(opts: ServerOptions = {}): McpServer {
           unresolved: o.lock.callSites.filter((c) => !c.resolved).length,
           affected,
           exposed: o.match.exposed.map(findingView),
+          possible: o.match.possible.map(findingView),
           upcoming: o.match.upcoming.map((u) => ({ advisory: u.advisory.id, provider: u.advisory.provider, title: u.advisory.title, effectiveDate: u.advisory.effectiveDate, daysUntil: u.daysUntil, callSites: u.callSites })),
         });
       } catch (err) {

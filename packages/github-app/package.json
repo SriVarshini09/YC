@@ -1,6 +1,7 @@
 {
   "name": "@shapi/github-app",
   "version": "0.1.0",
+  "private": true,
   "description": "SHAPI on GitHub: the GitHub App (auth, webhooks, check runs, redelivery) and fix pull requests",
   "type": "module",
   "main": "./dist/index.js",

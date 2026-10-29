@@ -22,7 +22,8 @@ export interface RedeliveryPlan {
 /**
  * GitHub never retries a failed webhook delivery by itself, so a sweeper has to. A guid is retried
  * when no attempt got a 2xx, SHAPI has no record of receiving it, and it has had fewer than
- * `maxAttempts` attempts. At most `limit` redeliveries per sweep, oldest first.
+ * `maxAttempts` attempts. A guid whose original attempt is older than the listed window is not
+ * retried: its earlier attempts cannot be counted. At most `limit` redeliveries per sweep, oldest first.
  */
 export function planRedeliveries(
   deliveries: HookDelivery[],
@@ -38,7 +39,7 @@ export function planRedeliveries(
   for (const [guid, attempts] of byGuid) {
     if (opts.received.has(guid)) continue;
     if (attempts.some((a) => a.status_code >= 200 && a.status_code < 300)) continue;
-    if (attempts.length >= maxAttempts) {
+    if (attempts.length >= maxAttempts || attempts.every((a) => a.redelivery)) {
       givenUp.push(guid);
       continue;
     }

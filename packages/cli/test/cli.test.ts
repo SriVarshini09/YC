@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -77,9 +77,29 @@ describe("shapi scan", () => {
     const { code, stdout } = await shapi("scan", "--repo", repo, "--now", "2026-10-21");
     expect(code).toBe(1);
     expect(stdout).toContain(`SHAPI  third-party API changes, caught and fixed\nscan  ${repo}`);
-    expect(stdout).toContain("Next\n  npx shapi-cli fix ");
+    // the hint is a runnable command: only the URL is quoted, never "--repo <url>" as one argument
+    expect(stdout).toContain(`Next\n  npx shapi-cli fix --repo ${repo}  `);
     expect(stdout).toContain("https://app.shapi.dev");
     expect(stdout).toMatch(/CRITICAL\s+src\/jobs\.ts:2/);
+  });
+
+  it("a failed clone leaves no temp folder and never prints the URL's credentials", async () => {
+    const temp = path.join(tmp, "tmpdir");
+    mkdirSync(temp);
+    const saved = { TMPDIR: process.env.TMPDIR, TEMP: process.env.TEMP, TMP: process.env.TMP, GIT_TERMINAL_PROMPT: process.env.GIT_TERMINAL_PROMPT };
+    Object.assign(process.env, { TMPDIR: temp, TEMP: temp, TMP: temp, GIT_TERMINAL_PROMPT: "0" });
+    try {
+      const { code, stdout, stderr } = await shapi("scan", "--repo", "https://user:s3cret-token@127.0.0.1:1/acme/demo.git");
+      expect(code).toBe(2);
+      expect(stderr).toContain("git clone https://127.0.0.1:1/acme/demo.git failed");
+      expect(stdout + stderr).not.toContain("s3cret");
+      expect(readdirSync(temp)).toEqual([]);
+    } finally {
+      for (const [k, v] of Object.entries(saved)) {
+        if (v === undefined) delete process.env[k];
+        else process.env[k] = v;
+      }
+    }
   });
 
   it("reports a missing directory as an error", async () => {

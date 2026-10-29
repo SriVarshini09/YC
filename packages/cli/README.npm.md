@@ -15,7 +15,7 @@ npx shapi-cli scan .
 `scan` reads your code and runs none of it. It prints the affected call sites, the API change behind each, and the deadline if there is one. Add `--out api.lock` to save the dependency map, or `--json` for machine-readable output.
 
 ```sh
-npx shapi-cli fix .           # repair in a temporary copy and show the fix and its contract test
+npx shapi-cli fix .           # repair in a temporary copy and list the files the fix and its test would change
 npx shapi-cli fix . --write   # write the fix and the test into your working tree
 npx shapi-cli fix . --pr      # open a pull request (uses GITHUB_TOKEN or your gh login)
 ```

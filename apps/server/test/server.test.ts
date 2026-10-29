@@ -67,7 +67,7 @@ describe("jobs", () => {
       if ((init?.method ?? "GET") === "POST") return dispatch();
       if (p === "/rate_limit") return json(200, { resources: { core: { limit: 5000, remaining: 4999 } } });
       if (p.endsWith("/actions/workflows")) return json(200, { total_count: 1, workflows: [{ id: 1, state: "active" }] });
-      if (p.endsWith("/actions/runs")) return json(200, { total_count: 1, workflow_runs: [{ id: 9, status: "completed" }] });
+      if (p.endsWith("/runs")) return json(200, { total_count: 1, workflow_runs: [{ id: 9, status: "completed" }] });
       return json(200, { id: 1, full_name: "octocat/Hello-World" });
     }) as typeof globalThis.fetch;
   const env = { SHAPI_SHAPE_SECRET: "test", SHAPI_GITHUB_TOKEN: "t", SHAPI_CANARY_REPO: "shapi-dev/canary", SHAPI_CANARY_WORKFLOW: "canary.yml" };

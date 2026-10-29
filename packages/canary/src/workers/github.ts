@@ -32,7 +32,13 @@ export const githubWorker: Worker = {
       get("rate-limit", "/rate_limit", "/rate_limit"),
       get("get-repo", "/repos/{owner}/{repo}", "/repos/octocat/Hello-World"),
       get("list-workflows", "/repos/{owner}/{repo}/actions/workflows", "/repos/actions/checkout/actions/workflows"),
-      get("list-runs", "/repos/{owner}/{repo}/actions/runs", "/repos/actions/checkout/actions/runs?per_page=1"),
+      // The newest successful push run of one workflow on main, without PRs: the newest run of the whole repo
+      // flips between in-progress (conclusion null) and PR-triggered (pull_requests filled) shapes.
+      get(
+        "list-runs",
+        "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
+        "/repos/actions/checkout/actions/workflows/test.yml/runs?branch=main&event=push&status=success&exclude_pull_requests=true&per_page=1",
+      ),
     ];
     const skipped: { id: string; reason: string }[] = [];
 

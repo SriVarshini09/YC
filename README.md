@@ -47,11 +47,11 @@ Claude Code and Cursor pick up the `shapi` MCP server (`.mcp.json`, `.cursor/mcp
 pnpm canary run --once
 ```
 
-Canary probes call provider APIs, store response shapes in `.shapi/shapes.db` (Postgres on the hosted worker, hourly), and draft an advisory into `advisories/drafts/` when a shape changes in a breaking way. Every probe is a free read, except Twilio's, which uses test credentials and sends nothing:
+Canary probes call provider APIs, store response shapes in `.shapi/shapes.db` (Postgres on the hosted worker, hourly), and draft an advisory into `advisories/drafts/` when a shape changes in a breaking way. A rate-limited answer, or a key the provider rejects, is reported as a probe error and not recorded. Every probe is a free read, except Twilio's, which uses test credentials and sends nothing:
 
 | Provider | Probes | Needs |
 |---|---|---|
-| GitHub | rate limit, a public repo, workflows, runs; workflow_dispatch on a test repo | nothing; `SHAPI_GITHUB_TOKEN`, `SHAPI_CANARY_REPO`, `SHAPI_CANARY_WORKFLOW` for the dispatch |
+| GitHub | rate limit, a public repo, workflows, one workflow's latest successful run; workflow_dispatch on a test repo | nothing; `SHAPI_GITHUB_TOKEN`, `SHAPI_CANARY_REPO`, `SHAPI_CANARY_WORKFLOW` for the dispatch |
 | Slack | `api.test`; `auth.test`, `conversations.list` | nothing; `SHAPI_SLACK_BOT_TOKEN` (xoxb-, `channels:read`) |
 | Stripe | balance, customers, payment intents | `SHAPI_STRIPE_TEST_KEY` (test mode only) |
 | OpenAI | list models | `SHAPI_OPENAI_API_KEY` |

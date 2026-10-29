@@ -7,6 +7,7 @@ import {
   DEFAULT_PR_LIMITS,
   FIX_TRAILER,
   STOP_LABEL,
+  TREE_TRAILER,
   parseDashboard,
   planFixPrs,
   renderDashboard,
@@ -160,7 +161,8 @@ describe("upsertFixPr", () => {
     const created = await upsertFixPr(octokit, fix("new\n"));
     expect(created).toMatchObject({ action: "created", number: 1, branch: "shapi/change-a" });
     expect(github.pulls[0]!.labels).toEqual([{ name: "shapi" }]);
-    expect(github.commits.get(github.refs.get("shapi/change-a")!)!.message).toBe(`fix: change a\n\n${FIX_TRAILER}: shapi/change-a`);
+    const commit = github.commits.get(github.refs.get("shapi/change-a")!)!;
+    expect(commit.message).toBe(`fix: change a\n\n${FIX_TRAILER}: shapi/change-a\n${TREE_TRAILER}: ${commit.tree}`);
     expect(github.fileAt("shapi/change-a", "src/deploy.ts")).toBe("new\n");
 
     const writes = github.calls.length;
@@ -224,5 +226,85 @@ describe("upsertFixPr", () => {
     github.pushAs("shapi/change-a", "notes.md", "mine");
     expect(await upsertFixPr(octokit, fix("new\n"))).toMatchObject({ action: "skipped", reason: "a branch with this name exists and is not SHAPI's" });
     expect(github.pulls).toEqual([]);
+  });
+
+  it("builds the fix on the scanned commit, so a change pushed to main after the scan is never reverted", async () => {
+    const fake = fakeRepoGitHub("acme/demo", { "src/deploy.ts": "line1\nold\n" });
+    const octokit = new Octokit({ auth: "t", request: { fetch: fake.fetch } });
+    const scanned = fake.github.refs.get("main")!;
+    const upstream = fake.github.pushAs("main", "src/deploy.ts", "line1 CHANGED UPSTREAM\nold\n");
+    const created = await upsertFixPr(octokit, { ...fix("line1\nnew\n"), baseSha: scanned, files: [{ path: "src/deploy.ts", content: "line1\nnew\n", before: "line1\nold\n" }] });
+    expect(created).toMatchObject({ action: "created" });
+    // The PR branches off the scanned commit: GitHub merges it with main's newer commit (or reports a
+    // conflict) instead of the PR replacing main's file with the pre-push content.
+    const commit = fake.github.commits.get(fake.github.refs.get("shapi/change-a")!)!;
+    expect(commit.parents).toEqual([scanned]);
+    expect(fake.github.refs.get("main")).toBe(upstream);
+    expect(fake.github.fileAt("main", "src/deploy.ts")).toBe("line1 CHANGED UPSTREAM\nold\n");
+
+    // If GitHub reports a conflict, rebuilding on the same scanned commit would rebuild the same conflict.
+    fake.github.pulls[0]!.mergeable = false;
+    const again = { ...fix("line1\nnew\n"), baseSha: scanned };
+    expect(await upsertFixPr(octokit, again)).toMatchObject({ action: "unchanged" });
+    // A later scan of the newer main regenerates the PR on it.
+    expect(await upsertFixPr(octokit, { ...again, baseSha: upstream, files: [{ path: "src/deploy.ts", content: "line1 CHANGED UPSTREAM\nnew\n" }] })).toMatchObject({ action: "updated" });
+    expect(fake.github.commits.get(fake.github.refs.get("shapi/change-a")!)!.parents).toEqual([upstream]);
+  });
+
+  it("without a scanned commit, refuses a file that changed on the base since the fix was computed", async () => {
+    const fake = fakeRepoGitHub("acme/demo", { "src/deploy.ts": "line1\nold\n", "README.md": "hi\n" });
+    const octokit = new Octokit({ auth: "t", request: { fetch: fake.fetch } });
+    const files = [
+      { path: "src/deploy.ts", content: "line1\nnew\n", before: "line1\r\nold\r\n" },
+      { path: "test/shapi/a.test.ts", content: "test\n", before: "" },
+    ];
+    // Another file moved on main: the fix still applies to the current head, and keeps that change.
+    fake.github.pushAs("main", "README.md", "hi again\n");
+    expect(await upsertFixPr(octokit, { ...fix(""), files })).toMatchObject({ action: "created" });
+    expect(fake.github.fileAt("shapi/change-a", "README.md")).toBe("hi again\n");
+
+    const moved = fakeRepoGitHub("acme/demo", { "src/deploy.ts": "line1\nold\n" });
+    moved.github.pushAs("main", "src/deploy.ts", "line1 CHANGED UPSTREAM\nold\n");
+    await expect(upsertFixPr(new Octokit({ auth: "t", request: { fetch: moved.fetch } }), { ...fix(""), files })).rejects.toThrow(/src\/deploy\.ts on acme\/demo differs from the code the fix was computed from/);
+    expect(moved.github.refs.has("shapi/change-a")).toBe(false);
+  });
+
+  it("does not force-push over a maintainer's amended commit that kept SHAPI's trailer", async () => {
+    const { octokit, github } = setup();
+    await upsertFixPr(octokit, fix("new\n"));
+    const ours = github.commits.get(github.refs.get("shapi/change-a")!)!;
+    github.pushAs("shapi/change-a", "src/deploy.ts", "new, tweaked\n", ours.message);
+    expect(await upsertFixPr(octokit, fix("new\n"))).toMatchObject({ action: "skipped", reason: "someone else pushed to the branch" });
+    expect(github.fileAt("shapi/change-a", "src/deploy.ts")).toBe("new, tweaked\n");
+  });
+
+  it("retrying a closed fix leaves a branch alone that a maintainer pushed to", async () => {
+    const { octokit, github } = setup();
+    await upsertFixPr(octokit, fix("new\n"));
+    github.close(1);
+    const theirs = github.pushAs("shapi/change-a", "notes.md", "mine");
+    expect(await upsertFixPr(octokit, { ...fix("new\n"), retryClosed: true })).toMatchObject({ action: "skipped", reason: "someone else pushed to the branch", state: "closed", number: 1 });
+    expect(github.refs.get("shapi/change-a")).toBe(theirs);
+    expect(github.pulls).toHaveLength(1);
+  });
+
+  it("keeps the executable bit and line endings of existing files, including files over 1 MB", async () => {
+    const big = `${"x".repeat(1024 * 1024)}\r\nold\r\n`;
+    const fake = fakeRepoGitHub("acme/demo", { "bin/run.js": "#!/usr/bin/env node\nold\n", "data/big.ts": big });
+    fake.github.setMode("main", "bin/run.js", "100755");
+    const octokit = new Octokit({ auth: "t", request: { fetch: fake.fetch } });
+    const files = [
+      { path: "bin/run.js", content: "#!/usr/bin/env node\nnew\n" },
+      { path: "data/big.ts", content: `${"x".repeat(1024 * 1024)}\nnew\n` },
+      { path: "test/shapi/a.test.ts", content: "t\r\nu\r\n" },
+    ];
+    expect(await upsertFixPr(octokit, { ...fix(""), files })).toMatchObject({ action: "created" });
+    const posted = fake.github.calls.find((c) => c.method === "POST" && c.path.endsWith("/git/trees"))!.body as { tree: { path: string; mode: string; content: string }[] };
+    expect(posted.tree.map((t) => [t.path, t.mode])).toEqual([["bin/run.js", "100755"], ["data/big.ts", "100644"], ["test/shapi/a.test.ts", "100644"]]);
+    // the CRLF file stays CRLF; a new file is written with LF
+    expect(posted.tree[1]!.content.endsWith("\r\nnew\r\n")).toBe(true);
+    expect(posted.tree[2]!.content).toBe("t\nu\n");
+    // the big file is read in full, so a rerun sees the fix is already there
+    expect(await upsertFixPr(octokit, { ...fix(""), files })).toMatchObject({ action: "unchanged" });
   });
 });

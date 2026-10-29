@@ -1,6 +1,7 @@
 {
   "name": "@shapi/canary",
   "version": "0.1.0",
+  "private": true,
   "description": "Canary workers that probe provider APIs and record response shapes",
   "type": "module",
   "bin": {

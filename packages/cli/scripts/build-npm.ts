@@ -3,7 +3,7 @@
 // SHAPI's own workspace packages are bundled in; only the third-party npm packages the bundle
 // actually imports become dependencies. The reviewed advisories and the recordings ship inside.
 import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { createRequire } from "node:module";
+import { createRequire, isBuiltin } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "tsup";
@@ -100,8 +100,4 @@ function readLicense(): string {
   if (/Apache License\s+Version 2\.0/.test(text)) return "Apache-2.0";
   if (/^MIT License/m.test(text)) return "MIT";
   throw new Error("LICENSE is neither Apache-2.0 nor MIT: set the license field by hand");
-}
-
-function isBuiltin(name: string): boolean {
-  return ["fs", "path", "url", "os", "crypto", "child_process", "module", "util", "events", "stream", "http", "https", "net", "zlib", "assert", "worker_threads", "readline", "process", "buffer", "tty"].includes(name);
 }

@@ -25,6 +25,8 @@ export interface FixCandidate {
   body: string;
   commitMessage: string;
   files: { path: string; content: string }[];
+  /** The commit the fix was computed from (the scan's sha): the PR is built on it, so it cannot revert later pushes. */
+  sha?: string;
   /** How the fix was verified, shown in the web app; absent for fixes built outside the fix job. */
   repair?: FixRepair;
 }
@@ -116,7 +118,7 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
       continue;
     }
     try {
-      const outcome = await upsertFixPr(octokit, { repo: repo.full_name, branch: prBranch(d.advisory), title: fix.title, body: fix.body, commitMessage: fix.commitMessage, files: fix.files, labels: [PR_LABEL], retryClosed: intents.retry.has(d.advisory.id) });
+      const outcome = await upsertFixPr(octokit, { repo: repo.full_name, branch: prBranch(d.advisory), title: fix.title, body: fix.body, commitMessage: fix.commitMessage, files: fix.files, baseSha: fix.sha, labels: [PR_LABEL], retryClosed: intents.retry.has(d.advisory.id) });
       await withService(deps.db, (tx) => recordOutcome(tx, repo, d.advisory.id, outcome, now, fix.repair));
       if (outcome.action === "skipped" && !outcome.state) waiting.push({ advisory: d.advisory, reason: outcome.reason });
       report.outcomes.push({ advisoryId: d.advisory.id, action: outcome.action, reason: outcome.action === "skipped" ? outcome.reason : undefined, url: outcome.url });

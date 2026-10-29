@@ -27,4 +27,4 @@ Try: *"Use SHAPI to check fixtures/demo-ts for third-party API breakages and fix
 
    Cursor: add the same `command`/`args` to `.cursor/mcp.json` in that repo, with the absolute path.
 
-Optional environment for the server: `ANTHROPIC_API_KEY` (lets `apply_fix` use Claude when no recipe applies), `GITHUB_TOKEN` (otherwise the `gh` login is used for PRs), `SHAPI_DB` (canary shape store), `SHAPI_ADVISORIES` (advisory folder).
+Optional environment for the server: `ANTHROPIC_API_KEY` (lets `apply_fix` use Claude when no recipe applies), `GITHUB_TOKEN` (otherwise the `gh` login is used for PRs), `SHAPI_DB` (canary shape store), `SHAPI_ADVISORIES` (advisory folder), `SHAPI_MCP_ANY_PATH=1` (allow `path` arguments outside the project; refused by default).
