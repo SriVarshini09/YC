@@ -1,6 +1,7 @@
 {
   "name": "@shapi/extractor",
   "version": "0.1.0",
+  "private": true,
   "description": "Extracts third-party API call sites and their dependency surface from TypeScript and JavaScript",
   "type": "module",
   "main": "./dist/index.js",
