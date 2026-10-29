@@ -42,7 +42,7 @@ export type Theme = "auto" | "light" | "dark";
 export const THEMES: Theme[] = ["auto", "light", "dark"];
 
 /** The public documentation site, where the security page and the legal terms live. */
-export const DOCS_URL = "https://srivarshini09.github.io/YC";
+export const DOCS_URL = "https://shapi.dev";
 
 export type NavKey = "overview" | "repositories" | "findings" | "fixes" | "advisories" | "settings" | "billing";
 

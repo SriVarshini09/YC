@@ -158,7 +158,7 @@ describe("billing in the web app", () => {
     const page = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
     expect(page.body).toContain("Free plan");
     expect(page.body).toContain("Upgrade to cover 2 more private repositories");
-    expect(page.body).toContain('Upgrading means you accept the <a href="https://srivarshini09.github.io/YC/legal/terms">terms of service</a>');
+    expect(page.body).toContain('Upgrading means you accept the <a href="https://shapi.dev/legal/terms">terms of service</a>');
 
     // The browser follows the 303 to Stripe only if the page's CSP allows it as a form target.
     const csp = String(page.headers["content-security-policy"]);

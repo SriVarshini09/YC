@@ -17,7 +17,7 @@ primary_region = "iad"
   # The public advisory database; the worker syncs it hourly and on start.
   SHAPI_ADVISORIES_REPO = "SriVarshini09/shapi-advisories"
   # Where GitHub sign-in and Stripe send people back to.
-  SHAPI_PUBLIC_URL = "https://shapi-app.fly.dev"
+  SHAPI_PUBLIC_URL = "https://app.shapi.dev"
 
 [processes]
   web = "node dist/web.js"

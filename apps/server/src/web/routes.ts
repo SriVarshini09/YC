@@ -112,6 +112,14 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       return payload;
     });
 
+    // Fly's default hostname still reaches the app; send pages to the public URL so the sign-in cookies and GitHub's callback share one host.
+    const publicHost = deps.config ? new URL(deps.config.publicUrl).host : undefined;
+    scope.addHook("onRequest", async (req, reply) => {
+      if (publicHost && req.hostname.endsWith(".fly.dev") && req.host !== publicHost && (req.method === "GET" || req.method === "HEAD")) {
+        return reply.redirect(`${deps.config!.publicUrl}${req.url}`, 301);
+      }
+    });
+
     const secure = deps.config?.publicUrl.startsWith("https://") ?? false;
     const send = (reply: FastifyReply, body: string, status = 200) => reply.code(status).type("text/html; charset=utf-8").send(body);
     const themeOf = (req: FastifyRequest): Theme => {

@@ -18,7 +18,7 @@ import { appManifest, convertManifestCode } from "@shapi/github-app";
 const { values } = parseArgs({
   options: {
     "webhook-url": { type: "string" },
-    /** The web app's sign-in callback, for example https://shapi-app.fly.dev/auth/github/callback. */
+    /** The web app's sign-in callback, for example https://app.shapi.dev/auth/github/callback. */
     "callback-url": { type: "string" },
     org: { type: "string" },
     name: { type: "string", default: "SHAPI" },
