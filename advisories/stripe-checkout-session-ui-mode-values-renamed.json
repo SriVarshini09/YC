@@ -13,6 +13,16 @@
       {
         "field": "ui_mode"
       }
+    ],
+    "body": [
+      {
+        "field": "ui_mode",
+        "values": [
+          "hosted",
+          "embedded",
+          "custom"
+        ]
+      }
     ]
   },
   "firstObserved": null,
