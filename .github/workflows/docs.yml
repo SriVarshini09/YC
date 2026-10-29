@@ -1,17 +1,14 @@
 name: Docs
 
-# Builds the VitePress site in site/ and publishes it to GitHub Pages.
-# Pull requests only build it, so a dead link fails before merge.
+# Builds the VitePress site in site/, so a dead link fails before merge. The site is published by the
+# Fly deploy: the Docker image builds it and the web process serves it on shapi.dev.
 on:
   pull_request:
-    paths: ["site/**", ".github/workflows/docs.yml"]
+    paths: ["site/**", "advisories/**", ".github/workflows/docs.yml"]
   push:
     branches: [main]
-    paths: ["site/**", ".github/workflows/docs.yml"]
+    paths: ["site/**", "advisories/**", ".github/workflows/docs.yml"]
   workflow_dispatch:
-  # Daily, so the landing page's deadline list and "in N days" stay current.
-  schedule:
-    - cron: "17 5 * * *"
 
 permissions:
   contents: read
@@ -37,21 +34,3 @@ jobs:
       # Only the site's dependencies; the root prepare script would build every package.
       - run: pnpm install --frozen-lockfile --filter @shapi/site --ignore-scripts
       - run: pnpm --filter @shapi/site docs:build
-      - if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: site/.vitepress/dist
-
-  deploy:
-    if: github.event_name != 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4

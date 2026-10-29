@@ -27,7 +27,7 @@ When you install the GitHub App, GitHub sends SHAPI information about the instal
 
 ### Signing in to the web app
 
-When you sign in with GitHub, SHAPI reads your GitHub user id, your login and the GitHub App installations you can access. It stores them in a session that expires after 8 hours. SHAPI keeps no GitHub token for you: it discards the token right after sign-in.
+When you sign in with GitHub, SHAPI reads your GitHub user id, your login, the GitHub App installations you can access, and which of their repositories you can read, write to or administer. It stores them in a session that expires after 8 hours. SHAPI keeps no GitHub token for you: it discards the token right after sign-in.
 
 ### Billing
 
@@ -51,7 +51,7 @@ The web server's request logs record the time, method, URL, response status and 
 
 ### This documentation site
 
-This site is hosted on GitHub Pages. GitHub may log visitors' IP addresses under its own privacy statement. The site sets no cookies and has no analytics. Search runs in your browser.
+This site is served by SHAPI's own server on Fly.io, the same one that runs the web app. Its request logs (time, URL, response status and IP address) are kept in Fly.io's log system, as described under *Logs and error reports*. The site sets no cookies and has no analytics. Search runs in your browser.
 
 ## Cookies
 
@@ -80,7 +80,7 @@ SHAPI is hosted in the United States, and its service providers process data in 
 
 ## Your choices and rights
 
-- **Delete everything:** uninstall the GitHub App from your GitHub settings. SHAPI deletes your account and its data at once. Cancel a paid subscription under *Manage billing* first, because uninstalling doesn't cancel it.
+- **Delete everything:** uninstall the GitHub App from your GitHub settings. SHAPI deletes your account and its data at once. Uninstalling also cancels a paid subscription in Stripe, at once.
 - **Stop using Claude:** turn the setting off in the web app.
 - **Access, correction, deletion or objection:** depending on where you live, you may have these rights under laws such as the GDPR or the CCPA. Ask for any of them as described below, and we'll respond within 30 days.
 

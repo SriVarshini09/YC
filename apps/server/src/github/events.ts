@@ -1,6 +1,7 @@
 import { withService, type Db, type Tx } from "@shapi/db";
 import { sql } from "kysely";
 import { STOP_LABEL, isDashboard, listInstallationRepositories, parseDashboard, type InstallationRepository } from "@shapi/github-app";
+import { cancelOnUninstall, type BillingDeps } from "../billing/stripe";
 import type { GitHubClients } from "./clients";
 
 /** The parts of GitHub's webhook payloads SHAPI reads. */
@@ -33,6 +34,8 @@ interface WebhookPayload {
 export interface EventDeps {
   db: Db;
   github: GitHubClients;
+  /** Set when billing is configured: uninstalling cancels the account's subscription in Stripe. */
+  billing?: Pick<BillingDeps, "stripe">;
 }
 
 /** A scan to start once the delivery is committed: one queued by a push, or a first scan of a newly added repository. */
@@ -73,7 +76,7 @@ export async function processDelivery(deps: EventDeps, deliveryId: string): Prom
       }
       const scans: ScanRequest[] = [];
       const fixes: FixRequest[] = [];
-      const outcome = await handleEvent(tx, deps.github, row.event, row.payload as WebhookPayload, scans, fixes);
+      const outcome = await handleEvent(tx, deps.github, row.event, row.payload as WebhookPayload, scans, fixes, deps.billing);
       const jobs = scans.length || fixes.length ? JSON.stringify({ scans, fixes }) : null;
       await tx.updateTable("webhook_deliveries").set({ processed_at: new Date(), error: null, errored_at: null, jobs }).where("delivery_id", "=", deliveryId).execute();
       return { ...result, outcome, scans, fixes };
@@ -90,7 +93,7 @@ export async function jobsQueued(db: Db, deliveryId: string): Promise<void> {
   await db.updateTable("webhook_deliveries").set({ jobs: null }).where("delivery_id", "=", deliveryId).execute();
 }
 
-async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload: WebhookPayload, scans: ScanRequest[], fixes: FixRequest[]): Promise<string> {
+async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload: WebhookPayload, scans: ScanRequest[], fixes: FixRequest[], billing: EventDeps["billing"]): Promise<string> {
   const installation = payload.installation;
   switch (event) {
     case "installation": {
@@ -104,8 +107,11 @@ async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload
           return `account ${accountId} synced with ${repos} repositories`;
         }
         case "deleted": {
+          // The billing row goes with the account, so a paid subscription is cancelled first; if Stripe fails, nothing is deleted and the delivery is retried.
+          const account = await tx.selectFrom("accounts").select("id").where("github_installation_id", "=", String(installation.id)).executeTakeFirst();
+          const cancelled = account && billing ? await cancelOnUninstall(billing.stripe, tx, account.id) : undefined;
           const removed = await tx.deleteFrom("accounts").where("github_installation_id", "=", String(installation.id)).executeTakeFirst();
-          return `account removed (${removed.numDeletedRows})`;
+          return `account removed (${removed.numDeletedRows})${cancelled ? `, subscription ${cancelled} cancelled` : ""}`;
         }
         case "suspend":
           await tx

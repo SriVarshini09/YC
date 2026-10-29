@@ -4,7 +4,9 @@ import { providerForPackage, providerForPythonPackage } from "@shapi/core";
 
 const SOURCE_FILE = /\.(c|m)?[jt]sx?$/;
 const PYTHON_FILE = /\.py$/;
-const SKIP_DIRS = new Set(["node_modules", "dist", "build", "out", "coverage", "vendor", "bower_components", "venv", "__pycache__", "site-packages"]);
+const SKIP_DIRS = new Set(["node_modules", "dist", "build", "out", "coverage", "vendor", "bower_components", "venv", "__pycache__", "site-packages", "public"]);
+/** Minified and bundled output committed next to the source: app.min.js, vendor.bundle.js. */
+const BUNDLE_FILE = /\.(min|bundle)\.(c|m)?js$/;
 /** Python dependency manifests: requirements*.txt and pyproject.toml. */
 const PYTHON_MANIFEST = /^(requirements[\w.-]*\.txt|pyproject\.toml)$/;
 
@@ -29,7 +31,7 @@ export function listRepoFiles(root: string): RepoFiles {
         if (!SKIP_DIRS.has(entry.name)) walk(full);
       } else if (entry.isFile()) {
         if (entry.name === "package.json") manifests.push(full);
-        else if (SOURCE_FILE.test(entry.name) && !entry.name.endsWith(".d.ts")) sources.push(full);
+        else if (SOURCE_FILE.test(entry.name) && !entry.name.endsWith(".d.ts") && !BUNDLE_FILE.test(entry.name)) sources.push(full);
         else if (PYTHON_FILE.test(entry.name)) python.push(full);
         else if (PYTHON_MANIFEST.test(entry.name)) pythonManifests.push(full);
       }
@@ -89,22 +91,7 @@ export function declaredPythonProviders(root: string, manifests: string[]): Decl
         if (m && !line.trim().startsWith("-")) names.add(m[1]!);
       }
     } else {
-      // pyproject.toml: "pkg>=1" items in a dependencies list, or pkg = "^1" in a [...dependencies] table
-      let inTable = false;
-      let inList = false;
-      for (const line of text.split(/\r?\n/)) {
-        const t = line.replace(/#.*/, "").trim();
-        if (/^\[/.test(t)) {
-          inTable = /dependencies\]$/.test(t);
-          inList = false;
-          continue;
-        }
-        if (/^(dependencies|optional-dependencies|dev-dependencies)\s*=\s*\[/.test(t) || /^[\w-]+\s*=\s*\[/.test(t)) inList = true;
-        if (inList) for (const m of t.matchAll(/["']([A-Za-z0-9][A-Za-z0-9._-]*)/g)) names.add(m[1]!);
-        if (inList && t.includes("]")) inList = false;
-        const kv = inTable ? /^([A-Za-z0-9][A-Za-z0-9._-]*)\s*=/.exec(t) : null;
-        if (kv) names.add(kv[1]!);
-      }
+      for (const name of pyprojectPackages(text)) names.add(name);
     }
     for (const name of [...names].sort()) {
       const provider = providerForPythonPackage(name);
@@ -112,4 +99,53 @@ export function declaredPythonProviders(root: string, manifests: string[]): Decl
     }
   }
   return found;
+}
+
+/**
+ * pyproject.toml: "pkg>=1" items in a dependency list (`dependencies`, or a list under
+ * [project.optional-dependencies] or [dependency-groups]), or pkg = "^1" in a Poetry [...dependencies] table.
+ * Other lists (`keywords = [...]`) are not dependencies, and a bracket in quotes ("pkg[extra]") doesn't end a list.
+ */
+function pyprojectPackages(text: string): string[] {
+  const names: string[] = [];
+  let table = "";
+  let depth = 0;
+  for (const line of text.split(/\r?\n/)) {
+    let t = line.replace(/#.*/, "").trim();
+    if (depth === 0) {
+      const header = /^\[\[?\s*([^\]]+?)\s*\]\]?$/.exec(t);
+      if (header) {
+        table = header[1]!;
+        continue;
+      }
+      const kv = /^["']?([A-Za-z0-9][A-Za-z0-9._-]*)["']?\s*=\s*(.*)$/.exec(t);
+      if (!kv) continue;
+      const key = kv[1]!;
+      const value = kv[2]!;
+      if (!value.startsWith("[")) {
+        if (/dependencies$/.test(table)) names.push(key);
+        continue;
+      }
+      if (!/^(dependencies|optional-dependencies|dev-dependencies)$/.test(key) && !/(^|\.)(optional-dependencies|dependency-groups|dev-dependencies)$/.test(table)) continue;
+      t = value;
+    }
+    // In a list: its quoted items, until the bracket that closes it.
+    let quote = "";
+    let item = "";
+    for (const ch of t) {
+      if (quote) {
+        if (ch !== quote) item += ch;
+        else {
+          quote = "";
+          const m = depth === 1 ? /^\s*([A-Za-z0-9][A-Za-z0-9._-]*)/.exec(item) : null;
+          if (m) names.push(m[1]!);
+        }
+      } else if (ch === '"' || ch === "'") {
+        quote = ch;
+        item = "";
+      } else if (ch === "[") depth++;
+      else if (ch === "]" && --depth === 0) break;
+    }
+  }
+  return names;
 }
