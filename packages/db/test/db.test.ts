@@ -112,6 +112,35 @@ describe("PgShapeStore", () => {
   });
 });
 
+describe("observation pruning", () => {
+  const salt = providerSalt("github", "test");
+  const ENDPOINT = "/repos/{owner}/{repo}/actions/runs";
+  const shape = (status: number) => inferShape({ status, headers: {}, body: "" }, { salt });
+
+  it("deletes old repeats of a shape and keeps the newest of every shape, and everything recent", async () => {
+    const store = new PgShapeStore(app);
+    const base = { provider: "github", method: "GET", endpoint: ENDPOINT, source: "canary:prune-test" };
+    const at = (day: number, status: number) => store.record({ ...base, observedAt: new Date(Date.UTC(2025, 0, day, 12)).toISOString(), shape: shape(status) });
+    await at(1, 200); // old repeat of 200: pruned
+    await at(2, 200); // old repeat of 200: pruned
+    const old204 = await at(3, 204); // the only 204 ever: kept however old
+    await at(4, 200); // old repeat of 200: pruned
+    const newest200Old = await at(5, 200); // the newest old 200, but a newer 200 exists (day 20): pruned
+    const recent = [await at(20, 200), await at(21, 200)]; // after the cutoff: kept
+    const other = await store.record({ ...base, source: "canary:prune-other", observedAt: "2025-01-01T12:00:00Z", shape: shape(200) }); // another source: its own newest
+
+    const pruned = await store.prune(new Date(Date.UTC(2025, 0, 10)));
+    expect(pruned).toBe(4);
+    const left = (await store.history("github", "GET", ENDPOINT, { source: base.source })).map((o) => o.id);
+    expect(left).toEqual([recent[1]!.id, recent[0]!.id, old204.id]);
+    expect(left).not.toContain(newest200Old.id);
+    expect((await store.latest("github", "GET", ENDPOINT, "canary:prune-other"))?.id).toBe(other.id);
+    expect(await store.previousDistinct("github", "GET", ENDPOINT, base.source)).toMatchObject({ id: old204.id });
+    // Pruning again changes nothing.
+    expect(await store.prune(new Date(Date.UTC(2025, 0, 10)))).toBe(0);
+  });
+});
+
 describe("advisories", () => {
   const seeded = loadAdvisories(path.join(root, "advisories"));
 

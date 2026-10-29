@@ -45,6 +45,24 @@ export class PgShapeStore implements ShapeRepository {
     return rows.map(fromRow);
   }
 
+  /**
+   * Delete observations from before `before` that only repeat a shape: a row goes when a newer row of the same
+   * endpoint and source has the same shape hash. The newest observation of every distinct shape is kept for good,
+   * so shape diffs, previousDistinct and the before/after shapes behind contract tests still work.
+   */
+  async prune(before: Date): Promise<number> {
+    const result = await sql`
+      delete from observations o
+      where o.observed_at < ${before}
+        and exists (
+          select 1 from observations n
+          where n.provider = o.provider and n.method = o.method and n.endpoint = o.endpoint and n.source = o.source
+            and n.shape_hash = o.shape_hash
+            and (n.observed_at > o.observed_at or (n.observed_at = o.observed_at and n.id > o.id))
+        )`.execute(this.db);
+    return Number(result.numAffectedRows ?? 0);
+  }
+
   async latest(provider: string, method: string, endpoint: string, source?: string): Promise<StoredObservation | undefined> {
     return (await this.history(provider, method, endpoint, { limit: 1, source }))[0];
   }
