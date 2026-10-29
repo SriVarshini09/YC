@@ -28,5 +28,5 @@ So every merged SHAPI fix reopened its own problem. The next fix job could also 
 
 ## Production
 
-- After the deploy, the next scan of shapi-demo closes the HubSpot problem. A push triggers the scan, as does the dashboard's rescan.
+- After the deploy, the next scan of shapi-demo closes the HubSpot problem. A push to the repository triggers that scan. The deploy alone does not, because the rescan after an upgrade only covers repositories with an affected call site that has no fix PR yet.
 - The CLI on npm (0.3.1) still reports SHAPI's own tests until the next publish (0.3.2).
