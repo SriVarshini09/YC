@@ -1,5 +1,6 @@
 {
   "name": "shapi",
+  "private": true,
   "version": "0.3.1",
   "description": "Scan a repo for third-party API dependencies and the breaking changes that hit them",
   "type": "module",
@@ -20,7 +21,7 @@
     "dist"
   ],
   "engines": {
-    "node": ">=22"
+    "node": "^22.14.0 || ^24.0.0 || >=26.0.0"
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean"

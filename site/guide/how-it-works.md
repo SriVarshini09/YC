@@ -24,7 +24,7 @@ The result is the **api.lock**: a reviewable map of your third-party API surface
 
 ## 2. Match: affected or exposed
 
-Each [advisory](/advisories) names an endpoint, what changed, and a **trigger**: what a call site must depend on to break. SHAPI matches the api.lock against the advisories and sorts the hits into two groups:
+Each [advisory](/advisories) names an endpoint, what changed, and a **trigger**: what a call site must depend on to break. SHAPI matches the api.lock against the advisories and sorts the hits into three groups:
 
 - **Affected**: the call site depends on exactly what changed, for example `if (res.status !== 204)`.
 - **Exposed**: it calls the changed endpoint but does not depend on the change, for example it only checks `res.ok`.

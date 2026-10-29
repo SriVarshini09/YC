@@ -2,12 +2,14 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
+    // The scripts run with Node type stripping, which needs the .ts extension on relative imports.
+    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
       "@shapi/*": ["packages/*/src/index.ts"],
       "shapi": ["packages/cli/src/index.ts"]
     }
   },
-  "include": ["packages/*/src", "packages/*/test", "apps/*/src", "apps/*/test", "test-utils", "vitest.config.ts"],
-  "exclude": ["**/dist", "**/test/fixtures", "fixtures"]
+  "include": ["packages/*/src", "packages/*/test", "packages/*/scripts", "apps/*/src", "apps/*/test", "apps/*/scripts", "site/.vitepress/**/*.ts", "site/test", "test-utils", "vitest.config.ts"],
+  "exclude": ["**/dist", "**/test/fixtures", "fixtures", "site/.vitepress/cache"]
 }

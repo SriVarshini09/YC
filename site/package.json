@@ -1,7 +1,7 @@
 {
   "name": "@shapi/site",
   "private": true,
-  "description": "SHAPI documentation site (VitePress), published to GitHub Pages",
+  "description": "SHAPI documentation site (VitePress), built into the server image and served at shapi.dev",
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev",
@@ -12,6 +12,7 @@
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource/instrument-serif": "5.2.8",
     "lenis": "1.1.13",
-    "vitepress": "1.6.4"
+    "vitepress": "1.6.4",
+    "vue": "3.5.44"
   }
 }
