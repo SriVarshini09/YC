@@ -144,6 +144,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
           body: renderPrBody({ advisory: t.advisory, repair, shapeSource: t.shapes.source }),
           commitMessage: `fix: ${t.advisory.title}\n\nAdvisory ${t.advisory.id}, ${fixedSites.length} of ${repair.sites.length} call sites. Contract tests ${testFiles} fail before this change and pass after, verified in ${repair.sandbox}.`,
           files: repair.changes.map((c) => ({ path: c.file, content: c.after })),
+          sha: scan.sha,
           repair: summarizeRepair({ advisory: t.advisory, sites: repair.sites, changes: repair.changes, method: repair.method, sandbox: repair.sandbox }, now()),
         });
       }

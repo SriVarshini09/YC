@@ -48,6 +48,21 @@ describe("shapi MCP server", () => {
     expect(tools.map((t) => t.name)).toEqual(["scan", "advisories", "impact", "apply_fix"]);
     expect(tools.filter((t) => t.annotations?.readOnlyHint).map((t) => t.name)).toEqual(["scan", "advisories", "impact"]);
     expect(tools.find((t) => t.name === "apply_fix")?.inputSchema.properties).toHaveProperty("mode");
+    // scan can clone a repo from the network
+    expect(tools.find((t) => t.name === "scan")?.annotations?.openWorldHint).toBe(true);
+  });
+
+  it("refuses paths outside the project, and an unknown advisory to fix", async () => {
+    for (const p of ["..", path.dirname(demo)]) {
+      const r = await client.callTool({ name: "scan", arguments: { path: p } });
+      expect(r.isError).toBe(true);
+      expect(text(r)).toContain("is outside the project");
+    }
+    const fixOutside = await client.callTool({ name: "apply_fix", arguments: { path: "..", mode: "write" } });
+    expect(fixOutside.isError).toBe(true);
+    const typo = await client.callTool({ name: "apply_fix", arguments: { advisoryId: "nope-typo" } });
+    expect(typo.isError).toBe(true);
+    expect(text(typo)).toContain("unknown advisory nope-typo");
   });
 
   it("scan reports the affected GitHub call site with file:line and reasons", async () => {
@@ -57,6 +72,7 @@ describe("shapi MCP server", () => {
     const d = data(r);
     expect(d.providers.map((p: { id: string }) => p.id)).toEqual(["github", "hubspot", "quickbooks", "stripe"]);
     expect(d.affected[0]).toMatchObject({ advisory: "github-workflow-dispatch-204-to-200", file: "src/deploy.ts", line: 13, reasons: ["compares the response status to 204"] });
+    expect(d).toHaveProperty("possible");
   });
 
   it("advisories filters by provider and marks auto-fixable ones", async () => {

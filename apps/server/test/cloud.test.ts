@@ -199,6 +199,19 @@ describe("cloud fix", () => {
     expect(writes).toEqual([]);
   }, 120_000);
 
+  it("builds each fix PR on the scanned commit, so a push to main while the fix job waited is not reverted", async () => {
+    const t = setup();
+    const scanned = t.github.refs.get("main")!;
+    const scanId = await queueScan(scanned);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    const upstream = `// edited upstream after the scan\n${t.github.fileAt("main", "src/deploy.ts")}`;
+    t.github.pushAs("main", "src/deploy.ts", upstream);
+    await runFixJob(t.fixDeps, { scanId });
+    const pr = t.github.pulls.find((p) => p.head.ref === "shapi/github-workflow-dispatch-204-to-200")!;
+    expect(t.github.commits.get(t.github.refs.get(pr.head.ref)!)!.parents).toEqual([scanned]);
+    expect(t.github.fileAt("main", "src/deploy.ts")).toBe(upstream);
+  }, 120_000);
+
   it("never sends code to an LLM unless the account turned LLM fixes on", async () => {
     const t = setup();
     const scanId = await queueScan(t.github.refs.get("main")!);

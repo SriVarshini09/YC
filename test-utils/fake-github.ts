@@ -62,6 +62,8 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
   let seq = 0;
   const id = (prefix: string) => `${prefix}${(++seq).toString(16).padStart(8, "0")}`;
   const trees = new Map<string, Map<string, string>>();
+  /** File modes per tree; a file not listed is "100644". */
+  const modes = new Map<string, Map<string, string>>();
   const commits = new Map<string, { message: string; tree: string; parents: string[] }>();
   const refs = new Map<string, string>();
   const pulls: FakePull[] = [];
@@ -101,6 +103,11 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
     refs,
     commits,
     fileAt: (ref: string, path: string) => treeAt(ref)?.get(path),
+    /** Give a file in the tree at `ref` another mode, for example "100755". */
+    setMode(ref: string, path: string, mode: string) {
+      const tree = commits.get(refs.get(ref) ?? ref)!.tree;
+      modes.set(tree, new Map([...(modes.get(tree) ?? []), [path, mode]]));
+    },
     /** Someone else pushes a commit on top of a branch. */
     pushAs(branch: string, path: string, content: string, message = "manual edit") {
       const parent = refs.get(branch)!;
@@ -108,6 +115,7 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
       tree.set(path, content);
       const treeSha = id("tree");
       trees.set(treeSha, tree);
+      modes.set(treeSha, new Map(modes.get(commits.get(parent)!.tree)));
       const sha = id("commit");
       commits.set(sha, { message, tree: treeSha, parents: [parent] });
       refs.set(branch, sha);
@@ -186,19 +194,45 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
       const c = commits.get(m[1]!);
       return c ? json(200, { sha: m[1], message: c.message, tree: { sha: c.tree }, parents: c.parents.map((sha) => ({ sha })) }) : notFound();
     }
+    // Subdirectories are trees "<root tree>:<dir>" and files are blobs "<root tree>:<path>", listed one level at a time.
     if (method === "GET" && (m = /^\/git\/trees\/(.+)$/.exec(rest))) {
-      const t = trees.get(m[1]!);
-      return t ? json(200, { sha: m[1], tree: [...t.keys()].map((p) => ({ path: p, type: "blob" })) }) : notFound();
+      const [rootSha, dir = ""] = m[1]!.split(/:(.*)/s) as [string, string?];
+      const t = trees.get(rootSha);
+      if (!t) return notFound();
+      const mode = (p: string) => modes.get(rootSha)?.get(p) ?? "100644";
+      if (url.searchParams.has("recursive")) return json(200, { sha: m[1], tree: [...t.keys()].map((p) => ({ path: p, mode: mode(p), type: "blob", sha: `${rootSha}:${p}` })), truncated: false });
+      const prefix = dir ? `${dir}/` : "";
+      const entries = new Map<string, { path: string; mode: string; type: string; sha: string }>();
+      for (const p of t.keys()) {
+        if (!p.startsWith(prefix)) continue;
+        const [name, ...more] = p.slice(prefix.length).split("/") as [string, ...string[]];
+        const full = `${prefix}${name}`;
+        entries.set(name, more.length ? { path: name, mode: "040000", type: "tree", sha: `${rootSha}:${full}` } : { path: name, mode: mode(full), type: "blob", sha: `${rootSha}:${full}` });
+      }
+      return dir && entries.size === 0 ? notFound() : json(200, { sha: m[1], tree: [...entries.values()], truncated: false });
+    }
+    if (method === "GET" && (m = /^\/git\/blobs\/(.+)$/.exec(rest))) {
+      const [rootSha, file] = m[1]!.split(/:(.*)/s) as [string, string?];
+      const content = file === undefined ? undefined : trees.get(rootSha)?.get(file);
+      return content === undefined ? notFound() : json(200, { sha: m[1], encoding: "base64", content: Buffer.from(content).toString("base64"), size: Buffer.byteLength(content) });
     }
     if (method === "GET" && (m = /^\/contents\/(.+)$/.exec(rest))) {
       const content = treeAt(url.searchParams.get("ref") ?? defaultBranch)?.get(m[1]!);
-      return content === undefined ? notFound() : json(200, { type: "file", encoding: "base64", content: Buffer.from(content).toString("base64") });
+      if (content === undefined) return notFound();
+      // Like GitHub, files over 1 MB come back without their content.
+      if (Buffer.byteLength(content) > 1024 * 1024) return json(200, { type: "file", encoding: "none", content: "" });
+      return json(200, { type: "file", encoding: "base64", content: Buffer.from(content).toString("base64") });
     }
     if (method === "POST" && rest === "/git/trees") {
       const tree = new Map(trees.get(body.base_tree) ?? []);
-      for (const e of body.tree as { path: string; content: string }[]) tree.set(e.path, e.content);
+      const treeModes = new Map(modes.get(body.base_tree));
+      for (const e of body.tree as { path: string; content: string; mode: string }[]) {
+        tree.set(e.path, e.content);
+        treeModes.set(e.path, e.mode);
+      }
       const sha = id("tree");
       trees.set(sha, tree);
+      modes.set(sha, treeModes);
       return json(201, { sha });
     }
     if (method === "POST" && rest === "/git/commits") {

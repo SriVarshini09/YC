@@ -23,9 +23,9 @@ Repairs affected call sites test-first. Without `--write` or `--pr` it only repo
 
 | Option | What it does |
 |---|---|
-| `--advisory <id>` | Only this advisory. |
-| `--write` | Write the fix and its contract test into the repository. |
-| `--pr` | Open a pull request with the fix and the contract test. Uses `GITHUB_TOKEN`, `GH_TOKEN` or your `gh` login. |
+| `--advisory <id>` | Only this advisory. An unknown id is an error (exit `2`). |
+| `--write` | Write the fix and its contract test into the repository. Not with `--repo`: the clone is temporary. |
+| `--pr` | Open a pull request with the fix and the contract test. Uses `GITHUB_TOKEN`, `GH_TOKEN` or your `gh` login. From a local checkout, a changed file must match the one on GitHub's default branch (pull first), so the PR never reverts newer commits or publishes local edits. |
 | `--repo <url>` | Shallow-clone a GitHub repository and fix it; with `--pr` the PR goes to that repository. |
 | `--llm` | When no recipe fixes a call site, ask Claude (needs `ANTHROPIC_API_KEY`). The change is still kept only if the contract test passes. |
 | `--advisories <dir>` | Use this advisory folder. |

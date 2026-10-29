@@ -1,14 +1,13 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import os from "node:os";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { createApiLock, loadAdvisories, matchAdvisories, pathMatches, type Advisory, type Finding } from "@shapi/core";
 import { extractCallSites } from "@shapi/extractor";
-import { ShapeStore, type ResponseShape } from "@shapi/shapes";
+import { ShapeStore, diffShapes, type ResponseShape } from "@shapi/shapes";
 import { loadRecording, replay } from "@shapi/canary";
 import { RECIPES, claudeFixer, localWorkspace, repairAdvisory, type RepairResult } from "@shapi/repair";
 import { authFromEnv, octokitFor, prBranch, prTitle, renderPrBody, repoFromUrl, upsertFixPr, type OpenedPullRequest } from "@shapi/github-app";
-import { DEFAULT_ADVISORIES } from "./scan";
+import { DEFAULT_ADVISORIES, cloneShallow } from "./scan";
 import { bundledDir } from "./paths";
 
 /** Recorded response sequences shipped with SHAPI (the published package's recordings/, or fixtures/recordings in the monorepo). */
@@ -37,26 +36,32 @@ export interface FixOutcome {
 export interface FixDeps {
   log: (line: string) => void;
   /** Injected for tests; defaults to the real GitHub delivery. */
-  deliver?: (repo: string, files: { path: string; content: string }[], meta: { title: string; body: string; branch: string; commitMessage: string }) => Promise<OpenedPullRequest>;
+  deliver?: (repo: string, files: DeliveredFile[], meta: { title: string; body: string; branch: string; commitMessage: string; baseSha?: string }) => Promise<OpenedPullRequest>;
+}
+
+/** A file for the PR: its fixed content, and the content the fix was computed from ("" for a new file). */
+export interface DeliveredFile {
+  path: string;
+  content: string;
+  before: string;
 }
 
 /** Scan, repair every affected call site test-first, and optionally write the fix locally or open a PR. */
 export async function fix(target: string | undefined, opts: FixOptions, deps: FixDeps): Promise<FixOutcome[]> {
-  let dir = path.resolve(target ?? ".");
-  let cleanup: string | undefined;
-  let remote = opts.repo ? repoFromUrl(opts.repo) : undefined;
-  if (opts.repo) {
-    if (opts.repo.startsWith("-")) throw new Error(`--repo: not a repository URL: ${opts.repo}`);
-    cleanup = mkdtempSync(path.join(os.tmpdir(), "shapi-fix-"));
-    execFileSync("git", ["-c", "core.autocrlf=false", "clone", "--depth", "1", "--quiet", "--", opts.repo, cleanup], { stdio: ["ignore", "ignore", "pipe"] });
-    dir = cleanup;
-  } else if (opts.pr) {
-    remote = originRepo(dir);
-  }
+  // Every check runs before cloning, so a refused run leaves no temp clone behind.
+  if (opts.repo && opts.write) throw new Error("--write writes into a local repository; with --repo, use --pr to deliver the fix");
+  const remote = opts.repo ? repoFromUrl(opts.repo) : opts.pr ? originRepo(path.resolve(target ?? ".")) : undefined;
   if (opts.pr && !remote) throw new Error("--pr needs a GitHub repository: pass --repo <github url> or run inside a clone whose origin is on GitHub");
+  const all = loadAdvisories(opts.advisories ?? DEFAULT_ADVISORIES);
+  if (opts.advisory && !all.some((a) => a.id === opts.advisory)) throw new Error(`unknown advisory ${opts.advisory}`);
+  const cleanup = opts.repo ? cloneShallow(opts.repo, "shapi-fix-") : undefined;
+  const dir = cleanup ?? path.resolve(target ?? ".");
 
   try {
-    const advisories = loadAdvisories(opts.advisories ?? DEFAULT_ADVISORIES).filter((a) => !opts.advisory || a.id === opts.advisory);
+    const advisories = all.filter((a) => !opts.advisory || a.id === opts.advisory);
+    // A fresh clone is exactly a commit on GitHub: the PR is built on it. A local checkout may hold
+    // unpushed or uncommitted work, so its PR goes on the base's head, refused if a changed file differs there.
+    const baseSha = cleanup ? execFileSync("git", ["rev-parse", "HEAD"], { cwd: dir, encoding: "utf8" }).trim() : undefined;
     const lock = createApiLock(extractCallSites(dir), "shapi fix");
     const now = opts.now ? new Date(opts.now) : new Date();
     const { affected } = matchAdvisories(lock, advisories, { now });
@@ -90,7 +95,11 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
       outcomes.push(...mine);
       if (!repair.changes.length) continue;
       for (const c of repair.changes) deps.log(`    ${c.before ? "M" : "A"} ${c.file}`);
-      const files = repair.changes.map((c) => ({ path: c.file, content: c.after }));
+      // What each file held before the fix, read before --write changes it.
+      const files: DeliveredFile[] = repair.changes.map((c) => {
+        const local = path.join(dir, c.file);
+        return { path: c.file, content: c.after, before: existsSync(local) ? readFileSync(local, "utf8") : "" };
+      });
 
       if (opts.write) {
         for (const f of files) {
@@ -106,6 +115,7 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
           branch: prBranch(advisory),
           commitMessage: `fix: ${advisory.title}\n\nAdvisory ${advisory.id}, ${fixed.length} of ${repair.sites.length} call sites. Contract tests ${fixed.map((s) => s.result.test?.file).join(", ")} fail before this change and pass after.`,
           body: renderPrBody({ advisory, repair, shapeSource: shapes.source }),
+          baseSha,
         };
         const pr = await (deps.deliver ?? deliverToGitHub)(remote, files, meta);
         for (const o of mine) if (o.result?.status === "fixed") o.pr = pr;
@@ -120,8 +130,8 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
 
 async function deliverToGitHub(
   repo: string,
-  files: { path: string; content: string }[],
-  meta: { title: string; body: string; branch: string; commitMessage: string },
+  files: DeliveredFile[],
+  meta: { title: string; body: string; branch: string; commitMessage: string; baseSha?: string },
 ): Promise<OpenedPullRequest> {
   const auth = authFromEnv();
   if (!auth) throw new Error("no GitHub credentials: set GITHUB_TOKEN, log in with `gh auth login`, or configure the SHAPI GitHub App variables");
@@ -144,7 +154,8 @@ function findShapes(advisory: Advisory, opts: FixOptions): { before: ResponseSha
         if (advisory.endpoint.method !== "*" && e.method !== advisory.endpoint.method) continue;
         const after = store.latest(e.provider, e.method, e.endpoint, e.source);
         const before = store.previousDistinct(e.provider, e.method, e.endpoint, e.source);
-        if (before && after) return { before: before.shape, after: after.shape, source: `${e.source} (${opts.db})` };
+        // Only a change of the advisory's kind: another change on the endpoint (a header, say) cannot make its contract test fail.
+        if (before && after && diffShapes(before.shape, after.shape).changes.some((c) => c.changeClass === advisory.changeClass)) return { before: before.shape, after: after.shape, source: `${e.source} (${opts.db})` };
       }
     } finally {
       store.close();

@@ -17,7 +17,7 @@ Any coding agent that can run commands can use SHAPI through the CLI, with nothi
 
 ```sh
 npx shapi-cli scan .                # what's affected, and why
-npx shapi-cli fix .                 # a dry run: each fix with its contract test, nothing written
+npx shapi-cli fix .                 # a dry run: each fix and the files it would change, nothing written
 npx shapi-cli fix . --write         # write the fixes (ask before running this)
 ```
 
@@ -34,5 +34,6 @@ Optional environment for the server:
 | `ANTHROPIC_API_KEY` | Lets `apply_fix` use Claude when it's called with `llm=true` and no recipe applies. |
 | `GITHUB_TOKEN` or `GH_TOKEN` | Opening PRs (otherwise the `gh` login). |
 | `SHAPI_ADVISORIES` | A different advisory folder. |
+| `SHAPI_MCP_ANY_PATH` | Set to `1` to let tools work on paths outside the project the server was started in (refused by default). |
 
 Then ask, for example: *"Use SHAPI to check this repository for third-party API breakages and fix what you can."*
