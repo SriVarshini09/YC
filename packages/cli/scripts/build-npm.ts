@@ -78,7 +78,9 @@ const pkg = {
   description: "Find the code that breaks when a third-party API changes, and fix it test-first.",
   keywords: ["api", "breaking-changes", "api-lock", "dependabot", "github", "stripe", "codemod", "contract-test"],
   type: "module",
-  bin: { shapi: "bin/shapi.js" },
+  // Both names work after `npm install -g shapi-cli`; `npx shapi-cli` needs the package name. Never `npx shapi`:
+  // that is someone else's package on npm.
+  bin: { shapi: "bin/shapi.js", "shapi-cli": "bin/shapi.js" },
   files: ["bin", "dist", "advisories", "recordings", "README.md", "LICENSE"],
   engines: cliPkg.engines,
   license,

@@ -20,8 +20,10 @@ pnpm install
 ```
 
 ```bash
-npx shapi scan fixtures/demo-ts
+pnpm exec shapi scan fixtures/demo-ts
 ```
+
+(In this repository `pnpm exec shapi` runs the local build. Anywhere else use `npx shapi-cli`: the npm package named `shapi` is not SHAPI.)
 
 The demo flags `src/deploy.ts`, which requires `res.status === 204` from GitHub's workflow_dispatch endpoint (it started answering 200), plus a QuickBooks call pinned to minor version 65 and a HubSpot v1 call with a deadline on 2026-12-04. The command exits 1 because a critical finding exists (`--fail-on none` to disable).
 
@@ -30,7 +32,7 @@ Other flags: `--json`, `--out api.lock`, `--repo <git url>`, `--advisories <dir>
 ## Fix it
 
 ```bash
-npx shapi fix fixtures/demo-ts
+pnpm exec shapi fix fixtures/demo-ts
 ```
 
 For each affected TypeScript or JavaScript call site whose advisory has a fix recipe, `shapi fix` generates a contract test (from the advisory's fix, or from recorded before/after responses), confirms it fails, applies the recipe (or asks Claude with `--llm` when no recipe fits), and keeps the change only if the test then passes. Other call sites are reported with the provider's migration steps; Python is scan-only for now. `--write` writes the fix into the repo; `--pr` opens a pull request with the fix, the test and the evidence (`--repo <github url> --pr` works on a repo you haven't cloned). Example: [shapi-demo PR #2](https://github.com/SriVarshini09/shapi-demo/pull/2).

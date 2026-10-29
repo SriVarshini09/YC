@@ -4,7 +4,8 @@
   "description": "Scan a repo for third-party API dependencies and the breaking changes that hit them",
   "type": "module",
   "bin": {
-    "shapi": "bin/shapi.js"
+    "shapi": "bin/shapi.js",
+    "shapi-cli": "bin/shapi.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

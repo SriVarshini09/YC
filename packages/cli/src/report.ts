@@ -4,6 +4,15 @@ import type { ScanOutcome } from "./scan";
 
 type Style = Parameters<typeof styleText>[0];
 
+/** Where the hosted service lives: fix PRs and a dashboard on every push, through the GitHub App. */
+export const APP_URL = "https://app.shapi.dev";
+
+/** The first line of every human-readable run. */
+export function title(color: boolean): string {
+  const paint = (style: Style, s: string) => (color ? styleText(style, s) : s);
+  return `${paint("bold", "SHAPI")}  ${paint("dim", "third-party API changes, caught and fixed")}`;
+}
+
 /** Human-readable scan report. Plain padded columns; color only when `color` is set. */
 export function renderText(o: ScanOutcome, color: boolean): string {
   const paint = (style: Style, s: string) => (color ? styleText(style, s) : s);
@@ -12,7 +21,8 @@ export function renderText(o: ScanOutcome, color: boolean): string {
   const providers = lock.providers;
   const unresolved = lock.callSites.filter((c) => !c.resolved).length;
 
-  out.push(`${paint("bold", "SHAPI scan")}  ${o.label}`);
+  out.push(title(color));
+  out.push(`${paint("bold", "scan")}  ${o.label}`);
   out.push(
     paint(
       "dim",
@@ -61,6 +71,11 @@ export function renderText(o: ScanOutcome, color: boolean): string {
     out.push("");
     out.push(paint("dim", `${plural(unresolved, "call site")} could not be fully resolved (see --json or --out api.lock).`));
   }
+
+  out.push("");
+  out.push(paint("bold", "Next"));
+  if (match.affected.length > 0) out.push(`  npx shapi-cli fix ${o.fixTarget}  ${paint("dim", "fix the affected call sites test-first (nothing changes until you add --write or --pr)")}`);
+  out.push(`  ${APP_URL}  ${paint("dim", "install the GitHub App: every push scanned, verified fix PRs, and a dashboard")}`);
   return out.join("\n") + "\n";
 }
 

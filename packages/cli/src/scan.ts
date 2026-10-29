@@ -34,6 +34,8 @@ export interface ScanOptions {
 
 export interface ScanOutcome {
   label: string;
+  /** What to pass to `shapi fix` for the same code: the path, or --repo <url>. */
+  fixTarget: string;
   filesScanned: number;
   /** Files that could not be scanned, with why. */
   skipped: { file: string; reason: string }[];
@@ -75,8 +77,10 @@ export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome
     const advisories = loadAdvisories(opts.advisories ?? DEFAULT_ADVISORIES);
     const match = matchAdvisories(lock, advisories, { now });
     const failing = failOn === "none" ? [] : match.affected.filter((f) => SEVERITY_RANK[f.advisory.severity] <= SEVERITY_RANK[failOn]);
+    const where = opts.repo ? `--repo ${opts.repo}` : label;
     return {
       label,
+      fixTarget: /\s/.test(where) ? JSON.stringify(where) : where,
       filesScanned: extracted.filesScanned,
       skipped: extracted.skipped,
       lock,

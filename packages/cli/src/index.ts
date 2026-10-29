@@ -1,6 +1,6 @@
 import { Command, CommanderError, Option } from "commander";
 import { fix, type FixDeps, type FixOptions } from "./fix";
-import { renderText } from "./report";
+import { APP_URL, renderText, title } from "./report";
 import { VERSION, preparePython, scan, toJsonReport, type ScanOptions } from "./scan";
 
 export { DEFAULT_ADVISORIES, VERSION, preparePython, scan, toJsonReport, type ScanOptions, type ScanOutcome } from "./scan";
@@ -28,6 +28,8 @@ export async function run(argv: string[], io: Io = processIo, fixDeps: Partial<F
     .name("shapi")
     .description("Map the third-party APIs a codebase depends on and flag the breaking changes that hit it.")
     .version(VERSION)
+    .addHelpText("beforeAll", `${title(Boolean(io.isTTY))}\n`)
+    .addHelpText("afterAll", `\nRun it without installing: npx shapi-cli scan .\nFix PRs and a dashboard on every push: install the GitHub App at ${APP_URL}\n`)
     .exitOverride()
     .configureOutput({ writeOut: io.stdout, writeErr: io.stderr });
 
@@ -63,7 +65,10 @@ export async function run(argv: string[], io: Io = processIo, fixDeps: Partial<F
     .option("--pr", "open a pull request with the fix and the contract test")
     .addOption(new Option("--now <date>", "evaluate deadlines as of this date").hideHelp())
     .action(async (target: string, opts: FixOptions) => {
+      io.stdout(`${title(Boolean(io.isTTY))}\n`);
       const outcomes = await fix(opts.repo ? undefined : target, opts, { log: (l) => io.stdout(`${l}\n`), ...fixDeps });
+      if (outcomes.some((o) => o.result?.status === "fixed") && !opts.write && !opts.pr) io.stdout("\nNothing was changed. Add --write to keep these fixes, or --pr to open pull requests.\n");
+      io.stdout(`Fix PRs and a dashboard on every push: install the GitHub App at ${APP_URL}\n`);
       exitCode = outcomes.every((o) => o.result?.status === "fixed" || o.result?.status === "already-handled") ? 0 : 1;
     });
 
