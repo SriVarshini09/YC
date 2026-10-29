@@ -2,7 +2,7 @@
   "id": "quickbooks-refresh-token-five-year-hard-expiry",
   "provider": "quickbooks",
   "title": "Refresh tokens hard-expire after five years, first ones in February 2027",
-  "summary": "Intuit refresh tokens now have a maximum lifetime of five years, even if they are used regularly. For apps on restricted or granular scopes, tokens issued from February 2022 start expiring in February 2027. For com.quickbooks.accounting and com.quickbooks.payments, tokens issued from October 2023 start expiring in October 2028. Intuit gives only the month, so the effective date here is the first day of that month.",
+  "summary": "Intuit refresh tokens now have a maximum lifetime of five years, even if they are used regularly. For apps on restricted or granular scopes, tokens issued from February 2022 start expiring in February 2027. For com.intuit.quickbooks.accounting and com.intuit.quickbooks.payments, tokens issued from October 2023 start expiring in October 2028. Intuit gives only the month, so the effective date here is the first day of that month.",
   "endpoint": {
     "method": "POST",
     "path": "/oauth2/v1/tokens/bearer"
@@ -18,12 +18,12 @@
   },
   "effectiveDate": "2027-02-01",
   "severity": "high",
-  "migrationNote": "On refresh, send x_refresh_token_hard_expires_in=true and store the returned x_refresh_token_hard_expires_in (seconds left in the five-year lifetime) alongside the token. Treat invalid_grant from /oauth2/v1/tokens/bearer as a disconnect that needs the user to reconnect, not as a retryable error. Prompt users to re-authorize before the hard expiry, and set the Reconnect URL in the developer portal app settings.",
+  "migrationNote": "On token requests, send the header x-include-refresh-token-hard-expires-in: true (Intuit's docs also list an x_refresh_token_hard_expires_in=true parameter) and store the returned x_refresh_token_hard_expires_in (seconds left in the five-year lifetime) alongside the token. Treat invalid_grant from /oauth2/v1/tokens/bearer as a disconnect that needs the user to reconnect, not as a retryable error. Prompt users to re-authorize before the hard expiry, and set the Reconnect URL in the developer portal app settings.",
   "sources": [
     "https://medium.com/intuitdev/important-changes-to-refresh-token-policy-8443779d40db",
     "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/oauth-2.0",
     "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/faq",
     "https://developer.intuit.com/app/developer/qbo/docs/release-notes/general-release-notes"
   ],
-  "status": "unverified"
+  "status": "verified"
 }

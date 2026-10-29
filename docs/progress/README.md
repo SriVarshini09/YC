@@ -62,3 +62,4 @@ One line per task: task, summary file, PR, status.
 - PB-14 no links to the private repo (contact sri@shapi.dev), HTML 404, robots.txt, shapi-cli 0.3.0: [summary](PB-14-links-404-cli-0-3-0.md) · PR: [#64](https://github.com/SriVarshini09/YC/pull/64) · merged (0.3.0 published)
 - PB-15 request-body triggers; three model-retirement advisories leave pending: [summary](PB-15-request-body-triggers.md) · PR: [#65](https://github.com/SriVarshini09/YC/pull/65) · merged
 - PB-16 prune repeated canary observations (newest of each shape kept): [summary](PB-16-prune-observations.md) · PR: [#66](https://github.com/SriVarshini09/YC/pull/66) · merged
+- PB-17 five unverified advisories checked against primary sources (four now verified, Reddit corrected): [summary](PB-17-verify-advisories.md) · PR: [#67](https://github.com/SriVarshini09/YC/pull/67) · merged

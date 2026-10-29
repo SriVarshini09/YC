@@ -1,8 +1,8 @@
 {
   "id": "hubspot-marketing-emails-v1-sunset",
   "provider": "hubspot",
-  "title": "Marketing Email API v1 sunset (reported as 2025-11-01)",
-  "summary": "HubSpot replaced the v1 Marketing Email API (/marketing-emails/v1/...) with the Marketing Email v3 API. HubSpot's own folder-ID post calls v1 \"being sunset\" and CData reports the endpoint as sunset; search snippets of HubSpot's (now 404) changelog post put the sunset on 2025-11-01, but that date could not be read on an open page.",
+  "title": "Marketing Email API v1 sunset on 2025-11-01",
+  "summary": "HubSpot sunset the v1 Marketing Email API (/marketing-emails/v1/...) on 2025-11-01 in favour of the Marketing Email v3 API; requests to v1 after that date return an error. Other legacy email APIs, including email analytics, are not affected. HubSpot's changelog post is now a 404, so the source is its Wayback Machine copy.",
   "endpoint": {
     "method": "*",
     "path": "/marketing-emails/v1/**"
@@ -12,13 +12,17 @@
     "any": true
   },
   "firstObserved": null,
-  "publishedNotice": null,
+  "publishedNotice": {
+    "date": "2025-04-02",
+    "url": "https://web.archive.org/web/20251114203334/https://developers.hubspot.com/changelog/marketing-email-api-v3-released-to-general-availability-and-upcoming-sunset-for-v1"
+  },
   "effectiveDate": "2025-11-01",
   "severity": "critical",
-  "migrationNote": "Move email calls from /marketing-emails/v1/emails to the Marketing Email v3 API (POST /marketing/v3/emails to create, GET /marketing/v3/emails to list, GET /marketing/v3/emails/{emailId} to read one) and read folders from folderIdV2. Search snippets say other legacy email APIs, such as email analytics, were not part of this sunset.",
+  "migrationNote": "Move email calls from /marketing-emails/v1/emails to the Marketing Email v3 API (POST /marketing/v3/emails to create, GET /marketing/v3/emails to list, GET /marketing/v3/emails/{emailId} to read one) and read folders from folderIdV2: folderId was removed from v3 on 2026-01-28. Other legacy email APIs, such as email analytics, are not part of this sunset.",
   "sources": [
+    "https://web.archive.org/web/20251114203334/https://developers.hubspot.com/changelog/marketing-email-api-v3-released-to-general-availability-and-upcoming-sunset-for-v1",
     "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration",
-    "https://cdn.cdata.com/help/DHN/ado/pg_deprecationnotices.htm"
+    "https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/guide"
   ],
-  "status": "unverified"
+  "status": "verified"
 }

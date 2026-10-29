@@ -2,7 +2,7 @@
   "id": "reddit-logged-out-json-403",
   "provider": "reddit",
   "title": "Logged-out .json endpoints return 403",
-  "summary": "Unauthenticated requests to Reddit's public .json listing endpoints (for example /r/{subreddit}/top.json) started returning 403 Forbidden around 2026-05-30. OAuth (oauth.reddit.com) and logged-in access were reported as unaffected. No primary Reddit announcement was found.",
+  "summary": "Unauthenticated requests to Reddit's public .json listing endpoints (for example /r/{subreddit}/top.json) started returning 403 Forbidden around 2026-05-30. Reddit announced the shutdown of unauthenticated .json endpoints in r/modnews on 2026-05-28 and said logged-in and authenticated access is not affected; the 403 status and the 2026-05-30 date come from third-party reports.",
   "endpoint": {
     "method": "GET",
     "path": "/**/*.json",
@@ -13,11 +13,16 @@
     "any": true
   },
   "firstObserved": "2026-05-30",
-  "publishedNotice": null,
+  "publishedNotice": {
+    "date": "2026-05-28",
+    "url": "https://www.reddit.com/r/modnews/comments/1tq9vxo/protecting_communities_from_scrapers_and_platform/"
+  },
   "effectiveDate": "2026-05-30",
   "severity": "high",
-  "migrationNote": "Move to an approved OAuth app and call oauth.reddit.com with a bearer token.",
+  "migrationNote": "Move to an approved OAuth app and call oauth.reddit.com with a bearer token. Reddit's notice points developers who need structured access to Devvit.",
   "sources": [
+    "https://www.reddit.com/r/modnews/comments/1tq9vxo/protecting_communities_from_scrapers_and_platform/",
+    "https://web.archive.org/web/20260529180019/https://old.reddit.com/r/modnews/comments/1tq9vxo/protecting_communities_from_scrapers_and_platform/",
     "https://dev.to/tonywangca/why-reddit-blocked-unauthenticated-json-in-2026-and-how-to-still-get-reddit-data-58b9",
     "https://bigideasdb.com/reddit-json-403-forbidden"
   ],
