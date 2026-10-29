@@ -127,6 +127,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
     const [owner, repo] = scan.full_name.split("/") as [string, string];
     const readOnly = await deps.github.readOnly(scan.github_installation_id, scan.github_repo_id);
     const files = await fetchRepoSnapshot(readOnly, { owner, repo, ref: scan.sha });
+    const snapshot = new Map(files.map((f) => [f.path, f.content]));
     await deps.workspace(files, { scan: scan.id, repository: scan.full_name }, async (ws) => {
       for (const t of todo) {
         const repair = await repairAdvisory({ workspace: ws, advisory: t.advisory, callSites: t.callSites, before: t.shapes.before, after: t.shapes.after, recipes: RECIPES, llm });
@@ -139,8 +140,14 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
           ...(fixedSites.length && !unfixed.length ? {} : { reason: first?.reason }),
           sites: { fixed: fixedSites.length, total: repair.sites.length },
         });
-        // Leave the workspace as it was, so the next advisory is verified against the original code.
-        for (const c of repair.changes) await ws.write(c.file, c.before);
+        // Leave the workspace as it was, so the next advisory is verified against the original code:
+        // changed files get their text back, and files the repair created (contract tests, new modules) are deleted.
+        const touched = new Set([...repair.changes, ...repair.sites.flatMap((s) => s.result.changes)].map((c) => c.file));
+        for (const s of repair.sites) if (s.result.test) touched.add(s.result.test.file);
+        for (const file of touched) {
+          const original = snapshot.get(file);
+          await (original === undefined ? ws.remove(file) : ws.write(file, String(original)));
+        }
         if (unfixed.length) manual.push({ advisory: t.advisory, callSites: unfixed.length });
         if (!fixedSites.length) continue;
         const testFiles = fixedSites.map((s) => s.result.test?.file).join(", ");

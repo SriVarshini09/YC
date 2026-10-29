@@ -1,5 +1,5 @@
 import { generateKeyPairSync, randomUUID } from "node:crypto";
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -90,6 +90,8 @@ function setup() {
   const github = githubClients({ appId: githubApp.appId, privateKey }, { fetch: fake.fetch, resilient: false });
   /** Fixes are verified in a local copy here; production runs the same steps in an E2B sandbox. */
   const runs: string[] = [];
+  /** What a job left in its workspace: repository files whose text changed, and contract tests still there. */
+  const leftovers: string[] = [];
   const workspace: WorkspaceRunner = async (files, labels, fn) => {
     runs.push(labels.repository!);
     const dir = mkdtempSync(path.join(tmp, "ws-"));
@@ -97,9 +99,15 @@ function setup() {
       mkdirSync(path.dirname(path.join(dir, f.path)), { recursive: true });
       writeFileSync(path.join(dir, f.path), f.content);
     }
-    return fn(localWorkspace(dir));
+    const ws = localWorkspace(dir);
+    const result = await fn(ws);
+    for (const f of files) if (readFileSync(path.join(ws.location, f.path), "utf8") !== String(f.content)) leftovers.push(f.path);
+    const tests = path.join(ws.location, "test", "shapi");
+    if (existsSync(tests)) for (const name of readdirSync(tests)) leftovers.push(`test/shapi/${name}`);
+    await ws.dispose();
+    return result;
   };
-  return { ...fake, githubClients: github, workspace, runs, fixDeps: { db, github, workspace, recordingsDir: RECORDINGS, shapeSecret: "test" } };
+  return { ...fake, githubClients: github, workspace, runs, leftovers, fixDeps: { db, github, workspace, recordingsDir: RECORDINGS, shapeSecret: "test" } };
 }
 
 async function queueScan(sha: string) {
@@ -219,6 +227,8 @@ describe("cloud fix", () => {
     // the HubSpot call site uses axios: its contract test replaces axios with a fake
     expect(report.repairs.find((r) => r.advisoryId === "hubspot-pipelines-v1-sunset")).toMatchObject({ status: "fixed" });
     expect(t.runs).toEqual(["acme/demo"]);
+    // each advisory's repair is undone before the next one: no changed files and no contract tests (not even empty ones) are left
+    expect(t.leftovers).toEqual([]);
     // at most 2 new PRs per hour, most urgent first: the critical GitHub fix, then one of the two high ones
     const refs = t.github.pulls.map((p) => p.head.ref);
     expect(refs).toHaveLength(2);
