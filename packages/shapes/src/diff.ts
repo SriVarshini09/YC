@@ -62,7 +62,7 @@ export function diffShapes(before: ResponseShape, after: ResponseShape): ShapeDi
 
   // Comparing fields across a success/error boundary says nothing about the contract.
   if (ok(before.status) === ok(after.status) && before.body.kind === "json" && after.body.kind === "json") {
-    changes.push(...fieldChanges(before.body.fields, after.body.fields));
+    changes.push(...fieldChanges(before.body.fields, after.body.fields, after.body.rootType === "array" && after.body.fields.length === 0));
   }
   changes.push(...headerChanges(before, after));
 
@@ -84,7 +84,11 @@ function label(f: FieldShape): string {
   return f.path ?? `#${f.pathHash}`;
 }
 
-function fieldChanges(before: FieldShape[], after: FieldShape[]): ShapeChange[] {
+/** JSON has one number type: 10 and 10.5 are the same field type, whatever inferShape calls them. */
+const jsonType = (t: string) => (t === "integer" ? "number" : t);
+
+/** `emptyRoot`: the new body is `[]`, which says nothing about the items. */
+function fieldChanges(before: FieldShape[], after: FieldShape[], emptyRoot: boolean): ShapeChange[] {
   const out: ShapeChange[] = [];
   const prev = new Map(before.map((f) => [f.pathHash, f]));
   const next = new Map(after.map((f) => [f.pathHash, f]));
@@ -93,8 +97,12 @@ function fieldChanges(before: FieldShape[], after: FieldShape[]): ShapeChange[] 
   const under = (path: string | undefined, roots: string[]) =>
     path !== undefined && roots.some((r) => path.startsWith(`${r}.`) || path.startsWith(`${r}[]`));
 
+  // An array that came back empty says nothing about its items (list endpoints on probe accounts often are).
+  const emptyArrays = after.filter((f) => f.arrayLength?.max === 0 && f.path !== undefined).map((f) => f.path!);
+
   for (const f of before) {
     if (next.has(f.pathHash)) continue;
+    if (emptyRoot || under(f.path, emptyArrays)) continue;
     if (under(f.path, removedPaths)) continue;
     if (f.path) removedPaths.push(f.path);
     out.push({
@@ -125,8 +133,8 @@ function fieldChanges(before: FieldShape[], after: FieldShape[]): ShapeChange[] 
     }
     const where = { path: f.path ?? old.path, pathHash: f.pathHash };
     const name = f.path ?? old.path ?? `#${f.pathHash}`;
-    const newTypes = f.types.filter((t) => !old.types.includes(t));
-    const goneTypes = old.types.filter((t) => !f.types.includes(t));
+    const newTypes = f.types.filter((t) => !old.types.some((o) => jsonType(o) === jsonType(t)));
+    const goneTypes = old.types.filter((t) => !f.types.some((n) => jsonType(n) === jsonType(t)));
     const nonNullNew = newTypes.filter((t) => t !== "null");
     if (nonNullNew.length > 0) {
       out.push({
