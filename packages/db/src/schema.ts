@@ -26,6 +26,8 @@ export interface RepositoriesTable {
   enabled: Generated<boolean>;
   last_scan_sha: string | null;
   last_scanned_at: Timestamp | null;
+  /** GitHub's pushed_at of the newest default-branch push SHAPI took: an older push delivered later is not scanned. */
+  last_pushed_at: ColumnType<Date | null, string | Date | null | undefined, string | Date | null>;
   created_at: CreatedAt;
   /** Dashboard state: { paused, createNow: advisory ids, retry: advisory ids }. */
   settings: ColumnType<Record<string, unknown>, string | undefined, string>;
@@ -45,7 +47,7 @@ export interface ScansTable {
   advisories: ColumnType<Record<string, string>, string | undefined, string>;
   /** The SHAPI build (git sha) that last ran the fix job on this scan; null before any fix job. */
   fix_engine: ColumnType<string | null, string | null | undefined, string | null>;
-  /** LLM calls the fix jobs of this scan made, retries included: one budget per scan (SHAPI_LLM_CALLS_PER_JOB). */
+  /** Unused since 0015 (the budget is per fix job, see fix_job_llm_calls); kept while older machines may write it. */
   llm_calls: Generated<number>;
   created_at: CreatedAt;
   started_at: Timestamp | null;
@@ -163,6 +165,13 @@ export interface StripeEventsTable {
   received_at: CreatedAt;
 }
 
+/** Internal: LLM calls one fix job made, keyed by its pg-boss job id, which its retries keep (SHAPI_LLM_CALLS_PER_JOB). */
+export interface FixJobLlmCallsTable {
+  job_id: string;
+  calls: number;
+  created_at: CreatedAt;
+}
+
 /** Internal: a signed-in web session. The cookie holds the token; this row holds its SHA-256. */
 export interface SessionsTable {
   token_hash: string;
@@ -205,6 +214,7 @@ export interface Database {
   sessions: SessionsTable;
   billing: BillingTable;
   stripe_events: StripeEventsTable;
+  fix_job_llm_calls: FixJobLlmCallsTable;
 }
 
 /** Tables holding one customer's data; row-level security keeps each customer to its own rows. */
