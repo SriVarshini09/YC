@@ -31,6 +31,8 @@ export interface Session {
   /** Per installation id. */
   access: Record<string, InstallationAccess>;
   csrf: string;
+  /** When the user signed in (database time): `access` is what GitHub said then. */
+  createdAt: Date;
   expiresAt: Date;
 }
 
@@ -113,7 +115,7 @@ export async function identify(config: OAuthConfig, code: string, opts: { fetch?
 /** Start a session for a signed-in user; returns the cookie token. Only its hash is stored. */
 export async function createSession(db: Db, identity: GitHubIdentity, now = new Date()): Promise<{ token: string; session: Session }> {
   const token = randomToken();
-  const session: Session = {
+  const session: Omit<Session, "createdAt"> = {
     login: identity.login,
     githubUserId: identity.id,
     installationIds: identity.installationIds,
@@ -121,9 +123,10 @@ export async function createSession(db: Db, identity: GitHubIdentity, now = new 
     csrf: randomToken(),
     expiresAt: new Date(now.getTime() + SESSION_HOURS * 3600_000),
   };
-  await withService(db, async (tx) => {
+  // Database time, like repositories.created_at, which accountAccess compares it with.
+  const created = await withService(db, async (tx) => {
     await tx.deleteFrom("sessions").where("expires_at", "<", now).execute();
-    await tx
+    return tx
       .insertInto("sessions")
       .values({
         token_hash: hash(token),
@@ -134,16 +137,17 @@ export async function createSession(db: Db, identity: GitHubIdentity, now = new 
         csrf: session.csrf,
         expires_at: session.expiresAt,
       })
-      .execute();
+      .returning("created_at")
+      .executeTakeFirstOrThrow();
   });
-  return { token, session };
+  return { token, session: { ...session, createdAt: created.created_at } };
 }
 
 export async function loadSession(db: Db, token: string | undefined, now = new Date()): Promise<Session | undefined> {
   if (!token) return undefined;
   const row = await withService(db, (tx) => tx.selectFrom("sessions").selectAll().where("token_hash", "=", hash(token)).where("expires_at", ">", now).executeTakeFirst());
   if (!row) return undefined;
-  return { login: row.login, githubUserId: row.github_user_id, installationIds: row.installation_ids, access: row.access, csrf: row.csrf, expiresAt: row.expires_at };
+  return { login: row.login, githubUserId: row.github_user_id, installationIds: row.installation_ids, access: row.access, csrf: row.csrf, createdAt: row.created_at, expiresAt: row.expires_at };
 }
 
 export async function endSession(db: Db, token: string | undefined): Promise<void> {
@@ -172,19 +176,26 @@ export interface AccountAccess {
   push: string[];
   /** May change the account's settings and billing. */
   admin: boolean;
+  /** Repositories added to the account since the user signed in that they cannot see yet: signing in again reads them. */
+  addedSinceSignIn: number;
 }
 
 /**
  * The session's rights in an account. Settings and billing act on every repository, so they need an
  * account admin: the owner of a personal account, or for an organization a user who is admin on every
- * repository SHAPI covers there (organization owners are).
+ * repository SHAPI covers there (organization owners are). The rights are what GitHub said at sign-in, so
+ * repositories added since then are judged at the next sign-in: until then they are hidden, and they
+ * do not take an admin's rights away.
  */
 export async function accountAccess(db: Db, session: Session, account: { id: string; type: string; github_installation_id: string | null }): Promise<AccountAccess> {
   const access = session.access[String(account.github_installation_id)];
-  if (!access) return { read: [], push: [], admin: false };
-  if (account.type === "User") return { read: access.read, push: access.push, admin: access.owner };
+  if (!access) return { read: [], push: [], admin: false, addedSinceSignIn: 0 };
+  const repos = await withTenant(db, account.id, (tx) => tx.selectFrom("repositories").select(["github_repo_id", "created_at"]).execute());
+  const readable = new Set(access.read);
+  const addedSinceSignIn = repos.filter((r) => r.created_at > session.createdAt && !readable.has(String(r.github_repo_id))).length;
+  if (account.type === "User") return { read: access.read, push: access.push, admin: access.owner, addedSinceSignIn };
   // No repository yet proves nothing: GitHub lists an installation to anyone with access to one of its repositories.
-  const covered = await withTenant(db, account.id, (tx) => tx.selectFrom("repositories").select("github_repo_id").execute());
+  const known = repos.filter((r) => r.created_at <= session.createdAt);
   const mine = new Set(access.admin);
-  return { read: access.read, push: access.push, admin: covered.length > 0 && covered.every((r) => mine.has(String(r.github_repo_id))) };
+  return { read: access.read, push: access.push, admin: known.length > 0 && known.every((r) => mine.has(String(r.github_repo_id))), addedSinceSignIn };
 }

@@ -75,6 +75,8 @@ export interface Shell {
   landing?: boolean;
   /** Reload the page every this many seconds (while the first scan runs), without a script. */
   refresh?: number;
+  /** A line above every account page's content, for example to sign in again. */
+  notice?: Html;
 }
 
 // Outline icons (stroke, 24-unit grid), drawn here so no asset leaves this server.
@@ -178,7 +180,7 @@ export function page(title: string, body: Html, shell: Shell = {}): string {
 ${shell.refresh ? html`<meta http-equiv="refresh" content="${shell.refresh}">` : EMPTY}
 </head>
 <body>
-${shell.landing ? body : shell.bare ? html`<main class="hero">${body}</main>` : html`<a class="skip" href="#main">Skip to content</a>${sidebar(shell)}<main class="main" id="main"><div class="wrap">${body}</div></main>`}
+${shell.landing ? body : shell.bare ? html`<main class="hero">${body}</main>` : html`<a class="skip" href="#main">Skip to content</a>${sidebar(shell)}<main class="main" id="main"><div class="wrap">${shell.notice ? html`<div class="notice">${shell.notice}</div>` : EMPTY}${body}</div></main>`}
 </body>
 </html>`}`;
 }
