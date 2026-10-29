@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
+import type { DocsSite } from "./docs";
 
 /** Repo-level advisories folder: apps/server/{src,dist}/ → ../../../advisories. Overridden in the container. */
 const DEFAULT_ADVISORIES = fileURLToPath(new URL("../../../advisories", import.meta.url));
@@ -26,6 +27,10 @@ const ConfigSchema = z.object({
   /** Comma-separated providers the canary runs (default: all with credentials). */
   CANARY_PROVIDERS: z.string().optional(),
   GIT_SHA: z.string().default("dev"),
+  /** The docs site's public URL (https://shapi.dev): requests for its host are served from SHAPI_DOCS_DIR. Both or neither. */
+  SHAPI_DOCS_URL: z.string().url().optional(),
+  /** The docs build (site/.vitepress/dist); the container ships it at /app/docs. */
+  SHAPI_DOCS_DIR: z.string().optional(),
   /** Claude fixes for accounts that opt in; unset, the option is hidden and only recipes fix code. */
   ANTHROPIC_API_KEY: z.string().optional(),
   /** The GitHub App (all three, or none: the webhook route answers 503 until they are set). */
@@ -72,7 +77,7 @@ export interface BillingSettings {
   publicUrl: string;
 }
 
-export type Config = z.infer<typeof ConfigSchema> & { canaryProviders?: string[]; githubApp?: GitHubAppConfig; webApp?: WebAppConfig; billing?: BillingSettings };
+export type Config = z.infer<typeof ConfigSchema> & { canaryProviders?: string[]; githubApp?: GitHubAppConfig; webApp?: WebAppConfig; billing?: BillingSettings; docs?: DocsSite };
 
 export function loadConfig(env: Record<string, string | undefined> = process.env): Config {
   const parsed = ConfigSchema.safeParse(env);
@@ -106,5 +111,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
   const billing = c.STRIPE_SECRET_KEY
     ? { secretKey: c.STRIPE_SECRET_KEY, webhookSecret: c.STRIPE_WEBHOOK_SECRET!, priceId: c.STRIPE_PRICE_ID!, publicUrl: c.SHAPI_PUBLIC_URL.replace(/\/+$/, "") }
     : undefined;
-  return { ...c, canaryProviders: c.CANARY_PROVIDERS?.split(",").map((s) => s.trim()).filter(Boolean), githubApp, webApp, billing };
+  if (Boolean(c.SHAPI_DOCS_URL) !== Boolean(c.SHAPI_DOCS_DIR)) throw new Error("set both SHAPI_DOCS_URL and SHAPI_DOCS_DIR, or neither");
+  const docs = c.SHAPI_DOCS_URL && c.SHAPI_DOCS_DIR ? { url: c.SHAPI_DOCS_URL, dir: c.SHAPI_DOCS_DIR } : undefined;
+  return { ...c, canaryProviders: c.CANARY_PROVIDERS?.split(",").map((s) => s.trim()).filter(Boolean), githubApp, webApp, billing, docs };
 }

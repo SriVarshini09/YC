@@ -4,11 +4,12 @@ import type { Config } from "./config";
 import { webhookRoutes } from "./github/webhook";
 import { stripeClient, type BillingDeps } from "./billing/stripe";
 import { stripeWebhookRoutes } from "./billing/webhook";
+import { docsSite } from "./docs";
 import { webRoutes } from "./web/routes";
 
 export interface AppDeps {
   db: Db;
-  config: Pick<Config, "LOG_LEVEL" | "GIT_SHA" | "NODE_ENV" | "githubApp" | "webApp" | "billing"> & Partial<Pick<Config, "ANTHROPIC_API_KEY">>;
+  config: Pick<Config, "LOG_LEVEL" | "GIT_SHA" | "NODE_ENV" | "githubApp" | "webApp" | "billing"> & Partial<Pick<Config, "docs">> & Partial<Pick<Config, "ANTHROPIC_API_KEY">>;
   /** Queue a stored webhook delivery for the worker. */
   enqueueWebhook?: (deliveryId: string) => Promise<void>;
   /** Queue a fix job on a repository's scan (a repository unpaused from the web app). */
@@ -24,6 +25,9 @@ export function buildApp({ db, config, enqueueWebhook, enqueueFix, fetch }: AppD
     trustProxy: true,
     bodyLimit: 5 * 1024 * 1024,
   });
+
+  // The docs site's own hostname first: its requests never reach the app's routes.
+  if (config.docs) docsSite(app, config.docs);
 
   // Liveness: the process is up. Never touches the database, so a database outage doesn't restart machines.
   app.get("/healthz", async () => ({ ok: true }));

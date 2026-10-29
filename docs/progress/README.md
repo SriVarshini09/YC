@@ -57,3 +57,4 @@ One line per task: task, summary file, PR, status.
 - PB-10 Stone and Ink website, with an accuracy pass: [summary](PB-10-clean-redesign.md) · PR: [#56](https://github.com/SriVarshini09/YC/pull/56) · merged
 - PB-10b web app in Stone and Ink: [summary](PB-10-clean-redesign.md#web-app-in-stone-and-ink) · PR: [#58](https://github.com/SriVarshini09/YC/pull/58) · merged
 - PB-11 scanner detection gap (URLs outside known clients, runtime hosts, possibly affected): [summary](PB-11-scanner-gap.md) · PR: [#60](https://github.com/SriVarshini09/YC/pull/60) · open
+- PB-12 docs site (shapi.dev) served from Fly by the web process: [summary](PB-12-docs-on-fly.md) · PR: [#62](https://github.com/SriVarshini09/YC/pull/62) · open
