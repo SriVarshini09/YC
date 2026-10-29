@@ -12,6 +12,7 @@ import {
 } from "@shapi/core";
 import { posix } from "node:path";
 import { Node, SyntaxKind, type ArrowFunction, type CallExpression, type FunctionExpression, type SourceFile } from "ts-morph";
+import { descendantsOfKind } from "./walk";
 
 export function emptySurface(): Surface {
   return { fields: [], statusCodes: [], checksOk: false, enums: [], headers: [], query: [], responseHeaders: [] };
@@ -87,7 +88,7 @@ export function extractFromFile(sf: SourceFile, file: string): FoundCall[] {
   const position = positionsOf(sf);
 
   const found: FoundCall[] = [];
-  for (const call of sf.getDescendantsOfKind(SyntaxKind.CallExpression)) {
+  for (const call of descendantsOfKind(sf, SyntaxKind.CallExpression)) {
     const hit = matchHttp(ctx, call) ?? matchSdk(ctx, call);
     if (!hit) continue;
     const { line, column } = position(call.getStart());
@@ -178,13 +179,13 @@ function collectImports(ctx: FileContext) {
     }
   }
   // TypeScript: import x = require("m");
-  for (const decl of ctx.sf.getDescendantsOfKind(SyntaxKind.ImportEqualsDeclaration)) {
+  for (const decl of descendantsOfKind(ctx.sf, SyntaxKind.ImportEqualsDeclaration)) {
     const ref = decl.getModuleReference();
     const arg = Node.isExternalModuleReference(ref) ? ref.getExpression() : undefined;
     if (arg && Node.isStringLiteral(arg)) ctx.imports.set(decl.getName(), { module: arg.getLiteralValue(), imported: "default" });
   }
   // CommonJS: const x = require("m"); const { a, b: c } = require("m"); const x = require("m").default;
-  for (const decl of ctx.sf.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
+  for (const decl of descendantsOfKind(ctx.sf, SyntaxKind.VariableDeclaration)) {
     const module = requiredModule(decl.getInitializer());
     if (!module) continue;
     const name = decl.getNameNode();
@@ -211,7 +212,7 @@ function requiredModule(node: Node | undefined): string | undefined {
 }
 
 function collectConsts(ctx: FileContext) {
-  for (const decl of ctx.sf.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
+  for (const decl of descendantsOfKind(ctx.sf, SyntaxKind.VariableDeclaration)) {
     const list = decl.getVariableStatement()?.getDeclarationKind();
     const init = decl.getInitializer();
     if (list === "const" && init && Node.isIdentifier(decl.getNameNode())) {
@@ -253,13 +254,13 @@ function collectClients(ctx: FileContext) {
     }
   };
 
-  for (const decl of ctx.sf.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
+  for (const decl of descendantsOfKind(ctx.sf, SyntaxKind.VariableDeclaration)) {
     if (Node.isIdentifier(decl.getNameNode())) bind(decl.getName(), decl.getInitializer());
   }
-  for (const prop of ctx.sf.getDescendantsOfKind(SyntaxKind.PropertyDeclaration)) {
+  for (const prop of descendantsOfKind(ctx.sf, SyntaxKind.PropertyDeclaration)) {
     bind(`this.${prop.getName()}`, prop.getInitializer());
   }
-  for (const bin of ctx.sf.getDescendantsOfKind(SyntaxKind.BinaryExpression)) {
+  for (const bin of descendantsOfKind(ctx.sf, SyntaxKind.BinaryExpression)) {
     if (bin.getOperatorToken().getKind() !== SyntaxKind.EqualsToken) continue;
     const left = bin.getLeft();
     if (Node.isPropertyAccessExpression(left) && left.getExpression().getKind() === SyntaxKind.ThisKeyword) {
@@ -856,7 +857,7 @@ export function looseUrlSites(sf: SourceFile, file: string, found: FoundCall[]):
     return false;
   };
   const candidates: { node: Node; host: string | null; path: string; query: NameValue[]; provider: string }[] = [];
-  for (const node of sf.getDescendants()) {
+  for (const node of stringNodes(sf)) {
     if (!Node.isStringLiteral(node) && !Node.isNoSubstitutionTemplateLiteral(node) && !Node.isTemplateExpression(node) && !isConcat(node)) continue;
     const parent = node.getParent();
     if (parent && (Node.isTemplateSpan(parent) || isConcat(parent) || Node.isImportDeclaration(parent) || Node.isExportDeclaration(parent))) continue;
@@ -906,6 +907,11 @@ export function looseUrlSites(sf: SourceFile, file: string, found: FoundCall[]):
     sites.push({ file, line, column, provider: c.provider, kind: "http", client: "url", method: null, host: c.host, endpoint: c.path, resolved: true, surface });
   }
   return sites;
+}
+
+/** The file's string literals, templates and binary expressions, in document order. */
+function stringNodes(sf: SourceFile): Node[] {
+  return descendantsOfKind(sf, SyntaxKind.StringLiteral, SyntaxKind.NoSubstitutionTemplateLiteral, SyntaxKind.TemplateExpression, SyntaxKind.BinaryExpression);
 }
 
 function isConcat(node: Node): boolean {
