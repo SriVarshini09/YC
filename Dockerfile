@@ -24,6 +24,9 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY . .
 # Rebuild native modules (better-sqlite3) for this platform, then build every package.
 RUN pnpm rebuild better-sqlite3 && pnpm -r build
+# The docs site (shapi.dev), served by the web process on its own hostname. There is no .git here, so pages
+# carry no "last updated" line.
+RUN pnpm --filter @shapi/site docs:build
 # A self-contained copy of the server with production dependencies only.
 RUN pnpm --filter @shapi/server deploy --prod --legacy /out
 
@@ -36,6 +39,7 @@ WORKDIR /app
 COPY --from=build /out ./
 COPY advisories ./advisories
 COPY fixtures/recordings ./recordings
+COPY --from=build /repo/site/.vitepress/dist ./docs
 USER node
 EXPOSE 8080
 CMD ["node", "dist/web.js"]
