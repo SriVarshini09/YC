@@ -80,6 +80,15 @@ describe("shapi fix", () => {
     expect(body).toContain("| Blast radius | 1 affected call site in this repo |");
   }, 120_000);
 
+  it("deletes its temporary copy of the repository (with its .env) once the repair is done, also on a dry run", async () => {
+    const dir = demo("cleanup");
+    const outcomes = await fix(dir, { advisory: "github-workflow-dispatch-204-to-200", db: path.join(tmp, "none.db") }, { log: () => {} });
+    const copy = outcomes[0]?.result?.sandbox;
+    expect(outcomes[0]?.result?.status).toBe("fixed");
+    expect(copy).toContain("shapi-repair-");
+    expect(existsSync(copy!)).toBe(false);
+  }, 120_000);
+
   it("refuses --pr without a GitHub repository", async () => {
     const { code, out } = await shapi(["fix", demo("no-remote"), "--pr"]);
     expect(code).toBe(2);

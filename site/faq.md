@@ -28,7 +28,7 @@ No. At most 2 new PRs per hour and 10 open per repository by default, one PR per
 
 ## Does SHAPI use AI to change my code?
 
-Not by default. Fixes come from deterministic recipes. Claude is used only when you opt in, and its change is kept only if the contract test passes.
+Not by default. Fixes come from deterministic recipes. Claude is used only when you opt in, and its change is kept only if the contract test passes and the code still type-checks.
 
 ## Is it open source?
 

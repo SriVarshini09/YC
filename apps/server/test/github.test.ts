@@ -5,7 +5,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createDb, migrateToLatest, withService, withTenant, type Db } from "@shapi/db";
 import { signWebhook } from "@shapi/github-app";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
-import { QUEUES, buildApp, githubClients, loadConfig, processDelivery, startWorker, sweepWebhooks, type GitHubClients } from "../src/index";
+import { QUEUES, buildApp, createQueues, githubClients, jobsQueued, loadConfig, prepareQueues, processDelivery, startSender, startWorker, sweepWebhooks, type GitHubClients } from "../src/index";
+import { sendWebhookOnce } from "../src/queue";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const SECRET = "webhook-secret";
@@ -137,6 +138,16 @@ describe("POST /github/webhook", () => {
     await app.close();
   });
 
+  it("stores a payload with a NUL character, which jsonb would refuse", async () => {
+    const app = buildApp({ db, config, enqueueWebhook: async () => {} });
+    const nul = JSON.stringify({ action: "created", installation: { id: 77 }, head_commit: { message: "a\u0000b" } });
+    expect(nul).toContain("\\u0000");
+    expect((await send(app, nul, signed("d3", nul))).statusCode).toBe(202);
+    const row = await db.selectFrom("webhook_deliveries").select("payload").where("delivery_id", "=", "d3").executeTakeFirstOrThrow();
+    expect(row.payload).toEqual({ action: "created", installation: { id: 77 }, head_commit: { message: "a�b" } });
+    await app.close();
+  });
+
   it("still accepts and stores the delivery when queueing fails (the sweeper queues it)", async () => {
     const app = buildApp({ db, config, enqueueWebhook: async () => Promise.reject(new Error("queue down")) });
     expect((await send(app, body, signed("d2"))).statusCode).toBe(202);
@@ -149,8 +160,14 @@ describe("webhook events", () => {
   it("installation created: creates the account and its repositories; a second run is a no-op", async () => {
     const gh = fakeGitHub();
     const id = await deliver("installation", { action: "created", installation: installation(9001) });
-    expect((await processDelivery({ db, github: gh.clients }, id)).outcome).toMatch(/synced with 2 repositories/);
-    expect((await processDelivery({ db, github: gh.clients }, id)).outcome).toBe("already processed");
+    const first = await processDelivery({ db, github: gh.clients }, id);
+    expect(first.outcome).toMatch(/synced with 2 repositories/);
+    // Until the worker has queued the first scans, a retried job gets them again (a send that failed after the commit).
+    const retried = await processDelivery({ db, github: gh.clients }, id);
+    expect(retried).toMatchObject({ outcome: "already processed, jobs not queued yet", scans: first.scans });
+    expect(first.scans).toHaveLength(2);
+    await jobsQueued(db, id);
+    expect(await processDelivery({ db, github: gh.clients }, id)).toMatchObject({ outcome: "already processed", scans: [], fixes: [] });
 
     const repos = await withService(db, (tx) => tx.selectFrom("repositories").select(["full_name", "default_branch", "private", "enabled"]).orderBy("full_name").execute());
     expect(repos).toEqual([
@@ -185,6 +202,47 @@ describe("webhook events", () => {
       { full_name: "acme/new", enabled: false },
       { full_name: "acme/web", enabled: true },
     ]);
+  });
+
+  it("archiving disables a repository and unarchiving enables it again, from a resync or the repository event", async () => {
+    const gh = fakeGitHub();
+    await processDelivery({ db, github: gh.clients }, await deliver("installation", { action: "created", installation: installation(9007) }));
+    const enabled = async () => (await withService(db, (tx) => tx.selectFrom("repositories").select("enabled").where("github_repo_id", "=", "501").executeTakeFirstOrThrow())).enabled;
+    gh.state.repos[0]!.archived = true;
+    await processDelivery({ db, github: gh.clients }, await deliver("installation_repositories", { action: "added", installation: installation(9007) }));
+    expect(await enabled()).toBe(false);
+    gh.state.repos[0]!.archived = false;
+    await processDelivery({ db, github: gh.clients }, await deliver("installation_repositories", { action: "added", installation: installation(9007) }));
+    expect(await enabled()).toBe(true);
+
+    const repository = { id: 501, full_name: "acme/api", default_branch: "main", private: true };
+    expect((await processDelivery({ db, github: gh.clients }, await deliver("repository", { action: "archived", installation: installation(9007), repository: { ...repository, archived: true } }))).outcome).toBe("repository archived");
+    expect(await enabled()).toBe(false);
+    const unarchived = await processDelivery({ db, github: gh.clients }, await deliver("repository", { action: "unarchived", installation: installation(9007), repository }));
+    expect(unarchived.outcome).toBe("repository unarchived");
+    expect(unarchived.scans).toHaveLength(1);
+    expect(await enabled()).toBe(true);
+  });
+
+  it("a repository moved to another installed account takes its scans, findings and fix PRs along", async () => {
+    const gh = fakeGitHub();
+    await processDelivery({ db, github: gh.clients }, await deliver("installation", { action: "created", installation: installation(9008, "old-owner") }));
+    const repo = await withService(db, (tx) => tx.selectFrom("repositories").select(["id", "account_id"]).where("github_repo_id", "=", "501").executeTakeFirstOrThrow());
+    const scan = await withService(db, (tx) => tx.insertInto("scans").values({ account_id: repo.account_id, repository_id: repo.id, sha: "a".repeat(40), status: "succeeded" }).returning("id").executeTakeFirstOrThrow());
+    await withService(db, async (tx) => {
+      await tx.insertInto("findings").values({ account_id: repo.account_id, repository_id: repo.id, scan_id: scan.id, advisory_id: "x", kind: "affected", call_site: "{}", reasons: "[]" }).execute();
+      await tx.insertInto("fix_prs").values({ account_id: repo.account_id, repository_id: repo.id, advisory_id: "x", branch: "shapi/x", state: "open", updated_at: new Date() }).execute();
+    });
+
+    gh.state.repos = [gh.state.repos[0]!];
+    await processDelivery({ db, github: gh.clients }, await deliver("installation", { action: "created", installation: installation(9009, "new-owner") }));
+    const moved = await withService(db, (tx) => tx.selectFrom("repositories").select("account_id").where("id", "=", repo.id).executeTakeFirstOrThrow());
+    expect(moved.account_id).not.toBe(repo.account_id);
+    for (const table of ["scans", "findings", "fix_prs"] as const) {
+      const owners = await withService(db, (tx) => tx.selectFrom(table).select("account_id").where("repository_id", "=", repo.id).execute());
+      expect(owners.map((o) => o.account_id)).toEqual([moved.account_id]);
+    }
+    expect(await withTenant(db, repo.account_id, (tx) => tx.selectFrom("fix_prs").selectAll().execute())).toEqual([]);
   });
 
   it("push to the default branch queues one scan per commit; other pushes are ignored", async () => {
@@ -276,10 +334,73 @@ describe("webhook sweeper", () => {
     expect(queued).toEqual(["stuck"]);
     expect(gh.calls).toContain("POST /app/hook/deliveries/11/attempts");
     expect(gh.calls.filter((c) => c.endsWith("/attempts"))).toHaveLength(1);
-    expect(result).toEqual({ requeued: 1, redelivered: 1, givenUp: 0, failed: 1, pruned: 1 });
+    expect(result).toEqual({ requeued: 1, redelivered: 1, givenUp: 0, redeliveryFailed: 0, failed: 1, pruned: 1 });
     const left = await db.selectFrom("webhook_deliveries").select("delivery_id").orderBy("delivery_id").execute();
     expect(left.map((r) => r.delivery_id)).toEqual(["errored", "fresh", "recent", "stuck"]);
   });
+
+  it("retries failed deliveries hourly for a day, and processed ones whose jobs were never queued", async () => {
+    const now = new Date();
+    const ago = (minutes: number) => new Date(now.getTime() - minutes * 60_000);
+    const row = (delivery_id: string, extra: object) => ({ delivery_id, event: "push", action: null, installation_id: null, payload: "{}", ...extra });
+    await owner
+      .insertInto("webhook_deliveries")
+      .values([
+        row("failed-an-hour-ago", { received_at: ago(180), error: "GitHub is down", errored_at: ago(61) }),
+        row("failed-just-now", { received_at: ago(180), error: "GitHub is down", errored_at: ago(5) }),
+        row("failed-two-days-ago", { received_at: ago(2 * 1440), error: "GitHub is down", errored_at: ago(2 * 1440) }),
+        row("jobs-not-queued", { received_at: ago(10), processed_at: ago(10), jobs: JSON.stringify({ scans: [{ repositoryId: "1" }], fixes: [] }) }),
+        row("done", { received_at: ago(10), processed_at: ago(10) }),
+      ])
+      .execute();
+    const queued: string[] = [];
+    const result = await sweepWebhooks({ db, enqueue: async (id) => void queued.push(id), retentionDays: 14, now });
+    expect(queued.sort()).toEqual(["failed-an-hour-ago", "jobs-not-queued"]);
+    expect(result.failed).toBe(3);
+  });
+
+  it("one redelivery GitHub refuses does not stop the others or the pruning", async () => {
+    const gh = fakeGitHub();
+    const now = new Date();
+    const ago = (minutes: number) => new Date(now.getTime() - minutes * 60_000);
+    await owner.insertInto("webhook_deliveries").values({ delivery_id: "old", event: "push", action: null, installation_id: null, payload: "{}", received_at: ago(30 * 1440), processed_at: ago(30 * 1440) }).execute();
+    gh.state.deliveries = [
+      { id: 21, guid: "missed-1", status_code: 0, delivered_at: ago(30).toISOString(), redelivery: false, event: "push" },
+      { id: 22, guid: "missed-2", status_code: 0, delivered_at: ago(30).toISOString(), redelivery: false, event: "push" },
+    ];
+    const fetch = (async (input: string | URL | Request, init?: RequestInit) =>
+      String(input).endsWith("/app/hook/deliveries/21/attempts") ? json(422, { message: "Validation Failed" }) : gh.fetch(input, init)) as typeof globalThis.fetch;
+    const github = githubClients(githubApp, { fetch, resilient: false }) as GitHubClients;
+    const result = await sweepWebhooks({ db, github, enqueue: async () => {}, retentionDays: 14, now });
+    expect(result).toMatchObject({ redelivered: 1, redeliveryFailed: 1, pruned: 1 });
+    expect(gh.calls).toContain("POST /app/hook/deliveries/22/attempts");
+  });
+});
+
+describe("queues", () => {
+  it("applies changed options to an existing queue, refuses a changed policy, and queues a delivery once while it waits", async () => {
+    await prepareQueues(pg.url);
+    const { boss } = await startSender(pg.url, { info: () => {}, error: () => {} });
+    try {
+      await boss.updateQueue(QUEUES.repoScan, { retryLimit: 9 });
+      await createQueues(boss);
+      expect((await boss.getQueue(QUEUES.repoScan))!.retryLimit).toBe(2);
+
+      await boss.deleteQueue(QUEUES.fixRetry);
+      await boss.createQueue(QUEUES.fixRetry, { policy: "standard" });
+      await expect(createQueues(boss)).rejects.toThrow(/policy cannot change/);
+      await boss.deleteQueue(QUEUES.fixRetry);
+      await createQueues(boss);
+
+      const id = randomUUID();
+      await sendWebhookOnce(boss, id);
+      await sendWebhookOnce(boss, id);
+      expect(await boss.findJobs(QUEUES.githubWebhook, { key: id })).toHaveLength(1);
+      await boss.deleteAllJobs(QUEUES.githubWebhook);
+    } finally {
+      await boss.stop({ graceful: false, timeout: 5_000 });
+    }
+  }, 60_000);
 });
 
 describe("worker", () => {

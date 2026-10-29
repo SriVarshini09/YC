@@ -43,7 +43,7 @@ class Collector {
 /**
  * Fill in the response side of a call site's surface by following the awaited
  * result through the same file: fields read, status codes and `ok` checked,
- * string comparisons on fields, response headers read.
+ * literal comparisons on fields, response headers read.
  */
 export function addResponseSurface(found: FoundCall): void {
   const c = new Collector();
@@ -228,7 +228,11 @@ function body(path: string[], top: Node, c: Collector, compare: boolean, env: En
   if (fieldPath.length === 0) return;
   const field = fieldPath.join(".").replace(/\.\[\]/g, "[]");
   c.fields.add(field);
-  if (compare && cut < 0) for (const s of comparedLiterals(top).strs) c.addEnum(field, s);
+  if (compare && cut < 0) {
+    // Numeric codes count as enum values too (Twilio's error_code === 30036), as their decimal string.
+    const { strs, nums } = comparedLiterals(top);
+    for (const v of [...strs, ...nums.map(String)]) c.addEnum(field, v);
+  }
   if (depth >= MAX_DEPTH) return;
   const items: Location = { space: "body", path: [...fieldPath, "[]"] };
 

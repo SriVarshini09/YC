@@ -42,8 +42,7 @@
         },
         "path": {
           "type": "string",
-          "format": "starts_with",
-          "pattern": "^\\/.*"
+          "pattern": "^\\/"
         },
         "hosts": {
           "type": "array",
@@ -55,8 +54,7 @@
       "required": [
         "method",
         "path"
-      ],
-      "additionalProperties": false
+      ]
     },
     "changeClass": {
       "type": "string",
@@ -102,12 +100,18 @@
             "properties": {
               "field": {
                 "type": "string"
+              },
+              "values": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "required": [
               "field"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "headers": {
@@ -127,8 +131,7 @@
             },
             "required": [
               "name"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "query": {
@@ -151,8 +154,7 @@
             },
             "required": [
               "name"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "body": {
@@ -174,15 +176,91 @@
             },
             "required": [
               "field"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "any": {
           "type": "boolean"
         }
       },
-      "additionalProperties": false
+      "anyOf": [
+        {
+          "required": [
+            "any"
+          ],
+          "properties": {
+            "any": {
+              "const": true
+            }
+          }
+        },
+        {
+          "required": [
+            "statusCodes"
+          ],
+          "properties": {
+            "statusCodes": {
+              "type": "array",
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "required": [
+            "fields"
+          ],
+          "properties": {
+            "fields": {
+              "type": "array",
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "required": [
+            "enums"
+          ],
+          "properties": {
+            "enums": {
+              "type": "array",
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "required": [
+            "headers"
+          ],
+          "properties": {
+            "headers": {
+              "type": "array",
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "required": [
+            "query"
+          ],
+          "properties": {
+            "query": {
+              "type": "array",
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "required": [
+            "body"
+          ],
+          "properties": {
+            "body": {
+              "type": "array",
+              "minItems": 1
+            }
+          }
+        }
+      ]
     },
     "firstObserved": {
       "anyOf": [
@@ -221,8 +299,7 @@
           "required": [
             "date",
             "url"
-          ],
-          "additionalProperties": false
+          ]
         },
         {
           "type": "null"
@@ -268,8 +345,7 @@
           "required": [
             "from",
             "to"
-          ],
-          "additionalProperties": false
+          ]
         },
         "query": {
           "type": "object",
@@ -285,8 +361,7 @@
           "required": [
             "name",
             "value"
-          ],
-          "additionalProperties": false
+          ]
         },
         "header": {
           "type": "object",
@@ -302,8 +377,7 @@
           "required": [
             "name",
             "value"
-          ],
-          "additionalProperties": false
+          ]
         },
         "fields": {
           "type": "array",
@@ -322,8 +396,7 @@
             "required": [
               "from",
               "to"
-            ],
-            "additionalProperties": false
+            ]
           }
         },
         "enums": {
@@ -351,20 +424,44 @@
                   "required": [
                     "from",
                     "to"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             },
             "required": [
               "field",
               "values"
-            ],
-            "additionalProperties": false
+            ]
           }
         }
       },
-      "additionalProperties": false
+      "anyOf": [
+        {
+          "required": [
+            "path"
+          ]
+        },
+        {
+          "required": [
+            "query"
+          ]
+        },
+        {
+          "required": [
+            "header"
+          ]
+        },
+        {
+          "required": [
+            "fields"
+          ]
+        },
+        {
+          "required": [
+            "enums"
+          ]
+        }
+      ]
     },
     "sources": {
       "minItems": 1,
@@ -408,8 +505,7 @@
             "observedAt",
             "status",
             "shapeHash"
-          ],
-          "additionalProperties": false
+          ]
         },
         "after": {
           "type": "object",
@@ -432,8 +528,7 @@
             "observedAt",
             "status",
             "shapeHash"
-          ],
-          "additionalProperties": false
+          ]
         },
         "changes": {
           "type": "array",
@@ -447,8 +542,7 @@
         "before",
         "after",
         "changes"
-      ],
-      "additionalProperties": false
+      ]
     }
   },
   "required": [
@@ -466,6 +560,5 @@
     "migrationNote",
     "sources",
     "status"
-  ],
-  "additionalProperties": false
+  ]
 }

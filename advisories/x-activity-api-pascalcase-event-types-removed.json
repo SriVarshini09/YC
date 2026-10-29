@@ -12,6 +12,17 @@
     "enums": [
       {
         "field": "event_type"
+      },
+      {
+        "field": "data.event_type"
+      },
+      {
+        "field": "data[].event_type"
+      }
+    ],
+    "body": [
+      {
+        "field": "event_type"
       }
     ]
   },

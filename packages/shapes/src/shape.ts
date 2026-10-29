@@ -11,11 +11,17 @@ export const VALUE_CLASSES = [
 ] as const;
 export type ValueClass = (typeof VALUE_CLASSES)[number];
 
+/** Deeper values are recorded by type only: their contents are not walked (a deeply nested body would overflow the stack). */
+export const MAX_DEPTH = 64;
+
 /** Above this many distinct token values a field is free text, not an enum. */
 export const MAX_ENUM_VALUES = 50;
 
 export const FieldShapeSchema = z.object({
-  /** Field path, dot-separated, array items as "[]". Omitted when the shape is redacted. */
+  /**
+   * Field path, dot-separated, array items as "[]"; a key holding ".", "[" or "\\" has them escaped
+   * with a backslash (see pathSegments). Omitted when the shape is redacted.
+   */
   path: z.string().optional(),
   /** HMAC of the path with the provider salt; stable across observations. */
   pathHash: z.string(),
@@ -107,7 +113,7 @@ export function inferShape(res: RawResponse, opts: InferOptions): ResponseShape 
     }
     if (isJson) {
       const acc = new Map<string, Acc>();
-      walk(parsed, "", acc);
+      walk(parsed, "", acc, 0);
       body = { kind: "json", rootType: typeOf(parsed), fields: finish(acc, opts.salt) };
     } else {
       body = { kind: "text", fields: [] };
@@ -132,13 +138,48 @@ interface Acc {
   textValues: number;
 }
 
-function walk(value: unknown, path: string, acc: Map<string, Acc>): void {
+function walk(value: unknown, path: string, acc: Map<string, Acc>, depth: number): void {
   if (path !== "") record(value, path, acc);
+  if (depth >= MAX_DEPTH) return;
   if (Array.isArray(value)) {
-    for (const item of value) walk(item, `${path}[]`, acc);
+    for (const item of value) walk(item, `${path}[]`, acc, depth + 1);
   } else if (value !== null && typeof value === "object") {
-    for (const [key, child] of Object.entries(value)) walk(child, path === "" ? key : `${path}.${key}`, acc);
+    for (const [key, child] of Object.entries(value)) walk(child, path === "" ? escapeKey(key) : `${path}.${escapeKey(key)}`, acc, depth + 1);
   }
+}
+
+/** A key as one path segment: `{"a.b": 1}` is "a\.b", so it never reads as `{a: {b: 1}}`. */
+export function escapeKey(key: string): string {
+  return key.replace(/[\\.[]/g, "\\$&");
+}
+
+/** "a.b[].c" → ["a", "b", "[]", "c"]; "[].id" → ["[]", "id"]; "a\.b" → ["a.b"]. Keys come back unescaped. */
+export function pathSegments(path: string): string[] {
+  const out: string[] = [];
+  let key = "";
+  let pending = false;
+  const flush = () => {
+    if (pending) out.push(key);
+    key = "";
+    pending = false;
+  };
+  for (let i = 0; i < path.length; i++) {
+    const c = path[i]!;
+    if (c === "\\" && i + 1 < path.length) {
+      key += path[++i];
+      pending = true;
+    } else if (c === ".") flush();
+    else if (c === "[" && path[i + 1] === "]") {
+      flush();
+      out.push("[]");
+      i++;
+    } else {
+      key += c;
+      pending = true;
+    }
+  }
+  flush();
+  return out;
 }
 
 function record(value: unknown, path: string, acc: Map<string, Acc>): void {
@@ -205,7 +246,8 @@ export function classify(value: unknown): ValueClass | undefined {
 export function shapeHash(shape: ResponseShape): string {
   const structural = {
     status: shape.status,
-    headers: shape.headers,
+    // Sorted here too: a shape read back from Postgres JSONB can have its keys in another order.
+    headers: Object.fromEntries(Object.entries(shape.headers).sort(([a], [b]) => cmp(a, b))),
     headerNames: shape.headerNames,
     body: {
       kind: shape.body.kind,

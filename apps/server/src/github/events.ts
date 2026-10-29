@@ -61,7 +61,8 @@ export interface ProcessResult {
 /**
  * Handle one stored webhook delivery. The delivery row is locked for the whole transaction, so a
  * duplicate job waits and then sees it already processed; a crash rolls everything back and the
- * job (or the sweeper) runs it again.
+ * job (or the sweeper) runs it again. The scans and fix jobs it asks for are stored with it until
+ * the worker has queued them (see jobsQueued), so a retry after a failed send still queues them.
  */
 export async function processDelivery(deps: EventDeps, deliveryId: string): Promise<ProcessResult> {
   try {
@@ -69,18 +70,27 @@ export async function processDelivery(deps: EventDeps, deliveryId: string): Prom
       const row = await tx.selectFrom("webhook_deliveries").selectAll().where("delivery_id", "=", deliveryId).forUpdate().executeTakeFirst();
       if (!row) return { deliveryId, event: "unknown", action: null, outcome: "not found", scans: [], fixes: [] };
       const result = { deliveryId, event: row.event, action: row.action };
-      if (row.processed_at) return { ...result, outcome: "already processed", scans: [], fixes: [] };
+      if (row.processed_at) {
+        const jobs = row.jobs as { scans: ScanRequest[]; fixes: FixRequest[] } | null;
+        return { ...result, outcome: jobs ? "already processed, jobs not queued yet" : "already processed", scans: jobs?.scans ?? [], fixes: jobs?.fixes ?? [] };
+      }
       const scans: ScanRequest[] = [];
       const fixes: FixRequest[] = [];
       const outcome = await handleEvent(tx, deps.github, row.event, row.payload as WebhookPayload, scans, fixes, deps.billing);
-      await tx.updateTable("webhook_deliveries").set({ processed_at: new Date(), error: null }).where("delivery_id", "=", deliveryId).execute();
+      const jobs = scans.length || fixes.length ? JSON.stringify({ scans, fixes }) : null;
+      await tx.updateTable("webhook_deliveries").set({ processed_at: new Date(), error: null, errored_at: null, jobs }).where("delivery_id", "=", deliveryId).execute();
       return { ...result, outcome, scans, fixes };
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    await deps.db.updateTable("webhook_deliveries").set({ error: message.slice(0, 2000) }).where("delivery_id", "=", deliveryId).execute();
+    await deps.db.updateTable("webhook_deliveries").set({ error: message.slice(0, 2000), errored_at: new Date() }).where("delivery_id", "=", deliveryId).execute();
     throw err;
   }
+}
+
+/** The worker queued every job a processed delivery asked for. */
+export async function jobsQueued(db: Db, deliveryId: string): Promise<void> {
+  await db.updateTable("webhook_deliveries").set({ jobs: null }).where("delivery_id", "=", deliveryId).execute();
 }
 
 async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload: WebhookPayload, scans: ScanRequest[], fixes: FixRequest[], billing: EventDeps["billing"]): Promise<string> {
@@ -129,6 +139,8 @@ async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload
       return handlePush(tx, github, payload, scans);
     case "pull_request":
       return handlePullRequest(tx, payload);
+    case "repository":
+      return handleRepository(tx, payload, scans);
     case "issues":
       return handleIssue(tx, payload, fixes);
     default:
@@ -180,7 +192,15 @@ async function syncRepositories(tx: Tx, github: GitHubClients, accountId: string
 }
 
 async function upsertRepository(tx: Tx, accountId: string, repo: InstallationRepository): Promise<{ id: string; inserted: boolean }> {
-  const values = { account_id: accountId, full_name: repo.full_name, default_branch: repo.default_branch, private: repo.private };
+  // Archived repositories are read-only on GitHub: disabled, and enabled again once unarchived (when the payload says).
+  const values = {
+    account_id: accountId,
+    full_name: repo.full_name,
+    default_branch: repo.default_branch,
+    private: repo.private,
+    ...(typeof repo.archived === "boolean" ? { enabled: !repo.archived } : {}),
+  };
+  const before = await tx.selectFrom("repositories").select("account_id").where("github_repo_id", "=", String(repo.id)).forUpdate().executeTakeFirst();
   const row = await tx
     .insertInto("repositories")
     .values({ github_repo_id: repo.id, enabled: !repo.archived, ...values })
@@ -188,7 +208,23 @@ async function upsertRepository(tx: Tx, accountId: string, repo: InstallationRep
     // xmax is 0 only on a freshly inserted row: tells a new repository from an updated one.
     .returning(["id", sql<boolean>`xmax = 0`.as("inserted")])
     .executeTakeFirstOrThrow();
+  // Transferred to another installed account: its history moves too, so row-level security shows it to the new owner only.
+  if (before && before.account_id !== accountId) {
+    for (const table of ["scans", "findings", "fix_prs"] as const) {
+      await tx.updateTable(table).set({ account_id: accountId }).where("repository_id", "=", row.id).execute();
+    }
+  }
   return { id: row.id, inserted: row.inserted };
+}
+
+/** A pending (queued) scan of one commit, unless one is pending already: the scans_pending unique index decides races. */
+export async function insertPendingScan(tx: Tx, scan: { account_id: string; repository_id: string; sha: string }): Promise<{ id: string } | undefined> {
+  return tx
+    .insertInto("scans")
+    .values({ ...scan, status: "queued" })
+    .onConflict((oc) => oc.columns(["repository_id", "sha"]).where(sql<boolean>`status in ('queued', 'running')`).doNothing())
+    .returning("id")
+    .executeTakeFirst();
 }
 
 /** A push to a repo's default branch queues a scan of the new commit. */
@@ -214,15 +250,22 @@ async function handlePush(tx: Tx, github: GitHubClients, payload: WebhookPayload
     .where("status", "in", ["queued", "running"])
     .executeTakeFirst();
   if (pending) return `scan ${pending.id} already queued`;
-  const scan = await tx
-    .insertInto("scans")
-    .values({ account_id: accountId, repository_id: repositoryId, sha: after, status: "queued" })
-    .returning("id")
-    .executeTakeFirstOrThrow();
+  const scan = await insertPendingScan(tx, { account_id: accountId, repository_id: repositoryId, sha: after });
+  if (!scan) return "scan already queued";
   // The push scans this commit: a first scan the same delivery asked for (lost install event) is not needed.
   const others = scans.filter((s) => !("repositoryId" in s && s.repositoryId === repositoryId));
   scans.splice(0, scans.length, ...others, { scanId: scan.id });
   return `scan ${scan.id} queued`;
+}
+
+/** An archived repository is read-only on GitHub: SHAPI stops on it, and scans it again once it is unarchived. */
+async function handleRepository(tx: Tx, payload: WebhookPayload, scans: ScanRequest[]): Promise<string> {
+  if (!payload.repository || (payload.action !== "archived" && payload.action !== "unarchived")) return `ignored: repository.${payload.action}`;
+  const enabled = payload.action === "unarchived";
+  const row = await tx.updateTable("repositories").set({ enabled }).where("github_repo_id", "=", String(payload.repository.id)).returning("id").executeTakeFirst();
+  if (!row) return "ignored: unknown repository";
+  if (enabled) scans.push({ repositoryId: row.id });
+  return `repository ${payload.action}`;
 }
 
 /** Keep SHAPI's record of its fix PRs current: merged, closed, reopened, or stopped by label. */
@@ -270,13 +313,17 @@ async function handleIssue(tx: Tx, payload: WebhookPayload, fixes: FixRequest[])
     .executeTakeFirst();
   if (!repo || repo.dashboard_issue !== issue.number || !isDashboard(issue.body)) return "ignored: not the SHAPI dashboard";
   const intents = parseDashboard(issue.body);
-  const settings = { ...repo.settings, paused: intents.paused, createNow: [...intents.createNow], retry: [...intents.retry] };
-  await tx.updateTable("repositories").set({ settings: JSON.stringify(settings) }).where("id", "=", repo.id).execute();
+  const settings = { paused: intents.paused, createNow: [...intents.createNow], retry: [...intents.retry] };
+  // Only the dashboard's keys: a pause set from the web app meanwhile stays.
+  await tx.updateTable("repositories").set({ settings: mergeSettings(settings) }).where("id", "=", repo.id).execute();
   const unpaused = (repo.settings as { paused?: boolean }).paused === true && !intents.paused;
   const scanId = settings.createNow.length || settings.retry.length || unpaused ? await latestScanId(tx, repo.id) : undefined;
   if (scanId) fixes.push({ scanId, repositoryId: repo.id });
   return `dashboard saved (paused: ${settings.paused}, open now: ${settings.createNow.length}, retry: ${settings.retry.length})${scanId ? ", fix job queued" : ""}`;
 }
+
+/** Set some keys of repositories.settings in one statement, keeping the others as they are now (not as read earlier). */
+export const mergeSettings = (keys: Record<string, unknown>) => sql<string>`repositories.settings || ${JSON.stringify(keys)}::jsonb`;
 
 /** The repository's latest successful scan: where a fix job runs when a maintainer asks for one. */
 export async function latestScanId(tx: Tx, repositoryId: string): Promise<string | undefined> {

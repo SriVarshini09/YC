@@ -27,7 +27,7 @@ Repairs affected call sites test-first. Without `--write` or `--pr` it only repo
 | `--write` | Write the fix and its contract test into the repository. Not with `--repo`: the clone is temporary. |
 | `--pr` | Open a pull request with the fix and the contract test. Uses `GITHUB_TOKEN`, `GH_TOKEN` or your `gh` login. From a local checkout, a changed file must match the one on GitHub's default branch (pull first), so the PR never reverts newer commits or publishes local edits. |
 | `--repo <url>` | Shallow-clone a GitHub repository and fix it; with `--pr` the PR goes to that repository. |
-| `--llm` | When no recipe fixes a call site, ask Claude (needs `ANTHROPIC_API_KEY`). The change is still kept only if the contract test passes. |
+| `--llm` | When no recipe fixes a call site, ask Claude (needs `ANTHROPIC_API_KEY`). The change is still kept only if the contract test passes and the code still type-checks. At most 20 calls per run (`SHAPI_LLM_CALLS_PER_JOB`). |
 | `--advisories <dir>` | Use this advisory folder. |
 | `--recordings <dir>` | Recorded before/after responses (default: the bundled recordings). |
 | `--db <file>` | A shape store with canary observations, checked before the recordings. Default: `.shapi/shapes.db`. |

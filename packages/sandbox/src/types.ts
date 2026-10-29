@@ -40,13 +40,21 @@ export interface Sandbox {
   /** Run a program with arguments (no shell expansion of the arguments). */
   exec(command: string, args: string[], opts?: ExecOptions): Promise<ExecResult>;
   setNetwork(mode: NetworkMode): Promise<void>;
+  /**
+   * Keep the sandbox alive for at least `ms` more. Throws instead when that would take it past its
+   * maximum lifetime, so a job that outgrows one sandbox stops with a clear error rather than
+   * failing on a machine that was destroyed mid-command.
+   */
+  extend(ms: number): Promise<void>;
   /** Destroy the sandbox and everything in it. Safe to call twice. */
   close(): Promise<void>;
 }
 
 export interface SandboxOptions {
-  /** Hard limit on the sandbox's lifetime; it is destroyed after this even if close() is never called. */
+  /** Initial lifetime (default 15 minutes); the sandbox is destroyed after it even if close() is never called. extend() moves it. */
   lifetimeMs?: number;
+  /** How far extend() may move the lifetime, from creation (default MAX_SANDBOX_LIFETIME_MS). */
+  maxLifetimeMs?: number;
   network?: NetworkMode;
   /** Non-secret labels for finding the sandbox in the provider's dashboard (for example the job id). */
   labels?: Record<string, string>;
@@ -55,6 +63,28 @@ export interface SandboxOptions {
 export interface SandboxProvider {
   readonly name: "e2b" | "local";
   create(opts?: SandboxOptions): Promise<Sandbox>;
+}
+
+/** The lifetime a sandbox starts with. */
+export const DEFAULT_SANDBOX_LIFETIME_MS = 15 * 60_000;
+/** The most extend() allows, from creation: an hour, which is also E2B's limit on its Hobby plan. */
+export const MAX_SANDBOX_LIFETIME_MS = 60 * 60_000;
+
+/** Tracks a sandbox's deadline for extend(): `set(ms)` applies a new remaining lifetime. */
+export function lifetime(o: SandboxOptions, set: (ms: number) => Promise<void> | void): (ms: number) => Promise<void> {
+  const created = Date.now();
+  const max = o.maxLifetimeMs ?? MAX_SANDBOX_LIFETIME_MS;
+  let deadline = created + (o.lifetimeMs ?? DEFAULT_SANDBOX_LIFETIME_MS);
+  return async (ms) => {
+    const now = Date.now();
+    const want = now + ms;
+    if (want <= deadline) return;
+    if (want > created + max) {
+      throw new Error(`the sandbox reached its ${Math.round(max / 60_000)}-minute lifetime limit: the job needs more time than one sandbox allows`);
+    }
+    await set(want - now);
+    deadline = want;
+  };
 }
 
 /** Hosts reachable in "registry" mode: npm, Yarn, and the package-manager downloads Corepack makes. */

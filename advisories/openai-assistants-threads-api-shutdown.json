@@ -1,0 +1,27 @@
+{
+  "id": "openai-assistants-threads-api-shutdown",
+  "provider": "openai",
+  "title": "Assistants API threads, messages and runs removed on 2026-08-26",
+  "summary": "OpenAI removed the Assistants API on 2026-08-26, one year after its 2025-08-26 deprecation notice, including the threads, messages and runs endpoints that go with it (/v1/threads/**). Calls to them no longer work. The replacement is the Responses API plus the Conversations API. The assistants endpoints themselves are covered by openai-assistants-api-shutdown.",
+  "endpoint": {
+    "method": "*",
+    "path": "/v1/threads/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2025-08-26",
+    "url": "https://developers.openai.com/api/docs/deprecations"
+  },
+  "effectiveDate": "2026-08-26",
+  "severity": "critical",
+  "migrationNote": "Move assistants to prompts (configuration created in the dashboard), threads to Conversations, and runs to Responses (send input items or a conversation id to the Responses API), and run the tool-call loop in your own code. Thread messages can no longer be fetched from the API, so read history from your own stored copy.",
+  "sources": [
+    "https://developers.openai.com/api/docs/deprecations",
+    "https://developers.openai.com/api/docs/assistants/migration"
+  ],
+  "status": "verified"
+}

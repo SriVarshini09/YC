@@ -164,7 +164,7 @@ export async function upsertAdvisories(db: Db, advisories: Advisory[], opts: { r
   return written;
 }
 
-/** Delete the advisories that came from `source` and are not in `keep`; returns how many were removed. */
+/** Delete the advisories that came from `source` and are not in `keep`; returns the removed ids, sorted. */
 export async function removeAdvisoriesNotIn(db: Db, source: string, keep: string[]): Promise<string[]> {
   if (!keep.length) throw new Error("refusing to remove every advisory from a source");
   const rows = await db.deleteFrom("advisories").where("source", "=", source).where("id", "not in", keep).returning("id").execute();

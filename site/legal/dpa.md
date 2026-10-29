@@ -48,7 +48,7 @@ The [security](/security) page describes these in detail.
 
 - **Access to code:** a separate installation token for each job, limited to one repository with read-only contents, expiring within an hour.
 - **No stored source:** code is processed in a temporary folder or sandbox and deleted when the job ends. Only the diff of each proposed fix is kept.
-- **Sandboxing:** dependency installs and tests run in a fresh Firecracker microVM for each job. The network is limited to package registries during the install, where install scripts run, and switched off before the customer's code or tests run. The VM holds no credentials and is destroyed within 15 minutes.
+- **Sandboxing:** dependency installs and tests run in a fresh Firecracker microVM for each job. The network is limited to package registries during the install, where install scripts run, and switched off before the customer's code or tests run. The VM holds no credentials and is destroyed after the job, within 60 minutes at most.
 - **Separation between customers:** row-level security in Postgres keyed to each account, which the application's database role can't bypass.
 - **Authentication:** GitHub sign-in. No GitHub user token is kept. Session cookies are signed and HttpOnly, and only their SHA-256 hash is stored. Sessions expire after 8 hours.
 - **Integrity:** webhook signatures are verified with HMAC-SHA256. Web pages run no JavaScript and use a strict Content Security Policy.
