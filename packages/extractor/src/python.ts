@@ -1,13 +1,14 @@
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { HTTP_METHODS, getProvider, providerForHost, providerForPythonModule, type CallSite, type HttpMethod, type NameValue, type Provider, type Surface } from "@shapi/core";
+import { HTTP_METHODS, getProvider, providerForPythonModule, type CallSite, type HttpMethod, type NameValue, type Provider, type Surface } from "@shapi/core";
 import { Language, Parser, type Node } from "web-tree-sitter";
-import { parseUrl } from "./callsites";
+import { parseUrl, providerOf, urlParts } from "./callsites";
 
 // Python call sites, syntax only (tree-sitter), with the same shape as the TypeScript extractor's:
 // HTTP clients (requests, httpx, aiohttp) and provider SDKs, plus what the code depends on in the
-// response. Like the TypeScript side: intra-file, no type inference, no imports followed.
+// response. Like the TypeScript side: intra-file, no type inference, no imports followed. A name is
+// resolved through module constants and, inside a function, through its last assignment before use.
 
 let parser: Parser | undefined;
 
@@ -56,6 +57,7 @@ export function extractPython(source: string, file: string): CallSite[] {
     collectConsts(root, ctx);
     collectClients(root, ctx);
     const sites: CallSite[] = [];
+    const calls: Node[] = [];
     for (const call of root.descendantsOfType("call")) {
       if (!call) continue;
       const site = httpCall(ctx, call) ?? sdkCall(ctx, call);
@@ -65,8 +67,9 @@ export function extractPython(source: string, file: string): CallSite[] {
       site.column = call.startPosition.column + 1;
       addResponseSurface(call, site);
       sites.push(site);
+      calls.push(call);
     }
-    return sites;
+    return [...sites, ...looseUrls(ctx, root, file, sites, calls)];
   } finally {
     tree.delete();
   }
@@ -192,7 +195,7 @@ function httpCall(ctx: FileContext, call: Node): CallSite | undefined {
   const surface = emptySurface();
   surface.headers = [...(binding.kind === "http-client" ? binding.headers : []), ...dictEntries(ctx, keyword(args, "headers"))].map((h) => ({ ...h, name: h.name.toLowerCase() }));
   surface.query = [...query, ...dictEntries(ctx, keyword(args, "params"))];
-  const provider = host ? (providerForHost(host)?.id ?? null) : null;
+  const provider = providerOf(host, path);
   return { file: "", line: 0, column: 0, provider, kind: "http", client: binding.lib, method, host, endpoint: path, resolved: Boolean(provider && path && method), surface };
 }
 
@@ -512,7 +515,7 @@ function evalString(ctx: FileContext, node: Node | undefined, depth = 0): string
     return (l ?? placeholder(n.childForFieldName("left") ?? undefined)) + (r ?? placeholder(n.childForFieldName("right") ?? undefined));
   }
   if (n.type === "identifier") {
-    const init = ctx.consts.get(n.text);
+    const init = localAssignment(n) ?? ctx.consts.get(n.text);
     return init && init.id !== node.id ? evalString(ctx, init, depth + 1) : undefined;
   }
   // os.getenv("API_URL", "https://...") / os.environ.get("X", "https://...")
@@ -522,6 +525,61 @@ function evalString(ctx: FileContext, node: Node | undefined, depth = 0): string
     if ((fn === "os.getenv" || fn === "getenv" || fn === "os.environ.get") && args[1]) return evalString(ctx, args[1], depth + 1);
   }
   return undefined;
+}
+
+/** Inside a function, the value last assigned to `name` before this use (`url = f"{BASE}/v1/x"`). */
+function localAssignment(use: Node): Node | undefined {
+  let scope: Node | null = use.parent;
+  while (scope && scope.type !== "function_definition" && scope.type !== "module") scope = scope.parent;
+  if (!scope || scope.type === "module") return undefined;
+  let last: Node | undefined;
+  for (const assign of scope.descendantsOfType("assignment")) {
+    if (!assign || assign.endIndex > use.startIndex) continue;
+    const left = assign.childForFieldName("left");
+    if (left?.type !== "identifier" || left.text !== use.text) continue;
+    let owner: Node | null = assign.parent;
+    while (owner && owner.type !== "function_definition") owner = owner.parent;
+    if (owner?.id !== scope.id) continue;
+    last = assign.childForFieldName("right") ?? undefined;
+  }
+  return last;
+}
+
+/**
+ * URLs of known APIs that no recognized client sends: a session wrapper (`await http.request(log, url)`),
+ * a framework's `url_base` or `path`, a returned base URL. Same rules as the TypeScript side: unknown
+ * method, skipped when a recognized call already covers it, a URL that only prefixes another is a base.
+ */
+function looseUrls(ctx: FileContext, root: Node, file: string, sites: CallSite[], calls: Node[]): CallSite[] {
+  const covered = new Set(sites.map((s) => `${s.provider} ${s.endpoint}`));
+  const inCall = (n: Node) => calls.some((c) => n.startIndex >= c.startIndex && n.endIndex <= c.endIndex);
+  const candidates: { node: Node; host: string | null; path: string; query: NameValue[]; provider: string }[] = [];
+  for (const node of root.descendantsOfType(["string", "concatenated_string", "binary_operator"])) {
+    if (!node) continue;
+    if (node.type === "binary_operator" && node.childForFieldName("operator")?.text !== "+") continue;
+    const p = node.parent;
+    // part of a larger string, or a docstring / bare string statement
+    if (p && (p.type === "concatenated_string" || p.type === "interpolation" || p.type === "expression_statement" || (p.type === "binary_operator" && p.childForFieldName("operator")?.text === "+"))) continue;
+    if (inCall(node)) continue;
+    const value = evalString(ctx, node);
+    const parts = value === undefined ? undefined : urlParts(value);
+    if (!parts?.path || parts.path === "/") continue;
+    const provider = providerOf(parts.host, parts.path);
+    if (provider) candidates.push({ node, host: parts.host, path: parts.path, query: parts.query, provider });
+  }
+  const out: CallSite[] = [];
+  const seen = new Set<string>();
+  for (const c of candidates) {
+    const key = `${c.provider} ${c.path}`;
+    if (covered.has(key) || seen.has(key)) continue;
+    if (candidates.some((o) => o.provider === c.provider && o.path !== c.path && o.path.startsWith(`${c.path}/`))) continue;
+    if (sites.some((s) => s.provider === c.provider && s.endpoint?.startsWith(`${c.path}/`))) continue;
+    seen.add(key);
+    const surface = emptySurface();
+    surface.query = c.query;
+    out.push({ file, line: c.node.startPosition.row + 1, column: c.node.startPosition.column + 1, provider: c.provider, kind: "http", client: "url", method: null, host: c.host, endpoint: c.path, resolved: true, surface });
+  }
+  return out;
 }
 
 function placeholder(n: Node | undefined): string {

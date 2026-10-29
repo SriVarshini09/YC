@@ -121,3 +121,26 @@ describe("query value triggers", () => {
     expect(result.exposed.map((f) => f.callSite.line)).toEqual([lock.callSites[1]!.line, lock.callSites[2]!.line]);
   });
 });
+
+describe("possibly affected", () => {
+  const meta = (endpoint: string) => site({ provider: "meta-graph", host: "graph.facebook.com", method: "GET", endpoint });
+  const byId = (id: string) => advisories.filter((a) => a.id === id);
+
+  it("flags a runtime path on the changed version as possibly affected, not affected", () => {
+    const result = matchAdvisories(createApiLock({ callSites: [meta("/v24.0/{endpoint}"), meta("/v24.0/{pixelId}/events")], declared: [] }, "test"), byId("meta-graph-marketing-api-v24-sunset"), { now });
+    expect(result.affected).toEqual([]);
+    expect(result.possible.map((f) => f.callSite.endpoint)).toEqual(["/v24.0/{endpoint}", "/v24.0/{pixelId}/events"]);
+    expect(result.possible[0]!.reasons[0]).toContain("builds the path at runtime");
+  });
+
+  it("needs evidence: a known literal of the pattern (the version) in the known part of the path", () => {
+    const result = matchAdvisories(createApiLock({ callSites: [meta("/v24.0/{path}"), meta("/{version}/{path}"), meta("/v23.0/{path}")], declared: [] }, "test"), byId("meta-graph-marketing-api-v24-sunset").concat(byId("meta-graph-commerce-order-management-removed")), { now });
+    expect(result.possible.map((f) => `${f.advisory.id} ${f.callSite.endpoint}`)).toEqual(["meta-graph-marketing-api-v24-sunset /v24.0/{path}"]);
+  });
+
+  it("keeps a known ad-account path as affected", () => {
+    const result = matchAdvisories(createApiLock({ callSites: [meta("/v24.0/act_{id}/campaigns")], declared: [] }, "test"), byId("meta-graph-marketing-api-v24-sunset"), { now });
+    expect(result.affected).toHaveLength(1);
+    expect(result.possible).toEqual([]);
+  });
+});

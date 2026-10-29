@@ -2,6 +2,7 @@ import {
   HTTP_METHODS,
   providerForHost,
   providerForPackage,
+  providerForPath,
   sdkEndpoint,
   type CallSite,
   type HttpMethod,
@@ -60,6 +61,8 @@ interface FileContext {
   sf: SourceFile;
   imports: Map<string, ImportRef>;
   consts: Map<string, Node>;
+  /** Every const of a name, when functions in the file reuse it (`const api = ...` in each). */
+  declared?: Map<string, Node[]>;
   http: Map<string, HttpInstance>;
   sdk: Map<string, SdkClient>;
 }
@@ -127,7 +130,11 @@ function collectConsts(ctx: FileContext) {
   for (const decl of ctx.sf.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
     const list = decl.getVariableStatement()?.getDeclarationKind();
     const init = decl.getInitializer();
-    if (list === "const" && init && Node.isIdentifier(decl.getNameNode())) ctx.consts.set(decl.getName(), init);
+    if (list === "const" && init && Node.isIdentifier(decl.getNameNode())) {
+      ctx.consts.set(decl.getName(), init);
+      ctx.declared ??= new Map();
+      ctx.declared.set(decl.getName(), [...(ctx.declared.get(decl.getName()) ?? []), init]);
+    }
   }
 }
 
@@ -301,7 +308,7 @@ function httpSite(
   const surface = emptySurface();
   surface.headers = headersOf(ctx, options);
   surface.query = [...query, ...objectEntries(ctx, params)];
-  const provider = host ? (providerForHost(host)?.id ?? null) : null;
+  const provider = providerOf(host, path);
   return {
     call,
     options,
@@ -484,7 +491,7 @@ function methodFrom(ctx: FileContext, node: Node | undefined): HttpMethod | unde
  * Evaluate an expression to a string where possible. Unknown template
  * substitutions become "{name}" (from the identifier or last property) or "{}".
  */
-export function evalString(ctx: { consts: Map<string, Node> }, node: Node | undefined, depth = 0): string | undefined {
+export function evalString(ctx: { consts: Map<string, Node>; declared?: Map<string, Node[]> }, node: Node | undefined, depth = 0): string | undefined {
   if (!node || depth > 8) return undefined;
   const expr = unwrap(node);
   if (Node.isStringLiteral(expr) || Node.isNoSubstitutionTemplateLiteral(expr)) return expr.getLiteralValue();
@@ -512,9 +519,17 @@ export function evalString(ctx: { consts: Map<string, Node> }, node: Node | unde
     }
   }
   if (Node.isIdentifier(expr)) {
-    const init = ctx.consts.get(expr.getText());
+    const init = nearestConst(ctx, expr) ?? ctx.consts.get(expr.getText());
     return init && init !== node ? evalString(ctx, init, depth + 1) : undefined;
   }
+  // url.toString() / String(url) / url.href: the URL itself
+  if (Node.isCallExpression(expr)) {
+    const callee = expr.getExpression();
+    const args = expr.getArguments();
+    if (Node.isPropertyAccessExpression(callee) && callee.getName() === "toString" && args.length === 0) return evalString(ctx, callee.getExpression(), depth + 1);
+    if (Node.isIdentifier(callee) && callee.getText() === "String" && args.length === 1) return evalString(ctx, args[0], depth + 1);
+  }
+  if (Node.isPropertyAccessExpression(expr) && expr.getName() === "href") return evalString(ctx, expr.getExpression(), depth + 1);
   if (Node.isNewExpression(expr) && expr.getExpression().getText() === "URL") {
     const [p, base] = expr.getArguments();
     const pathPart = evalString(ctx, p, depth + 1);
@@ -524,6 +539,20 @@ export function evalString(ctx: { consts: Map<string, Node> }, node: Node | unde
   return undefined;
 }
 
+/** Of several consts with this name, the one whose block encloses the use most closely. */
+function nearestConst(ctx: { declared?: Map<string, Node[]> }, id: Node): Node | undefined {
+  const inits = ctx.declared?.get(id.getText());
+  if (!inits || inits.length < 2) return undefined;
+  let best: { init: Node; size: number } | undefined;
+  for (const init of inits) {
+    const scope = init.getFirstAncestor((a) => Node.isBlock(a) || Node.isSourceFile(a));
+    if (!scope || id.getPos() < scope.getPos() || id.getEnd() > scope.getEnd()) continue;
+    const size = scope.getEnd() - scope.getPos();
+    if (!best || size < best.size) best = { init, size };
+  }
+  return best?.init;
+}
+
 function placeholder(node: Node): string {
   const expr = unwrap(node);
   if (Node.isIdentifier(expr)) return `{${expr.getText()}}`;
@@ -531,6 +560,71 @@ function placeholder(node: Node): string {
   // encodeURIComponent(owner), String(id)
   if (Node.isCallExpression(expr) && expr.getArguments().length === 1) return placeholder(expr.getArguments()[0]!);
   return "{}";
+}
+
+/** The provider a URL belongs to: by its host, or by a path only one provider serves when the host is built at runtime. */
+export function providerOf(host: string | null, path: string | null): string | null {
+  if (host) return providerForHost(host)?.id ?? null;
+  return path ? (providerForPath(path)?.id ?? null) : null;
+}
+
+/** An absolute URL, or a path that names its provider on its own (`/admin/api/2026-01/...`, `crm-pipelines/v1/...`). */
+export function urlParts(value: string): { host: string | null; path: string | null; query: NameValue[] } | undefined {
+  // {{shop}} (template engines) reads like {shop}
+  const v = value.trim().replace(/\{\{\s*([^{}]*?)\s*\}\}/g, "{$1}");
+  if (/^(?:https?:)?\/\//i.test(v)) return parseUrl(v);
+  // "{HUB}/crm-pipelines/v1/...": a base from elsewhere, then a path that names its provider
+  const asPath = "/" + v.replace(/^\{[^}]*\}(?=\/)/, "").replace(/^\/+/, "");
+  if (providerForPath(asPath.split(/[?#]/)[0]!)) return parseUrl(asPath);
+  return undefined;
+}
+
+// ---------------------------------------------------------------------------
+// URLs outside the clients above
+
+/**
+ * URLs of known APIs that no recognized client sends: a helper (`ctx.fetch`, `apiRequest.call(...)`), a
+ * config object (`baseUrl: "https://..."`) or a value returned for a framework to call. Each counts as a
+ * call site with an unknown method, unless a recognized call in the file already covers it. A URL that
+ * only prefixes another one in the file (a base constant) is not counted on its own.
+ */
+export function looseUrlSites(sf: SourceFile, file: string, found: FoundCall[]): CallSite[] {
+  const ctx: FileContext = { sf, imports: new Map(), consts: new Map(), http: new Map(), sdk: new Map() };
+  collectConsts(ctx);
+  const covered = new Set(found.map((f) => `${f.site.provider} ${f.site.endpoint}`));
+  const inFoundCall = (node: Node) => found.some((f) => node.getPos() >= f.call.getPos() && node.getEnd() <= f.call.getEnd());
+  const candidates: { node: Node; host: string | null; path: string; query: NameValue[]; provider: string }[] = [];
+  for (const node of sf.getDescendants()) {
+    if (!Node.isStringLiteral(node) && !Node.isNoSubstitutionTemplateLiteral(node) && !Node.isTemplateExpression(node) && !isConcat(node)) continue;
+    const parent = node.getParent();
+    if (parent && (Node.isTemplateSpan(parent) || isConcat(parent) || Node.isImportDeclaration(parent) || Node.isExportDeclaration(parent))) continue;
+    if (parent && Node.isPropertyAssignment(parent) && parent.getNameNode() === node) continue;
+    if (inFoundCall(node)) continue;
+    const value = evalString(ctx, node);
+    const parts = value === undefined ? undefined : urlParts(value);
+    if (!parts?.path || parts.path === "/") continue;
+    const provider = providerOf(parts.host, parts.path);
+    if (provider) candidates.push({ node, host: parts.host, path: parts.path, query: parts.query, provider });
+  }
+  const sites: CallSite[] = [];
+  const seen = new Set<string>();
+  for (const c of candidates) {
+    const key = `${c.provider} ${c.path}`;
+    if (covered.has(key) || seen.has(key)) continue;
+    // a base: another URL in the file extends it
+    if (candidates.some((o) => o.provider === c.provider && o.path !== c.path && o.path.startsWith(`${c.path}/`))) continue;
+    if (found.some((f) => f.site.provider === c.provider && f.site.endpoint?.startsWith(`${c.path}/`))) continue;
+    seen.add(key);
+    const { line, column } = sf.getLineAndColumnAtPos(c.node.getStart());
+    const surface = emptySurface();
+    surface.query = c.query;
+    sites.push({ file, line, column, provider: c.provider, kind: "http", client: "url", method: null, host: c.host, endpoint: c.path, resolved: true, surface });
+  }
+  return sites;
+}
+
+function isConcat(node: Node): boolean {
+  return Node.isBinaryExpression(node) && node.getOperatorToken().getKind() === SyntaxKind.PlusToken;
 }
 
 function joinUrl(base: string | undefined, url: string | undefined): string | undefined {

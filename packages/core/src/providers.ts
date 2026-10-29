@@ -62,6 +62,21 @@ export function providerForHost(host: string): Provider | undefined {
   return best?.provider;
 }
 
+/**
+ * Paths that identify their provider without a host: a Shopify Admin API path is the same on every
+ * shop's domain (`https://${shop}/admin/api/2026-01/...`), and only HubSpot serves `/crm-pipelines/`.
+ * Used when the host is built at runtime or lives in another file.
+ */
+const PATH_SIGNATURES: { provider: string; path: RegExp }[] = [
+  { provider: "shopify", path: /^\/admin\/api\/\d{4}-\d{2}(\/|$)/ },
+  { provider: "hubspot", path: /^\/crm-pipelines\/v\d+(\/|$)/ },
+];
+
+export function providerForPath(path: string): Provider | undefined {
+  const hit = PATH_SIGNATURES.find((s) => s.path.test(path));
+  return hit ? getProvider(hit.provider) : undefined;
+}
+
 export function providerForPackage(name: string): Provider | undefined {
   return loadProviders().find((p) => p.sdkPackages.includes(name));
 }
