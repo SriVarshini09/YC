@@ -153,6 +153,29 @@ describe("cloud scan", () => {
     expect((await runScanJob({ db, github: t.githubClients }, { scanId })).status).toBe("skipped");
   });
 
+  it("a repository transferred to another account while its scan runs gets its findings under the new account", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    const other = await owner.insertInto("accounts").values({ github_installation_id: 5151, login: "newco", type: "Organization", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
+    // The transfer delivery is processed while the code downloads: it moves the repository and its history (see upsertRepository).
+    const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+      if (String(input).includes("/tarball/")) {
+        await owner.updateTable("repositories").set({ account_id: other.id }).where("id", "=", repositoryId).execute();
+        for (const table of ["scans", "findings", "fix_prs"] as const) await owner.updateTable(table).set({ account_id: other.id }).where("repository_id", "=", repositoryId).execute();
+      }
+      return t.fetch(input, init);
+    }) as typeof globalThis.fetch;
+    const github = githubClients({ appId: githubApp.appId, privateKey }, { fetch, resilient: false });
+    expect((await runScanJob({ db, github }, { scanId })).status).toBe("succeeded");
+    const rows = await withService(db, async (tx) => ({
+      scan: await tx.selectFrom("scans").select("account_id").where("id", "=", scanId).executeTakeFirstOrThrow(),
+      findings: await tx.selectFrom("findings").select("account_id").where("scan_id", "=", scanId).execute(),
+    }));
+    expect(rows.scan.account_id).toBe(other.id);
+    expect(rows.findings.length).toBeGreaterThan(0);
+    expect(new Set(rows.findings.map((f) => f.account_id))).toEqual(new Set([other.id]));
+  });
+
   it("a first scan after install resolves the default branch head", async () => {
     const t = setup();
     const report = await runScanJob({ db, github: t.githubClients }, { repositoryId });
