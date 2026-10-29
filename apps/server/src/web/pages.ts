@@ -38,6 +38,8 @@ export interface PageContext {
   theme: Theme;
   /** An account admin: the sidebar offers Settings and Billing. */
   admin: boolean;
+  /** Repositories added since sign-in that the user cannot see yet (see accountAccess). */
+  addedSinceSignIn?: number;
 }
 
 /** The shell for an account page: sidebar with live counts, and the active entry. */
@@ -54,7 +56,13 @@ export function shellFor(data: AccountData, ctx: PageContext, active: NavKey): S
       active,
       nav: navFor(data.account.id, { findings: { count: problems, bad: problems > 0 }, fixes: { count: open } }, { admin: ctx.admin }),
     },
+    ...(ctx.addedSinceSignIn ? { notice: signInAgain(ctx.addedSinceSignIn) } : {}),
   };
+}
+
+/** Repositories added since sign-in are in no session yet: signing in again reads the user's access to them. */
+function signInAgain(n: number): Html {
+  return html`${n === 1 ? "1 repository was" : `${n} repositories were`} added since you signed in. <a href="/login">Sign in again</a> to see ${n === 1 ? "it" : "them"}.`;
 }
 
 
@@ -474,12 +482,15 @@ export function billingPage(data: AccountData, enabled: boolean, notice: string 
     cancelled: "Checkout was cancelled. Nothing was charged.",
   };
   const covered = coverage(data.planRepos, data.billing, true);
+  // Counted over every repository, like the plan; listed only where the user can see them (see loadAccount).
+  const uncoveredCount = data.planRepos.filter((r) => r.enabled && !covered.get(r.id)?.covered).length;
   const uncovered = data.repos.filter((r) => r.enabled && !covered.get(r.id)?.covered);
+  const unlisted = uncoveredCount - uncovered.length;
   return html`${head("Billing", "Public repositories are free, and so is one private repository. Pay only for private repositories beyond that.")}
 ${notice && Object.hasOwn(notices, notice) ? html`<div class="notice">${notices[notice]}</div>` : EMPTY}
 <div class="grid cols-3">
 ${statCard({ label: "Plan", value: paying ? "Paid" : "Free", sub: paying ? `${paid} paid private ${paid === 1 ? "repository" : "repositories"} plus ${FREE_PRIVATE_REPOS} free` : `public repositories and ${FREE_PRIVATE_REPOS} private repository` })}
-${statCard({ label: "Private repositories", value: privates, sub: uncovered.length ? `${uncovered.length} not covered` : "all covered", tone: uncovered.length ? "bad" : "" })}
+${statCard({ label: "Private repositories", value: privates, sub: uncoveredCount ? `${uncoveredCount} not covered` : "all covered", tone: uncoveredCount ? "bad" : "" })}
 ${statCard({ label: paying && billing?.cancel_at ? "Cancels on" : "Renews", value: paying && billing?.cancel_at ? isoDay(billing.cancel_at) : paying && billing?.current_period_end ? isoDay(billing.current_period_end) : "—", sub: billing?.status === "past_due" ? "payment past due" : paying ? "billed by Stripe" : "no subscription" })}
 </div>
 <div class="card stack">
@@ -498,5 +509,14 @@ ${billing?.stripe_customer_id ? form("portal", "Manage billing and invoices") : 
 </div>
 <p class="note">Prices and invoices come from Stripe. Removing private repositories lowers the plan automatically; adding them raises it only when you click to add them here.${!paying && needed > 0 ? html` Upgrading means you accept the <a href="${DOCS_URL}/legal/terms">terms of service</a>.` : ""}</p>
 </div>
-${uncovered.length ? section("Not covered by the plan", html`<div class="card tight"><table><tbody>${uncovered.map((r) => html`<tr><td><a href="${repoHref(data, r.id)}">${r.full_name}</a></td><td class="muted">${(covered.get(r.id) as { reason?: string }).reason ?? ""}</td></tr>`)}</tbody></table></div>`) : EMPTY}`;
+${
+    uncoveredCount
+      ? section(
+          "Not covered by the plan",
+          html`<div class="card tight"><table><tbody>${uncovered.map((r) => html`<tr><td><a href="${repoHref(data, r.id)}">${r.full_name}</a></td><td class="muted">${(covered.get(r.id) as { reason?: string }).reason ?? ""}</td></tr>`)}${
+            unlisted > 0 ? html`<tr><td colspan="2" class="muted">${unlisted === 1 ? "1 more repository" : `${unlisted} more repositories`} you can't see here. <a href="/login">Sign in again</a> if ${unlisted === 1 ? "it was" : "they were"} added since you signed in.</td></tr>` : EMPTY
+          }</tbody></table></div>`,
+        )
+      : EMPTY
+  }`;
 }

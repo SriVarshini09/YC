@@ -1,8 +1,9 @@
 import { matchAdvisories, type Advisory, type LockedCallSite } from "@shapi/core";
+import { sql } from "kysely";
 import { withService, type Db } from "@shapi/db";
 import { fetchRepoSnapshot, prTitle, renderPrBody } from "@shapi/github-app";
-import { RECIPES, repairAdvisory, withCallBudget, withSandboxWorkspace, type InstallReport, type LlmFixer, type RepairResult, type Workspace } from "@shapi/repair";
-import type { SandboxProvider, SnapshotFile } from "@shapi/sandbox";
+import { RECIPES, repairAdvisory, withCallBudget, withSandboxWorkspace, type InstallReport, type AdvisoryRepair, type LlmFixer, type RepairResult, type Workspace } from "@shapi/repair";
+import { SandboxLifetimeError, type SandboxProvider, type SnapshotFile } from "@shapi/sandbox";
 import type { GitHubClients } from "../github/clients";
 import { repositoryCovered } from "../billing/plan";
 import { latestScanId } from "../github/events";
@@ -38,7 +39,7 @@ export interface FixReport {
   scanId: string;
   skipped?: string;
   /** One entry per advisory; `sites` counts its call sites fixed out of those affected. */
-  repairs: { advisoryId: string; status: RepairResult["status"] | "no-shapes" | "no-fix"; reason?: string; sites?: { fixed: number; total: number } }[];
+  repairs: { advisoryId: string; status: RepairResult["status"] | "no-shapes" | "no-fix" | "not-attempted"; reason?: string; sites?: { fixed: number; total: number } }[];
   delivery?: DeliveryReport;
 }
 
@@ -99,7 +100,8 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
     byAdvisory.set(advisory.id, entry);
   }
 
-  const llm = (scan.settings as { llmFixes?: boolean }).llmFixes === true && deps.llm ? withCallBudget(deps.llm) : undefined;
+  // One budget per scan, kept on the scan: a retried job (or one pg-boss expired) cannot spend it again.
+  const llm = (scan.settings as { llmFixes?: boolean }).llmFixes === true && deps.llm ? withCallBudget(deps.llm, undefined, () => takeLlmCall(deps.db, scan.id)) : undefined;
   const report: FixReport = { scanId: scan.id, repairs: [] };
   const manual: { advisory: Advisory; callSites: number }[] = [];
   const todo: { advisory: Advisory; callSites: LockedCallSite[]; shapes: { before?: ResponseShape; after?: ResponseShape; source: string } }[] = [];
@@ -123,43 +125,61 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
   }
 
   const fixes: FixCandidate[] = [];
+  let outOfTime = false;
   if (todo.length) {
     const [owner, repo] = scan.full_name.split("/") as [string, string];
     const readOnly = await deps.github.readOnly(scan.github_installation_id, scan.github_repo_id);
     const files = await fetchRepoSnapshot(readOnly, { owner, repo, ref: scan.sha });
     const snapshot = new Map(files.map((f) => [f.path, f.content]));
     await deps.workspace(files, { scan: scan.id, repository: scan.full_name }, async (ws) => {
-      for (const t of todo) {
-        const repair = await repairAdvisory({ workspace: ws, advisory: t.advisory, callSites: t.callSites, before: t.shapes.before, after: t.shapes.after, recipes: RECIPES, llm });
-        const fixedSites = repair.sites.filter((s) => s.result.status === "fixed");
-        const unfixed = repair.sites.filter((s) => s.result.status !== "fixed" && s.result.status !== "already-handled");
-        const first = unfixed[0]?.result ?? repair.sites[0]?.result;
-        report.repairs.push({
-          advisoryId: t.advisory.id,
-          status: fixedSites.length ? "fixed" : (first?.status ?? "unsupported"),
-          ...(fixedSites.length && !unfixed.length ? {} : { reason: first?.reason }),
-          sites: { fixed: fixedSites.length, total: repair.sites.length },
-        });
-        // Leave the workspace as it was, so the next advisory is verified against the original code:
-        // changed files get their text back, and files the repair created (contract tests, new modules) are deleted.
-        const touched = new Set([...repair.changes, ...repair.sites.flatMap((s) => s.result.changes)].map((c) => c.file));
-        for (const s of repair.sites) if (s.result.test) touched.add(s.result.test.file);
-        for (const file of touched) {
-          const original = snapshot.get(file);
-          await (original === undefined ? ws.remove(file) : ws.write(file, String(original)));
+      for (const [i, t] of todo.entries()) {
+        let repair: AdvisoryRepair | undefined;
+        let outOfTimeError: SandboxLifetimeError | undefined;
+        try {
+          repair = await repairAdvisory({ workspace: ws, advisory: t.advisory, callSites: t.callSites, before: t.shapes.before, after: t.shapes.after, recipes: RECIPES, llm });
+          // Leave the workspace as it was, so the next advisory is verified against the original code:
+          // changed files get their text back, and files the repair created (contract tests, new modules) are deleted.
+          const touched = new Set([...repair.changes, ...repair.sites.flatMap((s) => s.result.changes)].map((c) => c.file));
+          for (const s of repair.sites) if (s.result.test) touched.add(s.result.test.file);
+          for (const file of touched) {
+            const original = snapshot.get(file);
+            await (original === undefined ? ws.remove(file) : ws.write(file, String(original)));
+          }
+        } catch (err) {
+          if (!(err instanceof SandboxLifetimeError)) throw err;
+          outOfTimeError = err;
         }
-        if (unfixed.length) manual.push({ advisory: t.advisory, callSites: unfixed.length });
-        if (!fixedSites.length) continue;
-        const testFiles = fixedSites.map((s) => s.result.test?.file).join(", ");
-        fixes.push({
-          advisory: t.advisory,
-          title: prTitle(t.advisory),
-          body: renderPrBody({ advisory: t.advisory, repair, shapeSource: t.shapes.source }),
-          commitMessage: `fix: ${t.advisory.title}\n\nAdvisory ${t.advisory.id}, ${fixedSites.length} of ${repair.sites.length} call sites. Contract tests ${testFiles} fail before this change and pass after, verified in ${repair.sandbox}.`,
-          files: repair.changes.map((c) => ({ path: c.file, content: c.after })),
-          sha: scan.sha,
-          repair: summarizeRepair({ advisory: t.advisory, sites: repair.sites, changes: repair.changes, method: repair.method, sandbox: repair.sandbox }, now()),
-        });
+        if (repair) {
+          const fixedSites = repair.sites.filter((s) => s.result.status === "fixed");
+          const unfixed = repair.sites.filter((s) => s.result.status !== "fixed" && s.result.status !== "already-handled");
+          const first = unfixed[0]?.result ?? repair.sites[0]?.result;
+          report.repairs.push({
+            advisoryId: t.advisory.id,
+            status: fixedSites.length ? "fixed" : (first?.status ?? "unsupported"),
+            ...(fixedSites.length && !unfixed.length ? {} : { reason: first?.reason }),
+            sites: { fixed: fixedSites.length, total: repair.sites.length },
+          });
+          if (unfixed.length) manual.push({ advisory: t.advisory, callSites: unfixed.length });
+          if (fixedSites.length) {
+            const testFiles = fixedSites.map((s) => s.result.test?.file).join(", ");
+            fixes.push({
+              advisory: t.advisory,
+              title: prTitle(t.advisory),
+              body: renderPrBody({ advisory: t.advisory, repair, shapeSource: t.shapes.source }),
+              commitMessage: `fix: ${t.advisory.title}\n\nAdvisory ${t.advisory.id}, ${fixedSites.length} of ${repair.sites.length} call sites. Contract tests ${testFiles} fail before this change and pass after, verified in ${repair.sandbox}.`,
+              files: repair.changes.map((c) => ({ path: c.file, content: c.after })),
+              sha: scan.sha,
+              repair: summarizeRepair({ advisory: t.advisory, sites: repair.sites, changes: repair.changes, method: repair.method, sandbox: repair.sandbox }, now()),
+            });
+          }
+        }
+        if (outOfTimeError) {
+          // The sandbox is out of time. The fixes verified so far are still delivered; the rest are left for the next
+          // scan, or the next build (the scan's engine is not marked, see scansToRefix).
+          for (const rest of todo.slice(repair ? i + 1 : i)) report.repairs.push({ advisoryId: rest.advisory.id, status: "not-attempted", reason: outOfTimeError.message });
+          outOfTime = true;
+          break;
+        }
       }
     });
   }
@@ -172,8 +192,14 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
     now: now(),
   });
   // Only a finished run counts: a failed one throws above, and the job (or the next build) tries again.
-  await markEngine(deps, scan.id);
+  if (!outOfTime) await markEngine(deps, scan.id);
   return report;
+}
+
+/** Count one LLM call for a scan's fixes; returns the count so far, this call included. */
+async function takeLlmCall(db: Db, scanId: string): Promise<number> {
+  const row = await withService(db, (tx) => tx.updateTable("scans").set({ llm_calls: sql`llm_calls + 1` }).where("id", "=", scanId).returning("llm_calls").executeTakeFirstOrThrow());
+  return row.llm_calls;
 }
 
 async function markEngine(deps: Pick<FixDeps, "db" | "engine">, scanId: string): Promise<void> {
@@ -207,7 +233,7 @@ export async function scansToRefix(db: Db, engine: string, opts: { llm?: boolean
       .where("repositories.enabled", "=", true)
       .where("accounts.suspended_at", "is", null)
       .orderBy("scans.repository_id")
-      .orderBy("scans.finished_at", "desc")
+      .orderBy("scans.created_at", "desc")
       .execute();
     const stale = latest.filter((s) => s.fix_engine !== engine);
     if (!stale.length) return [];

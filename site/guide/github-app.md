@@ -25,7 +25,7 @@ Anyone can [install the GitHub App](https://github.com/apps/shapi-by-srivarshini
 | Issues: read and write | The SHAPI Dashboard issue. |
 | Metadata: read | Required by GitHub for every app. |
 
-Events: `push`, `pull_request`, `issues`, plus the installation events every app receives.
+Events: `push`, `pull_request`, `issues`, `repository` (SHAPI stops on an archived repository and scans it again once it is unarchived), plus the installation events every app receives.
 
 ## Slack alerts
 
@@ -41,7 +41,7 @@ Paste a Slack [incoming webhook](https://api.slack.com/messaging/webhooks) link 
 
 ## The web app
 
-Sign in with GitHub to see each repository's latest scan, its findings with links to the exact lines, fix PR history and recent scans. That is also where you change the limits, the check behavior and the Claude opt-in, and where you pause a repository. You see only the repositories you can open on GitHub. Pausing one needs write access to it, and the account's settings and billing need an account admin: the owner of a personal account, or for an organization someone who is admin on every repository SHAPI covers there. SHAPI keeps no GitHub user token: it reads who you are, which installations you can access and your permission on each of their repositories, then discards the token.
+Sign in with GitHub to see each repository's latest scan, its findings with links to the exact lines, fix PR history and recent scans. That is also where you change the limits, the check behavior and the Claude opt-in, and where you pause a repository. You see only the repositories you can open on GitHub. Pausing one needs write access to it, and the account's settings and billing need an account admin: the owner of a personal account, or for an organization someone who is admin on every repository SHAPI covers there. SHAPI keeps no GitHub user token: it reads who you are, which installations you can access and your permission on each of their repositories, then discards the token. So that access is what GitHub said when you signed in: a repository added to the installation afterwards appears when you sign in again (the web app tells you), and until then it doesn't count against an admin.
 
 ## Plans
 

@@ -170,17 +170,21 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
     const match = matchAdvisories(lock, advisories.map((a) => a.advisory), { now: now() });
     const evaluated = Object.fromEntries(advisories.map((a) => [a.advisory.id, a.modified]));
 
-    const fresh = await withService(deps.db, async (tx) => {
-      const fresh = await saveFindings(tx, scan, match, evaluated);
+    const { fresh, accountId } = await withService(deps.db, async (tx) => {
+      // The repository may have moved to another account since the scan was claimed (a transfer moves its history):
+      // its findings go to the account it is in now. Locked, so a transfer waits for this write and then moves them too.
+      const current = await tx.selectFrom("repositories").select("account_id").where("id", "=", scan.repository_id).forUpdate().executeTakeFirst();
+      const accountId = current?.account_id ?? scan.account_id;
+      const fresh = await saveFindings(tx, { ...scan, account_id: accountId }, match, evaluated);
       await tx
         .updateTable("scans")
-        .set({ status: "succeeded", api_lock: JSON.stringify(lock), finished_at: now(), error: null, check_run_id: checkRunId ?? null })
+        .set({ status: "succeeded", account_id: accountId, api_lock: JSON.stringify(lock), finished_at: now(), error: null, check_run_id: checkRunId ?? null })
         .where("id", "=", scan.id)
         .execute();
       await tx.updateTable("repositories").set({ last_scan_sha: scan.sha, last_scanned_at: now() }).where("id", "=", scan.repository_id).execute();
-      return fresh;
+      return { fresh, accountId };
     });
-    if (fresh.length) await deps.notify?.({ accountId: scan.account_id, repositoryId: scan.repository_id, sha: scan.sha, reason: "push", findings: fresh });
+    if (fresh.length) await deps.notify?.({ accountId, repositoryId: scan.repository_id, sha: scan.sha, reason: "push", findings: fresh });
     if (checkRunId) {
       const failOnAffected = (scan.settings as { failOnAffected?: boolean }).failOnAffected === true;
       await completeCheckRun(octokit, { owner, repo, checkRunId }, checkRunOutput(match, { failOnAffected })).catch(() => undefined);

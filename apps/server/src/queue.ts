@@ -43,7 +43,8 @@ const QUEUE_OPTIONS: [string, QueueOptions][] = [
   [QUEUES.repoScan, { retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: 15 * 60 }],
   // One fix job running and one waiting per repository (keyed by repository id), so PR deliveries never race.
   // A later one is dropped while one waits; the waiting one fixes the repository's latest scan (see runFixJob).
-  [QUEUES.repoFix, { policy: "stately", retryLimit: 2, retryDelay: 120, retryBackoff: true, expireInSeconds: 30 * 60 }],
+  // Its expiry is well past the sandbox's hour (MAX_SANDBOX_LIFETIME_MS): pg-boss would otherwise retry a job still running.
+  [QUEUES.repoFix, { policy: "stately", retryLimit: 2, retryDelay: 120, retryBackoff: true, expireInSeconds: 75 * 60 }],
   [QUEUES.advisoryFanout, { retryLimit: 2, retryDelay: 60, expireInSeconds: 15 * 60 }],
   [QUEUES.billingSync, { policy: "short", retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 10 * 60 }],
   [QUEUES.fixRetry, { policy: "short", retryLimit: 2, retryDelay: 60, expireInSeconds: 10 * 60 }],

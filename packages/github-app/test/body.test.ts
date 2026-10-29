@@ -2,7 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadAdvisories, type LockedCallSite } from "@shapi/core";
-import type { AdvisoryRepair, RepairResult } from "@shapi/repair";
+import { swap, type AdvisoryRepair, type FileChange, type RepairResult } from "@shapi/repair";
 import { codeSpan, renderPrBody } from "@shapi/github-app";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -61,5 +61,23 @@ describe("fix PR body", () => {
     );
     const skipped = renderPrBody({ advisory, repair: llmRepair("Accept 200.", { typecheck: { status: "skipped", detail: "not type-checked: no tsconfig.json | above src/deploy.ts" } }), shapeSource: "advisory" });
     expect(skipped).toContain("| skipped: ` not type-checked: no tsconfig.json \\| above src/deploy.ts ` |");
+  });
+
+  it("keeps the repository's code, paths and test output literal: recipe notes and a call site's failure reason", () => {
+    // A recipe's note on code holding a template literal (as the recipes write it), and a contract test whose output the repository's code printed.
+    const code = "fetch(`${base}/x?cc=@octocat`, { note: '[docs](https://evil.example)' })";
+    const change: FileChange = { file: "src/deploy.ts", before: "a", after: "b", notes: [`${codeSpan("src/deploy.ts:12")} ${swap(code, "fetch(url)")}`] };
+    const reason = "the contract test could not run: Error: cc @octocat `x` [docs](https://evil.example)\n## Injected";
+    const test = { file: "test/shapi/github-workflow-dispatch-204-to-200.test.ts", content: "test" };
+    const fixedSite = { callSite, result: { status: "fixed" as const, method: "recipe" as const, changes: [change], test, baseline: run(false), attempts: [{ method: "recipe" as const, outcome: "passed" as const, detail: "", run: run(true) }] } };
+    const failedSite = { callSite: { ...callSite, file: "src/@octocat other.ts", line: 3 }, result: { status: "unsupported" as const, changes: [], attempts: [], reason } };
+    const body = renderPrBody({ advisory, repair: { status: "partial", method: "recipe", sites: [fixedSite, failedSite], changes: [change, { file: test.file, before: "", after: "test", notes: ["generated contract test"] }] }, shapeSource: "advisory" });
+    expect(body).not.toMatch(/^## Injected/m);
+    for (const line of body.split("\n").filter((l) => l.includes("@octocat"))) {
+      // Every @octocat sits inside a code span: outside them, the line has none.
+      expect(line.replace(/(`+) .*? \1/g, ""), line).not.toContain("@octocat");
+    }
+    expect(body).toContain("- ` src/deploy.ts:12 ` `` fetch(`${base}/x?cc=@octocat`, { note: '[docs](https://evil.example)' }) `` → ` fetch(url) `");
+    expect(body).toContain("- [ ] ` src/@octocat other.ts:3 ` (` POST /repos/{owner}/{repo}/actions/workflows/{id}/dispatches `): not fixed here (`` the contract test could not run: Error: cc @octocat `x` [docs](https://evil.example) ## Injected ``); needs a manual change");
   });
 });

@@ -8,6 +8,7 @@ import { sql } from "kysely";
 import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
 import { loadAdvisories } from "@shapi/core";
 import { localWorkspace } from "@shapi/repair";
+import { SandboxLifetimeError } from "@shapi/sandbox";
 import { fakeRepoGitHub } from "../../../test-utils/fake-github";
 import { slackMessage, slackNotifier, type FindingsNotice } from "../src/notify/slack";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
@@ -25,6 +26,7 @@ import {
   syncAdvisoriesJob,
   type WorkspaceRunner,
 } from "../src/index";
+import { latestScanId } from "../src/github/events";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const ADVISORIES = path.join(root, "advisories");
@@ -151,6 +153,29 @@ describe("cloud scan", () => {
     expect((await runScanJob({ db, github: t.githubClients }, { scanId })).status).toBe("skipped");
   });
 
+  it("a repository transferred to another account while its scan runs gets its findings under the new account", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    const other = await owner.insertInto("accounts").values({ github_installation_id: 5151, login: "newco", type: "Organization", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
+    // The transfer delivery is processed while the code downloads: it moves the repository and its history (see upsertRepository).
+    const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+      if (String(input).includes("/tarball/")) {
+        await owner.updateTable("repositories").set({ account_id: other.id }).where("id", "=", repositoryId).execute();
+        for (const table of ["scans", "findings", "fix_prs"] as const) await owner.updateTable(table).set({ account_id: other.id }).where("repository_id", "=", repositoryId).execute();
+      }
+      return t.fetch(input, init);
+    }) as typeof globalThis.fetch;
+    const github = githubClients({ appId: githubApp.appId, privateKey }, { fetch, resilient: false });
+    expect((await runScanJob({ db, github }, { scanId })).status).toBe("succeeded");
+    const rows = await withService(db, async (tx) => ({
+      scan: await tx.selectFrom("scans").select("account_id").where("id", "=", scanId).executeTakeFirstOrThrow(),
+      findings: await tx.selectFrom("findings").select("account_id").where("scan_id", "=", scanId).execute(),
+    }));
+    expect(rows.scan.account_id).toBe(other.id);
+    expect(rows.findings.length).toBeGreaterThan(0);
+    expect(new Set(rows.findings.map((f) => f.account_id))).toEqual(new Set([other.id]));
+  });
+
   it("a first scan after install resolves the default branch head", async () => {
     const t = setup();
     const report = await runScanJob({ db, github: t.githubClients }, { repositoryId });
@@ -215,6 +240,21 @@ describe("cloud fix", () => {
     expect(t.github.fileAt(pr.head.ref, "src/deploy.ts")).toContain("![200, 204].includes(res.status)");
   }, 120_000);
 
+  it("the latest scan is the newest queued, not the last to finish: a retried older scan does not replace a newer commit's fixes", async () => {
+    const at = (minutes: number) => new Date(Date.UTC(2026, 9, 1, 12, minutes));
+    const repo = await owner.selectFrom("repositories").select(["id", "account_id"]).where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    const scan = (sha: string, created: number, finished: number) =>
+      owner
+        .insertInto("scans")
+        .values({ account_id: repo.account_id, repository_id: repo.id, sha, status: "succeeded", api_lock: JSON.stringify({}), created_at: at(created), finished_at: at(finished) })
+        .returning("id")
+        .executeTakeFirstOrThrow();
+    // Push A, then push B; A's scan failed once and its retry finished after B's.
+    await scan("a".repeat(40), 0, 30);
+    const b = await scan("b".repeat(40), 5, 10);
+    expect(await withService(db, (tx) => latestScanId(tx, repositoryId))).toBe(b.id);
+  });
+
   it("repairs all three demo findings test-first; two PRs open now and the third waits for the hourly limit", async () => {
     const t = setup();
     const scanId = await queueScan(t.github.refs.get("main")!);
@@ -268,6 +308,35 @@ describe("cloud fix", () => {
     const pr = t.github.pulls.find((p) => p.head.ref === "shapi/github-workflow-dispatch-204-to-200")!;
     expect(t.github.commits.get(t.github.refs.get(pr.head.ref)!)!.parents).toEqual([scanned]);
     expect(t.github.fileAt("main", "src/deploy.ts")).toBe(upstream);
+  }, 120_000);
+
+  it("delivers the fixes verified before the sandbox ran out of time, and reports the rest as not attempted", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    // The sandbox reaches its lifetime limit when the second advisory's first contract test is about to run.
+    let first: string | undefined;
+    const workspace: WorkspaceRunner = (files, labels, fn) =>
+      t.workspace(files, labels, (ws) =>
+        fn({
+          ...ws,
+          async runTest(file) {
+            const advisory = /^test\/shapi\/([^.]+)/.exec(file)?.[1];
+            first ??= advisory;
+            if (advisory !== first) throw new SandboxLifetimeError("the sandbox reached its 60-minute lifetime limit: the job needs more time than one sandbox allows");
+            return ws.runTest(file);
+          },
+        }),
+      );
+    const report = await runFixJob({ ...t.fixDeps, workspace, engine: "build-1" }, { scanId });
+    expect(report.repairs[0]).toMatchObject({ advisoryId: first, status: "fixed" });
+    const rest = report.repairs.slice(1);
+    expect(rest.length).toBeGreaterThan(0);
+    for (const r of rest) expect(r).toMatchObject({ status: "not-attempted", reason: expect.stringContaining("lifetime limit") });
+    expect(t.github.pulls.map((p) => p.head.ref)).toEqual([`shapi/${first}`]);
+    // Not a finished run: the next build tries the rest again.
+    const row = await withService(db, (tx) => tx.selectFrom("scans").select("fix_engine").where("id", "=", scanId).executeTakeFirstOrThrow());
+    expect(row.fix_engine).toBeNull();
   }, 120_000);
 
   it("never sends code to an LLM unless the account turned LLM fixes on", async () => {
@@ -333,6 +402,34 @@ describe("fixes after an upgrade", () => {
       expect(await scansToRefix(db, "build-5", { llm: true })).toEqual([{ scanId, repositoryId }]);
     } finally {
       await owner.deleteFrom("advisories").where("id", "=", "github-dispatch-without-recipe").execute();
+    }
+  }, 120_000);
+});
+
+describe("LLM budget", () => {
+  it("is kept on the scan, so a retried fix job cannot spend it again", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    const account = await owner.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    await owner.updateTable("accounts").set({ settings: JSON.stringify({ llmFixes: true }) }).where("id", "=", account.account_id).execute();
+    // Only the GitHub finding, and without its recipe: Claude is asked.
+    await owner.deleteFrom("findings").where("scan_id", "=", scanId).where("advisory_id", "!=", "github-workflow-dispatch-204-to-200").execute();
+    await owner.updateTable("findings").set({ advisory_id: "github-dispatch-llm-only" }).where("scan_id", "=", scanId).execute();
+    const base = loadAdvisories(ADVISORIES).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
+    await upsertAdvisories(db, [{ ...base, id: "github-dispatch-llm-only", recipeId: undefined }], { reviewed: true, source: "repo" });
+    const asked: string[] = [];
+    const llm = { fix: async (req: { advisory: { id: string } }) => (asked.push(req.advisory.id), { status: "declined" as const, reason: "test" }) };
+    process.env.SHAPI_LLM_CALLS_PER_JOB = "1";
+    try {
+      await runFixJob({ ...t.fixDeps, llm: llm as never }, { scanId });
+      expect(asked).toEqual(["github-dispatch-llm-only"]);
+      // pg-boss runs the job again (a retry, or after expiry): the scan's one call is spent.
+      await runFixJob({ ...t.fixDeps, llm: llm as never }, { scanId });
+      expect(asked).toHaveLength(1);
+    } finally {
+      delete process.env.SHAPI_LLM_CALLS_PER_JOB;
+      await owner.deleteFrom("advisories").where("id", "=", "github-dispatch-llm-only").execute();
     }
   }, 120_000);
 });

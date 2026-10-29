@@ -30,7 +30,7 @@ export async function runAdvisoryFanout(db: Db, opts: { now?: Date; notify?: Not
       .where("repositories.enabled", "=", true)
       .where("accounts.suspended_at", "is", null)
       .orderBy("scans.repository_id")
-      .orderBy("scans.finished_at", "desc")
+      .orderBy("scans.created_at", "desc")
       .execute(),
   );
 

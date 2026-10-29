@@ -1,6 +1,6 @@
 import type { Fix } from "@shapi/core";
 import { Node, SyntaxKind, type CallExpression, type SourceFile, type Type } from "ts-morph";
-import type { Edit, Recipe, RecipeContext } from "../recipe";
+import { codeSpan, swap, type Edit, type Recipe, type RecipeContext } from "../recipe";
 
 /**
  * The change an advisory's `fix` describes, applied to one call site:
@@ -20,7 +20,8 @@ export const applyFix: Recipe = {
   edits({ sourceFile, call, advisory }: RecipeContext): Edit[] {
     const fix = advisory.fix;
     if (!fix) return [];
-    const where = (n: Node) => `${sourceFile.getFilePath().slice(1)}:${n.getStartLineNumber()}`;
+    // Notes are Markdown for the PR body: the repository's paths and code go in code spans (see Edit.note).
+    const where = (n: Node) => codeSpan(`${sourceFile.getFilePath().slice(1)}:${n.getStartLineNumber()}`);
     const below = fix.query ? advisory.trigger.query?.find((q) => q.name === fix.query!.name)?.below : undefined;
     const edits: Edit[] = [...requestEdits(call, sourceFile, fix, where, below), ...headerEdits(call, fix, where)];
     const scope = enclosingFunction(call) ?? sourceFile;
@@ -53,7 +54,7 @@ function requestEdits(call: CallExpression, sf: SourceFile, fix: Fix, where: Whe
       const re = new RegExp(`([?&])${escapeRe(fix.query.name)}=([^&#\`'"$]+)`, "g");
       after = after.replace(re, (m, sep: string, value: string) => (retired(value) ? `${sep}${fix.query!.name}=${fix.query!.value}` : m));
     }
-    if (after !== before) edits.push({ start: node.getStart(), end: node.getEnd(), text: after, note: `${where(node)} \`${before}\` → \`${after}\`` });
+    if (after !== before) edits.push({ start: node.getStart(), end: node.getEnd(), text: after, note: `${where(node)} ${swap(before, after)}` });
   }
   if (fix.query) {
     for (const prop of [...objectProperties(call, "params"), ...objectProperties(call, "searchParams")]) {
@@ -61,7 +62,7 @@ function requestEdits(call: CallExpression, sf: SourceFile, fix: Fix, where: Whe
       const init = prop.getInitializer();
       if (!init || !(Node.isNumericLiteral(init) || Node.isStringLiteral(init)) || !retired(init.getLiteralText())) continue;
       const text = /^\d+(\.\d+)?$/.test(fix.query.value) && Node.isNumericLiteral(init) ? fix.query.value : JSON.stringify(fix.query.value);
-      if (init.getText() !== text) edits.push({ start: init.getStart(), end: init.getEnd(), text, note: `${where(init)} ${fix.query.name}: \`${init.getText()}\` → \`${text}\`` });
+      if (init.getText() !== text) edits.push({ start: init.getStart(), end: init.getEnd(), text, note: `${where(init)} ${fix.query.name}: ${swap(init.getText(), text)}` });
     }
   }
   return edits;
@@ -75,7 +76,7 @@ function headerEdits(call: CallExpression, fix: Fix, where: Where): Edit[] {
     if (propName(prop)?.toLowerCase() !== fix.header.name.toLowerCase() || !Node.isPropertyAssignment(prop)) continue;
     const init = prop.getInitializer();
     if (!init || !(Node.isStringLiteral(init) || Node.isNoSubstitutionTemplateLiteral(init)) || init.getLiteralText() === fix.header.value) continue;
-    edits.push({ start: init.getStart(), end: init.getEnd(), text, note: `${where(init)} ${fix.header.name}: \`${init.getText()}\` → \`${text}\`` });
+    edits.push({ start: init.getStart(), end: init.getEnd(), text, note: `${where(init)} ${fix.header.name}: ${swap(init.getText(), text)}` });
   }
   return edits;
 }
@@ -98,7 +99,7 @@ function fieldEdits(scope: Node, fix: Fix, where: Where, taken: Edit[], ts: bool
       const dot = access.hasQuestionDotToken() ? "?." : ".";
       const typed = ts && !knowsProperty(receiver, newName) ? `(${target} as any)` : target;
       const text = `(${typed}${dot}${newName} ?? ${target}${dot}${oldName})`;
-      edits.push({ start: access.getStart(), end: access.getEnd(), text, note: `${where(access)} \`${access.getText()}\` → \`${text}\`` });
+      edits.push({ start: access.getStart(), end: access.getEnd(), text, note: `${where(access)} ${swap(access.getText(), text)}` });
     }
   }
   return edits;
@@ -138,7 +139,7 @@ function enumEdits(scope: Node, fix: Fix, where: Where, taken: Edit[], ts: boole
       const list = ts && !acceptsAnyString(other) ? `(${values} as unknown[])` : values;
       const text = `${negated ? "!" : ""}${list}.includes(${value})`;
       kept = kept.filter((e) => !(e.start >= bin.getStart() && e.end <= bin.getEnd()));
-      edits.push({ start: bin.getStart(), end: bin.getEnd(), text, note: `${where(bin)} \`${bin.getText()}\` → \`${text}\`` });
+      edits.push({ start: bin.getStart(), end: bin.getEnd(), text, note: `${where(bin)} ${swap(bin.getText(), text)}` });
     }
 
     for (const sw of scope.getDescendantsOfKind(SyntaxKind.SwitchStatement)) {
@@ -166,7 +167,7 @@ function enumEdits(scope: Node, fix: Fix, where: Where, taken: Edit[], ts: boole
       const add = items.map((v) => renamed.get(v)).filter((v): v is string => v !== undefined && !items.includes(v));
       if (!add.length || overlaps(arr, [...kept, ...edits])) continue;
       const text = JSON.stringify([...items, ...new Set(add)]);
-      edits.push({ start: arr.getStart(), end: arr.getEnd(), text, note: `${where(arr)} \`${arr.getText()}\` → \`${text}\`` });
+      edits.push({ start: arr.getStart(), end: arr.getEnd(), text, note: `${where(arr)} ${swap(arr.getText(), text)}` });
     }
   }
   return [...kept, ...edits];

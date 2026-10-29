@@ -6,9 +6,26 @@ export interface Edit {
   start: number;
   end: number;
   text: string;
-  /** One-line description for the PR body, for example "src/deploy.ts:22 res.status !== 204 → …". */
+  /**
+   * One-line Markdown description for the PR body, for example "`src/deploy.ts:22` `res.status !== 204` → …".
+   * Text from the repository (code, paths) goes in a codeSpan, so it cannot add Markdown of its own.
+   */
   note: string;
 }
+
+/**
+ * `text` as an inline code span: GitHub renders it literally, so Markdown or HTML in it makes no link,
+ * image, @mention, issue reference or layout change. On one line, and at most `max` characters.
+ */
+export function codeSpan(text: string, max = 500): string {
+  let flat = text.replace(/\s+/g, " ").trim();
+  if (flat.length > max) flat = `${flat.slice(0, max - 1)}…`;
+  const fence = "`".repeat(Math.max(0, ...(flat.match(/`+/g) ?? []).map((r) => r.length)) + 1);
+  return `${fence} ${flat} ${fence}`;
+}
+
+/** A note's "code → code", each side a code span. */
+export const swap = (from: string, to: string) => `${codeSpan(from)} → ${codeSpan(to)}`;
 
 export interface RecipeContext {
   sourceFile: SourceFile;

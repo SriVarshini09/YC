@@ -46,22 +46,34 @@ function demoRepo(name: string) {
   return { dir, callSite, original: readFileSync(path.join(dir, callSite.file), "utf8") };
 }
 
+/** Repaired in a workspace the test keeps, so it can look at what was left there. */
 async function repair(dir: string, callSite: ReturnType<typeof demoRepo>["callSite"], opts: { llm?: LlmFixer; noRecipe?: boolean } = {}) {
+  const workspace = localWorkspace(dir);
+  sandboxes.push(workspace.location);
   const result = await repairCallSite({
-    repoDir: dir,
+    workspace,
     advisory: opts.noRecipe ? { ...advisory, recipeId: undefined } : advisory,
     callSite,
     ...shapes,
     recipes: RECIPES,
     llm: opts.llm,
   });
-  if (result.sandbox) sandboxes.push(result.sandbox);
   return result;
 }
 
 const fixedText = (original: string) => original.replace("res.status !== 204", "res.status !== 200 && res.status !== 204");
 
 describe("repairCallSite", () => {
+  it("with only a repoDir, removes its temp copy (which can hold .env files) when it returns", async () => {
+    const { dir, callSite } = demoRepo("temp-copy");
+    const site = await repairCallSite({ repoDir: dir, advisory, callSite, ...shapes, recipes: RECIPES });
+    expect(site.status).toBe("fixed");
+    expect(existsSync(site.sandbox!)).toBe(false);
+    const all = await repairAdvisory({ repoDir: dir, advisory, callSites: [callSite], ...shapes, recipes: RECIPES });
+    expect(all.status).toBe("fixed");
+    expect(existsSync(all.sandbox!)).toBe(false);
+  }, 60_000);
+
   it("fixes the demo call site with the recipe, test-first, without touching the repo", async () => {
     const { dir, callSite, original } = demoRepo("recipe");
     const result = await repair(dir, callSite);
@@ -479,7 +491,21 @@ describe("LLM spend", () => {
     const req = {} as FixRequest;
     await llm.fix(req);
     await llm.fix(req);
-    expect(await llm.fix(req)).toEqual({ status: "declined", reason: "the 2 LLM calls allowed per fix job are used up (SHAPI_LLM_CALLS_PER_JOB)" });
+    expect(await llm.fix(req)).toEqual({ status: "declined", reason: "the 2 LLM calls allowed are used up (SHAPI_LLM_CALLS_PER_JOB)" });
+    expect(calls).toBe(2);
+  });
+
+  it("shares one budget between runs that count calls in the same place", async () => {
+    let calls = 0;
+    let stored = 0;
+    const fixer = { fix: async () => (calls++, { status: "declined" as const, reason: "no" }) };
+    const take = async () => ++stored;
+    const req = {} as FixRequest;
+    await withCallBudget(fixer, 2, take).fix(req);
+    // A retried job: a new budget, the same count.
+    const retry = withCallBudget(fixer, 2, take);
+    await retry.fix(req);
+    expect((await retry.fix(req)).status).toBe("declined");
     expect(calls).toBe(2);
   });
 

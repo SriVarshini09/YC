@@ -68,7 +68,7 @@ export async function pageName(pageId: string, token: string) {
     const result = await repairOnly(dir, advisory, sites[0]!);
     expect(result.status).toBe("fixed");
     expect(result.changes[0]!.after).toContain('const GRAPH = "https://graph.facebook.com/v26.0";');
-    expect(result.changes[0]!.notes).toEqual(['src/app.ts:1 `"https://graph.facebook.com/v21.0"` → `"https://graph.facebook.com/v26.0"`']);
+    expect(result.changes[0]!.notes).toEqual(['` src/app.ts:1 ` ` "https://graph.facebook.com/v21.0" ` → ` "https://graph.facebook.com/v26.0" `']);
   }, 60_000);
 
   it("moves a retired HubSpot path and reads the renamed id fields, keeping the old names as a fallback", async () => {

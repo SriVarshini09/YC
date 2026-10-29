@@ -23,6 +23,8 @@ export async function parseTarball(archive: Buffer | ReadableStream<Uint8Array>,
   const files: SnapshotFile[] = [];
   let bytes = 0;
   let failure: Error | undefined;
+  /** The parser (or its gunzip) failed: the rest of the download would go nowhere. */
+  let broken = false;
   let parser!: Parser;
   const parsed = new Promise<void>((resolve, reject) => {
     parser = new Parser({
@@ -49,24 +51,29 @@ export async function parseTarball(archive: Buffer | ReadableStream<Uint8Array>,
         entry.on("end", () => files.push({ path: rel, content: Buffer.concat(chunks) }));
       },
     });
-    parser.on("error", reject);
+    parser.on("error", (err: Error) => {
+      broken = true;
+      reject(err);
+    });
     parser.on("end", () => resolve());
   });
+  // Awaited below; until then a corrupt archive must not be an unhandled rejection (it would end the process).
+  parsed.catch(() => undefined);
   if (Buffer.isBuffer(archive)) parser.end(archive);
   else {
     const reader = archive.getReader();
     for (;;) {
-      if (failure) {
-        // Over a limit: stop downloading rather than read the rest of the archive.
+      if (failure || broken) {
+        // Over a limit, or unreadable: stop downloading rather than read the rest of the archive.
         await reader.cancel().catch(() => undefined);
-        parsed.catch(() => undefined);
-        throw failure;
+        if (failure) throw failure;
+        break;
       }
       const { done, value } = await reader.read();
       if (done) break;
       parser.write(Buffer.from(value));
     }
-    parser.end();
+    if (!broken) parser.end();
   }
   await parsed;
   if (failure) throw failure;

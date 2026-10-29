@@ -153,7 +153,7 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
         return undefined;
       }
       const access = await accountAccess(deps.db, session, account);
-      const ctx: PageContext = { user: session, theme: themeOf(req), admin: access.admin };
+      const ctx: PageContext = { user: session, theme: themeOf(req), admin: access.admin, addedSinceSignIn: access.addedSinceSignIn };
       return { session, account, access, ctx };
     };
     /** As accountFor, for the settings and billing routes: anyone but an account admin gets a 403 page. */
@@ -254,6 +254,9 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       // Only a form from this site signs out: a cross-site post must not clear the cookie.
       if (session && csrfOk(session, req.body)) {
         await endSession(deps.db, token);
+        reply.clearCookie(SESSION_COOKIE, { path: "/" });
+      } else if (!session && req.cookies[SESSION_COOKIE]) {
+        // A cookie for no session (it expired, or a deploy ended it): nothing to protect, so "Sign out" clears it.
         reply.clearCookie(SESSION_COOKIE, { path: "/" });
       }
       return reply.redirect("/");

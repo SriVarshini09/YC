@@ -22,7 +22,7 @@ export const APP_PERMISSIONS = {
 } as const;
 
 /** Webhook events beyond installation events, which every app receives. */
-export const APP_EVENTS = ["push", "pull_request", "issues"] as const;
+export const APP_EVENTS = ["push", "pull_request", "issues", "repository"] as const;
 
 /** Read-only token permissions for scanning a repo: the least a scan job needs. */
 export const SCAN_PERMISSIONS = { metadata: "read", contents: "read" } as const;

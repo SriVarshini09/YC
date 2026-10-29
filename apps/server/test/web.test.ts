@@ -726,6 +726,26 @@ describe("who sees and manages what", () => {
     await app.close();
   });
 
+  it("keeps an admin's rights when a repository is added after sign-in, and hides it with a notice until they sign in again", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    // Installed after sign-in: in no session's access yet.
+    await seedHidden();
+    for (const path of ["/settings", "/billing"]) expect((await app.inject({ url: `/a/${mine.account}${path}`, headers: { cookie } })).statusCode, path).toBe(200);
+    const overview = await app.inject({ url: `/a/${mine.account}`, headers: { cookie } });
+    expect(overview.body).toContain('<div class="notice">1 repository was added since you signed in. <a href="/login">Sign in again</a> to see it.</div>');
+    expect(overview.body).not.toContain("acme/hidden");
+    await app.close();
+
+    // Signed in again, GitHub lists it: it is shown, and the notice is gone.
+    const again = buildApp({ db, config, fetch: acmeWith([{ id: 1, permissions: { admin: true } }, { id: 3, full_name: "acme/hidden", permissions: { admin: true } }]).fetch });
+    const second = await signIn(again);
+    const page = await again.inject({ url: `/a/${mine.account}/repositories`, headers: { cookie: second.cookie } });
+    expect(page.body).toContain("acme/hidden");
+    expect(page.body).not.toContain("added since you signed in");
+    await again.close();
+  });
+
   it("makes the owner of a personal account its admin, and nobody else", async () => {
     const personal = await owner.insertInto("accounts").values({ github_installation_id: 8888, login: "octo", type: "User", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
     await owner.insertInto("repositories").values({ account_id: personal.id, github_repo_id: 10, full_name: "octo/tool", default_branch: "main", private: true }).execute();
@@ -875,6 +895,10 @@ describe("web app review fixes", () => {
     expect(await withService(db, (tx) => tx.selectFrom("sessions").selectAll().execute())).toHaveLength(1);
     // No session cookie at all, as in a cross-site post: nothing is cleared either.
     expect((await app.inject({ method: "POST", url: "/logout", headers: { "content-type": "application/x-www-form-urlencoded" }, payload: "" })).cookies).toEqual([]);
+    // The session is gone (it expired, or a migration ended every session): signing out clears the dead cookie.
+    await owner.deleteFrom("sessions").execute();
+    const dead = await app.inject({ method: "POST", url: "/logout", headers: form(cookie), payload: "" });
+    expect(dead.cookies.find((c) => c.name === "shapi_session")).toMatchObject({ value: "" });
     await app.close();
   });
 

@@ -49,13 +49,13 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: node packages/cli/scripts/build-npm.ts
+      - run: node scripts/run-ts.mjs packages/cli/scripts/build-npm.ts
       # The package is built on 24 and installed and run on the matrix version.
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
-      # Node 22.14 strips types only behind the flag.
-      - run: node --experimental-strip-types packages/cli/scripts/smoke-npm.ts
+      # Node 22.14 strips types only behind a flag, which run-ts.mjs adds when needed.
+      - run: node scripts/run-ts.mjs packages/cli/scripts/smoke-npm.ts
 
   docker:
     runs-on: ubuntu-latest

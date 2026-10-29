@@ -192,6 +192,24 @@ describe("billing in the web app", () => {
     await app.close();
   });
 
+  it("a private repository added after sign-in: the admin can still pay for it, and the page's counts include it", async () => {
+    const stripe = fakeStripe();
+    const app = appWith(stripe);
+    const cookie = await signIn(app);
+    // Installed after sign-in, so not in the session's access: hidden until the next sign-in.
+    await owner.insertInto("repositories").values({ account_id: accountId, github_repo_id: 300, full_name: "acme/added", default_branch: "main", private: true }).execute();
+    const page = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
+    expect(page.statusCode).toBe(200);
+    expect(page.body).toContain("Upgrade to cover 3 more private repositories");
+    expect(page.body).toContain("3 not covered");
+    expect(page.body).toContain("acme/billing");
+    expect(page.body).toContain("acme/crm");
+    expect(page.body).not.toContain("acme/added");
+    expect(page.body).toContain('1 more repository you can\'t see here. <a href="/login">Sign in again</a> if it was added since you signed in.');
+    expect(page.body).toContain('1 repository was added since you signed in. <a href="/login">Sign in again</a> to see it.');
+    await app.close();
+  });
+
   it("applies signed Stripe events once; paid repositories become covered; a cancellation takes them back", async () => {
     const stripe = fakeStripe();
     const app = appWith(stripe);

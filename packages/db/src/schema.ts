@@ -45,6 +45,8 @@ export interface ScansTable {
   advisories: ColumnType<Record<string, string>, string | undefined, string>;
   /** The SHAPI build (git sha) that last ran the fix job on this scan; null before any fix job. */
   fix_engine: ColumnType<string | null, string | null | undefined, string | null>;
+  /** LLM calls the fix jobs of this scan made, retries included: one budget per scan (SHAPI_LLM_CALLS_PER_JOB). */
+  llm_calls: Generated<number>;
   created_at: CreatedAt;
   started_at: Timestamp | null;
   finished_at: Timestamp | null;
