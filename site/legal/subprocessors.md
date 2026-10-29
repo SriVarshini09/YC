@@ -1,3 +1,7 @@
+---
+description: "The service providers that process customer data for SHAPI's hosted service."
+---
+
 # Subprocessors
 
 ::: warning Draft

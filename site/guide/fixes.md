@@ -1,3 +1,7 @@
+---
+description: "How SHAPI proves a fix: a contract test that fails before the change and passes after it, run in a sandbox."
+---
+
 # How fixes are verified
 
 SHAPI only proposes a change it has proven. The proof is a **contract test**, and it is part of every fix.

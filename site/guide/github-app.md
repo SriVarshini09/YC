@@ -1,3 +1,7 @@
+---
+description: "What the SHAPI GitHub App does on each push, the permissions it asks for, its pull request limits, and plans."
+---
+
 # GitHub App
 
 ::: info Early access

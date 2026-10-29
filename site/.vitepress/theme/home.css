@@ -15,9 +15,9 @@ html.lenis, html.lenis body { height: auto; }
 .home { color: var(--ink); font-size: 16px; line-height: 1.6; overflow-x: clip; -webkit-font-smoothing: antialiased; }
 .home a { color: inherit; text-decoration: none; }
 .home code, .home pre, .home .mono { font-family: var(--vp-font-family-mono); }
-.home h1, .home h2, .home h3 { margin: 0; padding: 0; border: 0; font-family: var(--serif); font-weight: 400; letter-spacing: -0.015em; color: var(--ink); }
+.home h1, .home h2, .home h3 { margin: 0; padding: 0; border: 0; font-family: var(--serif); font-weight: 400; letter-spacing: -0.015em; color: var(--ink); text-wrap: balance; }
 .home .it { font-style: italic; color: var(--muted); }
-.home .eyebrow { display: inline-flex; align-items: center; gap: 12px; font-size: 11.5px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+.home .eyebrow { display: inline-flex; align-items: center; gap: 12px; font-size: 11.5px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); text-wrap: balance; }
 .home .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
 .home .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .home .pill { display: inline-flex; align-items: center; height: 46px; padding: 0 24px; border-radius: 999px; font-weight: 500; font-size: 14.5px; border: 1px solid #c9c9c2; color: var(--ink); transition: transform 0.2s, border-color 0.2s; }
@@ -105,6 +105,8 @@ html.lenis, html.lenis body { height: auto; }
 .home .steps span.on::before { width: 34px; }
 @media (min-width: 1400px) { .home .steps { display: grid; } }
 @media (max-height: 820px) { .home .src { font-size: 12px; line-height: 1.8; } .home .diag { top: 246px; } }
+/* Beside the providers and the file tree the code column is narrow, and the diagnostic wraps to more lines. */
+@media (min-width: 1001px) and (max-width: 1300px) { .home .src { padding-bottom: 96px; } }
 
 /* ---------- 2. the problem, word by word ---------- */
 .home .scrub { padding: 20vh 0 12vh; }
@@ -205,7 +207,7 @@ html.lenis, html.lenis body { height: auto; }
 .home .lset.on div:nth-child(5) { transition-delay: 0.48s; }
 .home .lset.on div:nth-child(6) { transition-delay: 0.6s; }
 .home .lset.on div:nth-child(7) { transition-delay: 0.72s; }
-.home .lset div span { color: rgba(241, 241, 238, 0.45); margin-right: 14px; }
+.home .lset div span { color: rgba(241, 241, 238, 0.55); margin-right: 14px; }
 .home .lset .e, .home .verdict .e { color: var(--night-break); }
 .home .lset .g, .home .verdict .g { color: var(--night-fixed); }
 .home .lset .s { color: var(--night-ink); font-weight: 600; }
@@ -265,13 +267,14 @@ html.lenis, html.lenis body { height: auto; }
   .home .shape, .home .runs { grid-template-columns: 1fr; }
   .home .box, .home .diff { font-size: 11px; }
   .home .term-sec .stage { align-content: center; gap: 24px; }
-  .home .term pre { min-height: 0; font-size: 10px; }
+  .home .term pre { min-height: 0; font-size: 10px; overflow-x: auto; }
   .home .trust { gap: 56px; }
 }
 @media (min-width: 960px) and (max-width: 1000px) { .home .media { top: 76px; } }
 @media (max-width: 640px) {
   .home .hero .lede { font-size: 15px; }
-  .home .hero .eyebrow::before { display: none; }
+  /* A centred eyebrow that wraps loses its rule: a line before the first row only looks misplaced. */
+  .home .hero .eyebrow::before, .home .pipe-head .eyebrow::before, .home .helix-copy .eyebrow::before, .home .two-head .eyebrow::before { display: none; }
   .home .src { padding-bottom: 96px; font-size: 12px; line-height: 1.8; }
   .home .diag { top: 232px; }
   .home .ed-bar > i { display: none; }

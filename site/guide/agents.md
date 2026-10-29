@@ -1,3 +1,7 @@
+---
+description: "Use SHAPI from Claude Code, Cursor and other coding agents, through the CLI or the MCP server."
+---
+
 # Coding agents (MCP)
 
 SHAPI ships an MCP server and an agent skill, so Claude Code, Cursor and other MCP clients can check and fix third-party API breakages while they work in your repository.
