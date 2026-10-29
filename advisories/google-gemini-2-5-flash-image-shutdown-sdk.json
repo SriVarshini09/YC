@@ -5,7 +5,7 @@
   "summary": "Google shuts down gemini-2.5-flash-image (the original Nano Banana image model) on 2027-03-15. After that the model is turned off and generateContent calls that name it fail. This advisory covers calls that pass the model as a parameter, as the @google/genai SDK does (ai.models.generateContent({ model })); google-gemini-2-5-flash-image-shutdown covers calls that name the model in the path.",
   "endpoint": {
     "method": "POST",
-    "path": "/*/models/*:*"
+    "path": "/*/models/{?}:*"
   },
   "changeClass": "version-sunset",
   "trigger": {

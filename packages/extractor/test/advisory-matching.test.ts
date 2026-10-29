@@ -59,12 +59,14 @@ export async function run(file: any) {
 `,
   "src/gemini.ts": `import { GoogleGenAI } from "@google/genai";
 const ai = new GoogleGenAI({ apiKey: "k" });
-export async function run() {
+export async function run(model: string) {
   await ai.models.generateContent({ model: "gemini-2.0-flash", contents: "hi" }); // affected: google-gemini-2-0-flash-shutdown-sdk
   await ai.models.generateContent({ model: "gemini-2.5-flash-preview-tts", contents: "hi" }); // affected: google-gemini-2-5-preview-tts-shutdown-sdk
   await ai.models.generateContent({ model: "models/gemini-2.5-flash-image", contents: "hi" }); // affected: google-gemini-2-5-flash-image-shutdown-sdk
   await ai.models.generateContent({ model: "gemini-3.6-flash", contents: "hi" }); // exposed: google-gemini-2-0-flash-shutdown-sdk
   await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", { method: "POST" }); // affected: google-gemini-2-0-flash-shutdown
+  await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent", { method: "POST" });
+  await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/\${model}:generateContent\`, { method: "POST" }); // exposed: google-gemini-2-0-flash-shutdown-sdk
 }
 `,
   "src/xero.ts": `import { XeroClient } from "xero-node";
@@ -228,6 +230,12 @@ describe("advisories against the code they describe", () => {
     for (const [where, marks] of markers()) {
       for (const id of marks.exposed) expect(at("exposed", where), `${where} exposed`).toContain(id);
     }
+  });
+
+  it("keeps a Gemini call that names the model in its path out of the advisories for a model passed as a parameter", () => {
+    // gemini-2.0-flash in the path is affected once, by the path advisory; gemini-2.5-pro is exposed to no shutdown
+    expect(at("exposed", "src/gemini.ts:8")).toEqual([]);
+    expect(at("exposed", "src/gemini.ts:9")).toEqual([]);
   });
 
   it("explains a possibly affected loose URL by its unknown method", () => {
