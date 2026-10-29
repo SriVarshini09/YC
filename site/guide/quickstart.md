@@ -1,3 +1,7 @@
+---
+description: "Scan a repository for the code a third-party API change breaks, then fix it test-first. Two commands, no account."
+---
+
 # Quickstart
 
 You need **Node.js 22.14 or later** (Node 23 and 25 are not supported).

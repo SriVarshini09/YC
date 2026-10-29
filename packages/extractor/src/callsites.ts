@@ -11,7 +11,7 @@ import {
   type Surface,
 } from "@shapi/core";
 import { posix } from "node:path";
-import { Node, SyntaxKind, type CallExpression, type SourceFile } from "ts-morph";
+import { Node, SyntaxKind, type ArrowFunction, type CallExpression, type FunctionExpression, type SourceFile } from "ts-morph";
 
 export function emptySurface(): Surface {
   return { fields: [], statusCodes: [], checksOk: false, enums: [], headers: [], query: [], responseHeaders: [] };
@@ -484,44 +484,25 @@ function httpSite(
 // SDK calls
 
 function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined {
-  const chain = chainOf(call.getExpression());
+  const chain = chainOf(call.getExpression(), true);
   if (!chain || chain.names.length === 0) return undefined;
-  let client = ctx.sdk.get(chain.root) ?? importedClient(ctx, chain.root);
-  if (!client) {
-    const ref = ctx.imports.get(chain.root);
-    const provider = ref ? providerForPackage(ref.module) : undefined;
-    // Functional SDKs used straight off the import (sgMail.send). Constructors and factories are not calls to the API.
-    if (!ref || !provider || ref.imported !== "default") return undefined;
-    client = { provider, pkg: ref.module };
-  }
+  const client = sdkClientOf(ctx, chain.root, call);
+  if (!client) return undefined;
 
   const operation = chain.names.join(".");
+  // client.messages(sid).fetch() is a call of its own only when the table knows it; in
+  // openai.responses.create({ … }).then(…) the API call is the inner one.
+  if (operation.includes("()") && !tableEndpoint(client, operation)) return undefined;
+  // client.messages(sid) itself, when .fetch() follows
+  if (insideResourceCall(ctx, call)) return undefined;
   const args = call.getArguments();
-  let method: HttpMethod | null = null;
-  let endpoint: string | null = null;
-  let options: Node | undefined = args[0];
+  const options: Node | undefined = operation === "request" ? args[1] : args[0];
 
-  const route = operation === "request" ? evalString(ctx, args[0]) : undefined;
-  if (route) {
-    const m = /^([A-Z]+)\s+(\S+)$/.exec(route.trim());
-    if (m && (HTTP_METHODS as readonly string[]).includes(m[1]!)) {
-      method = m[1] as HttpMethod;
-      endpoint = parseUrl(m[2]).path;
-    } else if (route.startsWith("/")) {
-      method = "GET";
-      endpoint = parseUrl(route).path;
-    }
-    options = args[1];
-  } else if (operation === "graphql") {
-    method = "POST";
-    endpoint = "/graphql";
-  } else {
-    const ep = sdkEndpoint(client.provider, operation);
-    if (ep) {
-      method = ep.method;
-      endpoint = ep.path;
-    }
-  }
+  // octokit.request("GET /repos/{owner}/{repo}"); another SDK's request(query) is its GraphQL client
+  const route = operation === "request" ? routeOf(evalString(ctx, args[0]), client.provider.id === "github") : undefined;
+  const ep = route ?? tableEndpoint(client, operation);
+  const method = ep?.method ?? null;
+  const endpoint = ep?.path ?? null;
 
   // A provider with per-tenant hosts (`*.myshopify.com`) serves its SDK's calls from a host only known at runtime.
   const host = client.provider.hosts.some((h) => h.startsWith("*.")) ? null : (client.provider.hosts[0] ?? null);
@@ -532,8 +513,9 @@ function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined
   if (apiVersion) surface.headers.push({ name: `${client.provider.id}-version`, value: evalString(clientCtx, apiVersion) ?? null });
   surface.headers.sort((a, b) => a.name.localeCompare(b.name));
   // An SDK method's parameters are the request body: openai.chat.completions.create({ model, … }).
-  // Octokit's request(route, params) mixes path, query and body parameters, so it is left out.
-  const body = route === undefined && operation !== "graphql" ? bodyEntries(ctx, options) : [];
+  // Octokit's request(route, params) mixes path, query and body parameters, and a GraphQL client's
+  // are variables, so they are left out.
+  const body = operation !== "request" && operation !== "graphql" ? bodyEntries(ctx, options) : [];
   if (body.length) surface.body = body;
   return {
     call,
@@ -556,20 +538,94 @@ function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined
   };
 }
 
-/** `a.b.c` → { root: "a", names: ["b", "c"] }; `this.a.b` → { root: "this.a", names: ["b"] }. */
-function chainOf(node: Node): { root: string; names: string[] } | undefined {
+/** The SDK client an expression's root names, in the file or imported from another, or a functional SDK's import. */
+function sdkClientOf(ctx: FileContext, root: string, at: Node): SdkClient | undefined {
+  const client = boltListenerClient(ctx, root, at) ?? ctx.sdk.get(root) ?? importedClient(ctx, root);
+  if (client) return client;
+  const ref = ctx.imports.get(root);
+  const provider = ref ? providerForPackage(ref.module) : undefined;
+  // Functional SDKs used straight off the import (sgMail.send). Constructors and factories are not calls to the API.
+  if (!ref || !provider || ref.imported !== "default") return undefined;
+  return { provider, pkg: ref.module };
+}
+
+/** The endpoint an SDK method chain calls, from its provider's table. Bolt's `app.client` is a Web API client. */
+function tableEndpoint(client: SdkClient, operation: string) {
+  return sdkEndpoint(client.provider, client.pkg === "@slack/bolt" ? operation.replace(/^client\./, "") : operation);
+}
+
+/** Octokit's "GET /repos/{owner}/{repo}" (a bare "/path" is a GET); another SDK's request() only takes the first form as a route. */
+function routeOf(route: string | undefined, octokit: boolean): { method: HttpMethod; path: string | null } | undefined {
+  if (route === undefined) return undefined;
+  const m = /^([A-Z]+)\s+(\S+)$/.exec(route.trim());
+  if (m && (HTTP_METHODS as readonly string[]).includes(m[1]!)) return { method: m[1] as HttpMethod, path: parseUrl(m[2]).path };
+  if (octokit && route.startsWith("/")) return { method: "GET", path: parseUrl(route).path };
+  return undefined;
+}
+
+/** True for `client.messages(sid)` in `client.messages(sid).fetch()`, when the table knows the longer chain. */
+function insideResourceCall(ctx: FileContext, call: CallExpression): boolean {
+  let cur: Node = call;
+  for (;;) {
+    const p = cur.getParent();
+    if (Node.isPropertyAccessExpression(p) && p.getExpression() === cur) cur = p;
+    else if (Node.isCallExpression(p) && p.getExpression() === cur && cur !== call) {
+      const chain = chainOf(cur, true);
+      const client = chain ? sdkClientOf(ctx, chain.root, p) : undefined;
+      if (client && tableEndpoint(client, chain!.names.join("."))) return true;
+      cur = p;
+    } else return false;
+  }
+}
+
+/** Bolt listener methods whose callback receives `{ client }`, a Web API client. */
+const BOLT_LISTENERS = new Set(["message", "event", "command", "action", "shortcut", "view", "options", "function", "use"]);
+
+/** `app.command("/x", async ({ ack, client }) => client.chat.postMessage(…))`: the client a Bolt listener receives. */
+function boltListenerClient(ctx: FileContext, name: string, at: Node): SdkClient | undefined {
+  for (let fn = enclosingFunction(at); fn; fn = enclosingFunction(fn)) {
+    const param = fn.getParameters()[0]?.getNameNode();
+    if (param && Node.isIdentifier(param) && param.getText() === name) return undefined;
+    const el = param && Node.isObjectBindingPattern(param) ? param.getElements().find((e) => e.getName() === name) : undefined;
+    if (!el) continue;
+    if ((el.getPropertyNameNode()?.getText() ?? el.getName()) !== "client") return undefined;
+    const listen = fn.getParent();
+    const chain = Node.isCallExpression(listen) && listen.getArguments().includes(fn) ? chainOf(listen.getExpression()) : undefined;
+    if (!chain || chain.names.length !== 1 || !BOLT_LISTENERS.has(chain.names[0]!)) return undefined;
+    const app = ctx.sdk.get(chain.root) ?? importedClient(ctx, chain.root);
+    return app?.pkg === "@slack/bolt" ? app : undefined;
+  }
+  return undefined;
+}
+
+function enclosingFunction(node: Node): ArrowFunction | FunctionExpression | undefined {
+  return node.getFirstAncestor((a): a is ArrowFunction | FunctionExpression => Node.isArrowFunction(a) || Node.isFunctionExpression(a));
+}
+
+/**
+ * `a.b.c` → { root: "a", names: ["b", "c"] }; `this.a.b` → { root: "this.a", names: ["b"] }. With `calls`, a call
+ * in the chain keeps empty parentheses: `client.messages(sid).fetch` → { root: "client", names: ["messages()", "fetch"] }.
+ */
+function chainOf(node: Node, calls = false): { root: string; names: string[] } | undefined {
   const names: string[] = [];
   let cur: Node = node;
-  while (Node.isPropertyAccessExpression(cur)) {
-    names.unshift(cur.getName());
-    const inner: Node = cur.getExpression();
-    if (inner.getKind() === SyntaxKind.ThisKeyword) {
-      const first = names.shift()!;
-      return { root: `this.${first}`, names };
-    }
-    cur = inner;
+  let called = false;
+  for (;;) {
+    if (Node.isPropertyAccessExpression(cur)) {
+      names.unshift(cur.getName() + (called ? "()" : ""));
+      called = false;
+      const inner: Node = cur.getExpression();
+      if (inner.getKind() === SyntaxKind.ThisKeyword) {
+        const first = names.shift()!;
+        return { root: `this.${first}`, names };
+      }
+      cur = inner;
+    } else if (calls && !called && names.length > 0 && Node.isCallExpression(cur)) {
+      called = true;
+      cur = cur.getExpression();
+    } else break;
   }
-  if (Node.isIdentifier(cur)) return { root: cur.getText(), names };
+  if (!called && Node.isIdentifier(cur)) return { root: cur.getText(), names };
   return undefined;
 }
 

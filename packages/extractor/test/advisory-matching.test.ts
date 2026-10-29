@@ -73,6 +73,7 @@ export async function sync(t: string) {
   await xero.accountingApi.emailInvoice(t, "inv", {}); // affected: xero-accounting-transactions-scope-split exposed: xero-invoices-email-daily-limit-429
   await xero.accountingApi.createCreditNoteAllocation(t, "cn", {}); // affected: xero-accounting-transactions-scope-split xero-allocations-contact-mismatch-rejected
   await xero.payrollAUApi.createPayItem(t, {}); // affected: xero-au-payroll-isqualifyingearnings-required
+  await fetch("https://api.xero.com/payroll.xro/2.0/earningsRates", { method: "POST", headers: { "xero-tenant-id": t } }); // affected: xero-au-payroll-isqualifyingearnings-required-earningsrates
   await xero.payrollNZApi.updateEmployeeTax(t, "e", {}); // affected: xero-nz-payroll-employee-tax-kiwisaverstatus-required
   await xero.financeApi.getAccountingActivityAccountUsage(t); // affected: xero-finance-accounting-activities-decommissioned
   await xero.accountingApi.getOrganisations(t); // affected: xero-accounting-transactions-scope-split exposed: xero-organisation-class-ultra-enum
@@ -119,6 +120,10 @@ export async function optedOut(account: string, sid: string) {
   const msg = await res.json();
   return msg.error_code === 21610;
 }
+export async function sdkFailover(sid: string) {
+  const msg = await client.messages(sid).fetch(); // affected: twilio-rcs-undelivered-error-code-30046
+  return msg.errorCode === 30036;
+}
 `,
   "src/x.ts": `import { TwitterApi } from "twitter-api-v2";
 const client = new TwitterApi("token");
@@ -143,6 +148,7 @@ export const accounts = () => conn.query("SELECT Id FROM Account");
 const shopify = new Shopify({ shopName: "s", accessToken: "t", apiVersion: "2026-01" });
 export const addTag = () => shopify.scriptTag.create({ event: "onload", src: "https://x/y.js" }); // affected: shopify-script-tags-stop-running possible: shopify-admin-api-2026-01-unsupported shopify-admin-api-2026-04-unsupported
 export const products = () => shopify.product.list();
+export const shop = () => shopify.graphql("{ shop { name } }"); // affected: shopify-non-expiring-offline-tokens-rejected possible: shopify-admin-api-2026-01-unsupported shopify-admin-api-2026-04-unsupported
 `,
   "src/stripe.ts": `import Stripe from "stripe";
 const stripe = new Stripe("sk_test_x");

@@ -16,7 +16,8 @@
       "pulls.merge": "PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge",
       "issues.create": "POST /repos/{owner}/{repo}/issues",
       "issues.createComment": "POST /repos/{owner}/{repo}/issues/{issue_number}/comments",
-      "checks.create": "POST /repos/{owner}/{repo}/check-runs"
+      "checks.create": "POST /repos/{owner}/{repo}/check-runs",
+      "graphql": "POST /graphql"
     },
     "docsUrl": "https://docs.github.com/en/rest",
     "changelogUrl": "https://github.blog/changelog/"
@@ -78,7 +79,15 @@
       "calls.create": "POST /2010-04-01/Accounts/{AccountSid}/Calls.json",
       "conferences.list": "GET /2010-04-01/Accounts/{AccountSid}/Conferences.json",
       "conferences.each": "GET /2010-04-01/Accounts/{AccountSid}/Conferences.json",
-      "conferences.page": "GET /2010-04-01/Accounts/{AccountSid}/Conferences.json"
+      "conferences.page": "GET /2010-04-01/Accounts/{AccountSid}/Conferences.json",
+      "messages().fetch": "GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json",
+      "messages().update": "POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json",
+      "messages().remove": "DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json",
+      "calls().fetch": "GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json",
+      "calls().update": "POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json",
+      "calls().remove": "DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json",
+      "conferences().fetch": "GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json",
+      "conferences().update": "POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json"
     },
     "docsUrl": "https://www.twilio.com/docs/usage/api",
     "changelogUrl": "https://www.twilio.com/en-us/changelog",
@@ -109,7 +118,9 @@
       "ScriptTag.all": "GET /admin/api/{version}/script_tags.json",
       "ScriptTag.find": "GET /admin/api/{version}/script_tags/{id}.json",
       "ScriptTag.delete": "DELETE /admin/api/{version}/script_tags/{id}.json",
-      "ScriptTag.count": "GET /admin/api/{version}/script_tags/count.json"
+      "ScriptTag.count": "GET /admin/api/{version}/script_tags/count.json",
+      "graphql": "POST /admin/api/{version}/graphql.json",
+      "request": "POST /admin/api/{version}/graphql.json"
     },
     "docsUrl": "https://shopify.dev/docs/api/admin",
     "changelogUrl": "https://shopify.dev/changelog"

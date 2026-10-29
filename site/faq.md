@@ -1,3 +1,7 @@
+---
+description: "Common questions about SHAPI: languages, providers, pull request limits, AI and licensing."
+---
+
 # FAQ
 
 ## Which languages does SHAPI support?

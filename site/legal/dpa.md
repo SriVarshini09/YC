@@ -1,3 +1,7 @@
+---
+description: "SHAPI's data processing agreement, for personal data under the GDPR and the UK GDPR."
+---
+
 # Data processing agreement
 
 ::: warning Draft

@@ -1,3 +1,7 @@
+---
+description: "How SHAPI maps your third-party API calls into an api.lock, matches them against advisories, and fixes what breaks."
+---
+
 # How SHAPI works
 
 Third-party APIs change behavior without a new version number. GitHub's `workflow_dispatch` started answering `200` with a body instead of `204`. QuickBooks began answering every minor version below 75 as 75. HubSpot retires its v1 pipelines API on December 4, 2026. Code written against the old behavior keeps compiling and breaks at runtime. SHAPI finds that code before your users do.
@@ -9,14 +13,14 @@ SHAPI parses your TypeScript and JavaScript with the TypeScript compiler (throug
 - **HTTP clients:** `fetch`, axios, got, undici, ky, node-fetch
 - **official SDKs** of the providers it knows, for example `@octokit/rest`, `stripe` and `@hubspot/api-client`.
 
-An axios, got or ky instance keeps its base URL, headers and default query for every call, also as a class member (`this.http.get(...)`). An SDK client constructed in one file and imported from another (`import { openai } from "./lib/openai"`) is followed to the file that constructs it. Dependencies and build output are not scanned: `node_modules`, `dist`, `build`, `public` and similar folders, and minified bundles (`*.min.js`, `*.bundle.js`).
+An axios, got or ky instance keeps its base URL, headers and default query for every call, also as a class member (`this.http.get(...)`). An SDK client constructed in one file and imported from another (`import { openai } from "./lib/openai"`) is followed to the file that constructs it. SDK calls reach their endpoint through the GraphQL clients too (`octokit.graphql`, `shopify.graphql`, and `client.request(query)` from `@shopify/admin-api-client`), through Slack Bolt's `app.client` and the `client` a listener receives, and through Twilio resources picked by sid (`client.messages(sid).fetch()`). Dependencies and build output are not scanned: `node_modules`, `dist`, `build`, `public` and similar folders, and minified bundles (`*.min.js`, `*.bundle.js`).
 
 Python files are parsed with tree-sitter, and the same things are recorded for them:
 
 - **HTTP clients:** `requests` (including `Session`), `httpx` (including `Client` and `AsyncClient` with `base_url`) and `aiohttp`;
 - **SDKs:** OpenAI, Anthropic, Stripe, Slack (`WebClient`), Twilio and HubSpot.
 
-SHAPI also records URLs of known APIs that no recognized client sends: a project's own request helper, a config object (`baseUrl: "https://..."`), or a connector framework's `url_base` and `path`. Their method is unknown, and they are matched by provider and path. A path that only one provider serves names its provider even when the host is built at runtime: `https://${shop}/admin/api/2026-01/...` is Shopify, also with a runtime version (`/admin/api/${version}/...`), and `/crm-pipelines/v1/...` is HubSpot. In TypeScript and JavaScript, a host whose subdomain is built at runtime names its provider by its fixed suffix: `https://${subdomain}.zendesk.com/...` is Zendesk.
+SHAPI also records URLs of known APIs that no recognized client sends: a project's own request helper, a config object (`baseUrl: "https://..."`), or a connector framework's `url_base` and `path`. Their method is unknown, and they are matched by provider and path. A path that only one provider serves names its provider even when the host is built at runtime: `https://${shop}/admin/api/2026-01/...` is Shopify, also with a runtime version (`/admin/api/${version}/...`), and `/crm-pipelines/v1/...` is HubSpot. A host whose subdomain is built at runtime names its provider by its fixed suffix: `https://${subdomain}.zendesk.com/...` (in Python, `f"https://{subdomain}.zendesk.com/..."`) is Zendesk.
 
 Python call sites are matched against the same advisories. Fixes are proposed for TypeScript and JavaScript only, for now.
 

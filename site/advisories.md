@@ -1,3 +1,7 @@
+---
+description: "The open database of third-party API behavior changes SHAPI matches your code against: the format, every advisory, and how to contribute."
+---
+
 # Advisories
 
 An advisory describes one third-party API behavior change: which endpoint, what changed, when it took (or takes) effect, **exactly what code it breaks**, how to migrate, and the evidence. SHAPI's advisories are open data in a public repository:

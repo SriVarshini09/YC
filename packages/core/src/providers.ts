@@ -14,7 +14,10 @@ export const ProviderSchema = z.object({
   hosts: z.array(z.string().regex(/^(\*\.)?[a-z0-9.-]+$/)).min(1),
   /** npm packages that are this provider's SDKs. */
   sdkPackages: z.array(z.string().min(1)),
-  /** SDK method chain (after the client, without a leading "rest.") to the HTTP endpoint it calls. */
+  /**
+   * SDK method chain (after the client, without a leading "rest.") to the HTTP endpoint it calls. A call
+   * that picks a resource by id has empty parentheses: `messages().fetch` is `client.messages(sid).fetch()`.
+   */
   sdkMethods: z.record(z.string(), EndpointRefSchema).optional(),
   docsUrl: z.url(),
   changelogUrl: z.url().optional(),

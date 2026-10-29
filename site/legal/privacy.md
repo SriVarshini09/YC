@@ -1,3 +1,7 @@
+---
+description: "What data SHAPI collects, why, how long it is kept, and your rights."
+---
+
 # Privacy policy
 
 ::: warning Draft

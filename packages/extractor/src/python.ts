@@ -108,6 +108,8 @@ function collectImports(root: Node, ctx: FileContext): void {
 function bindModule(ctx: FileContext, alias: string, dotted: string): void {
   const [top, ...rest] = dotted.split(".") as [string, ...string[]];
   if (HTTP_LIBS.has(top)) {
+    // aiohttp.web is the server side: web.get("/x", handler) defines a route, it sends nothing.
+    if (top === "aiohttp" && rest[0] === "web") return;
     ctx.names.set(alias, { kind: "http-module", lib: top as Lib, ...(rest.length ? { name: rest.at(-1) } : {}) });
     return;
   }
@@ -193,14 +195,14 @@ function httpCall(ctx: FileContext, call: Node): CallSite | undefined {
   } else return undefined;
 
   const base = binding.kind === "http-client" ? binding.baseUrl : undefined;
-  const { host, path, query } = parseUrl(joinUrl(base, evalString(ctx, urlNode)));
+  const { host, path, query, runtimeHost } = parseUrl(joinUrl(base, evalString(ctx, urlNode)));
   const surface = emptySurface();
   surface.headers = [...(binding.kind === "http-client" ? binding.headers : []), ...dictEntries(ctx, keyword(args, "headers"))].map((h) => ({ ...h, name: h.name.toLowerCase() }));
   surface.query = [...query, ...dictEntries(ctx, keyword(args, "params"))];
   // requests/httpx/aiohttp: json={...} (or data={...} for form bodies).
   const body = dictEntries(ctx, keyword(args, "json") ?? keyword(args, "data"));
   if (body.length) surface.body = body;
-  const provider = providerOf(host, path);
+  const provider = providerOf(host, path, runtimeHost);
   return { file: "", line: 0, column: 0, provider, kind: "http", client: binding.lib, method, host, endpoint: path, resolved: Boolean(provider && path && method), surface };
 }
 
@@ -221,7 +223,8 @@ function sdkCall(ctx: FileContext, call: Node): CallSite | undefined {
     .filter((a): a is Node => a?.type === "keyword_argument")
     .map((a) => ({ name: a.childForFieldName("name")!.text, value: literal(ctx, a.childForFieldName("value") ?? undefined) }));
   if (body.length) surface.body = body;
-  const host = binding.provider.hosts.find((h) => !h.startsWith("*.")) ?? null;
+  // A provider with per-tenant hosts (`*.twilio.com`) serves its SDK's calls from a host only known at runtime.
+  const host = binding.provider.hosts.some((h) => h.startsWith("*.")) ? null : (binding.provider.hosts[0] ?? null);
   return {
     file: "",
     line: 0,
@@ -406,8 +409,8 @@ function body(path: string[], top: Node, lib: string, c: Collector, depth: numbe
   c.fields.add(field);
   if (cut < 0) {
     // A number compared for equality is an enum value too, as its decimal text: data["error_code"] == 30036.
-    const { nums, strs, equality } = comparedLiterals(top);
-    for (const s of [...strs, ...(equality ? nums.map(String) : [])]) {
+    const { nums, strs } = comparedLiterals(top);
+    for (const s of [...strs, ...nums.map(String)]) {
       const set = c.enums.get(field) ?? new Set<string>();
       set.add(s);
       c.enums.set(field, set);
@@ -442,14 +445,18 @@ function iterate(top: Node, loc: Loc, lib: string, c: Collector, depth: number):
   }
 }
 
-/** Literals an expression is compared to: ==, !=, `in (a, b)`, `not in [...]`; `equality` when only those operators are used. */
-function comparedLiterals(node: Node): { nums: number[]; strs: string[]; equality: boolean } {
+/**
+ * Literals an expression is compared to with ==, !=, `in (a, b)` or `not in [...]`. An ordering
+ * (`resp.status_code >= 400`) names no value the code depends on, as on the TypeScript side.
+ */
+function comparedLiterals(node: Node): { nums: number[]; strs: string[] } {
   const nums: number[] = [];
   const strs: string[] = [];
   let cur = node;
   while (cur.parent?.type === "parenthesized_expression") cur = cur.parent;
   const p = cur.parent;
-  if (p?.type !== "comparison_operator") return { nums, strs, equality: false };
+  if (p?.type !== "comparison_operator") return { nums, strs };
+  if (!p.childrenForFieldName("operators").every((op) => op && ["==", "!=", "in", "not in"].includes(op.text))) return { nums, strs };
   const take = (n: Node | null | undefined) => {
     if (!n) return;
     if (n.type === "integer") nums.push(Number(n.text));
@@ -459,8 +466,7 @@ function comparedLiterals(node: Node): { nums: number[]; strs: string[]; equalit
     } else if (n.type === "tuple" || n.type === "list" || n.type === "set") n.namedChildren.forEach(take);
   };
   for (const operand of p.namedChildren) if (operand && operand.id !== cur.id) take(operand);
-  const equality = p.childrenForFieldName("operators").every((op) => op && ["==", "!=", "in", "not in"].includes(op.text));
-  return { nums, strs, equality };
+  return { nums, strs };
 }
 
 // ---------------------------------------------------------------------------
@@ -627,7 +633,7 @@ function looseUrls(ctx: FileContext, root: Node, file: string, sites: CallSite[]
     const value = evalString(ctx, node);
     const parts = value === undefined ? undefined : urlParts(value);
     if (!parts?.path || parts.path === "/") continue;
-    const provider = providerOf(parts.host, parts.path);
+    const provider = providerOf(parts.host, parts.path, parts.runtimeHost);
     if (provider) candidates.push({ node, host: parts.host, path: parts.path, query: parts.query, provider });
   }
   const out: CallSite[] = [];

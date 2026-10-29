@@ -1,3 +1,7 @@
+---
+description: "Every shapi-cli command, option, exit code and environment variable."
+---
+
 # CLI reference
 
 Installed as `shapi` (`npm install -g shapi-cli`), or run without installing: `npx shapi-cli <command>`.

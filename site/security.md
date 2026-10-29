@@ -1,3 +1,7 @@
+---
+description: "What SHAPI reads, runs and stores when it scans and fixes your code, and how customers are kept apart."
+---
+
 # Security and code handling
 
 SHAPI reads your code in order to fix it. This page says exactly what that involves.
@@ -55,7 +59,7 @@ Off by default, and the setting appears only when Claude is enabled on the serve
 
 - **Webhooks:** GitHub's HMAC-SHA256 signature is verified on the raw body.
 - **Sign-in:** SHAPI keeps no GitHub user token. The session cookie is HttpOnly, SameSite and signed.
-- **Web pages:** they run no JavaScript, and a strict Content Security Policy is applied.
+- **Web app pages:** they run no JavaScript, and a strict Content Security Policy is applied.
 - **Canaries:** SHAPI probes provider APIs only with its own accounts, and stores response shapes (status codes, field names and types), never values.
 
 ## Reporting a vulnerability

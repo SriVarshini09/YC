@@ -1,11 +1,12 @@
 import { defineConfig } from "vitepress";
+import { SITE, pageHead } from "./head";
 
 // Served at https://shapi.dev by the server on Fly: the Docker image builds it (see apps/server/src/docs.ts).
 export default defineConfig({
   title: "SHAPI",
   description: "Find the code that breaks when a third-party API changes, and fix it test-first.",
   cleanUrls: true,
-  sitemap: { hostname: "https://shapi.dev" },
+  sitemap: { hostname: SITE },
   // One light theme: Stone and Ink (theme/custom.css).
   appearance: false,
   lastUpdated: true,
@@ -20,9 +21,12 @@ export default defineConfig({
     ["meta", { property: "og:image", content: "https://shapi.dev/og.png" }],
     ["meta", { property: "og:image:width", content: "1200" }],
     ["meta", { property: "og:image:height", content: "630" }],
+    ["meta", { property: "og:image:alt", content: "SHAPI: find the code that breaks when a third-party API changes, and fix it test-first." }],
     ["meta", { name: "twitter:card", content: "summary_large_image" }],
     ["meta", { name: "twitter:image", content: "https://shapi.dev/og.png" }],
   ],
+  // Each page's own title, description and canonical URL for link previews (head.ts).
+  transformHead: ({ pageData, title, description }) => pageHead(pageData, title, description),
   themeConfig: {
     // The logo is drawn inline by the theme (theme/index.ts), so it can move; no image logo or text title.
     siteTitle: false,
@@ -73,11 +77,17 @@ export default defineConfig({
       },
     ],
     // The public advisory database, where issues and contributions go.
-    socialLinks: [{ icon: "github", link: "https://github.com/SriVarshini09/shapi-advisories" }],
+    socialLinks: [{ icon: "github", link: "https://github.com/SriVarshini09/shapi-advisories", ariaLabel: "The advisory database on GitHub" }],
     search: { provider: "local" },
+    notFound: {
+      title: "PAGE NOT FOUND",
+      quote: "This page doesn't exist, or it has moved. Search the docs, or start from the home page.",
+      linkLabel: "Go to the home page",
+      linkText: "Go to the home page",
+    },
     footer: {
       message:
-        'shapi-cli is Apache-2.0. Advisories are CC BY 4.0. <a href="/legal/privacy">Privacy</a> · <a href="/legal/terms">Terms</a> · <a href="/security">Security</a>',
+        'shapi-cli is Apache-2.0. Advisories are CC BY 4.0. <a href="/legal/privacy">Privacy</a> · <a href="/legal/terms">Terms</a> · <a href="/security">Security</a> · <a href="mailto:sri@shapi.dev">sri@shapi.dev</a>',
       copyright: "© 2026 SHAPI",
     },
   },
