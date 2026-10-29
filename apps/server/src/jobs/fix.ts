@@ -5,6 +5,7 @@ import { RECIPES, repairAdvisory, withSandboxWorkspace, type InstallReport, type
 import type { SandboxProvider, SnapshotFile } from "@shapi/sandbox";
 import type { GitHubClients } from "../github/clients";
 import { repositoryCovered } from "../billing/plan";
+import { latestScanId } from "../github/events";
 import { deliverRepoFixes, type DeliveryReport, type FixCandidate } from "../github/fixes";
 import { reviewedAdvisories, storedLock } from "./scan";
 import type { ResponseShape } from "@shapi/shapes";
@@ -46,10 +47,15 @@ export interface FixReport {
  * (dependencies installed with only the npm registry reachable, then no network), every affected call
  * site of an advisory into one change, and hand the verified fixes to the PR engine: one PR per
  * advisory. Call sites SHAPI cannot fix go on the dashboard as manual fixes.
+ *
+ * The job fixes its repository's latest successful scan, which may be newer than the scan it names: the
+ * queue keeps one waiting fix job per repository and drops later ones, whose scans would otherwise go unfixed.
  */
 export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise<FixReport> {
   const now = deps.now ?? (() => new Date());
   const ctx = await withService(deps.db, async (tx) => {
+    const named = await tx.selectFrom("scans").select("repository_id").where("id", "=", job.scanId).executeTakeFirst();
+    const scanId = (named && (await latestScanId(tx, named.repository_id))) ?? job.scanId;
     const scan = await tx
       .selectFrom("scans")
       .innerJoin("repositories", "repositories.id", "scans.repository_id")
@@ -66,7 +72,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
         "accounts.github_installation_id",
         "accounts.settings",
       ])
-      .where("scans.id", "=", job.scanId)
+      .where("scans.id", "=", scanId)
       .executeTakeFirst();
     const findings = scan ? await tx.selectFrom("findings").selectAll().where("scan_id", "=", scan.id).where("kind", "=", "affected").orderBy("id").execute() : [];
     return { scan, findings };
@@ -76,7 +82,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
   const plan = await repositoryCovered(deps.db, scan.account_id, scan.repository_id, deps.billingEnforced ?? false);
   if (!plan.covered) {
     await markEngine(deps, scan.id);
-    return { scanId: job.scanId, repairs: [], skipped: `not covered by the plan: ${plan.reason}` };
+    return { scanId: scan.id, repairs: [], skipped: `not covered by the plan: ${plan.reason}` };
   }
 
   const advisories = new Map((await reviewedAdvisories(deps.db)).map((a) => [a.advisory.id, a.advisory]));
@@ -171,21 +177,22 @@ async function markEngine(deps: Pick<FixDeps, "db" | "engine">, scanId: string):
  * Scans whose fixes this build should try again (the worker scans their repository afresh, which queues the
  * fix job): each enabled repository's latest successful scan
  * whose fix job ran on another build (or never ran), with an affected call site that has no fix PR yet
- * and that this build may fix (a recipe, or Claude where the account opted in). A fix an older build could
- * not make is retried once per deploy, not on every push; PRs that exist, closed ones included, are left alone.
+ * and that this build may fix (a recipe, or Claude where the account opted in), in a repository the plan
+ * covers. A fix an older build could not make is retried once per deploy, not on every push; PRs that exist,
+ * closed ones included, are left alone.
  */
-export async function scansToRefix(db: Db, engine: string, opts: { llm?: boolean } = {}): Promise<{ scanId: string; repositoryId: string }[]> {
+export async function scansToRefix(db: Db, engine: string, opts: { llm?: boolean; billingEnforced?: boolean } = {}): Promise<{ scanId: string; repositoryId: string }[]> {
   const advisories = new Map((await reviewedAdvisories(db)).map((a) => [a.advisory.id, a.advisory]));
   const hasRecipe = (id: string) => {
     const recipeId = advisories.get(id)?.recipeId;
     return Boolean(recipeId && RECIPES[recipeId]);
   };
-  return withService(db, async (tx) => {
+  const scans = await withService(db, async (tx) => {
     const latest = await tx
       .selectFrom("scans")
       .innerJoin("repositories", "repositories.id", "scans.repository_id")
       .innerJoin("accounts", "accounts.id", "scans.account_id")
-      .select(["scans.id", "scans.repository_id", "scans.fix_engine", "accounts.settings"])
+      .select(["scans.id", "scans.repository_id", "scans.account_id", "scans.fix_engine", "accounts.settings"])
       .distinctOn("scans.repository_id")
       .where("scans.status", "=", "succeeded")
       .where("scans.api_lock", "is not", null)
@@ -204,6 +211,12 @@ export async function scansToRefix(db: Db, engine: string, opts: { llm?: boolean
         const llm = opts.llm === true && (s.settings as { llmFixes?: boolean }).llmFixes === true;
         return findings.some((f) => f.scan_id === s.id && !hasPr.has(`${s.repository_id}:${f.advisory_id}`) && advisories.has(f.advisory_id) && (llm || hasRecipe(f.advisory_id)));
       })
-      .map((s) => ({ scanId: s.id, repositoryId: s.repository_id }));
+      .map((s) => ({ scanId: s.id, repositoryId: s.repository_id, accountId: s.account_id }));
   });
+  // A repository beyond the plan would only get a scan that fails as "not covered" on every deploy.
+  const covered: { scanId: string; repositoryId: string }[] = [];
+  for (const s of scans) {
+    if ((await repositoryCovered(db, s.accountId, s.repositoryId, opts.billingEnforced ?? false)).covered) covered.push({ scanId: s.scanId, repositoryId: s.repositoryId });
+  }
+  return covered;
 }

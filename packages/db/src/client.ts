@@ -17,15 +17,16 @@ export interface DbOptions {
 
 /** A Kysely client over a pg pool. Every connection switches to the app role, so row-level security applies. */
 export function createDb(opts: DbOptions): Db {
-  const pool = new pg.Pool({ connectionString: opts.connectionString, max: opts.max ?? 10 });
+  const pool = new pg.Pool({
+    connectionString: opts.connectionString,
+    max: opts.max ?? 10,
+    // Awaited before the pool hands the connection out: if the role cannot be set, the query fails
+    // instead of running as the connecting (owner) user.
+    ...(opts.appRole !== false ? { onConnect: async (client: pg.ClientBase) => void (await client.query(`set role ${APP_ROLE}`)) } : {}),
+  });
   // Without a listener, an idle connection dropped by the server crashes the process. The pool
   // discards the broken connection and opens a new one on the next query.
   pool.on("error", opts.onError ?? ((err) => console.error(JSON.stringify({ level: "error", msg: "idle database connection lost", err: String(err) }))));
-  if (opts.appRole !== false) {
-    pool.on("connect", (client) => {
-      void client.query(`set role ${APP_ROLE}`);
-    });
-  }
   return new Kysely<Database>({ dialect: new PostgresDialect({ pool }) });
 }
 

@@ -183,6 +183,10 @@ export interface WebhookDeliveriesTable {
   received_at: CreatedAt;
   processed_at: Timestamp | null;
   error: string | null;
+  /** Scans and fix jobs a processed delivery asked for that are not queued yet; null once they are. */
+  jobs: ColumnType<{ scans: unknown[]; fixes: unknown[] } | null, string | null | undefined, string | null>;
+  /** When processing last failed (with `error`). */
+  errored_at: Timestamp | null;
 }
 
 export interface Database {

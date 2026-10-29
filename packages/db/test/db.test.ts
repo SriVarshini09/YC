@@ -15,7 +15,7 @@ let app: Db;
 beforeAll(async () => {
   pg = await startTestPostgres();
   owner = createDb({ connectionString: pg.url, appRole: false });
-  expect(await migrateToLatest(owner)).toEqual(["0001_init", "0002_webhook_sweeper", "0003_fix_prs", "0004_cloud_scans", "0005_web_sessions", "0006_billing", "0007_billing_cancel_at", "0008_fix_pr_repair", "0009_findings_scan_index", "0010_scans_fix_engine"]);
+  expect(await migrateToLatest(owner)).toEqual(["0001_init", "0002_webhook_sweeper", "0003_fix_prs", "0004_cloud_scans", "0005_web_sessions", "0006_billing", "0007_billing_cancel_at", "0008_fix_pr_repair", "0009_findings_scan_index", "0010_scans_fix_engine", "0013_jobs_fixes"]);
   app = createDb({ connectionString: pg.url });
 }, 120_000);
 
@@ -28,6 +28,21 @@ afterAll(async () => {
 describe("migrations", () => {
   it("are idempotent", async () => {
     expect(await migrateToLatest(owner)).toEqual([]);
+  });
+  it("keep the app role away from the migration bookkeeping", async () => {
+    await expect(sql`select * from kysely_migration`.execute(app)).rejects.toThrow(/permission denied/);
+  });
+});
+
+describe("app role connections", () => {
+  it("fail closed when the role cannot be set, instead of running as the connecting user", async () => {
+    await sql`do $$ begin if not exists (select 1 from pg_roles where rolname = 'outsider') then create role outsider login password 'outsider'; end if; end $$`.execute(owner);
+    const outsider = createDb({ connectionString: pg.url.replace("postgres:postgres@", "outsider:outsider@"), max: 1 });
+    try {
+      await expect(sql`select current_user`.execute(outsider)).rejects.toThrow(/permission denied to set role/);
+    } finally {
+      await outsider.destroy();
+    }
   });
 });
 

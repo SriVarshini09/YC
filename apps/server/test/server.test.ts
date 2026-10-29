@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PgShapeStore, createDb, listAdvisories, migrateToLatest, type Db } from "@shapi/db";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { QUEUES, buildApp, loadConfig, runCanaryJob, startWorker, syncAdvisoriesJob } from "../src/index";
+import { scrubBreadcrumb } from "../src/observability";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const ADVISORIES = path.join(root, "advisories");
@@ -91,7 +92,7 @@ describe("jobs", () => {
   });
 
   it("advisory sync loads the reviewed advisories folder", async () => {
-    expect(await syncAdvisoriesJob(db, ADVISORIES)).toBeGreaterThanOrEqual(7);
+    expect((await syncAdvisoriesJob(db, ADVISORIES)).written).toBeGreaterThanOrEqual(7);
     expect((await listAdvisories(db)).length).toBeGreaterThanOrEqual(7);
   });
 });
@@ -125,4 +126,15 @@ describe("worker", () => {
       await boss.stop({ graceful: false, timeout: 5_000 });
     }
   }, 90_000);
+});
+
+describe("error reporting", () => {
+  it("never sends a Slack webhook URL to Sentry, and drops query strings from request breadcrumbs", () => {
+    const slack = { category: "http", type: "http", data: { url: "https://hooks.slack.com/services/T000/B000/secret", method: "POST", status_code: 200 } };
+    expect(scrubBreadcrumb(slack)).toBeNull();
+    const download = { category: "http", type: "http", data: { url: "https://codeload.github.com/acme/demo/legacy.tar.gz/abc?token=XYZ", "http.query": "token=XYZ", method: "GET" } };
+    expect(scrubBreadcrumb(download)).toEqual({ category: "http", type: "http", data: { url: "https://codeload.github.com/acme/demo/legacy.tar.gz/abc", method: "GET" } });
+    const log = { category: "console", message: "hello" };
+    expect(scrubBreadcrumb(log)).toEqual(log);
+  });
 });

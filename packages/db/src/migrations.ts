@@ -273,6 +273,30 @@ const migrations: Record<string, Migration> = {
       await sql`alter table scans drop column if exists fix_engine`.execute(db);
     },
   },
+  "0013_jobs_fixes": {
+    async up(db: Kysely<unknown>) {
+      // The jobs a processed delivery still has to queue (cleared once queued), and when it last failed (the sweeper retries it hourly).
+      await sql`alter table webhook_deliveries add column jobs jsonb, add column errored_at timestamptz`.execute(db);
+      // One pending scan per commit: two deliveries (or workers) racing for the same commit cannot both queue one.
+      await sql`
+        update scans set status = 'failed', error = 'duplicate of another scan of this commit', finished_at = now()
+        where id in (
+          select id from (select id, row_number() over (partition by repository_id, sha order by id) as n from scans where status in ('queued', 'running')) d
+          where n > 1
+        )
+      `.execute(db);
+      await sql`drop index if exists scans_pending`.execute(db);
+      await sql`create unique index scans_pending on scans (repository_id, sha) where status in ('queued', 'running')`.execute(db);
+      // The app role has no business with the migration bookkeeping that 0001's "all tables" grant included.
+      await sql`revoke all on kysely_migration, kysely_migration_lock from ${sql.raw(APP_ROLE)}`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`alter table webhook_deliveries drop column if exists jobs, drop column if exists errored_at`.execute(db);
+      await sql`drop index if exists scans_pending`.execute(db);
+      await sql`create index scans_pending on scans (repository_id, sha) where status in ('queued', 'running')`.execute(db);
+      await sql`grant select, insert, update, delete on kysely_migration, kysely_migration_lock to ${sql.raw(APP_ROLE)}`.execute(db);
+    },
+  },
 };
 
 const provider: MigrationProvider = { getMigrations: async () => migrations };

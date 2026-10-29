@@ -14,6 +14,15 @@ export interface WebhookDeps {
 }
 
 /**
+ * The payload as jsonb accepts it. Postgres rejects a \u0000 escape in jsonb, and a delivery that cannot be
+ * stored would fail on every redelivery too: NUL characters (in a commit message, say) become U+FFFD.
+ */
+export function storable(text: string, payload: unknown): string {
+  if (!text.includes("\\u0000")) return text;
+  return JSON.stringify(payload, (_key, value: unknown) => (typeof value === "string" ? value.replace(/\0/g, "�") : value));
+}
+
+/**
  * POST /github/webhook: verify the signature on the raw body, store the delivery once (keyed by
  * X-GitHub-Delivery, so redeliveries are no-ops), queue it, and answer fast. GitHub gives up after
  * 10 seconds and never retries on its own, so all real work happens in the worker.
@@ -50,7 +59,7 @@ export function webhookRoutes(app: FastifyInstance, deps: WebhookDeps): void {
           event,
           action: typeof payload.action === "string" ? payload.action : null,
           installation_id: installationId,
-          payload: body.toString("utf8"),
+          payload: storable(body.toString("utf8"), payload),
         })
         .onConflict((oc) => oc.column("delivery_id").doNothing())
         .returning("delivery_id")

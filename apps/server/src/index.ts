@@ -5,7 +5,7 @@ export { runCanaryJob, type CanaryJobOptions, type CanaryJobResult } from "./job
 export { syncAdvisoriesFromGitHub, syncAdvisoriesJob, type RepoSyncResult } from "./jobs/advisories";
 export { sweepWebhooks, type SweepDeps, type SweepResult } from "./jobs/webhook-sweeper";
 export { githubClients, type GitHubClients } from "./github/clients";
-export { processDelivery, type ProcessResult } from "./github/events";
+export { insertPendingScan, jobsQueued, processDelivery, type ProcessResult } from "./github/events";
 export { PR_LABEL, deliverRepoFixes, type DeliverInput, type DeliveryReport, type FixCandidate } from "./github/fixes";
 export { runScanJob, lockFromSnapshot, staleQueuedScans, type ScanDeps, type ScanJob, type ScanReport } from "./jobs/scan";
 export { runFixJob, sandboxRunner, scansToRefix, type FixDeps, type FixReport, type WorkspaceRunner } from "./jobs/fix";
