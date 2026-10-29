@@ -1,8 +1,8 @@
 {
   "id": "twilio-notify-end-of-life",
   "provider": "twilio",
-  "title": "Twilio Notify reaches end of life (reported for 2027-01-31)",
-  "summary": "Twilio Notify (notify.twilio.com, e.g. POST /v1/Services/{ServiceSid}/Notifications) has been unsupported and closed to new customers since October 2022, and is reported to reach end of life for existing customers on January 31, 2027, after which Notify API requests are expected to fail. That date comes from Twilio's help-center article as quoted by a third party; Twilio's own January 2024 changelog gave December 31, 2025, so the exact date is not confirmed on a primary page.",
+  "title": "Twilio Notify reaches end of life on 2027-01-31",
+  "summary": "Twilio Notify (notify.twilio.com, e.g. POST /v1/Services/{ServiceSid}/Notifications) has been unsupported and closed to new customers since October 2022 and reaches end of life for existing customers on 2027-01-31, per Twilio's Help Center (superseding the 2025-12-31 date in the January 2024 changelog). Push sent through Verify, Voice, Conversations or Engage is not affected.",
   "endpoint": {
     "method": "POST",
     "path": "/v1/Services/{ServiceSid}/Notifications"
@@ -18,11 +18,12 @@
   },
   "effectiveDate": "2027-01-31",
   "severity": "critical",
-  "migrationNote": "Move bulk SMS sends to the Messaging API (or Twilio's Bulk Messaging API) and push notifications to a direct APNs/FCM integration or another push provider, then remove Notify Services and Bindings. Confirm the final shutdown date with Twilio support or the Console before planning around it.",
+  "migrationNote": "Move bulk SMS sends to the Messaging API (or Twilio's Bulk Messaging API) and push notifications to a direct APNs/FCM integration or another push provider, then remove Notify Services and Bindings.",
   "sources": [
-    "https://www.courier.com/blog/twilio-notify-end-of-life",
+    "https://help.twilio.com/articles/9198083260571-How-to-transition-off-Notify",
+    "https://www.twilio.com/en-us/changelog/notify-api-eol-notice",
     "https://www.twilio.com/en-us/changelog/notify-api-end-of-life-further-extension-notice",
     "https://www.twilio.com/docs/notify/api/notification-resource"
   ],
-  "status": "unverified"
+  "status": "verified"
 }
