@@ -19,6 +19,7 @@ async function githubTarball(): Promise<Buffer> {
   writeFileSync(path.join(top, ".git/HEAD"), "ref");
   writeFileSync(path.join(top, "node_modules/x/index.js"), "");
   writeFileSync(path.join(top, "huge.bin"), Buffer.alloc(4096));
+  writeFileSync(path.join(top, "pnpm-lock.yaml"), `lockfileVersion: '9.0'\n${"#".repeat(4096)}`);
   try {
     symlinkSync("/etc/passwd", path.join(top, "src/link"));
   } catch {
@@ -32,7 +33,8 @@ async function githubTarball(): Promise<Buffer> {
 describe("repository snapshots from GitHub", () => {
   it("unpacks the tarball in memory: files only, no history, dependencies, symlinks or oversized files", async () => {
     const files = await parseTarball(await githubTarball(), { maxFiles: 100, maxBytes: 100_000, maxFileBytes: 1024 });
-    expect(files.map((f) => f.path).sort()).toEqual(["package.json", "src/a.ts"]);
+    // An oversized lockfile is kept: without it the install picks the wrong package manager.
+    expect(files.map((f) => f.path).sort()).toEqual(["package.json", "pnpm-lock.yaml", "src/a.ts"]);
     expect(String(files.find((f) => f.path === "src/a.ts")!.content)).toBe("export const a = 1;\n");
     await expect(parseTarball(await githubTarball(), { maxFiles: 1, maxBytes: 100_000, maxFileBytes: 1024 })).rejects.toThrow(/larger than the sandbox limit/);
   });
@@ -78,7 +80,7 @@ describe("repository snapshots from GitHub", () => {
     }) as typeof globalThis.fetch;
     const octokit = new Octokit({ auth: "ghs_readonly", request: { fetch } });
     const files = await fetchRepoSnapshot(octokit, { owner: "acme", repo: "demo", ref: "abc1234" });
-    expect(files.map((f) => f.path).sort()).toEqual(["huge.bin", "package.json", "src/a.ts"]);
+    expect(files.map((f) => f.path).sort()).toEqual(["huge.bin", "package.json", "pnpm-lock.yaml", "src/a.ts"]);
     expect(seen).toEqual([{ path: "/repos/acme/demo/tarball/abc1234", auth: "token ghs_readonly" }]);
   });
 });
