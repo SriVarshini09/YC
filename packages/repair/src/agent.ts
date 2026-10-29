@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { Advisory, LockedCallSite } from "@shapi/core";
+import { SandboxLifetimeError } from "@shapi/sandbox";
 import type { ResponseShape } from "@shapi/shapes";
 import { BREAKAGE, CONTRACT_DIR, UNTESTABLE, generateContractTest } from "./contract";
 import type { LlmFixer } from "./llm";
@@ -179,6 +180,8 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
       return { status: "fixed", method: "llm", sandbox: ws.location, changes: [...changes.map(({ file, before, after, notes }) => ({ file, before, after, notes })), testChange], test: ran, baseline, attempts, typecheck };
     }
   } catch (err) {
+    // The sandbox is out of time: nothing more can run in it, so the caller decides what to deliver.
+    if (err instanceof SandboxLifetimeError) throw err;
     // One bad proposal (a path that is a folder, an SDK error) fails this attempt, not the whole job.
     attempts.push({ method: "llm", outcome: "failed", detail: `the LLM attempt failed: ${err instanceof Error ? err.message : String(err)}` });
   }

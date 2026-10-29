@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
-import { lifetime, localProvider, readSnapshot, safeRelative, sandboxFromEnv, shellQuote, truncate } from "@shapi/sandbox";
+import { SandboxLifetimeError, lifetime, localProvider, readSnapshot, safeRelative, sandboxFromEnv, shellQuote, truncate } from "@shapi/sandbox";
 
 const tmp = mkdtempSync(path.join(os.tmpdir(), "shapi-sandbox-test-"));
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
@@ -78,6 +78,8 @@ describe("sandbox lifetime", () => {
     expect(set).toHaveLength(1);
     expect(set[0]).toBeGreaterThan(4 * 60_000);
     await expect(extend(11 * 60_000)).rejects.toThrow("the sandbox reached its 10-minute lifetime limit: the job needs more time than one sandbox allows");
+    // A typed error, so a fix job can tell it from a failed fix and deliver what it already verified.
+    await expect(extend(11 * 60_000)).rejects.toBeInstanceOf(SandboxLifetimeError);
   });
 });
 

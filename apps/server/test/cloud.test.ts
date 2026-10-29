@@ -8,6 +8,7 @@ import { sql } from "kysely";
 import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
 import { loadAdvisories } from "@shapi/core";
 import { localWorkspace } from "@shapi/repair";
+import { SandboxLifetimeError } from "@shapi/sandbox";
 import { fakeRepoGitHub } from "../../../test-utils/fake-github";
 import { slackMessage, slackNotifier, type FindingsNotice } from "../src/notify/slack";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
@@ -268,6 +269,35 @@ describe("cloud fix", () => {
     const pr = t.github.pulls.find((p) => p.head.ref === "shapi/github-workflow-dispatch-204-to-200")!;
     expect(t.github.commits.get(t.github.refs.get(pr.head.ref)!)!.parents).toEqual([scanned]);
     expect(t.github.fileAt("main", "src/deploy.ts")).toBe(upstream);
+  }, 120_000);
+
+  it("delivers the fixes verified before the sandbox ran out of time, and reports the rest as not attempted", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    // The sandbox reaches its lifetime limit when the second advisory's first contract test is about to run.
+    let first: string | undefined;
+    const workspace: WorkspaceRunner = (files, labels, fn) =>
+      t.workspace(files, labels, (ws) =>
+        fn({
+          ...ws,
+          async runTest(file) {
+            const advisory = /^test\/shapi\/([^.]+)/.exec(file)?.[1];
+            first ??= advisory;
+            if (advisory !== first) throw new SandboxLifetimeError("the sandbox reached its 60-minute lifetime limit: the job needs more time than one sandbox allows");
+            return ws.runTest(file);
+          },
+        }),
+      );
+    const report = await runFixJob({ ...t.fixDeps, workspace, engine: "build-1" }, { scanId });
+    expect(report.repairs[0]).toMatchObject({ advisoryId: first, status: "fixed" });
+    const rest = report.repairs.slice(1);
+    expect(rest.length).toBeGreaterThan(0);
+    for (const r of rest) expect(r).toMatchObject({ status: "not-attempted", reason: expect.stringContaining("lifetime limit") });
+    expect(t.github.pulls.map((p) => p.head.ref)).toEqual([`shapi/${first}`]);
+    // Not a finished run: the next build tries the rest again.
+    const row = await withService(db, (tx) => tx.selectFrom("scans").select("fix_engine").where("id", "=", scanId).executeTakeFirstOrThrow());
+    expect(row.fix_engine).toBeNull();
   }, 120_000);
 
   it("never sends code to an LLM unless the account turned LLM fixes on", async () => {

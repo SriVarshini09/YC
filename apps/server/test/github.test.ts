@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createDb, migrateToLatest, withService, withTenant, type Db } from "@shapi/db";
 import { signWebhook } from "@shapi/github-app";
+import { MAX_SANDBOX_LIFETIME_MS } from "@shapi/sandbox";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { QUEUES, buildApp, createQueues, githubClients, jobsQueued, loadConfig, prepareQueues, processDelivery, startSender, startWorker, sweepWebhooks, type GitHubClients } from "../src/index";
 import { sendWebhookOnce } from "../src/queue";
@@ -383,8 +384,12 @@ describe("queues", () => {
     const { boss } = await startSender(pg.url, { info: () => {}, error: () => {} });
     try {
       await boss.updateQueue(QUEUES.repoScan, { retryLimit: 9 });
+      // The old 30 minutes: shorter than a fix job's sandbox may run.
+      await boss.updateQueue(QUEUES.repoFix, { expireInSeconds: 30 * 60 });
       await createQueues(boss);
       expect((await boss.getQueue(QUEUES.repoScan))!.retryLimit).toBe(2);
+      // pg-boss must not expire (and retry) a fix job while its sandbox still runs.
+      expect((await boss.getQueue(QUEUES.repoFix))!.expireInSeconds! * 1000).toBeGreaterThan(MAX_SANDBOX_LIFETIME_MS);
 
       await boss.deleteQueue(QUEUES.fixRetry);
       await boss.createQueue(QUEUES.fixRetry, { policy: "standard" });

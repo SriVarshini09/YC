@@ -70,6 +70,11 @@ export const DEFAULT_SANDBOX_LIFETIME_MS = 15 * 60_000;
 /** The most extend() allows, from creation: an hour, which is also E2B's limit on its Hobby plan. */
 export const MAX_SANDBOX_LIFETIME_MS = 60 * 60_000;
 
+/** extend() past the maximum lifetime: the job needs more time than one sandbox allows. */
+export class SandboxLifetimeError extends Error {
+  override name = "SandboxLifetimeError";
+}
+
 /** Tracks a sandbox's deadline for extend(): `set(ms)` applies a new remaining lifetime. */
 export function lifetime(o: SandboxOptions, set: (ms: number) => Promise<void> | void): (ms: number) => Promise<void> {
   const created = Date.now();
@@ -80,7 +85,7 @@ export function lifetime(o: SandboxOptions, set: (ms: number) => Promise<void> |
     const want = now + ms;
     if (want <= deadline) return;
     if (want > created + max) {
-      throw new Error(`the sandbox reached its ${Math.round(max / 60_000)}-minute lifetime limit: the job needs more time than one sandbox allows`);
+      throw new SandboxLifetimeError(`the sandbox reached its ${Math.round(max / 60_000)}-minute lifetime limit: the job needs more time than one sandbox allows`);
     }
     await set(want - now);
     deadline = want;
