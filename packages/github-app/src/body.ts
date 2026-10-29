@@ -1,5 +1,5 @@
 import type { Advisory } from "@shapi/core";
-import { codeSpan, type AdvisoryRepair, type TestRun, type TypeCheck } from "@shapi/repair";
+import { codeSpan, testCounts, type AdvisoryRepair, type TestRun, type TypeCheck } from "@shapi/repair";
 
 export { codeSpan };
 
@@ -90,8 +90,9 @@ function typeSummary(check: TypeCheck | undefined): string {
   return `${check.status === "passed" ? "pass" : check.status === "failed" ? "fail" : "skipped"}: ${codeSpan(check.detail, 300)}`;
 }
 
+/** The verdict and vitest's counts; nothing else from the output, which the repository's code prints to. */
 function summary(run: TestRun | undefined): string {
   if (!run) return "not run";
-  const m = /Tests\s+([^\n]+?)\s*\(\d+\)/.exec(run.output);
-  return `${run.passed ? "pass" : "fail"}${m ? ` (${m[1]!.trim()})` : ""}`;
+  const counts = testCounts(run.output);
+  return `${run.passed ? "pass" : "fail"}${counts ? ` (${counts})` : ""}`;
 }

@@ -80,4 +80,14 @@ describe("fix PR body", () => {
     expect(body).toContain("- ` src/deploy.ts:12 ` `` fetch(`${base}/x?cc=@octocat`, { note: '[docs](https://evil.example)' }) `` → ` fetch(url) `");
     expect(body).toContain("- [ ] ` src/@octocat other.ts:3 ` (` POST /repos/{owner}/{repo}/actions/workflows/{id}/dispatches `): not fixed here (`` the contract test could not run: Error: cc @octocat `x` [docs](https://evil.example) ## Injected ``); needs a manual change");
   });
+
+  it("takes the test counts from vitest's own summary line, not from a look-alike line the code under test printed", () => {
+    // The code under test prints before vitest's summary.
+    const printed = (passed: boolean) => ({ ...run(passed), output: `stdout | src/deploy.ts\nTests [x](https://e) @a (1)\n Tests  2 passed (2) ![i](https://e/p.png)\n\n Test Files  1 ${passed ? "passed" : "failed"} (1)\n      Tests  ${passed ? "1 passed" : "1 failed"} (1)\n` });
+    const body = renderPrBody({ advisory, repair: llmRepair("Accept 200.", { baseline: printed(false), attempts: [{ method: "llm", outcome: "passed", detail: "claude", run: printed(true) }] }), shapeSource: "advisory" });
+    const row = body.split("\n").find((l) => l.startsWith("| `test/shapi/"))!;
+    expect(row).toContain("| fail (1 failed) | pass (1 passed) |");
+    expect(row).not.toContain("](");
+    expect(body).not.toContain("@a ");
+  });
 });
