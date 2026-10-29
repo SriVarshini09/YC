@@ -5,7 +5,8 @@ import { createApiLock, loadAdvisories } from "@shapi/core";
 import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
 import { fakeUserGitHub, type FakeUserInstallation, type FakeUserRepository } from "../../../test-utils/fake-github";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
-import { buildApp, loadConfig } from "../src/index";
+import { generateKeyPairSync } from "node:crypto";
+import { buildApp, githubClients, loadConfig, processDelivery, type GitHubClients } from "../src/index";
 import { MARK } from "../src/web/html";
 import { landingPage } from "../src/web/landing";
 import { healthOf, loadAccount, withCatchDetail } from "../src/web/queries";
@@ -47,6 +48,24 @@ function fakeGitHub(opts: { installations?: FakeUserInstallation[]; failToken?: 
     { id: 5555, account: { id: 600, login: "other", type: "Organization" } },
   ];
   return fakeUserGitHub({ user: { id: 99, login: "octo" }, installations, failToken: opts.failToken });
+}
+
+/** GitHub as the App's installation sees it, for processing an installation webhook: it lists `repos`. */
+function installationGitHub(repos: { id: number; full_name: string; default_branch: string; private: boolean }[]): GitHubClients {
+  const privateKey = generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey.export({ type: "pkcs1", format: "pem" }).toString();
+  const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+    const url = new URL(String(input));
+    const route = `${init?.method ?? "GET"} ${url.pathname}`;
+    const body = /^POST \/app\/installations\/\d+\/access_tokens$/.test(route)
+      ? { token: "ghs_test", expires_at: new Date(Date.now() + 3600_000).toISOString(), permissions: {}, repository_selection: "all" }
+      : route === "GET /installation/repositories"
+        ? { total_count: repos.length, repositories: repos }
+        : undefined;
+    const res = new Response(JSON.stringify(body ?? { message: `no route ${route}` }), { status: body ? 200 : 404, headers: { "content-type": "application/json" } });
+    Object.defineProperty(res, "url", { value: url.href });
+    return res;
+  }) as typeof globalThis.fetch;
+  return githubClients({ appId: "123", privateKey }, { fetch, resilient: false }) as GitHubClients;
 }
 
 let mine: { account: string; repo: string };
@@ -744,6 +763,42 @@ describe("who sees and manages what", () => {
     expect(page.body).toContain("acme/hidden");
     expect(page.body).not.toContain("added since you signed in");
     await again.close();
+  });
+
+  it("first run: an organization admin who signs in before the installation webhook creates the repositories is admin once it has", async () => {
+    // Installed, and signed in right away: the account's repositories are not stored yet.
+    await owner.deleteFrom("repositories").where("account_id", "=", mine.account).execute();
+    const app = buildApp({ db, config, fetch: acmeWith([{ id: 1, full_name: "acme/api", permissions: { admin: true } }, { id: 3, full_name: "acme/hidden", permissions: { admin: true } }]).fetch });
+    const { cookie } = await signIn(app);
+    // Then the worker processes the installation webhook.
+    const repos = [
+      { id: 1, full_name: "acme/api", default_branch: "main", private: true },
+      { id: 3, full_name: "acme/hidden", default_branch: "main", private: true },
+    ];
+    const delivery = "first-run";
+    await owner.insertInto("webhook_deliveries").values({ delivery_id: delivery, event: "installation", action: "created", installation_id: 4242, payload: JSON.stringify({ action: "created", installation: { id: 4242, account: { login: "acme", type: "Organization" } } }) }).execute();
+    expect((await processDelivery({ db, github: installationGitHub(repos) }, delivery)).outcome).toMatch(/synced with 2 repositories/);
+
+    const page = await app.inject({ url: `/a/${mine.account}/settings`, headers: { cookie } });
+    expect(page.statusCode).toBe(200);
+    expect(page.body).toContain('<span class="label">Settings</span>');
+    expect(page.body).not.toContain("added since you signed in");
+    expect((await app.inject({ url: `/a/${mine.account}/repositories`, headers: { cookie } })).body).toContain("acme/hidden");
+    await app.close();
+  });
+
+  it("tells only account admins that repositories were added since sign-in: a member learns nothing about repositories they cannot open", async () => {
+    const app = buildApp({ db, config, fetch: acmeWith([{ id: 1, full_name: "acme/api" }]).fetch });
+    const { cookie } = await signIn(app);
+    await seedHidden();
+    await owner.insertInto("repositories").values({ account_id: mine.account, github_repo_id: 4, full_name: "acme/secret2", default_branch: "main", private: true }).execute();
+    for (const path of ["", "/repositories", "/findings"]) {
+      const res = await app.inject({ url: `/a/${mine.account}${path}`, headers: { cookie } });
+      expect(res.statusCode, path).toBe(200);
+      expect(res.body, path).not.toContain("added since you signed in");
+      expect(res.body, path).not.toContain('class="notice"');
+    }
+    await app.close();
   });
 
   it("makes the owner of a personal account its admin, and nobody else", async () => {

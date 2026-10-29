@@ -176,7 +176,10 @@ export interface AccountAccess {
   push: string[];
   /** May change the account's settings and billing. */
   admin: boolean;
-  /** Repositories added to the account since the user signed in that they cannot see yet: signing in again reads them. */
+  /**
+   * For an account admin only: repositories added to the account since they signed in that they cannot see
+   * yet (signing in again reads them). Always 0 for others, who may not learn about repositories they cannot open.
+   */
   addedSinceSignIn: number;
 }
 
@@ -184,18 +187,20 @@ export interface AccountAccess {
  * The session's rights in an account. Settings and billing act on every repository, so they need an
  * account admin: the owner of a personal account, or for an organization a user who is admin on every
  * repository SHAPI covers there (organization owners are). The rights are what GitHub said at sign-in, so
- * repositories added since then are judged at the next sign-in: until then they are hidden, and they
- * do not take an admin's rights away.
+ * a repository counts when it existed then or GitHub listed it to the session (it was installed while the
+ * user signed in); repositories added since then are judged at the next sign-in: until then they are
+ * hidden, and they do not take an admin's rights away.
  */
 export async function accountAccess(db: Db, session: Session, account: { id: string; type: string; github_installation_id: string | null }): Promise<AccountAccess> {
   const access = session.access[String(account.github_installation_id)];
   if (!access) return { read: [], push: [], admin: false, addedSinceSignIn: 0 };
   const repos = await withTenant(db, account.id, (tx) => tx.selectFrom("repositories").select(["github_repo_id", "created_at"]).execute());
   const readable = new Set(access.read);
-  const addedSinceSignIn = repos.filter((r) => r.created_at > session.createdAt && !readable.has(String(r.github_repo_id))).length;
-  if (account.type === "User") return { read: access.read, push: access.push, admin: access.owner, addedSinceSignIn };
+  const known = repos.filter((r) => r.created_at <= session.createdAt || readable.has(String(r.github_repo_id)));
+  const added = repos.length - known.length;
+  const result = (admin: boolean): AccountAccess => ({ read: access.read, push: access.push, admin, addedSinceSignIn: admin ? added : 0 });
+  if (account.type === "User") return result(access.owner);
   // No repository yet proves nothing: GitHub lists an installation to anyone with access to one of its repositories.
-  const known = repos.filter((r) => r.created_at <= session.createdAt);
   const mine = new Set(access.admin);
-  return { read: access.read, push: access.push, admin: known.length > 0 && known.every((r) => mine.has(String(r.github_repo_id))), addedSinceSignIn };
+  return result(known.length > 0 && known.every((r) => mine.has(String(r.github_repo_id))));
 }
