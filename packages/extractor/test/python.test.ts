@@ -96,3 +96,109 @@ describe("Python call sites", () => {
     }
   });
 });
+
+// Shapes of Python code the extractor used to misread (review 3, section C).
+describe("Python edge cases", () => {
+  const scan = (files: Record<string, string>) => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), "shapi-py-"));
+    try {
+      for (const [name, text] of Object.entries(files)) {
+        mkdirSync(path.dirname(path.join(dir, name)), { recursive: true });
+        writeFileSync(path.join(dir, name), text);
+      }
+      return extractCallSites(dir);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  };
+  const describeSites = (r: ReturnType<typeof scan>) => r.callSites.map((s) => `${s.client} ${s.provider} ${s.method} ${s.endpoint}`);
+
+  it("recognizes clients constructed by bare name: from httpx import Client, from requests import Session", () => {
+    const r = scan({
+      "a.py":
+        'from httpx import Client\nfrom requests import Session\nfrom aiohttp import ClientSession\nc = Client(base_url="https://api.hubapi.com")\ns = Session()\n' +
+        'def f():\n    c.get("/crm-pipelines/v1/pipelines/deals")\n    s.get("https://api.github.com/repos/a/b")\n' +
+        'async def g():\n    async with ClientSession() as session:\n        await session.post("https://api.github.com/repos/a/b/issues")\n',
+    });
+    expect(describeSites(r)).toEqual([
+      "httpx hubspot GET /crm-pipelines/v1/pipelines/deals",
+      "requests github GET /repos/a/b",
+      "aiohttp github POST /repos/a/b/issues",
+    ]);
+  });
+
+  it("evaluates URLs built with str.format() and the % operator", () => {
+    const r = scan({
+      "a.py":
+        'import requests\nBASE = "https://graph.facebook.com"\ndef f(page, version):\n' +
+        '    requests.get("https://graph.facebook.com/v21.0/{}/feed".format(page))\n' +
+        '    requests.get("https://graph.facebook.com/v21.0/%s/posts" % page)\n' +
+        '    requests.get("{0}/v{1}/{p}/photos".format(BASE, 21, p=page))\n' +
+        '    requests.get("%s/v21.0/%s/videos?limit=%d" % (BASE, page, 5))\n' +
+        '    requests.get("https://graph.facebook.com/v21.0/%(page)s/events" % {"page": page})\n' +
+        '    requests.get("https://graph.facebook.com/v21.0/{{x}}/{}/likes".format(page))\n' +
+        '    return wrapper.send("https://graph.facebook.com/v21.0/%s/insights" % page)\n',
+    });
+    expect(describeSites(r)).toEqual([
+      "requests meta-graph GET /v21.0/{page}/feed",
+      "requests meta-graph GET /v21.0/{page}/posts",
+      "requests meta-graph GET /v21/{page}/photos",
+      "requests meta-graph GET /v21.0/{page}/videos",
+      "requests meta-graph GET /v21.0/{page}/events",
+      "requests meta-graph GET /v21.0/{x}/{page}/likes",
+      // not sent by a known client: a loose URL, still with the placeholder
+      "url meta-graph null /v21.0/{page}/insights",
+    ]);
+    expect(r.callSites[3]!.surface.query).toEqual([{ name: "limit", value: "5" }]);
+  });
+
+  it("keeps the package binding after import pkg.sub", () => {
+    const r = scan({ "a.py": 'import openai\nimport openai.types\ndef f():\n    openai.chat.completions.create(model="gpt-4")\n' });
+    expect(r.callSites.map((s) => `${s.client} ${s.operation} ${s.method} ${s.endpoint}`)).toEqual(["openai chat.completions.create POST /v1/chat/completions"]);
+  });
+
+  it("does not take client.headers.get(...) or client.cookies.get(...) for HTTP calls", () => {
+    const r = scan({
+      "a.py":
+        'import httpx\nc = httpx.Client(base_url="https://api.github.com")\nclass A:\n    def __init__(self):\n        self.http = httpx.Client(base_url="https://api.github.com")\n' +
+        '    def f(self):\n        tok = c.headers.get("Authorization")\n        v = c.cookies.get("session")\n        p = self.http.params.get("page")\n        return self.http.get("/rate_limit")\n',
+    });
+    expect(describeSites(r)).toEqual(["httpx github GET /rate_limit"]);
+  });
+
+  it("marks an unknown path on a base_url client as a runtime segment", () => {
+    const r = scan({ "a.py": 'import httpx\nc = httpx.Client(base_url="https://graph.facebook.com/v24.0")\ndef f(path_var):\n    return c.get(path_var)\n' });
+    expect(describeSites(r)).toEqual(["httpx meta-graph GET /v24.0/{}"]);
+    const advisories = loadAdvisories(path.join(root, "advisories"));
+    const { possible } = matchAdvisories(createApiLock(r, "test"), advisories, { now: new Date("2026-10-23") });
+    expect(possible.map((f) => f.advisory.id)).toContain("meta-graph-marketing-api-v24-sunset");
+  });
+
+  it("does not crash on SDK attributes named like Object.prototype members", () => {
+    const r = scan({
+      "a.py": 'from openai import OpenAI\nclient = OpenAI()\nx = client.toString()\ny = client.constructor()\nclient.chat.completions.create(model="gpt-4o")\n',
+    });
+    expect(r.skipped).toEqual([]);
+    expect(r.callSites.map((s) => s.operation)).toEqual(["chat.completions.create"]);
+  });
+
+  it("records numeric comparisons on body fields as enum values", () => {
+    const r = scan({
+      "a.py":
+        'import requests\ndef f(sid, msid):\n    r = requests.get(f"https://api.twilio.com/2010-04-01/Accounts/{sid}/Messages/{msid}.json")\n    data = r.json()\n' +
+        '    if data["error_code"] == 30036 or data["error_code"] in (30046, 30047):\n        pass\n    if data["num_segments"] > 1:\n        pass\n',
+    });
+    expect(r.callSites[0]!.surface.enums).toEqual([{ field: "error_code", values: ["30036", "30046", "30047"] }]);
+    expect(r.callSites[0]!.surface.fields).toEqual(["error_code", "num_segments"]);
+  });
+
+  it("reads only dependency lists from pyproject.toml, with extras in brackets", () => {
+    const r = scan({
+      "a.py": "x = 1\n",
+      "pyproject.toml":
+        '[project]\nname = "x"\nkeywords = ["stripe", "openai"]\ndependencies = [\n  "anthropic[vertex]>=0.3",\n  "twilio>=8",\n]\n\n' +
+        '[project.optional-dependencies]\nai = ["openai>=1", "slack-sdk"]\n\n[dependency-groups]\ndev = [\n  "hubspot-api-client",\n]\n\n[tool.other]\nnames = ["stripe"]\n',
+    });
+    expect(r.declared.map((d) => d.package)).toEqual(["anthropic", "hubspot-api-client", "openai", "slack-sdk", "twilio"]);
+  });
+});
