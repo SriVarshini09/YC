@@ -19,7 +19,8 @@ interface WebhookPayload {
   ref?: string;
   after?: string;
   deleted?: boolean;
-  repository?: { id: number; full_name: string; default_branch: string; private: boolean; archived?: boolean };
+  /** In a push event, `pushed_at` is when that push was made (Unix seconds); other events send an ISO string. */
+  repository?: { id: number; full_name: string; default_branch: string; private: boolean; archived?: boolean; pushed_at?: number | string | null };
   pull_request?: {
     number: number;
     html_url: string;
@@ -227,7 +228,12 @@ export async function insertPendingScan(tx: Tx, scan: { account_id: string; repo
     .executeTakeFirst();
 }
 
-/** A push to a repo's default branch queues a scan of the new commit. */
+/**
+ * A push to a repo's default branch queues a scan of the new commit. Pushes are taken in the order GitHub
+ * received them (the payload's `pushed_at`), not the order they are delivered in: a push older than the newest
+ * one taken (delivered late, say redelivered after an outage) is not scanned, since the newer push's commit is
+ * the branch's head. Its scan would otherwise become the repository's latest (see latestScanId).
+ */
 async function handlePush(tx: Tx, github: GitHubClients, payload: WebhookPayload, scans: ScanRequest[]): Promise<string> {
   const { installation, repository: repo, after } = payload;
   if (!installation || !repo) return "ignored: no installation";
@@ -239,8 +245,12 @@ async function handlePush(tx: Tx, github: GitHubClients, payload: WebhookPayload
   if (account.suspended_at) return "ignored: account suspended";
 
   const { id: repositoryId } = await upsertRepository(tx, accountId, repo);
-  const { enabled } = await tx.selectFrom("repositories").select("enabled").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+  // upsertRepository locked the row: pushes of one repository are decided one at a time.
+  const { enabled, last_pushed_at } = await tx.selectFrom("repositories").select(["enabled", "last_pushed_at"]).where("id", "=", repositoryId).executeTakeFirstOrThrow();
   if (!enabled) return "ignored: repository disabled";
+  const pushedAt = pushTime(repo.pushed_at);
+  if (pushedAt && last_pushed_at && pushedAt < last_pushed_at) return "ignored: older than a push already taken";
+  if (pushedAt) await tx.updateTable("repositories").set({ last_pushed_at: pushedAt }).where("id", "=", repositoryId).execute();
 
   const pending = await tx
     .selectFrom("scans")
@@ -256,6 +266,13 @@ async function handlePush(tx: Tx, github: GitHubClients, payload: WebhookPayload
   const others = scans.filter((s) => !("repositoryId" in s && s.repositoryId === repositoryId));
   scans.splice(0, scans.length, ...others, { scanId: scan.id });
   return `scan ${scan.id} queued`;
+}
+
+/** A push payload's `pushed_at`: Unix seconds (an ISO string is accepted too); undefined when missing or invalid. */
+function pushTime(value: number | string | null | undefined): Date | undefined {
+  if (value === null || value === undefined || value === "") return undefined;
+  const at = new Date(typeof value === "number" ? value * 1000 : value);
+  return Number.isNaN(at.getTime()) ? undefined : at;
 }
 
 /** An archived repository is read-only on GitHub: SHAPI stops on it, and scans it again once it is unarchived. */

@@ -10,7 +10,7 @@ Anyone can [install the GitHub App](https://github.com/apps/shapi-by-srivarshini
 
 ## What it does
 
-- **On every push to your default branch**, SHAPI downloads that commit with a short-lived token that can only read that one repository. It builds the api.lock and posts a **`SHAPI` check** on the commit: neutral by default, with an annotation on each affected line.
+- **On every push to your default branch**, SHAPI downloads that commit with a short-lived token that can only read that one repository. It builds the api.lock and posts a **`SHAPI` check** on the commit: neutral by default, with an annotation on each affected line. A push that GitHub delivers late, after a newer one (for example after an outage), is not scanned: the newer push's commit is the branch as it is now.
 - **For each affected call site with a fix recipe**, it verifies the fix in an isolated sandbox and opens a **pull request** with the fix and its contract test.
 - **When an advisory is added or changed**, it re-matches every installed repository's stored api.lock and opens PRs where the new advisory hits.
 - **A `SHAPI Dashboard` issue** in each repository lists open fix PRs, fixes waiting for a limit, fixes whose branch you pushed to (SHAPI never overwrites it; delete the branch to let it open the fix), fixes you closed, changes that need a manual fix, and upcoming deadlines.
