@@ -2,7 +2,7 @@ import { structuredPatch } from "diff";
 import type { Advisory } from "@shapi/core";
 import type { FixRepair, FixTestRun } from "@shapi/db";
 import type { LockedCallSite } from "@shapi/core";
-import type { RepairResult, TestRun } from "@shapi/repair";
+import { testCounts, type RepairResult, type TestRun } from "@shapi/repair";
 
 /** Diff lines kept per file; the PR on GitHub has the whole change. */
 export const DIFF_LINE_LIMIT = 400;
@@ -42,9 +42,8 @@ export function summarizeRepair(input: { advisory: Advisory; sites: RepairedSite
 }
 
 function testRun(run: TestRun): FixTestRun {
-  const m = /Tests\s+([^\n]+?)\s*\(\d+\)/.exec(run.output);
   const output = run.output.trim();
-  return { passed: run.passed, tests: m ? m[1]!.trim() : run.passed ? "passed" : "failed", output: output.length > OUTPUT_LIMIT ? `…${output.slice(-OUTPUT_LIMIT)}` : output };
+  return { passed: run.passed, tests: testCounts(run.output) ?? (run.passed ? "passed" : "failed"), output: output.length > OUTPUT_LIMIT ? `…${output.slice(-OUTPUT_LIMIT)}` : output };
 }
 
 /** A unified diff of one file with 3 lines of context, cut at DIFF_LINE_LIMIT lines. */

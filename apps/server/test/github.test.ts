@@ -261,6 +261,29 @@ describe("webhook events", () => {
     expect(scans).toEqual([{ sha: "a".repeat(40), status: "queued" }]);
   });
 
+  it("a push older than one already taken (delivered late) queues no scan: the newer push's commit stays the latest", async () => {
+    const gh = fakeGitHub();
+    await processDelivery({ db, github: gh.clients }, await deliver("installation", { action: "created", installation: installation(9010) }));
+    const repo = { id: 501, full_name: "acme/api", default_branch: "main" };
+    const at = (sha: string, pushedAt: number | string) => {
+      const p = push(9010, repo, sha);
+      return { ...p, repository: { ...p.repository, pushed_at: pushedAt } };
+    };
+    const run = async (payload: object) => (await processDelivery({ db, github: gh.clients }, await deliver("push", payload))).outcome;
+    const t = Math.floor(Date.parse("2026-10-29T10:00:00Z") / 1000);
+
+    // Push B arrives first; push A, made a minute earlier, is redelivered after it.
+    expect(await run(at("b".repeat(40), t))).toMatch(/^scan \d+ queued$/);
+    expect(await run(at("a".repeat(40), t - 60))).toBe("ignored: older than a push already taken");
+    // A newer push is taken, also one sending an ISO time, and so is one without pushed_at.
+    expect(await run(at("c".repeat(40), new Date((t + 60) * 1000).toISOString()))).toMatch(/queued$/);
+    expect(await run(push(9010, repo, "d".repeat(40)))).toMatch(/queued$/);
+    const scans = await withService(db, (tx) => tx.selectFrom("scans").select("sha").orderBy("id").execute());
+    expect(scans.map((s) => s.sha[0])).toEqual(["b", "c", "d"]);
+    const stored = await withService(db, (tx) => tx.selectFrom("repositories").select("last_pushed_at").where("github_repo_id", "=", "501").executeTakeFirstOrThrow());
+    expect(stored.last_pushed_at?.toISOString()).toBe("2026-10-29T10:01:00.000Z");
+  });
+
   it("push from an installation whose install event was lost creates the account from the API", async () => {
     const gh = fakeGitHub();
     const outcome = (await processDelivery({ db, github: gh.clients }, await deliver("push", push(9004, { id: 501, full_name: "acme/api", default_branch: "main" }, "c".repeat(40))))).outcome;

@@ -53,7 +53,7 @@ SHAPI reads these rights from GitHub when you sign in. After a change on GitHub,
 
 ### Claude
 
-Off by default, and the setting appears only when Claude is enabled on the server. When an account turns on *Use Claude when no deterministic recipe fits*, the affected file, the advisory, the contract test and its failing output are sent to Anthropic's API for that call site. The proposed change may touch only source files, and is kept only if the contract test passes in the sandbox and the code still type-checks. A fix job makes at most 20 Claude calls.
+Off by default, and the setting appears only when Claude is enabled on the server. When an account turns on *Use Claude when no deterministic recipe fits*, the affected file, the advisory, the contract test and its failing output are sent to Anthropic's API for that call site. The proposed change may touch only source files, and is kept only if the contract test passes in the sandbox and the code still type-checks. A fix job makes at most 20 Claude calls, and retries of the same job share them.
 
 ### Other safeguards
 

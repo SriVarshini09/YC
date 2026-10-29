@@ -265,11 +265,15 @@ describe("fix delivery", () => {
     t.github.pushAs("shapi/crit", "src/a.ts", "theirs again\n");
     const later = new Date(now.getTime() + 2 * 3600_000);
     await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")], now: later });
+    expect(t.github.issues[0]!.body).not.toContain("You ticked this");
+    // Ticked without deleting the branch: the box comes back unticked, and the row says why nothing was opened.
     t.github.tick(t.github.issues[0]!.number, "retry:crit");
     await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")], now: later });
     body = t.github.issues[0]!.body;
     expect(body).toContain(`## Needs you\n\n- [ ] <!-- shapi:retry:crit --> Change crit [#${closed.number}](`);
-    expect(body).toContain("Delete the branch, then tick to open the fix again.");
+    expect(body).toContain(
+      "has commits that are not SHAPI's, so SHAPI leaves it alone. You ticked this, but the branch still has those commits, so nothing was opened. Delete the branch, then tick to open the fix again.",
+    );
     expect(body).not.toContain("## Closed without merging");
     expect(t.github.fileAt("shapi/crit", "src/a.ts")).toBe("theirs again\n");
   });

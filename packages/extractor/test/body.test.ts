@@ -131,7 +131,7 @@ describe("body triggers", () => {
     trigger: { body: [{ field: "payment_method_types" }] },
   });
 
-  it("is affected only where the body sets a listed value; a dynamic value or another model is exposed", () => {
+  it("is affected only where the body sets a listed value; another model is exposed, a dynamic one possible", () => {
     const result = matchAdvisories(createApiLock({ callSites: sites, declared: [] }, "test"), [models], { now: new Date("2026-10-29") });
     expect(result.affected.map((f) => `${f.callSite.file}:${f.callSite.line} ${f.reasons.join("; ")}`)).toEqual([
       'app/ai.py:9 sends model: "gpt-4o-2024-05-13" in the request body',
@@ -139,7 +139,12 @@ describe("body triggers", () => {
       'src/ai.ts:8 sends model: "gpt-4o-2024-05-13" in the request body',
       'src/http.ts:7 sends model: "gpt-4.1" in the request body',
     ]);
-    expect(result.exposed.map((f) => `${f.callSite.file}:${f.callSite.line}`)).toEqual(["app/ai.py:10", "src/ai.ts:9", "src/http.ts:6", "src/http.ts:8"]);
+    expect(result.exposed.map((f) => `${f.callSite.file}:${f.callSite.line}`)).toEqual(["src/http.ts:6", "src/http.ts:8"]);
+    // The model comes from a variable: SHAPI cannot tell whether it is one of the retired ones.
+    expect(result.possible.map((f) => `${f.callSite.file}:${f.callSite.line} ${f.reasons.join("; ")}`)).toEqual([
+      'app/ai.py:10 calls POST /v1/chat/completions, but SHAPI cannot tell the model (affected if it is "gpt-4o-2024-05-13" or "o1-mini" or "gpt-4.1")',
+      'src/ai.ts:9 calls POST /v1/chat/completions, but SHAPI cannot tell the model (affected if it is "gpt-4o-2024-05-13" or "o1-mini" or "gpt-4.1")',
+    ]);
   });
 
   it("is affected where the body sends the field at all, when no values are given", () => {

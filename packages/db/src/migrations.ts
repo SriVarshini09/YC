@@ -319,9 +319,50 @@ const migrations: Record<string, Migration> = {
       await sql`alter table scans drop column if exists llm_calls`.execute(db);
     },
   },
+  "0015_fix_job_llm_calls": {
+    async up(db: Kysely<unknown>) {
+      // LLM calls per fix job (pg-boss job id), so a job's retries share one budget and every new job gets its own.
+      // scans.llm_calls (0014) is no longer used; it stays while older machines of a rolling deploy may still write it.
+      await sql`
+        create table fix_job_llm_calls (
+          job_id text primary key,
+          calls integer not null,
+          created_at timestamptz not null default now()
+        )
+      `.execute(db);
+      // When the newest default-branch push SHAPI took was made (GitHub's pushed_at): an older push delivered late is not scanned.
+      await sql`alter table repositories add column last_pushed_at timestamptz`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`drop table if exists fix_job_llm_calls`.execute(db);
+      await sql`alter table repositories drop column if exists last_pushed_at`.execute(db);
+    },
+  },
 };
 
-const provider: MigrationProvider = { getMigrations: async () => migrations };
+/**
+ * How long a migration waits for a table lock before it fails (and the deploy with it), so an ALTER queued
+ * behind a long transaction does not hold up every query on that table meanwhile.
+ */
+export const MIGRATION_LOCK_TIMEOUT = "10s";
+
+/** Each migration first sets the lock timeout for its transaction. */
+export function withLockTimeout(all: Record<string, Migration>, timeout = MIGRATION_LOCK_TIMEOUT): Record<string, Migration> {
+  return Object.fromEntries(
+    Object.entries(all).map(([name, m]) => [
+      name,
+      {
+        async up(db: Kysely<unknown>) {
+          await sql`select set_config('lock_timeout', ${timeout}, true)`.execute(db);
+          await m.up(db);
+        },
+        ...(m.down ? { down: m.down } : {}),
+      },
+    ]),
+  );
+}
+
+const provider: MigrationProvider = { getMigrations: async () => withLockTimeout(migrations) };
 
 /** Apply every pending migration. Runs as the connecting (owner) user, not the app role. */
 export async function migrateToLatest<DB>(db: Kysely<DB>): Promise<string[]> {

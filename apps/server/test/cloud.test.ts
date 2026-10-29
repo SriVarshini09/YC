@@ -407,7 +407,7 @@ describe("fixes after an upgrade", () => {
 });
 
 describe("LLM budget", () => {
-  it("is kept on the scan, so a retried fix job cannot spend it again", async () => {
+  it("is kept per fix job: its retries cannot spend it again, and another job on the same scan has its own", async () => {
     const t = setup();
     const scanId = await queueScan(t.github.refs.get("main")!);
     await runScanJob({ db, github: t.githubClients }, { scanId });
@@ -422,11 +422,18 @@ describe("LLM budget", () => {
     const llm = { fix: async (req: { advisory: { id: string } }) => (asked.push(req.advisory.id), { status: "declined" as const, reason: "test" }) };
     process.env.SHAPI_LLM_CALLS_PER_JOB = "1";
     try {
-      await runFixJob({ ...t.fixDeps, llm: llm as never }, { scanId });
+      await runFixJob({ ...t.fixDeps, llm: llm as never }, { scanId, jobId: "job-1" });
       expect(asked).toEqual(["github-dispatch-llm-only"]);
-      // pg-boss runs the job again (a retry, or after expiry): the scan's one call is spent.
-      await runFixJob({ ...t.fixDeps, llm: llm as never }, { scanId });
+      // pg-boss runs the same job again (a retry, or after expiry): it keeps its id, and its one call is spent.
+      await runFixJob({ ...t.fixDeps, llm: llm as never }, { scanId, jobId: "job-1" });
       expect(asked).toHaveLength(1);
+      // A new job on the same scan (a dashboard tick, lifting a pause, the advisory fan-out) gets its own budget.
+      await runFixJob({ ...t.fixDeps, llm: llm as never }, { scanId, jobId: "job-2" });
+      expect(asked).toHaveLength(2);
+      expect(await owner.selectFrom("fix_job_llm_calls").select(["job_id", "calls"]).orderBy("job_id").execute()).toEqual([
+        { job_id: "job-1", calls: 2 },
+        { job_id: "job-2", calls: 1 },
+      ]);
     } finally {
       delete process.env.SHAPI_LLM_CALLS_PER_JOB;
       await owner.deleteFrom("advisories").where("id", "=", "github-dispatch-llm-only").execute();
@@ -453,6 +460,45 @@ describe("advisory fan-out", () => {
     expect(findings.length).toBeGreaterThan(0);
     expect((await runAdvisoryFanout(db)).rematched).toBe(0);
     await owner.deleteFrom("advisories").where("id", "=", added.id).execute();
+  });
+
+  it("saves a re-match under the account the repository is in now, when it moved during the fan-out", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    // A second repository with the same code, re-matched after the first.
+    const first = await owner.selectFrom("scans").selectAll().where("id", "=", scanId).executeTakeFirstOrThrow();
+    const second = await owner.insertInto("repositories").values({ account_id: first.account_id, github_repo_id: REPO_ID + 1, full_name: "acme/demo2", default_branch: "main", private: true }).returning("id").executeTakeFirstOrThrow();
+    await owner
+      .insertInto("scans")
+      .values({ account_id: first.account_id, repository_id: second.id, sha: first.sha, status: "succeeded", api_lock: JSON.stringify(first.api_lock), advisories: JSON.stringify(first.advisories), finished_at: new Date() })
+      .execute();
+    const newOwner = await owner.insertInto("accounts").values({ github_installation_id: INSTALLATION + 1, login: "new-owner", type: "Organization", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
+
+    const base = loadAdvisories(ADVISORIES).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
+    const added = { ...base, id: "github-dispatch-copy-for-move", title: "A new advisory on the same endpoint" };
+    await upsertAdvisories(db, [added], { reviewed: true, source: "repo" });
+    const notices: { accountId: string; repositoryId: string }[] = [];
+    try {
+      // While the fan-out works on the first repository, the second is transferred (as upsertRepository does).
+      const report = await runAdvisoryFanout(db, {
+        notify: async (n) => {
+          notices.push({ accountId: n.accountId, repositoryId: n.repositoryId });
+          if (n.repositoryId !== repositoryId) return;
+          await owner.updateTable("repositories").set({ account_id: newOwner.id }).where("id", "=", second.id).execute();
+          for (const table of ["scans", "findings", "fix_prs"] as const) await owner.updateTable(table).set({ account_id: newOwner.id }).where("repository_id", "=", second.id).execute();
+        },
+      });
+      expect(report.rematched).toBe(2);
+      const owners = await owner.selectFrom("findings").select("account_id").distinct().where("repository_id", "=", second.id).execute();
+      expect(owners).toEqual([{ account_id: newOwner.id }]);
+      expect(notices).toEqual([
+        { accountId: first.account_id, repositoryId },
+        { accountId: newOwner.id, repositoryId: second.id },
+      ]);
+    } finally {
+      await owner.deleteFrom("advisories").where("id", "=", added.id).execute();
+    }
   });
 });
 

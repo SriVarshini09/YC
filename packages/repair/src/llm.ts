@@ -23,8 +23,8 @@ export interface LlmFixer {
 }
 
 /**
- * Model calls the fixes of one scan (all its fix job's attempts, retries included) or one `shapi fix` run may
- * make: each is a high-effort request carrying a whole file. SHAPI_LLM_CALLS_PER_JOB overrides it.
+ * Model calls one fix job (all its attempts, retries included) or one `shapi fix` run may make: each is a
+ * high-effort request carrying a whole file. SHAPI_LLM_CALLS_PER_JOB overrides it.
  */
 export const DEFAULT_LLM_CALLS_PER_JOB = 20;
 
@@ -33,8 +33,8 @@ export const MAX_LLM_FILE_BYTES = 200_000;
 
 /**
  * `llm`, declining every call after the first `max`, so big scans cannot run up the bill. `take` counts one
- * call and returns how many there have been, this one included: the fix job keeps the count on the scan, so
- * a retried job shares the budget. By default calls are counted in memory, for this budget only.
+ * call and returns how many there have been, this one included: the fix job keeps the count in the database
+ * under its job id, so a retried job shares the budget. By default calls are counted in memory, for this budget only.
  */
 export function withCallBudget(llm: LlmFixer, max = callsPerJob(), take?: () => Promise<number>): LlmFixer {
   let calls = 0;

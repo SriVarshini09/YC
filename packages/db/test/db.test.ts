@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { loadAdvisories } from "@shapi/core";
 import { sql } from "kysely";
 import { inferShape, providerSalt } from "@shapi/shapes";
-import { PgShapeStore, createDb, listAdvisories, migrateToLatest, upsertAdvisories, withService, withTenant, type Db } from "@shapi/db";
+import { MIGRATION_LOCK_TIMEOUT, PgShapeStore, createDb, listAdvisories, migrateToLatest, upsertAdvisories, withLockTimeout, withService, withTenant, type Db } from "@shapi/db";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -15,7 +15,7 @@ let app: Db;
 beforeAll(async () => {
   pg = await startTestPostgres();
   owner = createDb({ connectionString: pg.url, appRole: false });
-  expect(await migrateToLatest(owner)).toEqual(["0001_init", "0002_webhook_sweeper", "0003_fix_prs", "0004_cloud_scans", "0005_web_sessions", "0006_billing", "0007_billing_cancel_at", "0008_fix_pr_repair", "0009_findings_scan_index", "0010_scans_fix_engine", "0011_session_repo_access", "0013_jobs_fixes", "0014_scans_llm_calls"]);
+  expect(await migrateToLatest(owner)).toEqual(["0001_init", "0002_webhook_sweeper", "0003_fix_prs", "0004_cloud_scans", "0005_web_sessions", "0006_billing", "0007_billing_cancel_at", "0008_fix_pr_repair", "0009_findings_scan_index", "0010_scans_fix_engine", "0011_session_repo_access", "0013_jobs_fixes", "0014_scans_llm_calls", "0015_fix_job_llm_calls"]);
   app = createDb({ connectionString: pg.url });
 }, 120_000);
 
@@ -31,6 +31,34 @@ describe("migrations", () => {
   });
   it("keep the app role away from the migration bookkeeping", async () => {
     await expect(sql`select * from kysely_migration`.execute(app)).rejects.toThrow(/permission denied/);
+  });
+  it("wait at most the lock timeout for a table lock, and fail instead of queueing every query behind them", async () => {
+    let seen: unknown;
+    const [check] = Object.values(withLockTimeout({ check: { up: async (tx) => void (seen = (await sql<{ lock_timeout: string }>`show lock_timeout`.execute(tx)).rows[0]) } }));
+    await owner.transaction().execute((tx) => check!.up(tx));
+    expect(seen).toEqual({ lock_timeout: MIGRATION_LOCK_TIMEOUT });
+    // Only for the migration's transaction.
+    expect((await sql<{ lock_timeout: string }>`show lock_timeout`.execute(owner)).rows[0]).toEqual({ lock_timeout: "0" });
+
+    // A long transaction holds a lock on the table: the migration gives up after the timeout.
+    await sql`create table if not exists lock_probe (id int)`.execute(owner);
+    let release!: () => void;
+    let held!: () => void;
+    const isHeld = new Promise<void>((r) => (held = r));
+    const holder = owner.transaction().execute(async (tx) => {
+      await sql`lock table lock_probe in access share mode`.execute(tx);
+      held();
+      await new Promise<void>((r) => (release = r));
+    });
+    await isHeld;
+    const [alter] = Object.values(withLockTimeout({ alter: { up: async (tx) => void (await sql`alter table lock_probe add column x int`.execute(tx)) } }, "200ms"));
+    try {
+      await expect(owner.transaction().execute((tx) => alter!.up(tx))).rejects.toThrow(/lock timeout/);
+    } finally {
+      release();
+      await holder;
+      await sql`drop table lock_probe`.execute(owner);
+    }
   });
 });
 

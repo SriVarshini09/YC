@@ -83,6 +83,16 @@ export function testsRan(output: string): boolean {
   return /^\s*Tests\s+.*\d+ (?:failed|passed)/m.test(output);
 }
 
+/**
+ * The counts of vitest's own summary line, for example "1 failed | 2 passed". Only a whole line of counts
+ * matches, and the last one wins: vitest prints it after the output of the code under test, which could
+ * print a look-alike line holding Markdown.
+ */
+export function testCounts(output: string): string | undefined {
+  const lines = [...output.matchAll(/^[ \t]*Tests[ \t]+(\d+ [a-z]+(?: \| \d+ [a-z]+)*)[ \t]+\(\d+\)[ \t]*\r?$/gm)];
+  return lines.at(-1)?.[1];
+}
+
 /** The first line that explains why a run did not get as far as running tests. */
 export function runFailure(output: string): string {
   const lines = output.split("\n").map((l) => l.trim()).filter(Boolean);

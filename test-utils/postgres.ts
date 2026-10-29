@@ -15,10 +15,20 @@ export interface TestPostgres {
 export interface TestPostgresOptions {
   /** Starts to try, each on a new port. */
   attempts?: number;
-  /** How long one start (initdb, server, database) may take before it is killed and tried again. */
+  /** How long one start (initdb, server, database) may take before it is killed and tried again; see startTimeoutMs. */
   timeoutMs?: number;
   /** The port for each attempt (tests); a free one by default. */
   port?: () => Promise<number>;
+}
+
+/**
+ * The time limit of one start: SHAPI_TEST_PG_START_TIMEOUT_MS, or 30 s. A start takes a few seconds on CI
+ * (Linux) and on a warm Windows machine; a cold Windows start (antivirus scanning the binaries) can take
+ * longer, so raise it there. Test files give their beforeAll 120 s, which three attempts must fit in.
+ */
+export function startTimeoutMs(env: Record<string, string | undefined> = process.env): number {
+  const ms = Number(env.SHAPI_TEST_PG_START_TIMEOUT_MS);
+  return Number.isInteger(ms) && ms > 0 ? ms : 30_000;
 }
 
 /** How long the server may take to exit once killed, before it is killed outright. */
@@ -47,7 +57,7 @@ export async function startTestPostgres(database = "shapi_test", opts: TestPostg
   const errors: string[] = [];
   for (let attempt = 0; attempt < attempts; attempt++) {
     try {
-      return await startOnce(database, await (opts.port ?? freePort)(), opts.timeoutMs ?? 30_000);
+      return await startOnce(database, await (opts.port ?? freePort)(), opts.timeoutMs ?? startTimeoutMs());
     } catch (err) {
       errors.push(err instanceof Error ? err.message : String(err));
     }

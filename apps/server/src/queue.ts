@@ -208,7 +208,8 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
         billingEnforced,
         engine: deps.config.GIT_SHA,
       },
-      job.data,
+      // The job's id stays the same across its retries: they share its LLM budget.
+      { scanId: job.data.scanId, jobId: job.id },
     );
     deps.log.info({ scanId: report.scanId, repairs: report.repairs, prs: report.delivery?.outcomes }, "fix job finished");
     return report;

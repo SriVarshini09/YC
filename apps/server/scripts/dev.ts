@@ -77,5 +77,5 @@ const shutdown = async () => {
   await pg.stop();
   process.exit(0);
 };
-process.on("SIGINT", () => void shutdown());
-process.on("SIGTERM", () => void shutdown());
+// Ctrl-C, a kill, the terminal closing, and Ctrl-Break on Windows: Postgres is stopped, not left running.
+for (const signal of ["SIGINT", "SIGTERM", "SIGHUP", "SIGBREAK"] as const) process.on(signal, () => void shutdown());

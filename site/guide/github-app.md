@@ -10,7 +10,7 @@ Anyone can [install the GitHub App](https://github.com/apps/shapi-by-srivarshini
 
 ## What it does
 
-- **On every push to your default branch**, SHAPI downloads that commit with a short-lived token that can only read that one repository. It builds the api.lock and posts a **`SHAPI` check** on the commit: neutral by default, with an annotation on each affected line.
+- **On every push to your default branch**, SHAPI downloads that commit with a short-lived token that can only read that one repository. It builds the api.lock and posts a **`SHAPI` check** on the commit: neutral by default, with an annotation on each affected line. A push that GitHub delivers late, after a newer one (for example after an outage), is not scanned: the newer push's commit is the branch as it is now.
 - **For each affected call site with a fix recipe**, it verifies the fix in an isolated sandbox and opens a **pull request** with the fix and its contract test.
 - **When an advisory is added or changed**, it re-matches every installed repository's stored api.lock and opens PRs where the new advisory hits.
 - **A `SHAPI Dashboard` issue** in each repository lists open fix PRs, fixes waiting for a limit, fixes whose branch you pushed to (SHAPI never overwrites it; delete the branch to let it open the fix), fixes you closed, changes that need a manual fix, and upcoming deadlines.
@@ -41,7 +41,7 @@ Paste a Slack [incoming webhook](https://api.slack.com/messaging/webhooks) link 
 
 ## The web app
 
-Sign in with GitHub to see each repository's latest scan, its findings with links to the exact lines, fix PR history and recent scans. That is also where you change the limits, the check behavior and the Claude opt-in, and where you pause a repository. You see only the repositories you can open on GitHub. Pausing one needs write access to it, and the account's settings and billing need an account admin: the owner of a personal account, or for an organization someone who is admin on every repository SHAPI covers there. SHAPI keeps no GitHub user token: it reads who you are, which installations you can access and your permission on each of their repositories, then discards the token. So that access is what GitHub said when you signed in: a repository added to the installation afterwards appears when you sign in again (the web app tells you), and until then it doesn't count against an admin.
+Sign in with GitHub to see each repository's latest scan, its findings with links to the exact lines, fix PR history and recent scans. That is also where you change the limits, the check behavior and the Claude opt-in, and where you pause a repository. You see only the repositories you can open on GitHub. Pausing one needs write access to it, and the account's settings and billing need an account admin: the owner of a personal account, or for an organization someone who is admin on every repository SHAPI covers there. SHAPI keeps no GitHub user token: it reads who you are, which installations you can access and your permission on each of their repositories, then discards the token. So that access is what GitHub said when you signed in: a repository added to the installation afterwards appears when you sign in again (the web app tells account admins), and until then it doesn't count against an admin.
 
 ## Plans
 

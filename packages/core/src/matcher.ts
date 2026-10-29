@@ -12,7 +12,7 @@ export interface UpcomingDeadline {
   advisory: Advisory;
   /** Whole days from today to the effective date, both as UTC calendar days (0 on the day itself). */
   daysUntil: number;
-  /** Call sites that call the advisory's endpoint, affected or exposed. */
+  /** Call sites that call the advisory's endpoint: affected, exposed, or possible by an unknown request-body value. */
   callSites: number;
 }
 
@@ -24,7 +24,8 @@ export interface MatchResult {
   /**
    * The path is built at runtime where the change is narrower than the call: `/v24.0/{endpoint}`
    * against Meta's ad-account paths (`/v24.0/act_…`). Affected if the runtime value reaches the changed endpoint.
-   * Also a matching path whose HTTP method or host SHAPI cannot tell (a URL no recognized client sends).
+   * Also a matching path whose HTTP method or host SHAPI cannot tell (a URL no recognized client sends), and a
+   * call of the endpoint whose request-body value the change turns on is unknown (a model passed in a variable).
    */
   possible: Finding[];
   /** Advisories for providers in this repo that take effect within the horizon. */
@@ -56,7 +57,9 @@ export function matchAdvisories(lock: ApiLock, advisories: Advisory[], options: 
       }
       hitsPerAdvisory.set(advisory.id, (hitsPerAdvisory.get(advisory.id) ?? 0) + 1);
       const reasons = triggerReasons(callSite, advisory.trigger);
+      const unknown = reasons.length ? undefined : unknownValueReason(callSite, advisory);
       if (reasons.length > 0) affected.push({ advisory, callSite, reasons });
+      else if (unknown) possible.push({ advisory, callSite, reasons: [unknown] });
       else exposed.push({ advisory, callSite, reasons: [`calls ${describe(callSite)} but does not depend on the changed behavior`] });
     }
   }
@@ -108,6 +111,22 @@ function mayMatchReason(site: LockedCallSite, advisory: Advisory): string | unde
   return runtimePathMayMatch(site.endpoint, pattern.path)
     ? `builds the path at runtime (${describe(site)}); affected if it reaches ${pattern.path}`
     : undefined;
+}
+
+/**
+ * The call site calls the endpoint, but whether it sends what changed turns on a request-body value SHAPI
+ * cannot read: a field the advisory names with values (a model) sent from a variable, or not in the body at
+ * all where the pattern's `{?}` segment says the path carries that value at runtime (a REST Gemini call).
+ */
+function unknownValueReason(site: LockedCallSite, advisory: Advisory): string | undefined {
+  for (const b of advisory.trigger.body ?? []) {
+    if (!b.values) continue;
+    const set = (site.surface.body ?? []).find((x) => x.name === b.field);
+    if (set ? set.value === null : advisory.endpoint.path.includes("{?}")) {
+      return `calls ${describe(site)}, but SHAPI cannot tell the ${b.field} (affected if it is ${b.values.map((v) => JSON.stringify(v)).join(" or ")})`;
+    }
+  }
+  return undefined;
 }
 
 function runtimePathMayMatch(endpoint: string, patternPath: string): boolean {

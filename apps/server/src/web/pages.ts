@@ -38,7 +38,7 @@ export interface PageContext {
   theme: Theme;
   /** An account admin: the sidebar offers Settings and Billing. */
   admin: boolean;
-  /** Repositories added since sign-in that the user cannot see yet (see accountAccess). */
+  /** For an account admin: repositories added since sign-in that they cannot see yet (see accountAccess). */
   addedSinceSignIn?: number;
 }
 

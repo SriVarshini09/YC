@@ -51,8 +51,11 @@ export interface FixReport {
  *
  * The job fixes its repository's latest successful scan, which may be newer than the scan it names: the
  * queue keeps one waiting fix job per repository and drops later ones, whose scans would otherwise go unfixed.
+ *
+ * `jobId` is the pg-boss job's id, which its retries keep: the LLM budget is counted on it, so a retried
+ * (or expired) job cannot spend it again, and every new job (a push, a dashboard tick, the fan-out) has its own.
  */
-export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise<FixReport> {
+export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: string }): Promise<FixReport> {
   const now = deps.now ?? (() => new Date());
   const ctx = await withService(deps.db, async (tx) => {
     const named = await tx.selectFrom("scans").select("repository_id").where("id", "=", job.scanId).executeTakeFirst();
@@ -100,8 +103,10 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
     byAdvisory.set(advisory.id, entry);
   }
 
-  // One budget per scan, kept on the scan: a retried job (or one pg-boss expired) cannot spend it again.
-  const llm = (scan.settings as { llmFixes?: boolean }).llmFixes === true && deps.llm ? withCallBudget(deps.llm, undefined, () => takeLlmCall(deps.db, scan.id)) : undefined;
+  // One budget per job, kept in the database under its id when it has one: a retry shares it. Without an id, counted in memory.
+  const jobId = job.jobId;
+  const llm =
+    (scan.settings as { llmFixes?: boolean }).llmFixes === true && deps.llm ? withCallBudget(deps.llm, undefined, jobId ? () => takeLlmCall(deps.db, jobId) : undefined) : undefined;
   const report: FixReport = { scanId: scan.id, repairs: [] };
   const manual: { advisory: Advisory; callSites: number }[] = [];
   const todo: { advisory: Advisory; callSites: LockedCallSite[]; shapes: { before?: ResponseShape; after?: ResponseShape; source: string } }[] = [];
@@ -196,10 +201,21 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string }): Promise
   return report;
 }
 
-/** Count one LLM call for a scan's fixes; returns the count so far, this call included. */
-async function takeLlmCall(db: Db, scanId: string): Promise<number> {
-  const row = await withService(db, (tx) => tx.updateTable("scans").set({ llm_calls: sql`llm_calls + 1` }).where("id", "=", scanId).returning("llm_calls").executeTakeFirstOrThrow());
-  return row.llm_calls;
+/**
+ * Count one LLM call for a fix job; returns the count so far, this call included. Counts older than two days
+ * (far beyond a job's retries and expiry, see QUEUE_OPTIONS) are dropped.
+ */
+async function takeLlmCall(db: Db, jobId: string): Promise<number> {
+  const row = await withService(db, async (tx) => {
+    await tx.deleteFrom("fix_job_llm_calls").where("created_at", "<", sql<Date>`now() - interval '2 days'`).execute();
+    return tx
+      .insertInto("fix_job_llm_calls")
+      .values({ job_id: jobId, calls: 1 })
+      .onConflict((oc) => oc.column("job_id").doUpdateSet({ calls: sql`fix_job_llm_calls.calls + 1` }))
+      .returning("calls")
+      .executeTakeFirstOrThrow();
+  });
+  return row.calls;
 }
 
 async function markEngine(deps: Pick<FixDeps, "db" | "engine">, scanId: string): Promise<void> {
