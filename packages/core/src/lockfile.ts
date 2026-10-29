@@ -25,6 +25,12 @@ export const SurfaceSchema = z.object({
   headers: z.array(NameValueSchema),
   /** Request query parameters. */
   query: z.array(NameValueSchema),
+  /**
+   * Top-level request body fields the code sends (a JSON body, axios data, got/ky json, SDK method
+   * parameters), each with its value when it is a static string. Absent when none are known, and in
+   * locks written before body fields were recorded.
+   */
+  body: z.array(NameValueSchema).optional(),
   /** Response headers read, names lowercased. */
   responseHeaders: z.array(z.string()),
 });

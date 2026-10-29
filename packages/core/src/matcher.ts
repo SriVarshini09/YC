@@ -176,6 +176,12 @@ function triggerReasons(site: LockedCallSite, trigger: Trigger): string[] {
       if (hit.length) reasons.push(`sends ${p.name}=${hit.join(",")}`);
     } else reasons.push(`sends ${p.name}=${p.value ?? "(dynamic)"}`);
   }
+  for (const b of trigger.body ?? []) {
+    const set = (s.body ?? []).find((x) => x.name === b.field);
+    if (!set) continue;
+    if (!b.values) reasons.push(`sends ${set.name} in the request body`);
+    else if (set.value !== null && b.values.includes(set.value)) reasons.push(`sends ${set.name}: ${JSON.stringify(set.value)} in the request body`);
+  }
   if (trigger.any) reasons.push(`calls ${describe(site)}`);
   return reasons;
 }
