@@ -41,9 +41,17 @@ export async function runAdvisoryFanout(db: Db, opts: { now?: Date; notify?: Not
     const removed = Object.keys(seen).some((id) => !(id in current));
     if (!changed.size && !removed) continue;
     const match = matchAdvisories(storedLock(scan.api_lock), advisories.map((a) => a.advisory), { now: opts.now });
-    const fresh = await withService(db, (tx) => saveFindings(tx, scan, match, current));
+    const saved = await withService(db, async (tx) => {
+      // As in the scan job: the repository may have moved to another account since `latest` was read, and its
+      // findings go to the account it is in now. Locked, so a transfer waits for this write and then moves them too.
+      const repo = await tx.selectFrom("repositories").select("account_id").where("id", "=", scan.repository_id).forUpdate().executeTakeFirst();
+      if (!repo) return undefined;
+      return { accountId: repo.account_id, fresh: await saveFindings(tx, { ...scan, account_id: repo.account_id }, match, current) };
+    });
+    if (!saved) continue;
     report.rematched++;
-    if (fresh.length) await opts.notify?.({ accountId: scan.account_id, repositoryId: scan.repository_id, sha: scan.sha, reason: "advisory", findings: fresh });
+    const { accountId, fresh } = saved;
+    if (fresh.length) await opts.notify?.({ accountId, repositoryId: scan.repository_id, sha: scan.sha, reason: "advisory", findings: fresh });
     if (match.affected.some((f) => changed.has(f.advisory.id))) report.fixScans.push({ scanId: scan.id, repositoryId: scan.repository_id });
   }
   return report;

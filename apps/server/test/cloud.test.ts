@@ -454,6 +454,45 @@ describe("advisory fan-out", () => {
     expect((await runAdvisoryFanout(db)).rematched).toBe(0);
     await owner.deleteFrom("advisories").where("id", "=", added.id).execute();
   });
+
+  it("saves a re-match under the account the repository is in now, when it moved during the fan-out", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    // A second repository with the same code, re-matched after the first.
+    const first = await owner.selectFrom("scans").selectAll().where("id", "=", scanId).executeTakeFirstOrThrow();
+    const second = await owner.insertInto("repositories").values({ account_id: first.account_id, github_repo_id: REPO_ID + 1, full_name: "acme/demo2", default_branch: "main", private: true }).returning("id").executeTakeFirstOrThrow();
+    await owner
+      .insertInto("scans")
+      .values({ account_id: first.account_id, repository_id: second.id, sha: first.sha, status: "succeeded", api_lock: JSON.stringify(first.api_lock), advisories: JSON.stringify(first.advisories), finished_at: new Date() })
+      .execute();
+    const newOwner = await owner.insertInto("accounts").values({ github_installation_id: INSTALLATION + 1, login: "new-owner", type: "Organization", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
+
+    const base = loadAdvisories(ADVISORIES).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
+    const added = { ...base, id: "github-dispatch-copy-for-move", title: "A new advisory on the same endpoint" };
+    await upsertAdvisories(db, [added], { reviewed: true, source: "repo" });
+    const notices: { accountId: string; repositoryId: string }[] = [];
+    try {
+      // While the fan-out works on the first repository, the second is transferred (as upsertRepository does).
+      const report = await runAdvisoryFanout(db, {
+        notify: async (n) => {
+          notices.push({ accountId: n.accountId, repositoryId: n.repositoryId });
+          if (n.repositoryId !== repositoryId) return;
+          await owner.updateTable("repositories").set({ account_id: newOwner.id }).where("id", "=", second.id).execute();
+          for (const table of ["scans", "findings", "fix_prs"] as const) await owner.updateTable(table).set({ account_id: newOwner.id }).where("repository_id", "=", second.id).execute();
+        },
+      });
+      expect(report.rematched).toBe(2);
+      const owners = await owner.selectFrom("findings").select("account_id").distinct().where("repository_id", "=", second.id).execute();
+      expect(owners).toEqual([{ account_id: newOwner.id }]);
+      expect(notices).toEqual([
+        { accountId: first.account_id, repositoryId },
+        { accountId: newOwner.id, repositoryId: second.id },
+      ]);
+    } finally {
+      await owner.deleteFrom("advisories").where("id", "=", added.id).execute();
+    }
+  });
 });
 
 describe("triggers", () => {
