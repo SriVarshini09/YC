@@ -9,8 +9,13 @@
   },
   "changeClass": "field-rename",
   "trigger": {
-    "fields": [
-      "NeoEnabled"
+    "enums": [
+      {
+        "field": "CompanyInfo.NameValue[].Name",
+        "values": [
+          "NeoEnabled"
+        ]
+      }
     ]
   },
   "firstObserved": null,

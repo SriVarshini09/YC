@@ -5,7 +5,7 @@
   "summary": "Since 2025-11-03, on all API versions, Instagram post oEmbed responses (GET /{version}/instagram_oembed) no longer include author_name, author_url, thumbnail_url, thumbnail_width or thumbnail_height. The same fields were removed from Facebook post and video oEmbed (oembed_post, oembed_video), and the Facebook page oEmbed endpoint was deprecated.",
   "endpoint": {
     "method": "GET",
-    "path": "/*/instagram_oembed"
+    "path": "/**/instagram_oembed"
   },
   "changeClass": "field-rename",
   "trigger": {

@@ -30,9 +30,9 @@ Each [advisory](/advisories) names an endpoint, what changed, and a **trigger**:
 
 - **Affected**: the call site depends on exactly what changed, for example `if (res.status !== 204)`.
 - **Exposed**: it calls the changed endpoint but does not depend on the change, for example it only checks `res.ok`.
-- **Possibly affected**: part of the path is only known at runtime, and the change is narrower than the call. For example `/v24.0/{endpoint}` is affected by Meta's Marketing API v24.0 sunset only if `endpoint` is an ad account (`act_...`). These are listed for you to check and never fail a build.
+- **Possibly affected**: part of the path is only known at runtime, and the change is narrower than the call. For example `/v24.0/{endpoint}` is affected by Meta's Marketing API v24.0 sunset only if `endpoint` is an ad account (`act_...`). The same goes for a matching path whose HTTP method or host SHAPI cannot tell, such as a URL passed to your own request helper. These are listed for you to check and never fail a build.
 
-Only affected call sites are reported as breaking. Deadlines (announced sunsets) within 90 days are listed separately.
+Only affected call sites are reported as breaking. Deadlines (announced sunsets) within 90 days are listed separately; effective dates and day counts are UTC calendar days.
 
 ## 3. Fix: test-first
 

@@ -1,0 +1,44 @@
+{
+  "id": "openai-legacy-gpt-o-series-shutdown-2026-10-23-responses",
+  "provider": "openai",
+  "title": "gpt-3.5-turbo, gpt-4, gpt-4-turbo, o1, o3-mini and o4-mini shut down on 2026-10-23 (Responses API)",
+  "summary": "On 2026-10-23 OpenAI shuts down gpt-3.5-turbo (0125), gpt-4 (0613), gpt-4-1106-preview, gpt-4-turbo, gpt-4.1-nano, gpt-4o-2024-05-13, o1, o1-pro, o3-mini and o4-mini, plus fine-tunes of gpt-3.5-turbo, gpt-4, gpt-4.1-nano and o4-mini. This advisory covers calls to the Responses API (POST /v1/responses) that send one of these model names (or their aliases); they fail from then on. openai-legacy-gpt-o-series-shutdown-2026-10-23 covers chat completions.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/v1/responses"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "body": [
+      {
+        "field": "model",
+        "values": [
+          "gpt-3.5-turbo",
+          "gpt-3.5-turbo-0125",
+          "gpt-4",
+          "gpt-4-0613",
+          "gpt-4-1106-preview",
+          "gpt-4-turbo",
+          "gpt-4.1-nano",
+          "gpt-4o-2024-05-13",
+          "o1",
+          "o1-pro",
+          "o3-mini",
+          "o4-mini"
+        ]
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-04-22",
+    "url": "https://developers.openai.com/api/docs/deprecations"
+  },
+  "effectiveDate": "2026-10-23",
+  "severity": "medium",
+  "migrationNote": "Search request bodies and config for these model names and switch them: gpt-3.5-turbo and o4-mini to gpt-5.6-terra; gpt-4, gpt-4-1106-preview, gpt-4-turbo, gpt-4o-2024-05-13, o1 and o3-mini to gpt-5.6-sol; o1-pro to gpt-5.6-sol with reasoning.mode: pro; gpt-4.1-nano to gpt-5.6-luna. Re-run fine-tunes on the new base models. The same model names also stop working on the Responses and legacy Completions endpoints.",
+  "sources": [
+    "https://developers.openai.com/api/docs/deprecations"
+  ],
+  "status": "verified"
+}

@@ -5,11 +5,24 @@
   "summary": "Since August 10, 2026, an RCS message that cannot be delivered to an unreachable device fails with error code 30046 (Message delivery not confirmed) instead of 30036 (Validity Period Expired). Custom SMS failover logic that checks error_code or ErrorCode for 30036 no longer fires; Twilio's native SMS fallback is not affected.",
   "endpoint": {
     "method": "GET",
-    "path": "/2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json"
+    "path": "/2010-04-01/Accounts/{AccountSid}/Messages**"
   },
   "changeClass": "enum-added",
   "trigger": {
-    "enums": [{ "field": "error_code" }]
+    "enums": [
+      {
+        "field": "error_code",
+        "values": [
+          "30036"
+        ]
+      },
+      {
+        "field": "messages[].error_code",
+        "values": [
+          "30036"
+        ]
+      }
+    ]
   },
   "firstObserved": null,
   "publishedNotice": {
