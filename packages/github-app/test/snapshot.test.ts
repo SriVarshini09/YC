@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { gzipSync } from "node:zlib";
 import { afterAll, describe, expect, it } from "vitest";
 import { Octokit } from "@octokit/rest";
 import { create } from "tar";
@@ -68,6 +69,30 @@ describe("repository snapshots from GitHub", () => {
     const all = await fetchRepoSnapshot(octokit, { owner: "acme", repo: "big", ref: "abc1234" }, { maxFiles: 100, maxBytes: 10_000_000, maxFileBytes: 100_000 });
     expect(all).toHaveLength(40);
     expect(pulled).toBe(archive.length);
+  });
+
+  it("rejects a corrupt download without an unhandled rejection, and stops reading it", async () => {
+    const unhandled: unknown[] = [];
+    const record = (e: unknown) => unhandled.push(e);
+    process.on("unhandledRejection", record);
+    try {
+      // A gzip header, then garbage: the parser fails while the download is still being read.
+      const chunks = [gzipSync(Buffer.alloc(4096, 0x41)).subarray(0, 20), Buffer.from("garbage-garbage-garbage-garbage-garbage"), ...Array.from({ length: 20 }, () => Buffer.alloc(100, 1))];
+      let pulled = 0;
+      const stream = new ReadableStream<Uint8Array>({
+        async pull(controller) {
+          await new Promise((r) => setTimeout(r, 20));
+          if (pulled < chunks.length) controller.enqueue(new Uint8Array(chunks[pulled++]!));
+          else controller.close();
+        },
+      });
+      await expect(parseTarball(stream)).rejects.toThrow(/zlib/i);
+      await new Promise((r) => setTimeout(r, 100));
+      expect(unhandled).toEqual([]);
+      expect(pulled).toBeLessThan(chunks.length);
+    } finally {
+      process.off("unhandledRejection", record);
+    }
   });
 
   it("downloads the tarball for one commit with the given (read-only) client", async () => {
