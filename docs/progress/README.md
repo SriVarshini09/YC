@@ -63,4 +63,20 @@ One line per task: task, summary file, PR, status.
 - PB-15 request-body triggers; three model-retirement advisories leave pending: [summary](PB-15-request-body-triggers.md) · PR: [#65](https://github.com/SriVarshini09/YC/pull/65) · merged
 - PB-16 prune repeated canary observations (newest of each shape kept): [summary](PB-16-prune-observations.md) · PR: [#66](https://github.com/SriVarshini09/YC/pull/66) · merged
 - PB-17 five unverified advisories checked against primary sources (four now verified, Reddit corrected): [summary](PB-17-verify-advisories.md) · PR: [#67](https://github.com/SriVarshini09/YC/pull/67) · merged
-- PB-release shapi-cli 0.3.1 (body triggers, 57 advisories, five re-verified): [summary](PB-release-cli-0-3-1.md) · PR: [#68](https://github.com/SriVarshini09/YC/pull/68) · open
+- PB-release shapi-cli 0.3.1 (body triggers, 57 advisories, five re-verified): [summary](PB-release-cli-0-3-1.md) · PR: [#68](https://github.com/SriVarshini09/YC/pull/68) · merged (0.3.1 published)
+- PB-18 access control: each person sees only their repositories; settings and billing need an admin: [summary](PB-18-access-control.md) · PR: [#72](https://github.com/SriVarshini09/YC/pull/72) · merged
+- PB-19 billing: cancel on uninstall, one subscription per account, events in any order: [summary](PB-19-billing-fixes.md) · PR: [#69](https://github.com/SriVarshini09/YC/pull/69) · merged
+- PB-20 jobs: stuck scans, stale fix scans, settings races, Slack size, webhook retries: [summary](PB-20-jobs-fixes.md) · PR: [#75](https://github.com/SriVarshini09/YC/pull/75) · merged
+- PB-21 deploy, tooling and docs fixes; Node 22.14 minimum: [summary](PB-21-infra-docs-fixes.md) · PR: [#71](https://github.com/SriVarshini09/YC/pull/71) · merged
+- PB-22 fix PRs never revert newer commits; canary, MCP and CLI fixes: [summary](PB-22-github-canary-mcp-cli-fixes.md) · PR: [#77](https://github.com/SriVarshini09/YC/pull/77) · merged
+- PB-23 repair: type-checked fixes, guarded LLM writes, honest contract tests, temp copy cleanup: [summary](PB-23-repair-sandbox-shapes-fixes.md) · PR: [#76](https://github.com/SriVarshini09/YC/pull/76) · merged
+- PB-24 matcher: unknown-method calls land in possible; advisories that could never fire now match: [summary](PB-24-matcher-advisory-fixes.md) · PR: [#74](https://github.com/SriVarshini09/YC/pull/74) · merged
+- PB-25 TS/JS extractor: runtime hosts, instance headers, cross-file clients, linear-time scans: [summary](PB-25-ts-extractor-fixes.md) · PR: [#73](https://github.com/SriVarshini09/YC/pull/73) · merged
+- PB-26 Python extractor: bare-name clients, .format/% URLs, dotted imports, numeric enums: [summary](PB-26-python-extractor-fixes.md) · PR: [#70](https://github.com/SriVarshini09/YC/pull/70) · merged
+- PB-27 Python follow-ups: runtime hosts, per-tenant SDK hosts, equality-only comparisons: [summary](PB-27-python-followups.md) · PR: [#78](https://github.com/SriVarshini09/YC/pull/78) · merged
+- PB-28 SDK chains: GraphQL per provider, Shopify request(query), Slack Bolt, Twilio sid chains: [summary](PB-28-ts-sdk-followups.md) · PR: [#79](https://github.com/SriVarshini09/YC/pull/79) · merged
+- PB-29 server follow-ups: big lockfiles kept, fix workspaces reset, Claude notes escaped, test Postgres: [summary](PB-29-server-followups.md) · PR: [#80](https://github.com/SriVarshini09/YC/pull/80) · merged
+- PB-30 dashboard polish: tables, phones, keyboard focus, contrast, not-found states: [summary](PB-30-dashboard-polish.md) · PR: [#82](https://github.com/SriVarshini09/YC/pull/82) · merged
+- PB-31 website polish: ring layout on phones, per-page link previews, terminal, 404: [summary](PB-31-website-polish.md) · PR: [#81](https://github.com/SriVarshini09/YC/pull/81) · merged
+- PB-32 second review, server: fix-job time limits, repository events, admin rights after new repos: [summary](PB-32-review7-server.md) · PR: [#84](https://github.com/SriVarshini09/YC/pull/84) · merged
+- PB-33 second review, extractor: Gemini siblings stop double-reporting, skips, Bolt app methods: [summary](PB-33-review7-extractor.md) · PR: [#83](https://github.com/SriVarshini09/YC/pull/83) · merged
