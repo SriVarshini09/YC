@@ -43,7 +43,7 @@ When an advisory has several call sites, every site's test runs again on the com
 ## What a fix PR contains
 
 - The changed source file and the contract test.
-- A description: what the provider changed, the affected call site, the recipe or model used, the test run before and after, and the evidence behind the advisory (sources, when it was first observed).
+- A description: what the provider changed, the affected call site, the recipe or model used (with Claude's explanation of its change, shown as plain text), the test run before and after, the type-check result, and the evidence behind the advisory (sources, when it was first observed).
 - A commit marked with `SHAPI-Branch` and `SHAPI-Tree` trailers, built on the commit SHAPI scanned. Pushes to your default branch since then are merged by GitHub as usual, or show as a conflict; the PR never reverts them.
 
 SHAPI never overwrites a branch someone else pushed to (an amended commit counts), and never reopens a PR you closed without merging. Add the `shapi:stop` label to a PR to stop updates to it.
