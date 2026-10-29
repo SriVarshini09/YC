@@ -59,7 +59,7 @@ describe("docs site on its own hostname", () => {
   });
 
   it("answers unknown paths, hidden files and escapes with the 404 page", async () => {
-    for (const url of ["/nope", "/.hidden", "/../secret.txt", "/%2e%2e/secret.txt", "/guide/%2e%2e/%2e%2e/secret.txt", "/%00"]) {
+    for (const url of ["/nope", "/.hidden", "/../secret.txt", "/%2e%2e/secret.txt", "/guide/%2e%2e/%2e%2e/secret.txt", "/%00", "/%5c.hidden", "/guide%5c..%5cindex.html"]) {
       const res = await get(url);
       expect(res.statusCode, url).toBe(404);
       expect(res.body, url).not.toContain("outside the docs");

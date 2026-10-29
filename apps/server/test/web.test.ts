@@ -3,11 +3,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createApiLock, loadAdvisories } from "@shapi/core";
 import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
+import { fakeUserGitHub, type FakeUserInstallation, type FakeUserRepository } from "../../../test-utils/fake-github";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { buildApp, loadConfig } from "../src/index";
 import { MARK } from "../src/web/html";
 import { landingPage } from "../src/web/landing";
-import { loadAccount, withCatchDetail } from "../src/web/queries";
+import { healthOf, loadAccount, withCatchDetail } from "../src/web/queries";
+import { sameToken } from "../src/web/auth";
+import { dueTag, fileUrl } from "../src/web/views";
 
 let pg: TestPostgres;
 let db: Db;
@@ -31,23 +34,19 @@ afterAll(async () => {
 const webApp = { clientId: "Iv1.test", clientSecret: "client-secret", publicUrl: "http://localhost:8080", sessionSecret: "x".repeat(32), appSlug: "shapi-test" };
 const config = { LOG_LEVEL: "info" as const, GIT_SHA: "t", NODE_ENV: "test" as const, webApp };
 
-/** GitHub as the sign-in flow sees it: the OAuth token exchange, the user, and their app installations. */
-function fakeGitHub(opts: { installations?: number[]; failToken?: boolean } = {}) {
-  const seen: { url: string; body?: unknown; auth: string | null }[] = [];
-  const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
-    const url = new URL(String(input));
-    seen.push({ url: url.href, body: init?.body ? JSON.parse(String(init.body)) : undefined, auth: new Headers(init?.headers).get("authorization") });
-    const json = (body: unknown, status = 200) => {
-      const res = new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
-      Object.defineProperty(res, "url", { value: url.href });
-      return res;
-    };
-    if (url.href === "https://github.com/login/oauth/access_token") return opts.failToken ? json({ error: "bad_verification_code" }) : json({ access_token: "ghu_user_token", token_type: "bearer" });
-    if (url.pathname === "/user") return json({ id: 99, login: "octo" });
-    if (url.pathname === "/user/installations") return json({ total_count: 2, installations: (opts.installations ?? [4242, 5555]).map((id) => ({ id })) });
-    return json({ message: "not found" }, 404);
-  }) as typeof globalThis.fetch;
-  return { fetch, seen };
+/** The organization acme, as GitHub lists its installation. */
+const ACME = { id: 500, login: "acme", type: "Organization" as const };
+
+/**
+ * GitHub as the sign-in flow sees it. By default the user (octo, id 99) can access installation 4242
+ * (acme), where they are admin on its one repository, and installation 5555, which SHAPI does not know.
+ */
+function fakeGitHub(opts: { installations?: FakeUserInstallation[]; failToken?: boolean } = {}) {
+  const installations = opts.installations ?? [
+    { id: 4242, account: ACME, repositories: [{ id: 1, full_name: "acme/api", permissions: { admin: true, push: true } }] },
+    { id: 5555, account: { id: 600, login: "other", type: "Organization" } },
+  ];
+  return fakeUserGitHub({ user: { id: 99, login: "octo" }, installations, failToken: opts.failToken });
 }
 
 let mine: { account: string; repo: string };
@@ -198,6 +197,9 @@ describe("web sign-in", () => {
     expect(rows[0]!.token_hash).not.toContain(token);
     expect(JSON.stringify(rows)).not.toContain("ghu_user_token");
     expect(rows[0]).toMatchObject({ login: "octo", installation_ids: ["4242", "5555"] });
+    // What the user can do in each installation, read from GitHub with their token.
+    expect(rows[0]!.access).toEqual({ "4242": { read: ["1"], push: ["1"], admin: ["1"], owner: false }, "5555": { read: [], push: [], admin: [], owner: false } });
+    expect(gh.seen.find((s) => s.url.includes("/user/installations/4242/repositories"))?.auth).toBe("token ghu_user_token");
 
     // one account: straight to its overview; the picker is still there under /?all
     const home = await app.inject({ url: "/", headers: { cookie } });
@@ -464,16 +466,24 @@ describe("web pages", () => {
     const scan = await owner.updateTable("scans").set({ api_lock: JSON.stringify({ callSites: [] }) }).where("repository_id", "=", mine.repo).returning("id").executeTakeFirstOrThrow();
     const { cookie } = await signIn(app);
     const page = await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } });
-    const pause = () =>
-      app.inject({ method: "POST", url: `/a/${mine.account}/r/${mine.repo}/pause`, headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(page.body)}` });
+    expect(page.body).toContain('<input type="hidden" name="paused" value="1"><button type="submit">Pause SHAPI on this repository</button>');
+    const pause = (paused: string) =>
+      app.inject({ method: "POST", url: `/a/${mine.account}/r/${mine.repo}/pause`, headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(page.body)}&paused=${paused}` });
     const settings = async () => (await withService(db, (tx) => tx.selectFrom("repositories").select("settings").where("id", "=", mine.repo).executeTakeFirstOrThrow())).settings;
     await owner.updateTable("repositories").set({ settings: JSON.stringify({ paused: true }) }).where("id", "=", mine.repo).execute();
 
-    expect((await pause()).statusCode).toBe(303);
+    expect((await pause("1")).statusCode).toBe(303);
+    expect(await settings()).toEqual({ paused: true, pausedFromWeb: true });
+    // The form names the state it wants: a second click (or a stale page) keeps the repository paused.
+    expect((await pause("1")).statusCode).toBe(303);
     expect(await settings()).toEqual({ paused: true, pausedFromWeb: true });
     expect(queued).toEqual([]);
-    expect((await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } })).body).toContain("Resume SHAPI on this repository");
-    await pause();
+    const paused = (await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } })).body;
+    expect(paused).toContain('<input type="hidden" name="paused" value="0"><button type="submit">Resume SHAPI on this repository</button>');
+    // A form without a state (a page from before this change) changes nothing.
+    expect((await pause("")).statusCode).toBe(403);
+    expect(await settings()).toEqual({ paused: true, pausedFromWeb: true });
+    await pause("0");
     expect(await settings()).toEqual({ paused: true, pausedFromWeb: false });
     // Resumed: the fixes that waited are delivered from the latest scan now.
     expect(queued).toEqual([[scan.id, mine.repo]]);
@@ -532,12 +542,12 @@ describe("account pages after review", () => {
   it("loads summaries for every page, the full repair only for the latest catch, and the lock only for its repository", async () => {
     await owner.updateTable("fix_prs").set({ repair: JSON.stringify(repair) }).where("account_id", "=", mine.account).execute();
     await owner.updateTable("scans").set({ api_lock: JSON.stringify(createApiLock({ callSites: [], declared: [] }, "test")) }).where("account_id", "=", mine.account).execute();
-    const data = await loadAccount(db, mine.account);
+    const data = await loadAccount(db, mine.account, { readable: ["1"] });
     expect(data.prs[0]!.repair!.changes).toEqual([]);
     expect(data.prs[0]!.repair!.sites[0]).toMatchObject({ status: "fixed", before: { passed: false, tests: "1 failed" }, after: { passed: true, tests: "1 passed" } });
     expect(data.prs[0]!.repair!.sites[0]!.before).not.toHaveProperty("output");
     expect(data.repos[0]!.lock).toBeUndefined();
-    expect((await loadAccount(db, mine.account, { lockRepo: mine.repo })).repos[0]!.lock).toBeDefined();
+    expect((await loadAccount(db, mine.account, { readable: ["1"], lockRepo: mine.repo })).repos[0]!.lock).toBeDefined();
     const detailed = await withCatchDetail(db, data);
     expect(detailed.prs[0]!.repair!.changes).toEqual(repair.changes);
 
@@ -578,5 +588,333 @@ describe("account pages after review", () => {
     expect(free).toContain("Free for everyone during early access.");
     const paid = String(landingPage({ configured: true, advisories: 54, withFix: 11, billingEnabled: true }));
     expect(paid).not.toContain("early access");
+  });
+});
+
+describe("who sees and manages what", () => {
+  const form = (cookie: string) => ({ cookie, "content-type": "application/x-www-form-urlencoded" });
+  const post = (app: ReturnType<typeof buildApp>, url: string, cookie: string, payload: string) => app.inject({ method: "POST", url, headers: form(cookie), payload });
+  /** A second private repository of acme, with a problem and a fix PR of its own. */
+  async function seedHidden() {
+    const repo = await owner.insertInto("repositories").values({ account_id: mine.account, github_repo_id: 3, full_name: "acme/hidden", default_branch: "main", private: true }).returning("id").executeTakeFirstOrThrow();
+    const scan = await owner.insertInto("scans").values({ account_id: mine.account, repository_id: repo.id, sha: "d".repeat(40), status: "succeeded", finished_at: new Date() }).returning("id").executeTakeFirstOrThrow();
+    const finding = await owner
+      .insertInto("findings")
+      .values({ account_id: mine.account, repository_id: repo.id, scan_id: scan.id, advisory_id: "github-workflow-dispatch-204-to-200", kind: "affected", call_site: JSON.stringify({ file: "src/payments.ts", line: 7 }), reasons: JSON.stringify(["hidden-only-reason"]) })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+    await owner
+      .insertInto("fix_prs")
+      .values({ account_id: mine.account, repository_id: repo.id, advisory_id: "github-workflow-dispatch-204-to-200", branch: "shapi/hidden", number: 9, url: "https://github.com/acme/hidden/pull/9", state: "open", updated_at: new Date() })
+      .execute();
+    return { repo: repo.id, finding: finding.id };
+  }
+  const acmeWith = (repositories: FakeUserRepository[]) => fakeGitHub({ installations: [{ id: 4242, account: ACME, repositories }] });
+  const accountSettings = async () => (await owner.selectFrom("accounts").select("settings").where("id", "=", mine.account).executeTakeFirstOrThrow()).settings;
+  const repoSettings = async () => (await owner.selectFrom("repositories").select("settings").where("id", "=", mine.repo).executeTakeFirstOrThrow()).settings;
+
+  it("shows a collaborator on one repository only that repository, everywhere", async () => {
+    const hidden = await seedHidden();
+    const app = buildApp({ db, config, fetch: acmeWith([{ id: 1, full_name: "acme/api" }]).fetch });
+    const { cookie } = await signIn(app);
+    const get = (path: string) => app.inject({ url: `/a/${mine.account}${path}`, headers: { cookie } });
+    for (const path of ["", "/repositories", "/findings", "/findings?kind=works", "/fixes", "/fixes?state=open", "/advisories"]) {
+      const res = await get(path);
+      expect(res.statusCode, path).toBe(200);
+      expect(res.body, path).not.toContain("acme/hidden");
+      expect(res.body, path).not.toContain("hidden-only-reason");
+      expect(res.body, path).not.toContain("src/payments.ts");
+    }
+    const overview = (await get("")).body;
+    expect(overview).toContain("acme/api");
+    // Counts are this user's: one problem and one fix to review, not two.
+    expect(overview).toContain('<span class="label">Problems</span><span class="count bad">1</span>');
+    expect(overview).toContain("1 fix ready for review");
+    expect((await get("/advisories")).body).toContain("breaks 1 repo");
+    // The other repository's pages are missing, like another account's.
+    const repo = await get(`/r/${hidden.repo}`);
+    expect(repo.statusCode).toBe(404);
+    expect(repo.body).not.toContain("acme/hidden");
+    const finding = await get(`/f/${hidden.finding}`);
+    expect(finding.statusCode).toBe(404);
+    expect(finding.body).not.toContain("hidden-only-reason");
+    expect((await post(app, `/a/${mine.account}/r/${hidden.repo}/pause`, cookie, `csrf=${csrfFrom(overview)}&paused=1`)).statusCode).toBe(404);
+    await app.close();
+  });
+
+  it("pauses by changing only its own key, so a dashboard edit saved at the same time is kept", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const csrf = csrfFrom((await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } })).body);
+    // Another writer (a dashboard edit) holds the row while the pause arrives.
+    let locked!: () => void;
+    let release!: () => void;
+    const isLocked = new Promise<void>((r) => (locked = r));
+    const released = new Promise<void>((r) => (release = r));
+    const writer = owner.transaction().execute(async (tx) => {
+      await tx.updateTable("repositories").set({ settings: JSON.stringify({ createNow: ["github-workflow-dispatch-204-to-200"] }) }).where("id", "=", mine.repo).execute();
+      locked();
+      await released;
+    });
+    await isLocked;
+    const pausing = post(app, `/a/${mine.account}/r/${mine.repo}/pause`, cookie, `csrf=${csrf}&paused=1`);
+    await new Promise((r) => setTimeout(r, 300));
+    release();
+    await writer;
+    expect((await pausing).statusCode).toBe(303);
+    expect(await repoSettings()).toEqual({ createNow: ["github-workflow-dispatch-204-to-200"], pausedFromWeb: true });
+    await app.close();
+  });
+
+  it("lets only users who can push pause a repository", async () => {
+    const readOnly = buildApp({ db, config, fetch: acmeWith([{ id: 1, full_name: "acme/api" }]).fetch });
+    let { cookie } = await signIn(readOnly);
+    const page = await readOnly.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } });
+    expect(page.statusCode).toBe(200);
+    expect(page.body).not.toContain("Pause SHAPI on this repository");
+    const denied = await post(readOnly, `/a/${mine.account}/r/${mine.repo}/pause`, cookie, `csrf=${csrfFrom(page.body)}&paused=1`);
+    expect(denied.statusCode).toBe(403);
+    expect(denied.body).toContain("write access");
+    expect(await repoSettings()).toEqual({});
+    await readOnly.close();
+
+    const pusher = buildApp({ db, config, fetch: acmeWith([{ id: 1, full_name: "acme/api", permissions: { push: true } }]).fetch });
+    ({ cookie } = await signIn(pusher));
+    const csrf = csrfFrom((await pusher.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } })).body);
+    expect((await post(pusher, `/a/${mine.account}/r/${mine.repo}/pause`, cookie, `csrf=${csrf}&paused=1`)).statusCode).toBe(303);
+    expect(await repoSettings()).toEqual({ pausedFromWeb: true });
+    await pusher.close();
+  });
+
+  it("keeps settings, Slack and billing to account admins: not an admin of only some repositories", async () => {
+    await seedHidden();
+    await owner.updateTable("accounts").set({ settings: JSON.stringify({ slackWebhookUrl: "https://hooks.slack.com/services/T0/B0/secretXYZ123" }) }).where("id", "=", mine.account).execute();
+    const before = await accountSettings();
+    // Admin on acme/api, but only push on acme/hidden.
+    const app = buildApp({ db, config, fetch: acmeWith([{ id: 1, full_name: "acme/api", permissions: { admin: true, push: true } }, { id: 3, full_name: "acme/hidden", permissions: { push: true } }]).fetch });
+    const { cookie } = await signIn(app);
+    const overview = await app.inject({ url: `/a/${mine.account}`, headers: { cookie } });
+    const labels = [...overview.body.matchAll(/<span class="label">([^<]+)<\/span>/g)].map((m) => m[1]);
+    expect(labels).toEqual(["Overview", "Problems", "Fixes", "Repositories", "API changes"]);
+    expect(overview.body).not.toContain(`href="/a/${mine.account}/settings"`);
+    expect(overview.body).not.toContain(`href="/a/${mine.account}/billing"`);
+    const csrf = csrfFrom(overview.body);
+    for (const path of ["settings", "billing"]) {
+      const res = await app.inject({ url: `/a/${mine.account}/${path}`, headers: { cookie } });
+      expect(res.statusCode, path).toBe(403);
+      expect(res.body, path).toContain("Account admins only");
+      expect(res.body, path).not.toContain("XYZ123");
+    }
+    expect((await post(app, `/a/${mine.account}/settings`, cookie, `csrf=${csrf}&hourly=5&open=10&slack=${encodeURIComponent("https://hooks.slack.com/services/T9/B9/attacker")}`)).statusCode).toBe(403);
+    expect((await post(app, `/a/${mine.account}/slack/test`, cookie, `csrf=${csrf}`)).statusCode).toBe(403);
+    for (const action of ["checkout", "portal", "add-repos"]) expect((await post(app, `/a/${mine.account}/billing/${action}`, cookie, `csrf=${csrf}`)).statusCode, action).toBe(403);
+    expect(await accountSettings()).toEqual(before);
+    await app.close();
+  });
+
+  it("lets an organization admin (admin on every covered repository) change settings", async () => {
+    await seedHidden();
+    const app = buildApp({ db, config, fetch: acmeWith([{ id: 1, permissions: { admin: true } }, { id: 3, permissions: { admin: true } }]).fetch });
+    const { cookie } = await signIn(app);
+    const page = await app.inject({ url: `/a/${mine.account}/settings`, headers: { cookie } });
+    expect(page.statusCode).toBe(200);
+    expect(page.body).toContain('<span class="label">Settings</span>');
+    expect(page.body).toContain('<span class="label">Billing</span>');
+    expect((await app.inject({ url: `/a/${mine.account}/billing`, headers: { cookie } })).statusCode).toBe(200);
+    expect((await post(app, `/a/${mine.account}/settings`, cookie, `csrf=${csrfFrom(page.body)}&hourly=4&open=10`)).statusCode).toBe(303);
+    expect(await accountSettings()).toMatchObject({ prLimits: { hourly: 4, open: 10 } });
+    await app.close();
+  });
+
+  it("makes the owner of a personal account its admin, and nobody else", async () => {
+    const personal = await owner.insertInto("accounts").values({ github_installation_id: 8888, login: "octo", type: "User", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
+    await owner.insertInto("repositories").values({ account_id: personal.id, github_repo_id: 10, full_name: "octo/tool", default_branch: "main", private: true }).execute();
+    // octo (id 99) owns the account: its settings are theirs.
+    const own = buildApp({ db, config, fetch: fakeGitHub({ installations: [{ id: 8888, account: { id: 99, login: "octo", type: "User" }, repositories: [{ id: 10, permissions: { admin: true, push: true } }] }] }).fetch });
+    let { cookie } = await signIn(own);
+    const page = await own.inject({ url: `/a/${personal.id}/settings`, headers: { cookie } });
+    expect(page.statusCode).toBe(200);
+    expect((await post(own, `/a/${personal.id}/settings`, cookie, `csrf=${csrfFrom(page.body)}&hourly=3&open=10`)).statusCode).toBe(303);
+    await own.close();
+
+    // A collaborator with write access to someone else's personal repository.
+    const guest = buildApp({ db, config, fetch: fakeGitHub({ installations: [{ id: 8888, account: { id: 77, login: "octo", type: "User" }, repositories: [{ id: 10, permissions: { push: true } }] }] }).fetch });
+    ({ cookie } = await signIn(guest));
+    expect((await guest.inject({ url: `/a/${personal.id}`, headers: { cookie } })).body).toContain("octo/tool");
+    expect((await guest.inject({ url: `/a/${personal.id}/settings`, headers: { cookie } })).statusCode).toBe(403);
+    expect((await guest.inject({ url: `/a/${personal.id}/billing`, headers: { cookie } })).statusCode).toBe(403);
+    await guest.close();
+  });
+});
+
+describe("web app review fixes", () => {
+  const form = (cookie: string) => ({ cookie, "content-type": "application/x-www-form-urlencoded" });
+
+  it("answers a CSRF token with non-ASCII characters with 403, not 500", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    // As long as the real token in characters, but longer in bytes.
+    const res = await app.inject({ method: "POST", url: "/theme", headers: form(cookie), payload: `csrf=${encodeURIComponent(`é${"a".repeat(42)}`)}&theme=dark` });
+    expect(res.statusCode).toBe(403);
+    expect(sameToken(`é${"a".repeat(42)}`, "a".repeat(43))).toBe(false);
+    await app.close();
+  });
+
+  it("answers ids beyond Postgres' bigint with 404", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const csrf = csrfFrom((await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body);
+    expect((await app.inject({ url: `/a/${mine.account}/f/99999999999999999999`, headers: { cookie } })).statusCode).toBe(404);
+    expect((await app.inject({ url: `/a/${mine.account}/r/99999999999999999999`, headers: { cookie } })).statusCode).toBe(404);
+    expect((await app.inject({ method: "POST", url: `/a/${mine.account}/r/99999999999999999999/pause`, headers: form(cookie), payload: `csrf=${csrf}&paused=1` })).statusCode).toBe(404);
+    await app.close();
+  });
+
+  it("shows no notice for query values that name built-in object keys", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    for (const url of ["/settings?slack=constructor", "/settings?slack=__proto__", "/billing?billing=toString", "/billing?billing=constructor"]) {
+      const res = await app.inject({ url: `/a/${mine.account}${url}`, headers: { cookie } });
+      expect(res.statusCode, url).toBe(200);
+      expect(res.body, url).not.toContain('class="notice"');
+      expect(res.body, url).not.toContain("native code");
+    }
+    await app.close();
+  });
+
+  it("shows a finding whose advisory row is malformed or not reviewed as no longer listed", async () => {
+    const scan = await owner.selectFrom("scans").select("id").where("repository_id", "=", mine.repo).executeTakeFirstOrThrow();
+    const valid = (await owner.selectFrom("advisories").select("data").where("id", "=", "github-workflow-dispatch-204-to-200").executeTakeFirstOrThrow()).data as Record<string, unknown>;
+    await owner.insertInto("advisories").values({ id: "broken-advisory", provider: "github", data: JSON.stringify({ id: "broken-advisory" }), reviewed: true, source: "test", modified: new Date() }).execute();
+    await owner.insertInto("advisories").values({ id: "draft-advisory", provider: "github", data: JSON.stringify({ ...valid, id: "draft-advisory", title: "Draft title" }), reviewed: false, source: "test", modified: new Date() }).execute();
+    try {
+      const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+      const { cookie } = await signIn(app);
+      for (const advisory of ["broken-advisory", "draft-advisory"]) {
+        const f = await owner
+          .insertInto("findings")
+          .values({ account_id: mine.account, repository_id: mine.repo, scan_id: scan.id, advisory_id: advisory, kind: "affected", call_site: JSON.stringify({ file: "src/x.ts", line: 1 }), reasons: JSON.stringify(["x"]) })
+          .returning("id")
+          .executeTakeFirstOrThrow();
+        const res = await app.inject({ url: `/a/${mine.account}/f/${f.id}`, headers: { cookie } });
+        expect(res.statusCode, advisory).toBe(200);
+        expect(res.body, advisory).toContain("is no longer in SHAPI's list");
+        expect(res.body, advisory).not.toContain("Draft title");
+      }
+      await app.close();
+    } finally {
+      await owner.deleteFrom("advisories").where("id", "in", ["broken-advisory", "draft-advisory"]).execute();
+    }
+  });
+
+  it("says a change is fixed by hand only when the fix job cannot fix it: no recipe SHAPI has, and no Claude", async () => {
+    const scan = await owner.selectFrom("scans").select("id").where("repository_id", "=", mine.repo).executeTakeFirstOrThrow();
+    // Only this problem: a change with no recipe, and no fix PR yet.
+    await owner.deleteFrom("findings").where("repository_id", "=", mine.repo).execute();
+    await owner.deleteFrom("fix_prs").where("repository_id", "=", mine.repo).execute();
+    const f = await owner
+      .insertInto("findings")
+      .values({ account_id: mine.account, repository_id: mine.repo, scan_id: scan.id, advisory_id: "google-custom-search-json-api-shutdown", kind: "affected", call_site: JSON.stringify({ file: "src/search.ts", line: 3 }), reasons: JSON.stringify(["calls the API"]) })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+    const setLlm = (on: boolean) => owner.updateTable("accounts").set({ settings: JSON.stringify({ llmFixes: on }) }).where("id", "=", mine.account).execute();
+
+    // No key on the server: by hand, and the finding page does not point to a Claude option Settings does not offer.
+    await setLlm(true);
+    let app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    let { cookie } = await signIn(app);
+    expect((await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body).toContain("no automatic fix for this change");
+    let finding = (await app.inject({ url: `/a/${mine.account}/f/${f.id}`, headers: { cookie } })).body;
+    expect(finding).toContain("Manual fix.");
+    expect(finding).not.toContain("Claude fixes");
+    await app.close();
+
+    // A key, and the account opted in: the fix job asks Claude, so the fix is on the way.
+    app = buildApp({ db, config: { ...config, ANTHROPIC_API_KEY: "sk-ant-test" }, fetch: fakeGitHub().fetch });
+    ({ cookie } = await signIn(app));
+    const overview = (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+    expect(overview).not.toContain("no automatic fix");
+    expect(overview).toContain("Fix on the way");
+    expect((await app.inject({ url: `/a/${mine.account}/f/${f.id}`, headers: { cookie } })).body).toContain("The fix is on the way");
+    expect((await app.inject({ url: `/a/${mine.account}/findings`, headers: { cookie } })).body).toContain("on the way");
+
+    // A key but no opt-in: by hand, with the way to turn Claude on.
+    await setLlm(false);
+    finding = (await app.inject({ url: `/a/${mine.account}/f/${f.id}`, headers: { cookie } })).body;
+    expect(finding).toContain("Manual fix.");
+    expect(finding).toContain(`turns on Claude fixes in <a href="/a/${mine.account}/settings">Settings</a>`);
+    await app.close();
+  });
+
+  it("treats an advisory whose recipe this build lacks as a fix by hand", async () => {
+    const valid = (await owner.selectFrom("advisories").select("data").where("id", "=", "github-workflow-dispatch-204-to-200").executeTakeFirstOrThrow()).data as Record<string, unknown>;
+    await owner.insertInto("advisories").values({ id: "future-recipe", provider: "github", data: JSON.stringify({ ...valid, id: "future-recipe", title: "Needs a future recipe", recipeId: "no-such-recipe" }), reviewed: true, source: "test", modified: new Date() }).execute();
+    try {
+      const scan = await owner.selectFrom("scans").select("id").where("repository_id", "=", mine.repo).executeTakeFirstOrThrow();
+      await owner
+        .insertInto("findings")
+        .values({ account_id: mine.account, repository_id: mine.repo, scan_id: scan.id, advisory_id: "future-recipe", kind: "affected", call_site: JSON.stringify({ file: "src/y.ts", line: 2 }), reasons: JSON.stringify(["y"]) })
+        .execute();
+      const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+      const { cookie } = await signIn(app);
+      expect((await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body).toContain("Fix by hand: Needs a future recipe");
+      const advisories = (await app.inject({ url: `/a/${mine.account}/advisories?advisory=future-recipe`, headers: { cookie } })).body;
+      expect(advisories).toMatch(/Needs a future recipe<\/b>[\s\S]*?<span class="tag ">by hand<\/span>/);
+      await app.close();
+    } finally {
+      await owner.deleteFrom("advisories").where("id", "=", "future-recipe").execute();
+    }
+  });
+
+  it("signs out only on a form from this site", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const forged = await app.inject({ method: "POST", url: "/logout", headers: form(cookie), payload: "" });
+    expect(forged.statusCode).toBe(302);
+    expect(forged.cookies.find((c) => c.name === "shapi_session")).toBeUndefined();
+    expect(await withService(db, (tx) => tx.selectFrom("sessions").selectAll().execute())).toHaveLength(1);
+    // No session cookie at all, as in a cross-site post: nothing is cleared either.
+    expect((await app.inject({ method: "POST", url: "/logout", headers: { "content-type": "application/x-www-form-urlencoded" }, payload: "" })).cookies).toEqual([]);
+    await app.close();
+  });
+
+  it("encodes each segment of a file path in GitHub links", () => {
+    expect(fileUrl("o/r", "s", "src/#a.ts", 3)).toBe("https://github.com/o/r/blob/s/src/%23a.ts#L3");
+    expect(fileUrl("o/r", "s", "src/100%.ts")).toBe("https://github.com/o/r/blob/s/src/100%25.ts");
+    expect(fileUrl("o/r", "s", "a?b.py", 1)).toBe("https://github.com/o/r/blob/s/a%3Fb.py#L1");
+  });
+
+  it("says when sign-in was cancelled on GitHub", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const login = await app.inject("/login");
+    const state = new URL(String(login.headers.location)).searchParams.get("state")!;
+    const res = await app.inject({ url: `/auth/github/callback?error=access_denied&state=${state}`, headers: { cookie: cookieHeader(login.cookies) } });
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toContain("Sign-in cancelled");
+    await app.close();
+  });
+
+  it("treats a Slack field of only spaces as empty, and refuses a return path a header cannot carry", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const csrf = csrfFrom((await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body);
+    expect((await app.inject({ method: "POST", url: `/a/${mine.account}/settings`, headers: form(cookie), payload: `csrf=${csrf}&hourly=2&open=10&slack=%20%20` })).statusCode).toBe(303);
+    for (const back of ["/a%01b", "/caf%C3%A9", "/%E2%9C%93"]) {
+      const res = await app.inject({ method: "POST", url: "/theme", headers: form(cookie), payload: `csrf=${csrf}&theme=dark&back=${back}` });
+      expect(res.statusCode, back).toBe(303);
+      expect(res.headers.location, back).toBe("/");
+    }
+    await app.close();
+  });
+
+  it("says today for a change that takes effect today, not in 0 days", () => {
+    expect(String(dueTag(0))).toContain(">today<");
+    expect(String(dueTag(1))).toContain(">in 1 day<");
+  });
+
+  it("says the score appears after the first scan, which installing starts", async () => {
+    await owner.deleteFrom("scans").where("account_id", "=", mine.account).execute();
+    const data = await loadAccount(db, mine.account, { readable: ["1"] });
+    expect(healthOf(data).why).toBe("The score appears after the first scan.");
   });
 });
