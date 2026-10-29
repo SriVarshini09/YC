@@ -63,3 +63,4 @@ One line per task: task, summary file, PR, status.
 - PB-15 request-body triggers; three model-retirement advisories leave pending: [summary](PB-15-request-body-triggers.md) · PR: [#65](https://github.com/SriVarshini09/YC/pull/65) · merged
 - PB-16 prune repeated canary observations (newest of each shape kept): [summary](PB-16-prune-observations.md) · PR: [#66](https://github.com/SriVarshini09/YC/pull/66) · merged
 - PB-17 five unverified advisories checked against primary sources (four now verified, Reddit corrected): [summary](PB-17-verify-advisories.md) · PR: [#67](https://github.com/SriVarshini09/YC/pull/67) · merged
+- PB-release shapi-cli 0.3.1 (body triggers, 57 advisories, five re-verified): [summary](PB-release-cli-0-3-1.md) · PR: pending · open
