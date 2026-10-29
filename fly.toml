@@ -18,6 +18,9 @@ primary_region = "iad"
   SHAPI_ADVISORIES_REPO = "SriVarshini09/shapi-advisories"
   # Where GitHub sign-in and Stripe send people back to.
   SHAPI_PUBLIC_URL = "https://app.shapi.dev"
+  # The docs site, built into the image: requests for shapi.dev (and www.) are served from it.
+  SHAPI_DOCS_URL = "https://shapi.dev"
+  SHAPI_DOCS_DIR = "/app/docs"
 
 [processes]
   web = "node dist/web.js"

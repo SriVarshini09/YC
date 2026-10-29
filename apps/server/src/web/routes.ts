@@ -106,7 +106,8 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
     await scope.register(cookie, { secret: deps.config?.sessionSecret ?? randomToken() });
     await scope.register(formbody);
     scope.addHook("onSend", async (_req, reply, payload) => {
-      if (String(reply.getHeader("content-type") ?? "").startsWith("text/html")) {
+      // The docs site (docs.ts) sets its own policy on its pages.
+      if (String(reply.getHeader("content-type") ?? "").startsWith("text/html") && !reply.hasHeader("content-security-policy")) {
         reply.header("content-security-policy", CSP).header("x-frame-options", "DENY").header("referrer-policy", "same-origin").header("x-content-type-options", "nosniff");
       }
       return payload;
