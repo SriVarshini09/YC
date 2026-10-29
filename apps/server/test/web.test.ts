@@ -895,6 +895,10 @@ describe("web app review fixes", () => {
     expect(await withService(db, (tx) => tx.selectFrom("sessions").selectAll().execute())).toHaveLength(1);
     // No session cookie at all, as in a cross-site post: nothing is cleared either.
     expect((await app.inject({ method: "POST", url: "/logout", headers: { "content-type": "application/x-www-form-urlencoded" }, payload: "" })).cookies).toEqual([]);
+    // The session is gone (it expired, or a migration ended every session): signing out clears the dead cookie.
+    await owner.deleteFrom("sessions").execute();
+    const dead = await app.inject({ method: "POST", url: "/logout", headers: form(cookie), payload: "" });
+    expect(dead.cookies.find((c) => c.name === "shapi_session")).toMatchObject({ value: "" });
     await app.close();
   });
 

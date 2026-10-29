@@ -255,6 +255,9 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       if (session && csrfOk(session, req.body)) {
         await endSession(deps.db, token);
         reply.clearCookie(SESSION_COOKIE, { path: "/" });
+      } else if (!session && req.cookies[SESSION_COOKIE]) {
+        // A cookie for no session (it expired, or a deploy ended it): nothing to protect, so "Sign out" clears it.
+        reply.clearCookie(SESSION_COOKIE, { path: "/" });
       }
       return reply.redirect("/");
     });
