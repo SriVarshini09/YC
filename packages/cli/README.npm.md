@@ -39,7 +39,7 @@ For every affected call site, `fix` generates a contract test that calls your co
 
 ## Requirements
 
-Node.js 22.12 or later (Node 23 and 25 are not supported).
+Node.js 22.14 or later (Node 23 and 25 are not supported).
 
 ## More
 

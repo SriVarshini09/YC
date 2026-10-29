@@ -1,6 +1,6 @@
 # Quickstart
 
-You need **Node.js 22.12 or later** (Node 23 and 25 are not supported).
+You need **Node.js 22.14 or later** (Node 23 and 25 are not supported).
 
 ## 1. Scan a repository
 

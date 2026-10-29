@@ -13,7 +13,7 @@ Documentation: https://shapi.dev/
 
 ## Try it
 
-Requires Node 22.12 or later (not 23 or 25) and pnpm.
+Requires Node 22.14 or later (not 23 or 25) and pnpm.
 
 ```bash
 pnpm install
