@@ -13,8 +13,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepare": "pnpm -r build",
     "canary": "shapi-canary",
-    "pack:cli": "node packages/cli/scripts/build-npm.ts && node packages/cli/scripts/smoke-npm.ts",
-    "advisories:pull": "node packages/cli/scripts/pull-advisories.ts"
+    "pack:cli": "node scripts/run-ts.mjs packages/cli/scripts/build-npm.ts && node scripts/run-ts.mjs packages/cli/scripts/smoke-npm.ts",
+    "advisories:pull": "node scripts/run-ts.mjs packages/cli/scripts/pull-advisories.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

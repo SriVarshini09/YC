@@ -18,8 +18,8 @@
     "start:worker": "node dist/worker.js",
     "migrate": "node dist/migrate.js",
     "github:register": "node dist/register.js",
-    "dev": "node scripts/dev.ts",
-    "preview": "node scripts/preview.ts"
+    "dev": "node ../../scripts/run-ts.mjs scripts/dev.ts",
+    "preview": "node ../../scripts/run-ts.mjs scripts/preview.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.3",
