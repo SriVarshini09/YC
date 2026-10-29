@@ -59,6 +59,16 @@ describe("AdvisorySchema", () => {
     expect(AdvisorySchema.safeParse({ ...base, sources: [] }).success).toBe(false);
   });
 
+  it("rejects triggers that can never fire", () => {
+    for (const trigger of [{ newStatusCodes: [200] }, { fields: [] }, { statusCodes: [] }, { any: false }, { enums: [], any: false }]) {
+      expect(AdvisorySchema.safeParse({ ...base, trigger }).success, JSON.stringify(trigger)).toBe(false);
+    }
+    for (const trigger of [{ statusCodes: [204], newStatusCodes: [200] }, { fields: [], any: true }, { enums: [{ field: "Class", values: ["ULTRA"] }] }]) {
+      expect(AdvisorySchema.safeParse({ ...base, trigger }).success, JSON.stringify(trigger)).toBe(true);
+    }
+    expect(AdvisorySchema.safeParse({ ...base, trigger: { enums: [{ field: "Class", values: [] }] } }).success).toBe(false);
+  });
+
   it("loadAdvisories names the bad file and enforces id-based file names", () => {
     const dir = mkdtempSync(path.join(os.tmpdir(), "shapi-adv-"));
     writeFileSync(path.join(dir, "wrong-name.json"), JSON.stringify(base));
@@ -75,4 +85,64 @@ describe("advisory JSON Schema", () => {
     if (process.env.UPDATE_SCHEMA || !existsSync(file)) writeFileSync(file, generated);
     expect(readFileSync(file, "utf8")).toBe(generated);
   });
+
+  const schema = advisoryJsonSchema() as Json;
+  const seeded = loadAdvisories(advisoriesDir).map((a) => JSON.parse(readFileSync(path.join(advisoriesDir, `${a.id}.json`), "utf8")) as unknown);
+
+  it("uses only keywords and formats a standard validator knows", () => {
+    const keywords = new Set<string>();
+    const formats = new Set<unknown>();
+    const walk = (node: Json) => {
+      for (const [k, v] of Object.entries(node)) {
+        keywords.add(k);
+        if (k === "format") formats.add(v);
+        if (k === "properties") for (const sub of Object.values(v as Record<string, Json>)) walk(sub);
+        else if (k === "items") walk(v as Json);
+        else if (k === "anyOf") for (const sub of v as Json[]) walk(sub);
+      }
+    };
+    walk(schema);
+    expect([...keywords].filter((k) => !(k in KEYWORDS) && k !== "$schema" && k !== "format")).toEqual([]);
+    expect([...formats].filter((f) => !["date", "date-time", "uri"].includes(f as string))).toEqual([]);
+  });
+
+  it("accepts every seeded advisory, extra keys included, and rejects what zod rejects", () => {
+    for (const advisory of seeded) expect(validate(schema, advisory), (advisory as { id: string }).id).toEqual([]);
+    const github = seeded.find((a) => (a as { id: string }).id === "github-workflow-dispatch-204-to-200") as Record<string, unknown>;
+    expect(validate(schema, { $schema: "./schema/advisory.schema.json", ...github })).toEqual([]);
+    expect(validate(schema, { ...github, trigger: {} })).not.toEqual([]);
+    expect(validate(schema, { ...github, trigger: { newStatusCodes: [200] } })).not.toEqual([]);
+    expect(validate(schema, { ...github, trigger: { fields: [] } })).not.toEqual([]);
+    expect(validate(schema, { ...github, fix: {} })).not.toEqual([]);
+    expect(validate(schema, { ...github, endpoint: { method: "POST", path: "repos" } })).not.toEqual([]);
+  });
 });
+
+type Json = Record<string, unknown>;
+
+/** The JSON Schema keywords the advisory schema uses, checked the way a standard validator checks them. */
+const KEYWORDS: Record<string, (rule: unknown, value: unknown, schema: Json) => boolean> = {
+  type: (t, v) => (t === "integer" ? Number.isInteger(v) : t === "array" ? Array.isArray(v) : t === "null" ? v === null : t === "object" ? typeof v === "object" && v !== null && !Array.isArray(v) : typeof v === t),
+  enum: (e, v) => (e as unknown[]).includes(v),
+  const: (c, v) => c === v,
+  pattern: (p, v) => typeof v !== "string" || new RegExp(p as string, "u").test(v),
+  minLength: (n, v) => typeof v !== "string" || v.length >= (n as number),
+  minItems: (n, v) => !Array.isArray(v) || v.length >= (n as number),
+  minimum: (n, v) => typeof v !== "number" || v >= (n as number),
+  maximum: (n, v) => typeof v !== "number" || v <= (n as number),
+  required: (r, v) => typeof v !== "object" || v === null || (r as string[]).every((k) => k in v),
+  properties: () => true,
+  items: () => true,
+  anyOf: () => true,
+};
+
+function validate(schema: Json, value: unknown, at = "$"): string[] {
+  const errors: string[] = [];
+  for (const [k, rule] of Object.entries(schema)) if (KEYWORDS[k] && !KEYWORDS[k](rule, value, schema)) errors.push(`${at}: ${k}`);
+  if (schema.properties && typeof value === "object" && value !== null) {
+    for (const [k, sub] of Object.entries(schema.properties as Record<string, Json>)) if (k in value) errors.push(...validate(sub, (value as Json)[k], `${at}.${k}`));
+  }
+  if (schema.items && Array.isArray(value)) value.forEach((v, i) => errors.push(...validate(schema.items as Json, v, `${at}[${i}]`)));
+  if (schema.anyOf && !(schema.anyOf as Json[]).some((sub) => validate(sub, value, at).length === 0)) errors.push(`${at}: anyOf`);
+  return errors;
+}

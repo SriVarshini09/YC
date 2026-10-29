@@ -5,7 +5,7 @@
   "summary": "By 2026-06-15, on all API versions, the Page/post reach metrics (page_impressions_unique, post_impressions_unique and their paid, viral, nonviral, organic and fan variants, the page_posts_impressions family, page_posts_served_impressions_organic_unique) and the 3-second viewer metrics (page_video_views_unique, post_video_views_unique) return an invalid metric error. SHAPI flags calls that request one of these metrics.",
   "endpoint": {
     "method": "GET",
-    "path": "/*/*/insights"
+    "path": "/**/insights"
   },
   "changeClass": "version-sunset",
   "trigger": {

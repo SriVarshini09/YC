@@ -5,7 +5,7 @@ import { sandboxFromEnv } from "@shapi/sandbox";
 import { stripeClient, syncAllQuantities, type BillingDeps } from "./billing/stripe";
 import type { Config } from "./config";
 import { githubClients } from "./github/clients";
-import { processDelivery, type ScanRequest } from "./github/events";
+import { jobsQueued, processDelivery, type ScanRequest } from "./github/events";
 import { syncAdvisoriesFromGitHub, syncAdvisoriesJob } from "./jobs/advisories";
 import { runCanaryJob } from "./jobs/canary";
 import { runAdvisoryFanout } from "./jobs/fanout";
@@ -32,18 +32,36 @@ export interface Logger {
   error(obj: object, msg?: string): void;
 }
 
-/** Create (or update) every queue. Idempotent; run by migrations and again by the worker on start. */
-export async function createQueues(boss: PgBoss): Promise<void> {
-  await boss.createQueue(QUEUES.canaryRun, { retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: 15 * 60 });
-  await boss.createQueue(QUEUES.advisoriesSync, { retryLimit: 3, retryDelay: 10, retryBackoff: true });
-  await boss.createQueue(QUEUES.githubWebhook, { retryLimit: 5, retryDelay: 15, retryBackoff: true, expireInSeconds: 5 * 60 });
-  await boss.createQueue(QUEUES.webhookSweep, { retryLimit: 1, retryDelay: 60, expireInSeconds: 5 * 60 });
-  await boss.createQueue(QUEUES.repoScan, { retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: 15 * 60 });
+type QueueOptions = NonNullable<Parameters<PgBoss["createQueue"]>[1]>;
+
+/** Every queue and its options. */
+const QUEUE_OPTIONS: [string, QueueOptions][] = [
+  [QUEUES.canaryRun, { retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: 15 * 60 }],
+  [QUEUES.advisoriesSync, { retryLimit: 3, retryDelay: 10, retryBackoff: true }],
+  [QUEUES.githubWebhook, { retryLimit: 5, retryDelay: 15, retryBackoff: true, expireInSeconds: 5 * 60 }],
+  [QUEUES.webhookSweep, { retryLimit: 1, retryDelay: 60, expireInSeconds: 5 * 60 }],
+  [QUEUES.repoScan, { retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: 15 * 60 }],
   // One fix job running and one waiting per repository (keyed by repository id), so PR deliveries never race.
-  await boss.createQueue(QUEUES.repoFix, { policy: "stately", retryLimit: 2, retryDelay: 120, retryBackoff: true, expireInSeconds: 30 * 60 });
-  await boss.createQueue(QUEUES.advisoryFanout, { retryLimit: 2, retryDelay: 60, expireInSeconds: 15 * 60 });
-  await boss.createQueue(QUEUES.billingSync, { policy: "short", retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 10 * 60 });
-  await boss.createQueue(QUEUES.fixRetry, { policy: "short", retryLimit: 2, retryDelay: 60, expireInSeconds: 10 * 60 });
+  // A later one is dropped while one waits; the waiting one fixes the repository's latest scan (see runFixJob).
+  [QUEUES.repoFix, { policy: "stately", retryLimit: 2, retryDelay: 120, retryBackoff: true, expireInSeconds: 30 * 60 }],
+  [QUEUES.advisoryFanout, { retryLimit: 2, retryDelay: 60, expireInSeconds: 15 * 60 }],
+  [QUEUES.billingSync, { policy: "short", retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 10 * 60 }],
+  [QUEUES.fixRetry, { policy: "short", retryLimit: 2, retryDelay: 60, expireInSeconds: 10 * 60 }],
+];
+
+/**
+ * Create or update every queue. Idempotent; run by migrations and again by the worker on start. pg-boss's
+ * createQueue leaves an existing queue as it is, so the options are applied again with updateQueue. A queue's
+ * policy cannot change after creation: a different one in the database fails loudly.
+ */
+export async function createQueues(boss: PgBoss): Promise<void> {
+  for (const [name, options] of QUEUE_OPTIONS) {
+    await boss.createQueue(name, options);
+    const { policy = "standard", ...rest } = options;
+    const stored = (await boss.getQueue(name))?.policy;
+    if (stored !== policy) throw new Error(`queue ${name} has policy ${stored}, not ${policy}: a policy cannot change, recreate the queue`);
+    await boss.updateQueue(name, rest);
+  }
 }
 
 /** pg-boss for the database owner: creates its `pgboss` schema and the queues. Used by migrate. */
@@ -70,6 +88,15 @@ export async function startSender(
 
 async function sendWebhook(boss: PgBoss, deliveryId: string): Promise<void> {
   await boss.send(QUEUES.githubWebhook, { deliveryId }, { singletonKey: deliveryId });
+}
+
+/**
+ * The sweeper's send: skipped while a job for the delivery still waits. The queue's standard policy does
+ * not enforce singletonKey, so without this every sweep of a backlog would add another job per delivery.
+ */
+export async function sendWebhookOnce(boss: PgBoss, deliveryId: string): Promise<void> {
+  if ((await boss.findJobs(QUEUES.githubWebhook, { key: deliveryId, queued: true })).length) return;
+  await sendWebhook(boss, deliveryId);
 }
 
 const sendScan = (boss: PgBoss, scan: ScanRequest) => boss.send(QUEUES.repoScan, scan);
@@ -136,7 +163,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     const repo = deps.config.SHAPI_ADVISORIES_REPO;
     const result = repo
       ? await syncAdvisoriesFromGitHub(deps.db, repo, { fetch: deps.fetch })
-      : { written: await syncAdvisoriesJob(deps.db, deps.config.SHAPI_ADVISORIES), removed: [], invalid: [] };
+      : { ...(await syncAdvisoriesJob(deps.db, deps.config.SHAPI_ADVISORIES)), invalid: [] };
     if (result.invalid.length) deps.log.error({ err: new Error("invalid advisories skipped"), invalid: result.invalid }, "advisory sync skipped invalid files");
     deps.log.info({ source: repo ?? "folder", written: result.written, removed: result.removed }, "advisories synced");
     // Re-matching only does work when something changed (see upsertAdvisories); a removal changes findings too.
@@ -151,9 +178,10 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
   await boss.work<{ deliveryId: string }>(QUEUES.githubWebhook, { batchSize: 1 }, async ([job]) => {
     if (!job) return;
     const result = await processDelivery({ db: deps.db, github: requireGithub(), billing }, job.data.deliveryId);
-    // Committed: now the scans it asked for can start.
+    // Committed: now the scans it asked for can start. They stay stored with the delivery until all are queued.
     for (const scan of result.scans) await sendScan(boss, scan);
     for (const f of result.fixes) await sendFix(boss, f.scanId, f.repositoryId);
+    if (result.scans.length || result.fixes.length) await jobsQueued(deps.db, job.data.deliveryId);
     // Repositories came or went: a paid plan may now be larger than needed.
     if (billing && ["installation", "installation_repositories"].includes(result.event)) await boss.send(QUEUES.billingSync, {});
     deps.log.info(result, "webhook processed");
@@ -193,7 +221,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
   await boss.work(QUEUES.fixRetry, async () => {
     // A fresh scan, not a fix job on the old one: the old api.lock was mapped by the old build's extractor and
     // can miss what the code reads, which the contract test needs. The scan queues the fix job as usual.
-    const scans = await scansToRefix(deps.db, deps.config.GIT_SHA, { llm: Boolean(llm) });
+    const scans = await scansToRefix(deps.db, deps.config.GIT_SHA, { llm: Boolean(llm), billingEnforced });
     for (const s of scans) await sendScan(boss, { repositoryId: s.repositoryId });
     deps.log.info({ engine: deps.config.GIT_SHA, scans: scans.length }, "repositories scanned again for this build");
     return { scans: scans.length };
@@ -205,14 +233,16 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     return result;
   });
   await boss.work(QUEUES.webhookSweep, async () => {
+    // Lost scans are re-queued first, so a failing webhook sweep cannot hold them up.
+    const stale = await staleQueuedScans(deps.db, new Date());
+    for (const scanId of stale) await sendScan(boss, { scanId });
     const result = await sweepWebhooks({
       db: deps.db,
       github,
-      enqueue: (deliveryId) => sendWebhook(boss, deliveryId),
+      enqueue: (deliveryId) => sendWebhookOnce(boss, deliveryId),
       retentionDays: deps.config.WEBHOOK_RETENTION_DAYS,
     });
-    const stale = await staleQueuedScans(deps.db, new Date());
-    for (const scanId of stale) await sendScan(boss, { scanId });
+    if (result.redeliveryFailed) deps.log.error({ err: new Error("webhook redelivery failed"), redeliveryFailed: result.redeliveryFailed }, "some webhook redeliveries failed");
     deps.log.info({ ...result, scansRequeued: stale.length }, "webhooks swept");
     return result;
   });

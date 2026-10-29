@@ -19,7 +19,7 @@ export const SurfaceSchema = z.object({
   statusCodes: z.array(z.number().int()),
   /** Branches on `response.ok`. */
   checksOk: z.boolean(),
-  /** String values response fields are compared against. */
+  /** Literal values response fields are compared against: strings, and numbers as their decimal string. */
   enums: z.array(z.object({ field: z.string(), values: z.array(z.string()) })),
   /** Request headers set, names lowercased (API version pins live here). */
   headers: z.array(NameValueSchema),
@@ -51,7 +51,10 @@ export const CallSiteSchema = z.object({
   host: z.string().nullable(),
   /** Path with dynamic segments as {name} or {}, query string removed. */
   endpoint: z.string().nullable(),
-  /** True when provider, method and endpoint are all known. */
+  /**
+   * True when provider, method and endpoint are all known, and for a URL that no recognized client sends
+   * (`client: "url"`), whose provider and endpoint are known but whose method stays null.
+   */
   resolved: z.boolean(),
   surface: SurfaceSchema,
 });

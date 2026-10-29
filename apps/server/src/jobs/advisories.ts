@@ -2,9 +2,15 @@ import { AdvisorySchema, loadAdvisories, type Advisory } from "@shapi/core";
 import { removeAdvisoriesNotIn, upsertAdvisories, type Db } from "@shapi/db";
 import { createOctokit, fetchRepoSnapshot } from "@shapi/github-app";
 
-/** Load the reviewed advisories shipped in the advisories/ folder into the database. Safe to run on every start. */
-export async function syncAdvisoriesJob(db: Db, dir: string): Promise<number> {
-  return upsertAdvisories(db, loadAdvisories(dir), { reviewed: true, source: "repo" });
+/**
+ * Load the reviewed advisories shipped in the advisories/ folder into the database, and remove the ones
+ * an earlier folder sync stored that the folder no longer has. Safe to run on every start.
+ */
+export async function syncAdvisoriesJob(db: Db, dir: string): Promise<{ written: number; removed: string[] }> {
+  const advisories = loadAdvisories(dir);
+  const written = await upsertAdvisories(db, advisories, { reviewed: true, source: "repo" });
+  const removed = advisories.length ? await removeAdvisoriesNotIn(db, "repo", advisories.map((a) => a.id)) : [];
+  return { written, removed };
 }
 
 export interface RepoSyncResult {
@@ -26,7 +32,9 @@ export interface RepoSyncResult {
 export async function syncAdvisoriesFromGitHub(db: Db, repoFullName: string, opts: { fetch?: typeof globalThis.fetch; ref?: string } = {}): Promise<RepoSyncResult> {
   const [owner, repo] = repoFullName.split("/");
   if (!owner || !repo) throw new Error(`advisory repository must be owner/name, got ${repoFullName}`);
-  const files = await fetchRepoSnapshot(createOctokit({}, { fetch: opts.fetch }), { owner, repo, ref: opts.ref ?? "main" });
+  const octokit = createOctokit({}, { fetch: opts.fetch });
+  const ref = opts.ref ?? (await octokit.rest.repos.get({ owner, repo })).data.default_branch;
+  const files = await fetchRepoSnapshot(octokit, { owner, repo, ref });
   const advisories: Advisory[] = [];
   const invalid: RepoSyncResult["invalid"] = [];
   for (const f of files.filter((f) => /^advisories\/[^/]+\.json$/.test(f.path)).sort((a, b) => a.path.localeCompare(b.path))) {

@@ -16,6 +16,7 @@ import {
 } from "@shapi/github-app";
 import { AdvisorySchema } from "@shapi/core";
 import type { GitHubClients } from "./clients";
+import { mergeSettings } from "./events";
 
 /** A verified fix ready to deliver: produced by the scan and repair jobs (A5). */
 export interface FixCandidate {
@@ -139,10 +140,14 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
     limits,
   });
   try {
-    report.dashboard = await upsertDashboard(octokit, { owner, repo: name, issueNumber: repo.dashboard_issue }, body);
-    // Ticked "open now" and "retry" boxes have been acted on; the new body shows them unticked.
-    const settings = JSON.stringify({ ...saved, paused: intents.paused, createNow: [], retry: [] });
-    await withService(deps.db, (tx) => tx.updateTable("repositories").set({ dashboard_issue: report.dashboard!.number, settings }).where("id", "=", repo.id).execute());
+    // A box ticked on the issue during this run stays ticked in the new body (see upsertDashboard), for the next job.
+    const { body: shown, ...issue } = await upsertDashboard(octokit, { owner, repo: name, issueNumber: repo.dashboard_issue }, body, dashboard ? intents : undefined);
+    report.dashboard = issue;
+    // Ticked "open now" and "retry" boxes have been acted on; the new body shows them unticked. Only these keys are
+    // written, so a pause set from the web app while the job ran is kept.
+    const left = parseDashboard(shown);
+    const settings = mergeSettings({ paused: left.paused, createNow: [...left.createNow], retry: [...left.retry] });
+    await withService(deps.db, (tx) => tx.updateTable("repositories").set({ dashboard_issue: issue.number, settings }).where("id", "=", repo.id).execute());
   } catch (err) {
     report.errors.push(`dashboard: ${err instanceof Error ? err.message : String(err)}`);
   }

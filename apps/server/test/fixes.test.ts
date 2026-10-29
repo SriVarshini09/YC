@@ -5,6 +5,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { loadAdvisories, type Advisory } from "@shapi/core";
 import { createDb, migrateToLatest, withService, withTenant, type Db } from "@shapi/db";
 import { STOP_LABEL } from "@shapi/github-app";
+import { sql } from "kysely";
 import { fakeRepoGitHub } from "../../../test-utils/fake-github";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { deliverRepoFixes, githubClients, processDelivery, type FixCandidate } from "../src/index";
@@ -143,6 +144,36 @@ describe("fix delivery", () => {
     expect(second.outcomes.find((o) => o.advisoryId === "low")!.action).toBe("created");
     expect(t.github.issues[0]!.body).not.toContain("shapi:create:low");
     expect(t.github.issues[0]!.body).toContain("Change low [#4]");
+  });
+
+  it("keeps a pause from the web app and a box ticked on the issue while the job was opening PRs", async () => {
+    const fake = fakeRepoGitHub("acme/demo", { "src/a.ts": "a\n", "src/b.ts": "b\n", "src/c.ts": "c\n" });
+    let during: (() => Promise<void>) | undefined;
+    const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+      const run = String(input).includes("/pulls") ? during : undefined;
+      if (run) {
+        during = undefined;
+        await run();
+      }
+      return fake.fetch(input, init);
+    }) as typeof globalThis.fetch;
+    const deps = { db, github: githubClients({ appId: "1", privateKey }, { fetch, resilient: false }) };
+    const now = new Date();
+    const first = await deliverRepoFixes(deps, { repositoryId, fixes, now });
+    const number = first.dashboard!.number;
+    expect(fake.github.issues[0]!.body).toContain("- [ ] <!-- shapi:create:low -->");
+
+    // The next run reads the settings and the issue, then, while it updates the open PRs, the maintainer
+    // pauses SHAPI from the web app and ticks "open now" on the issue.
+    during = async () => {
+      await owner.updateTable("repositories").set({ settings: sql<string>`settings || '{"pausedFromWeb": true}'::jsonb` }).where("id", "=", repositoryId).execute();
+      fake.github.tick(number, "create:low");
+    };
+    await deliverRepoFixes(deps, { repositoryId, fixes, now });
+    expect(during).toBeUndefined();
+    const saved = await owner.selectFrom("repositories").select("settings").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    expect(saved.settings).toEqual({ pausedFromWeb: true, paused: false, createNow: ["low"], retry: [] });
+    expect(fake.github.issues[0]!.body).toContain("- [x] <!-- shapi:create:low -->");
   });
 
   it("a ticked box or a lifted pause queues a fix job on the latest scan right away", async () => {

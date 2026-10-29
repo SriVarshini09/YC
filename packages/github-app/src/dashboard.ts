@@ -102,21 +102,41 @@ export async function readDashboard(octokit: Octokit, owner: string, repo: strin
 
 /**
  * Create the dashboard issue, or update it when its body changed. A dashboard someone closed stays
- * closed (and is not updated), so closing it is a way to turn it off.
+ * closed (and is not updated), so closing it is a way to turn it off. `seen` is the boxes the body was
+ * rendered from: a box a maintainer ticked on the issue since then (or the pause box they toggled) is
+ * carried into the new body instead of being overwritten. Returns the body the issue now has (`body`
+ * itself for a closed dashboard).
  */
 export async function upsertDashboard(
   octokit: Octokit,
   target: { owner: string; repo: string; issueNumber?: number | null },
   body: string,
-): Promise<{ number: number; action: "created" | "updated" | "unchanged" | "closed" }> {
+  seen?: DashboardIntents,
+): Promise<{ number: number; action: "created" | "updated" | "unchanged" | "closed"; body: string }> {
   const { owner, repo } = target;
   const current = target.issueNumber ? await readDashboard(octokit, owner, repo, target.issueNumber) : undefined;
-  if (current?.state === "closed") return { number: current.number, action: "closed" };
+  if (current?.state === "closed") return { number: current.number, action: "closed", body };
   if (current) {
-    if (current.body.replace(/\r\n/g, "\n") === body) return { number: current.number, action: "unchanged" };
-    await octokit.rest.issues.update({ owner, repo, issue_number: current.number, body });
-    return { number: current.number, action: "updated" };
+    const next = seen ? keepNewTicks(body, seen, parseDashboard(current.body)) : body;
+    if (current.body.replace(/\r\n/g, "\n") === next) return { number: current.number, action: "unchanged", body: next };
+    await octokit.rest.issues.update({ owner, repo, issue_number: current.number, body: next });
+    return { number: current.number, action: "updated", body: next };
   }
   const { data } = await octokit.rest.issues.create({ owner, repo, title: DASHBOARD_TITLE, body });
-  return { number: data.number, action: "created" };
+  return { number: data.number, action: "created", body };
+}
+
+/** Tick or untick the box with this marker, when `body` has one. */
+function setBox(body: string, marker: string, ticked: boolean): string {
+  const escaped = marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return body.replace(new RegExp(`^(\\s*- )\\[[ xX]\\]( <!-- shapi:${escaped} -->)`, "m"), `$1[${ticked ? "x" : " "}]$2`);
+}
+
+/** Apply to `body` what a maintainer changed on the issue since `seen` was read: new ticks, and the pause box. */
+function keepNewTicks(body: string, seen: DashboardIntents, now: DashboardIntents): string {
+  let next = body;
+  if (now.paused !== seen.paused) next = setBox(next, "pause", now.paused);
+  for (const id of now.createNow) if (!seen.createNow.has(id)) next = setBox(next, `create:${id}`, true);
+  for (const id of now.retry) if (!seen.retry.has(id)) next = setBox(next, `retry:${id}`, true);
+  return next;
 }

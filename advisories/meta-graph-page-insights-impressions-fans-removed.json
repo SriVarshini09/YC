@@ -5,7 +5,7 @@
   "summary": "Since 2025-11-15, on all API versions, requesting the Page and post impressions metrics (page_impressions, page_impressions_paid, page_impressions_viral, page_impressions_nonviral, post_impressions, post_impressions_paid, post_impressions_fan, post_impressions_organic, post_impressions_viral, post_impressions_nonviral) or the fans metrics (page_fans, page_fans_locale, page_fans_city, page_fans_country, page_fan_adds, page_fan_adds_unique, page_fan_removes, page_fan_removes_unique) returns an invalid metric error. SHAPI flags calls that request one of these metrics.",
   "endpoint": {
     "method": "GET",
-    "path": "/*/*/insights"
+    "path": "/**/insights"
   },
   "changeClass": "version-sunset",
   "trigger": {

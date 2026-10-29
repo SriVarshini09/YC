@@ -36,4 +36,11 @@ describe("provider registry", () => {
     expect(sdkEndpoint(getProvider("stripe")!, "customers.create")).toEqual({ method: "POST", path: "/v1/customers" });
     expect(sdkEndpoint(github, "rest.nope.nothing")).toBeUndefined();
   });
+
+  it("does not treat Object.prototype members as SDK methods", () => {
+    const stripe = getProvider("stripe")!;
+    for (const chain of ["toString", "constructor", "hasOwnProperty", "__proto__", "valueOf"]) expect(sdkEndpoint(stripe, chain), chain).toBeUndefined();
+    // a provider without a method table
+    expect(sdkEndpoint(getProvider("zoom")!, "toString")).toBeUndefined();
+  });
 });
