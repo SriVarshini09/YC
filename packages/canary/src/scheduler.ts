@@ -1,5 +1,5 @@
 import type { Advisory } from "@shapi/core";
-import { diffShapes, inferShape, providerSalt, toWitness, type ShapeDiff, type ShapeRepository, type Witness } from "@shapi/shapes";
+import { BASELINE_WINDOW, churningFields, diffShapes, inferShape, providerSalt, stableHash, stableShape, toWitness, type ShapeDiff, type ShapeRepository, type Witness } from "@shapi/shapes";
 import { draftAdvisory } from "./draft";
 import { probeSource, type Env, type Probe, type Worker } from "./probe";
 import { githubWorker } from "./workers/github";
@@ -36,6 +36,11 @@ export interface ProbeResult {
   diff?: ShapeDiff;
   /** Draft advisory, when a confirmed change is breaking. */
   draft?: Advisory;
+  /**
+   * The endpoint's natural churn (CN-04): fields that came and went in its recent history. They are left out when
+   * deciding whether the shape changed, so an optional field drafts nothing. Paths, or path hashes when redacted.
+   */
+  churning?: string[];
   error?: string;
   ms: number;
 }
@@ -122,11 +127,16 @@ async function runProbe(
       source,
       shape,
     });
-    const changed = previous !== undefined && previous.shapeHash !== stored.shapeHash;
+    // CN-04: shapes are compared without the fields that come and go on this endpoint.
+    const recent = await store.history(probe.provider, probe.method, probe.endpoint, { limit: BASELINE_WINDOW, source });
+    const churn = churningFields([...recent].reverse().map((o) => o.shape));
+    const stable = (o: { shape: typeof stored.shape }) => stableHash(o.shape, churn);
+    const changed = previous !== undefined && stable(previous) !== stable(stored);
     // CN-03: the shape before last differs, and the last one matches this one: the change has held for two cycles.
-    const [, last, before] = await store.history(probe.provider, probe.method, probe.endpoint, { limit: 3, source });
-    const confirmed = !changed && last !== undefined && before !== undefined && last.shapeHash === stored.shapeHash && before.shapeHash !== stored.shapeHash;
-    const diff = changed ? diffShapes(previous.shape, stored.shape) : confirmed ? diffShapes(before.shape, stored.shape) : undefined;
+    const [, last, before] = recent;
+    const confirmed = !changed && last !== undefined && before !== undefined && stable(last) === stable(stored) && stable(before) !== stable(stored);
+    const compare = (a: typeof stored.shape, b: typeof stored.shape) => diffShapes(stableShape(a, churn), stableShape(b, churn));
+    const diff = changed ? compare(previous.shape, stored.shape) : confirmed ? compare(before.shape, stored.shape) : undefined;
     const draft = confirmed && diff ? draftAdvisory({ before, after: stored, diff }) : undefined;
     return {
       ...base,
@@ -135,6 +145,7 @@ async function runProbe(
       witness,
       changed,
       ...(confirmed ? { confirmed } : {}),
+      ...(churn.size ? { churning: [...churn].map(([hash, path]) => path ?? `#${hash}`).sort() } : {}),
       previousHash: previous?.shapeHash,
       ...(diff ? { diff } : {}),
       ...(draft ? { draft } : {}),
