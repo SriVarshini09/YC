@@ -106,3 +106,4 @@ One line per task: task, summary file, PR, status.
 - PB-57 the GitHub App Setup URL lands on the dashboard of the account just set up, through sign-in if needed (U-01): [summary](PB-57-setup-to-dashboard.md) · PR: open
 - PB-58 the benchmark fixes each flagged instance in the E2B sandbox and reports the fix rate with n and a Wilson interval; first run 0 of 4, with why (P-02): [summary](PB-58-fix-rate.md) · PR: open
 - PB-61 spec-history replay for GitHub: 20 of 26 breaking changes of 2026-03-10 found in the spec diff, plus what GitHub does not list (P-09): [summary](PB-61-github-spec-replay.md) · PR: open
+- PB-62 spec-history replay for Twilio (5 of 7 showable breaking lines found) and OpenAI (model deprecations invisible in the spec: 0 of 25), with a summary across four providers (P-10): [summary](PB-62-twilio-openai-spec-replay.md) · PR: open

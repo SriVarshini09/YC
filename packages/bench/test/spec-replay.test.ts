@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AdvisorySchema } from "@shapi/core";
-import { changeMatchesGithubEntry, changeMatchesRow, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseGithubBreakingChanges, parseReleasePage, previewOnly, resourceKey, scoreGithubReplay, scoreRelease, type ChangelogEntry } from "@shapi/bench";
+import { changeMatchesGithubEntry, changeMatchesRow, changeMatchesTwilioEntry, changeShowsName, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseGithubBreakingChanges, parseOpenAiDeprecations, parseReleasePage, parseTwilioChanges, previewOnly, resourceKey, scoreGithubReplay, scoreOpenAiReplay, scoreRelease, scoreTwilioReplay, twilioSpecFiles, type ChangelogEntry } from "@shapi/bench";
 
 // Execution plan P-08: spec-history replay. Two tiny versions of a Stripe-shaped spec.
 const form = (props: Record<string, unknown>, required: string[] = []) => ({ content: { "application/x-www-form-urlencoded": { schema: { type: "object", properties: props, required } } } });
@@ -238,5 +238,108 @@ describe("spec-history replay for GitHub (P-09)", () => {
     const drafts = changes.map((c) => AdvisorySchema.parse(draftAdvisory(c, { provider: "github", providerName: "GitHub", version: "2026-03-10", returning, sources: ["https://docs.github.com"] })));
     expect(drafts.every((d) => d.summary.includes("GitHub's published specs") && d.status === "unverified")).toBe(true);
     expect(drafts.find((d) => d.trigger.any)?.endpoint).toEqual({ method: "PATCH", path: "/user/repository_invitations/{invitation_id}" });
+  });
+});
+
+describe("spec-history replay for Twilio and OpenAI (P-10)", () => {
+  const changes = [
+    "twilio-oai changelog",
+    "",
+    "[2026-10-12] Version 2.10.0",
+    "---------------------------",
+    "**Events**",
+    "- Remove the Replays API (`/v1/Replays`) **(breaking change)**",
+    "- Add a filter",
+    "",
+    "**Twiml**",
+    "- Remove `<Assistant>` noun from `<Connect>` verb **(breaking change)**",
+    "",
+    "[2026-08-25] Version 2.8.0",
+    "--------------------------",
+    "**Memory**",
+    "- ## 2026-08-18",
+    "- **Breaking change**:",
+    "- Removed the deprecated `CSV` and `DATASET` values from the `DataMappingType` enum.",
+    "- Removed the `DataMappingFromCSV` schema.",
+    "- ## 2026-08-12",
+    "- Minor updates",
+    "",
+    "[2026-07-01] Version 2.7.0",
+  ].join("\n");
+
+  it("reads Twilio's breaking lines in both shapes, under their product", () => {
+    const releases = parseTwilioChanges(changes);
+    expect(releases.map((r) => [r.version, r.date, r.entries.length])).toEqual([["2.10.0", "2026-10-12", 2], ["2.8.0", "2026-08-25", 1], ["2.7.0", "2026-07-01", 0]]);
+    expect(releases[0]!.entries[0]).toMatchObject({ product: "Events", text: "Remove the Replays API (`/v1/Replays`)", names: ["/v1/Replays"] });
+    expect(releases[0]!.entries[1]).toMatchObject({ product: "Twiml", names: ["Assistant", "Connect"] });
+    expect(releases[1]!.entries[0]).toMatchObject({ product: "Memory", names: ["CSV", "DATASET", "DataMappingType", "DataMappingFromCSV"] });
+    expect(twilioSpecFiles("Events", ["twilio_events_v1.json", "twilio_eventsx_v1.json", "twilio_api_v2010.json"])).toEqual(["twilio_events_v1.json"]);
+    expect(twilioSpecFiles("Twiml", ["twilio_events_v1.json"])).toEqual([]);
+  });
+
+  it("scores Twilio lines: found, no spec for the product, names nothing, missed", () => {
+    const releases = parseTwilioChanges(changes);
+    const replays = { kind: "operation-removed" as const, changeClass: "version-sunset" as const, operation: "GET /v1/Replays/{Sid}", detail: "", file: "twilio_events_v1.json" };
+    const csv = { kind: "enum-value-removed" as const, changeClass: "enum-added" as const, operation: "GET /v1/DataMappings", field: "type", values: ["CSV", "DATASET"], detail: "", file: "twilio_memory_v1.json" };
+    expect(changeMatchesTwilioEntry(replays, releases[0]!.entries[0]!)).toBe(true);
+    expect(changeMatchesTwilioEntry(csv, releases[1]!.entries[0]!)).toBe(true);
+    const score = scoreTwilioReplay({
+      releases: [
+        { version: "2.10.0", previous: "2.9.0", date: "2026-10-12", files: ["twilio_events_v1.json"], changes: [replays], entries: releases[0]!.entries, specFiles: ["twilio_events_v1.json", "twilio_memory_v1.json"] },
+        { version: "2.8.0", previous: "2.7.0", date: "2026-08-25", files: ["twilio_memory_v1.json"], changes: [], entries: [...releases[1]!.entries, { ...releases[1]!.entries[0]!, text: "Corrected a type.", names: [] }], specFiles: ["twilio_events_v1.json", "twilio_memory_v1.json"] },
+      ],
+    });
+    expect(score).toMatchObject({ breakingEntries: 4, found: 1, outsideSpec: 1, namesNothing: 1, candidates: 1, candidatesMatching: 1 });
+    expect(score.missed.map((m) => m.reason)).toEqual(["twilio-oai has no spec for Twiml", "no change in the Memory specs matches CSV, DATASET, DataMappingType, DataMappingFromCSV", "the line names no field, value, schema or path"]);
+  });
+
+  const page = [
+    "## Upcoming deprecations",
+    "",
+    "### 2026-08-26: Transcription models",
+    "",
+    "| Shutdown date | Model / system | Recommended replacement |",
+    "| ------------- | -------------- | ----------------------- |",
+    "| Feb 26, 2027  | `whisper-1`    | `gpt-transcribe`        |",
+    "| Feb 26, 2027  | `gpt-4o-mini-transcribe` \\| `gpt-4o-mini-transcribe-2025-12-15` | `gpt-transcribe` |",
+    "| Feb 26, 2027  | `/v1/audio/translations` | `v1/realtime/translations` |",
+    "",
+    "### 2026-06-03: Reusable prompts",
+    "",
+    "Prompts are going away.",
+    "",
+    "## Past deprecations",
+  ].join("\n");
+
+  it("reads OpenAI's deprecation entries and their rows, with escaped pipes", () => {
+    expect(parseOpenAiDeprecations(page)).toEqual([
+      {
+        date: "2026-08-26",
+        title: "Transcription models",
+        rows: [
+          { shutdown: "Feb 26, 2027", names: ["whisper-1"] },
+          { shutdown: "Feb 26, 2027", names: ["gpt-4o-mini-transcribe", "gpt-4o-mini-transcribe-2025-12-15"] },
+          { shutdown: "Feb 26, 2027", names: ["/v1/audio/translations"] },
+        ],
+      },
+      { date: "2026-06-03", title: "Reusable prompts", rows: [] },
+    ]);
+  });
+
+  it("finds an endpoint marked deprecated, and says why a model row is not shown", () => {
+    const old = { info: { version: "1" }, paths: { "/audio/translations": { post: { responses: { "200": {} } } } }, components: { schemas: { m: { type: "object", properties: { model: { type: "string", enum: ["whisper-1", "tts-1"] } } } } } };
+    const now = structuredClone(old);
+    (now.paths["/audio/translations"].post as Record<string, unknown>).deprecated = true;
+    const changes = diffSpecs(old as never, now as never, { deprecations: true });
+    expect(changes.map((c) => `${c.kind} ${c.operation}`)).toEqual(["operation-deprecated POST /audio/translations"]);
+    expect(diffSpecs(old as never, now as never)).toEqual([]);
+    expect(changeShowsName(changes[0]!, "/v1/audio/translations")).toBe(true);
+    const [entry] = parseOpenAiDeprecations(page);
+    const score = scoreOpenAiReplay({ entries: [{ entry: entry!, changes }], listed: (n) => n === "whisper-1" });
+    expect(score).toMatchObject({ entries: 1, rows: 3, shown: 1, endpointRows: 1, endpointRowsShown: 1, modelRows: 2, modelRowsShown: 0 });
+    expect(score.missed.map((m) => m.reason)).toEqual(["the spec still lists the model, with nothing marking it deprecated", "the current spec doesn't name the model, and no enum dropped it"]);
+    // A model dropped from an enum is shown.
+    const gone = { kind: "enum-value-removed" as const, changeClass: "enum-added" as const, schema: "m", field: "model", values: ["whisper-1"], detail: "" };
+    expect(changeShowsName(gone, "whisper-1")).toBe(true);
   });
 });

@@ -22,7 +22,9 @@
     "bench:okapi": "node ../../scripts/run-ts.mjs scripts/okapi.ts",
     "bench:archive": "node ../../scripts/run-ts.mjs scripts/archive.ts",
     "bench:spec-replay": "node ../../scripts/run-ts.mjs scripts/spec-replay.ts",
-    "bench:spec-replay:github": "node ../../scripts/run-ts.mjs scripts/spec-replay-github.ts"
+    "bench:spec-replay:github": "node ../../scripts/run-ts.mjs scripts/spec-replay-github.ts",
+    "bench:spec-replay:twilio": "node ../../scripts/run-ts.mjs scripts/spec-replay-twilio.ts",
+    "bench:spec-replay:openai": "node ../../scripts/run-ts.mjs scripts/spec-replay-openai.ts"
   },
   "dependencies": {
     "@shapi/core": "workspace:*",
