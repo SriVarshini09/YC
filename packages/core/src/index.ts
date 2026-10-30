@@ -5,3 +5,4 @@ export * from "./matcher";
 export * from "./cyclonedx";
 export * from "./lint";
 export * from "./graphql";
+export * from "./tiers";

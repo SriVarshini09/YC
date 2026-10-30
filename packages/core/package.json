@@ -12,7 +12,7 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "providers.json", "schema"],
+  "files": ["dist", "providers.json", "tiers.json", "schema"],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean"
   },

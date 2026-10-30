@@ -67,6 +67,10 @@ for (const instance of dataset.instances) {
       const fixed = await fixInstance({ repo: instance.repo, sha: instance.baseCommit, advisory, provider, llm, recordings: path.join(repoRoot, "fixtures", "recordings"), token, cacheDir: values.cache });
       result.fixOutcome = fixed.outcome;
       result.fixDetail = fixed.detail;
+      if (fixed.method) {
+        result.fixMethod = fixed.method;
+        result.fixOutOfScope = fixed.outOfScope ?? 0;
+      }
     }
     console.log(`${instance.id}  base ${result.base ?? "-"}  fix ${result.fix ?? "-"}${result.fixOutcome ? `  shapi fix ${result.fixOutcome}: ${result.fixDetail}` : ""}${result.error ? `  error: ${result.error}` : ""}`);
   }

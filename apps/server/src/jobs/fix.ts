@@ -1,4 +1,4 @@
-import { matchAdvisories, opensPullRequests, type Advisory, type LockedCallSite } from "@shapi/core";
+import { cellKey, cellOf, matchAdvisories, opensAsDraft, opensPullRequests, tierFor, type Advisory, type LockedCallSite, type TierCell } from "@shapi/core";
 import { sql } from "kysely";
 import { withService, type Db } from "@shapi/db";
 import { feedbackLinks, fetchRepoSnapshot, prTitle, renderPrBody } from "@shapi/github-app";
@@ -42,7 +42,7 @@ export interface FixReport {
   scanId: string;
   skipped?: string;
   /** One entry per advisory; `sites` counts its call sites fixed out of those affected. */
-  repairs: { advisoryId: string; status: RepairResult["status"] | "no-shapes" | "no-fix" | "not-attempted" | "unverified"; reason?: string; sites?: { fixed: number; total: number } }[];
+  repairs: { advisoryId: string; status: RepairResult["status"] | "no-shapes" | "no-fix" | "not-attempted" | "unverified" | "alert"; reason?: string; sites?: { fixed: number; total: number } }[];
   delivery?: DeliveryReport;
 }
 
@@ -82,7 +82,11 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
       .where("scans.id", "=", scanId)
       .executeTakeFirst();
     const findings = scan ? await tx.selectFrom("findings").selectAll().where("scan_id", "=", scan.id).where("kind", "=", "affected").orderBy("id").execute() : [];
-    return { scan, findings };
+    // The account's finished fix PRs: their merge outcomes lower a tier cell (U-04).
+    const finished = scan
+      ? await tx.selectFrom("fix_prs").select(["advisory_id", "state", "repair"]).where("account_id", "=", scan.account_id).where("state", "in", ["merged", "closed"]).where("closed_at", "is not", null).execute()
+      : [];
+    return { scan, findings, finished };
   });
   const { scan } = ctx;
   if (!scan || scan.status !== "succeeded" || !scan.api_lock || !scan.github_installation_id) return { scanId: job.scanId, repairs: [] };
@@ -93,6 +97,16 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
   }
 
   const advisories = new Map((await reviewedAdvisories(deps.db)).map((a) => [a.advisory.id, a.advisory]));
+  /** A cell's tier for this account (U-04): the registry's benchmark evidence, lowered by this account's merge outcomes. */
+  const tierOf = (cell: TierCell) => {
+    const prs = { merged: 0, closed: 0 };
+    for (const p of ctx.finished) {
+      const advisory = advisories.get(p.advisory_id);
+      if (!advisory || cellKey(cellOf(advisory, p.repair?.method)) !== cellKey(cell)) continue;
+      prs[p.state === "merged" ? "merged" : "closed"]++;
+    }
+    return tierFor(cell, prs);
+  };
   const lock = storedLock(scan.api_lock);
   const match = matchAdvisories(lock, [...advisories.values()], { now: now() });
   const { upcoming } = match;
@@ -125,9 +139,15 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
       report.repairs.push({ advisoryId: entry.advisory.id, status: "unverified", reason: "the advisory is not verified yet" });
       continue;
     }
-    const fixable = (entry.advisory.recipeId && RECIPES[entry.advisory.recipeId]) || llm;
-    if (!fixable) {
+    const recipe = entry.advisory.recipeId ? RECIPES[entry.advisory.recipeId] : undefined;
+    if (!recipe && !llm) {
       report.repairs.push({ advisoryId: entry.advisory.id, status: "no-fix", reason: "no recipe for this change" });
+      manual.push({ advisory: entry.advisory, callSites: entry.callSites.length });
+      continue;
+    }
+    const expected = tierOf(cellOf(entry.advisory, recipe ? "recipe" : "llm"));
+    if (expected.tier === "ALERT") {
+      report.repairs.push({ advisoryId: entry.advisory.id, status: "alert", reason: `fix tier ALERT: ${expected.reasons.at(-1)}` });
       manual.push({ advisory: entry.advisory, callSites: entry.callSites.length });
       continue;
     }
@@ -178,8 +198,13 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
             ...(fixedSites.length && !unfixed.length ? {} : { reason: first?.reason }),
             sites: { fixed: fixedSites.length, total: repair.sites.length },
           });
-          if (unfixed.length) manual.push({ advisory: t.advisory, callSites: unfixed.length });
-          if (fixedSites.length) {
+          const tier = fixedSites.length ? tierOf(cellOf(t.advisory, fixedSites.some((s) => s.result.method === "llm") ? "llm" : "recipe")) : undefined;
+          if (tier?.tier === "ALERT") {
+            // Claude fixed what the recipe could not, and Claude's cell is ALERT: reported, not opened.
+            report.repairs[report.repairs.length - 1] = { advisoryId: t.advisory.id, status: "alert", reason: `fix tier ALERT: ${tier.reasons.at(-1)}` };
+            manual.push({ advisory: t.advisory, callSites: repair.sites.length });
+          } else if (unfixed.length) manual.push({ advisory: t.advisory, callSites: unfixed.length });
+          if (fixedSites.length && tier && tier.tier !== "ALERT") {
             const testFiles = fixedSites.map((s) => s.result.test?.file).join(", ");
             fixes.push({
               advisory: t.advisory,
@@ -191,6 +216,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
                 witnesses: t.shapes.witnesses,
                 dashboardUrl: repoPageUrl(deps.publicUrl, scan.account_id, scan.repository_id),
                 now: now(),
+                tier: tier.tier,
                 notChanged: notChangedFor(t.advisory.id),
                 ...(deps.publicUrl ? { feedback: feedbackLinks(deps.publicUrl, deps.shapeSecret, { repositoryId: scan.repository_id, advisoryId: t.advisory.id }) } : {}),
               }),
@@ -199,9 +225,9 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
               sha: scan.sha,
               repair: summarizeRepair({ advisory: t.advisory, sites: repair.sites, changes: repair.changes, method: repair.method, sandbox: repair.sandbox }, now()),
               // A part of the change its contract test does not cover (V-04), or an edit outside the predicted lines (V-05),
-              // needs a person; the second also opens the PR as a draft.
+              // needs a person; the second also opens the PR as a draft, as does every fix whose cell is REVIEW (U-04).
               ...(fixedSites.some((s) => s.result.undo?.status === "survived" || s.result.scope?.status === "out-of-scope") ? { labels: [NEEDS_HUMAN_LABEL] } : {}),
-              ...(fixedSites.some((s) => s.result.scope?.status === "out-of-scope") ? { draft: true } : {}),
+              ...(opensAsDraft(tier.tier) || fixedSites.some((s) => s.result.scope?.status === "out-of-scope") ? { draft: true } : {}),
             });
           }
         }
