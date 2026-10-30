@@ -2,26 +2,26 @@
   "dataset": "APIBreak-Replay v0",
   "datasetHash": "37fa931e8278",
   "shapiVersion": "0.3.1",
-  "gitSha": "d4c6d05f33f9d62e3f26f6a31e73873541c1833d",
-  "runAt": "2026-10-29T23:49:04.288Z",
+  "gitSha": "be2872abfbdffc0b5e49c488a6f4644c41373ef8",
+  "runAt": "2026-10-30T00:08:05.667Z",
   "summary": {
     "instances": 71,
     "inScope": 14,
     "scored": 14,
     "errors": 0,
     "flagRecall": {
-      "k": 4,
+      "k": 5,
       "n": 14,
-      "rate": 0.286,
-      "low": 0.117,
-      "high": 0.546
+      "rate": 0.357,
+      "low": 0.163,
+      "high": 0.612
     },
     "flagRecallWithPossible": {
-      "k": 4,
+      "k": 5,
       "n": 14,
-      "rate": 0.286,
-      "low": 0.117,
-      "high": 0.546
+      "rate": 0.357,
+      "low": 0.163,
+      "high": 0.612
     },
     "fixedStatePrecision": {
       "k": 13,
@@ -31,20 +31,20 @@
       "high": 0.987
     },
     "flagRecallScannedFiles": {
-      "k": 4,
+      "k": 5,
       "n": 10,
-      "rate": 0.4,
-      "low": 0.168,
-      "high": 0.687
+      "rate": 0.5,
+      "low": 0.237,
+      "high": 0.763
     },
     "byIncident": {
       "github-workflow-dispatch-204-to-200": {
         "flagRecall": {
-          "k": 1,
+          "k": 2,
           "n": 7,
-          "rate": 0.143,
-          "low": 0.026,
-          "high": 0.513
+          "rate": 0.286,
+          "low": 0.082,
+          "high": 0.641
         },
         "fixedStatePrecision": {
           "k": 7,
@@ -81,8 +81,8 @@
       "inScope": true,
       "language": "Python",
       "evidenceFile": "github_utils.py",
-      "base": "none",
-      "fix": "none"
+      "base": "affected",
+      "fix": "exposed"
     },
     {
       "id": "github-workflow-dispatch-204-to-200__stategraph__stategraph",

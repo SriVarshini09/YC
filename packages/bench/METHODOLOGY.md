@@ -42,13 +42,22 @@ pnpm --filter @shapi/bench bench:run
 | Flag recall in scanned files | 4 / 10 | 40% | 17–69% |
 | Fixed-state precision | 13 / 14 | 93% | 69–99% |
 
+### History
+
+Each SHAPI change measured on dataset `37fa931e8278` (14 scored instances). Precision is fixed-state precision.
+
+| Change | Flag recall | In scanned files | Precision |
+| --- | --- | --- | --- |
+| Baseline (#91) | 4 / 14 | 4 / 10 | 13 / 14 |
+| `{repo}` holding `owner/name` after `/repos/` matches `{owner}/{repo}` | 5 / 14 | 5 / 10 | 13 / 14 |
+
 ### Adjudications
 
 - **hfscdogg/outgrow** is still `affected` at its fix commit because the fix left `minorversion=65` in `scripts/smoke_creds.py` line 130. SHAPI's flag is correct. The metric still counts it as a false positive by the definition above.
 
 ### What the misses show
 
-1. **A path variable holding `owner/name`.** In `f"{api_base}/..."` with `api_base = .../repos/{repo}`, the variable fills two path segments, but the advisory's pattern has `{owner}/{repo}` (vincentng295/gemini_fbchat).
+1. **A path variable holding `owner/name`** (fixed: see History). In `f"{api_base}/..."` with `api_base = .../repos/{repo}`, the variable fills two path segments, but the advisory's pattern has `{owner}/{repo}` (vincentng295/gemini_fbchat).
 2. **Code in files SHAPI does not scan:**
     - `curl` calls in GitHub Actions workflow YAML (refracta/df-translations, kikujizo/ai-harness);
     - OCaml (stategraph/stategraph);

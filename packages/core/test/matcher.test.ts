@@ -37,6 +37,19 @@ describe("pathMatches", () => {
     expect(pathMatches("/repos/{}/{}/{}", { path: "/repos/{owner}/{repo}/pulls" })).toBe(false);
   });
 
+  it("reads a repository full-name parameter right after /repos/ as owner/name (APIBreak-Replay)", () => {
+    const dispatch = { path: "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches" };
+    expect(pathMatches("/repos/{repo}/actions/workflows/{workflow_id}/dispatches", dispatch)).toBe(true);
+    expect(pathMatches("/repos/{full_name}/actions/workflows/{id}/dispatches", dispatch)).toBe(true);
+    expect(pathMatches("/repos/{github.repository}/actions/workflows/{id}/dispatches", dispatch)).toBe(true);
+    expect(pathMatches("/repos/{repo_slug}/actions/workflows/{id}/dispatches", dispatch)).toBe(true);
+    // other names stay one segment, and only the segment right after /repos/ widens
+    expect(pathMatches("/repos/{id}/actions/workflows/{workflow_id}/dispatches", dispatch)).toBe(false);
+    expect(pathMatches("/orgs/{repo}/actions/workflows/{workflow_id}/dispatches", { path: "/orgs/{org}/{team}/actions/workflows/{id}/dispatches" })).toBe(false);
+    expect(pathMatches("/repos/{owner}/{repo}/pulls", { path: "/repos/{owner}/{repo}/pulls" })).toBe(true);
+    expect(pathMatches("/repos/{repo}/pulls", dispatch)).toBe(false);
+  });
+
   it("matches {?} only against a value the code builds at runtime", () => {
     expect(pathMatches("/v1beta/models/{model}:generateContent", { path: "/*/models/{?}:*" })).toBe(true);
     expect(pathMatches("/v1beta/models/{}:generateContent", { path: "/*/models/{?}:*" })).toBe(true);
