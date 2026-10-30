@@ -139,7 +139,7 @@ async function handleEvent(tx: Tx, github: GitHubClients, event: string, payload
     case "push":
       return handlePush(tx, github, payload, scans);
     case "pull_request":
-      return handlePullRequest(tx, payload);
+      return handlePullRequest(tx, payload, fixes);
     case "repository":
       return handleRepository(tx, payload, scans);
     case "issues":
@@ -286,7 +286,7 @@ async function handleRepository(tx: Tx, payload: WebhookPayload, scans: ScanRequ
 }
 
 /** Keep SHAPI's record of its fix PRs current: merged, closed, reopened, or stopped by label. */
-async function handlePullRequest(tx: Tx, payload: WebhookPayload): Promise<string> {
+async function handlePullRequest(tx: Tx, payload: WebhookPayload, fixes: FixRequest[]): Promise<string> {
   const pr = payload.pull_request;
   if (!pr || !payload.repository) return "ignored: no pull request";
   if (!pr.head.ref.startsWith("shapi/")) return "ignored: not a SHAPI branch";
@@ -311,7 +311,36 @@ async function handlePullRequest(tx: Tx, payload: WebhookPayload): Promise<strin
   })();
   if (!set) return `ignored: pull_request.${payload.action}`;
   await tx.updateTable("fix_prs").set({ ...set, number: pr.number, url: pr.html_url, updated_at: now }).where("id", "=", row.id).execute();
+  if (payload.action === "closed" && !pr.merged && (await autoPause(tx, repo.id, now))) {
+    // Redraw the dashboard now, so the pause and its reason show without waiting for a push.
+    const scanId = await latestScanId(tx, repo.id);
+    if (scanId) fixes.push({ scanId, repositoryId: repo.id });
+    return `fix PR #${pr.number} closed; repository paused: its last ${AUTO_PAUSE_AFTER} SHAPI PRs were closed without merging`;
+  }
   return `fix PR #${pr.number} ${payload.action}`;
+}
+
+/** SHAPI stops opening PRs on a repository whose last this-many SHAPI PRs were all closed without merging (U-05). */
+export const AUTO_PAUSE_AFTER = 3;
+
+/**
+ * Pause the repository when its last AUTO_PAUSE_AFTER finished SHAPI PRs (merged or closed) were all closed unmerged.
+ * Only PRs finished after the last resume count, so unticking the pause gives SHAPI a fresh start. Returns whether it paused.
+ */
+async function autoPause(tx: Tx, repositoryId: string, now: Date): Promise<boolean> {
+  const repo = await tx.selectFrom("repositories").select("settings").where("id", "=", repositoryId).forUpdate().executeTakeFirstOrThrow();
+  const settings = repo.settings as { paused?: boolean; resumedAt?: string };
+  if (settings.paused) return false;
+  let q = tx.selectFrom("fix_prs").select(["number", "state"]).where("repository_id", "=", repositoryId).where("state", "in", ["closed", "merged"]).where("closed_at", "is not", null);
+  if (settings.resumedAt) q = q.where("closed_at", ">", new Date(settings.resumedAt));
+  const last = await q.orderBy("closed_at", "desc").limit(AUTO_PAUSE_AFTER).execute();
+  if (last.length < AUTO_PAUSE_AFTER || last.some((p) => p.state !== "closed")) return false;
+  await tx
+    .updateTable("repositories")
+    .set({ settings: mergeSettings({ paused: true, autoPaused: { at: now.toISOString(), prs: last.map((p) => p.number).filter((n): n is number => n !== null) } }) })
+    .where("id", "=", repositoryId)
+    .execute();
+  return true;
 }
 
 /**
@@ -331,9 +360,11 @@ async function handleIssue(tx: Tx, payload: WebhookPayload, fixes: FixRequest[])
   if (!repo || repo.dashboard_issue !== issue.number || !isDashboard(issue.body)) return "ignored: not the SHAPI dashboard";
   const intents = parseDashboard(issue.body);
   const settings = { paused: intents.paused, createNow: [...intents.createNow], retry: [...intents.retry] };
-  // Only the dashboard's keys: a pause set from the web app meanwhile stays.
-  await tx.updateTable("repositories").set({ settings: mergeSettings(settings) }).where("id", "=", repo.id).execute();
   const unpaused = (repo.settings as { paused?: boolean }).paused === true && !intents.paused;
+  // Only the dashboard's keys: a pause set from the web app meanwhile stays. A resume clears an automatic pause, and
+  // only PRs finished after it count toward the next one (U-05).
+  const resumed = unpaused ? { autoPaused: null, resumedAt: new Date().toISOString() } : {};
+  await tx.updateTable("repositories").set({ settings: mergeSettings({ ...settings, ...resumed }) }).where("id", "=", repo.id).execute();
   const scanId = settings.createNow.length || settings.retry.length || unpaused ? await latestScanId(tx, repo.id) : undefined;
   if (scanId) fixes.push({ scanId, repositoryId: repo.id });
   return `dashboard saved (paused: ${settings.paused}, open now: ${settings.createNow.length}, retry: ${settings.retry.length})${scanId ? ", fix job queued" : ""}`;

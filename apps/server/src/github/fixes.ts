@@ -94,8 +94,10 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients; pu
   const [owner, name] = repo.full_name.split("/") as [string, string];
   const dashboard = repo.dashboard_issue ? await readDashboard(octokit, owner, name, repo.dashboard_issue) : undefined;
   // The issue's checkboxes are the source of truth; settings hold the last state seen from its events.
-  const saved = repo.settings as { paused?: boolean; createNow?: string[]; retry?: string[]; pausedFromWeb?: boolean };
+  const saved = repo.settings as { paused?: boolean; createNow?: string[]; retry?: string[]; pausedFromWeb?: boolean; autoPaused?: { at: string; prs: number[] } | null };
   const pausedFromWeb = saved.pausedFromWeb === true;
+  // Paused by SHAPI itself (U-05): it holds even before the issue is redrawn with the box ticked.
+  const autoPaused = saved.autoPaused ?? undefined;
   const intents = dashboard
     ? parseDashboard(dashboard.body)
     : { paused: saved.paused ?? false, createNow: new Set(saved.createNow ?? []), retry: new Set(saved.retry ?? []) };
@@ -109,8 +111,8 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients; pu
     openCount: ctx.prs.filter((p) => p.state === "open").length,
     createdLastHour: ctx.prs.filter((p) => p.created_at > hourAgo).length,
     limits,
-    paused: intents.paused || pausedFromWeb,
-    pausedReason: pausedFromWeb ? "paused from the web app" : undefined,
+    paused: intents.paused || pausedFromWeb || Boolean(autoPaused),
+    pausedReason: pausedFromWeb ? "paused from the web app" : autoPaused ? "paused: the last SHAPI PRs were closed without merging" : undefined,
     createNow: intents.createNow,
     retry: intents.retry,
   });
@@ -148,8 +150,10 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients; pu
     closed: rows.filter((r) => r.state === "closed" && known(r.advisory_id) && !blocked.some((b) => b.advisory.id === r.advisory_id)).map((r) => ({ advisory: known(r.advisory_id)!, number: r.number ?? undefined, url: r.url ?? undefined })),
     manual: input.manual ?? [],
     upcoming: input.upcoming ?? [],
-    paused: intents.paused,
+    paused: intents.paused || Boolean(autoPaused),
     pausedFromWeb,
+    autoPaused,
+    now,
     limits,
     dashboardUrl: repoPageUrl(deps.publicUrl, repo.account_id, repo.id),
   });
