@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadAdvisories, type LockedCallSite } from "@shapi/core";
 import { swap, type AdvisoryRepair, type FileChange, type RepairResult } from "@shapi/repair";
-import { codeSpan, renderPrBody } from "@shapi/github-app";
+import { codeSpan, renderPrBody, suiteLine } from "@shapi/github-app";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const advisory = loadAdvisories(path.join(root, "advisories")).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
@@ -89,5 +89,24 @@ describe("fix PR body", () => {
     expect(row).toContain("| fail (1 failed) | pass (1 passed) |");
     expect(row).not.toContain("](");
     expect(body).not.toContain("@a ");
+  });
+});
+
+describe("suiteLine (V-01)", () => {
+  it("says the repository's tests pass, with the runner's counts and the command", () => {
+    expect(suiteLine({ status: "passed", command: "npm test", before: "4 passed", after: "4 passed", runs: 1, detail: "passed" })).toBe(
+      `**Your tests:** ✅ ${codeSpan("npm test")} passes with this change (before: ${codeSpan("4 passed")}; after: ${codeSpan("4 passed")}).`,
+    );
+  });
+  it("names a flaky rerun", () => {
+    expect(suiteLine({ status: "passed", command: "npm test", after: "4 passed", runs: 2, detail: "passed on rerun 2 of 3 (a flaky test)" })).toBe(
+      `**Your tests:** ✅ ${codeSpan("npm test")} passes with this change, after 2 runs (a flaky test) (after: ${codeSpan("4 passed")}).`,
+    );
+  });
+  it("says when they were not run, and why", () => {
+    expect(suiteLine({ status: "not-run", detail: "the repository has no test command (no test script in package.json)" })).toBe(
+      "**Your tests:** ⚪ not run: the repository has no test command (no test script in package.json).",
+    );
+    expect(suiteLine(undefined)).toBe("**Your tests:** ⚪ not run: not checked.");
   });
 });

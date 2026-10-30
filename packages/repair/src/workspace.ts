@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import type { Sandbox, SandboxProvider, SnapshotFile } from "@shapi/sandbox";
 import { runEnv, runTestFile, shapiVitestConfig, SHAPI_VITEST_CONFIG, VITEST_CONFIGS, type TestRun } from "./runner";
+import { suiteCommand, type SuiteRun } from "./suite";
 import { upward } from "./typecheck";
 
 /** A working copy of a repository where the repair agent edits files and runs the contract test. */
@@ -20,6 +21,16 @@ export interface Workspace {
    * `tsc --noEmit -p <tsconfig>`. Undefined when the repository has no TypeScript installed.
    */
   typecheck?(tsconfig: string): Promise<TestRun | undefined>;
+  /** Run the repository's own test command (see suiteCommand). Undefined when it has none. */
+  runSuite?(): Promise<SuiteRun | undefined>;
+}
+
+/** How long the repository's own test command may take. */
+const SUITE_TIMEOUT_MS = 10 * 60_000;
+
+/** The repository's test command, read from the workspace's package.json and lockfiles. */
+async function suiteFor(read: (file: string) => Promise<string | undefined>): Promise<[string, string[]] | undefined> {
+  return suiteCommand(await read("package.json"), { pnpm: (await read("pnpm-lock.yaml")) !== undefined, yarn: (await read("yarn.lock")) !== undefined });
 }
 
 /** Skipped anywhere in the tree: history. Nested node_modules are linked, not copied. */
@@ -82,6 +93,15 @@ export function localWorkspace(repoDir: string): Workspace & { dispose(): Promis
       const res = spawnSync(process.execPath, [path.join(dir, at, TSC), ...TSC_ARGS(tsconfig)], { cwd: dir, encoding: "utf8", timeout: TYPECHECK_TIMEOUT_MS, env: runEnv(), maxBuffer: 64 * 1024 * 1024 });
       const exitCode = res.status ?? 1;
       return { passed: exitCode === 0, exitCode, output: `${res.stdout ?? ""}${res.stderr ?? ""}${res.error ? `\n${res.error.message}` : ""}` };
+    },
+    async runSuite() {
+      const command = await suiteFor(async (f) => (existsSync(path.join(dir, f)) ? readFileSync(path.join(dir, f), "utf8") : undefined));
+      if (!command) return undefined;
+      const [cmd, args] = command;
+      // npm and corepack are .cmd shims on Windows, which only a shell runs.
+      const res = spawnSync(cmd, args, { cwd: dir, encoding: "utf8", timeout: SUITE_TIMEOUT_MS, env: runEnv(), maxBuffer: 64 * 1024 * 1024, shell: process.platform === "win32" });
+      const exitCode = res.status ?? 1;
+      return { passed: exitCode === 0, exitCode, output: `${res.stdout ?? ""}${res.stderr ?? ""}${res.error ? `\n${res.error.message}` : ""}`, command: [cmd, ...args].join(" ") };
     },
     // Junctions are removed as links: the checkout's own node_modules are left alone.
     async dispose() {
@@ -197,6 +217,14 @@ export async function sandboxWorkspace(
       if (at === undefined) return undefined;
       const r = await exec("node", [path.posix.join(at, TSC), ...TSC_ARGS(tsconfig)], { timeoutMs: TYPECHECK_TIMEOUT_MS, env: ENV });
       return { passed: r.exitCode === 0, exitCode: r.exitCode, output: output(r, "type-check") };
+    },
+    async runSuite() {
+      const command = await suiteFor((f) => sandbox.read(f));
+      if (!command) return undefined;
+      const [cmd, args] = command;
+      // The network is already off: the tests run with nothing reachable.
+      const r = await exec(cmd, args, { timeoutMs: SUITE_TIMEOUT_MS, env: { ...ENV, CI: "1" } });
+      return { passed: r.exitCode === 0, exitCode: r.exitCode, output: output(r, "test command"), command: [cmd, ...args].join(" ") };
     },
   };
 }
