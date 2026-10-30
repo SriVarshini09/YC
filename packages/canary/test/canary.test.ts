@@ -78,6 +78,41 @@ describe("workers", () => {
 describe("runOnce", () => {
   const dispatchEnv: Env = { ...env, SHAPI_GITHUB_TOKEN: "t", SHAPI_CANARY_REPO: "shapi-dev/canary", SHAPI_CANARY_WORKFLOW: "canary.yml" };
 
+  it("drafts nothing for one flaky response, and drafts a change once the next cycle sees it again (CN-03)", async () => {
+    const store = ShapeStore.open(":memory:");
+    let tick = 0;
+    const now = () => new Date(Date.UTC(2026, 9, 1, tick++));
+    const old = () => new Response(null, { status: 204 });
+    const changed = () => json(200, { workflow_run_id: 1, run_url: "https://api.github.com/r/1", html_url: "https://github.com/r/1" });
+    const cycle = async (dispatch: () => Response) =>
+      (await runOnce({ store, env: dispatchEnv, fetch: fakeFetch(githubRoutes(dispatch)).fn, now, workers: [githubWorker] })).results.find((r) => r.id === "github:workflow-dispatch")!;
+
+    // 204, then one 200, then 204 again: a candidate each time, never confirmed, never drafted.
+    await cycle(old);
+    const blip = await cycle(changed);
+    expect(blip).toMatchObject({ changed: true, diff: { breaking: true } });
+    expect(blip.draft).toBeUndefined();
+    const back = await cycle(old);
+    expect(back.changed).toBe(true);
+    expect(back.confirmed).toBeUndefined();
+    expect(back.draft).toBeUndefined();
+
+    // 200 twice in a row: the second cycle confirms the change and drafts it, from the 204 before it.
+    const first = await cycle(changed);
+    expect(first.draft).toBeUndefined();
+    const second = await cycle(changed);
+    expect(second).toMatchObject({ changed: false, confirmed: true });
+    expect(second.diff?.changes[0]).toMatchObject({ kind: "status-code", from: 204, to: 200 });
+    expect(second.draft?.trigger.statusCodes).toEqual([204]);
+
+    // A third cycle with the same shape is neither a change nor a new confirmation.
+    const third = await cycle(changed);
+    expect(third).toMatchObject({ changed: false });
+    expect(third.confirmed).toBeUndefined();
+    expect(third.draft).toBeUndefined();
+    store.close();
+  });
+
   it("stores a shape per probe and flags the probe whose shape changed between runs", async () => {
     const store = ShapeStore.open(":memory:");
     let tick = 0;
