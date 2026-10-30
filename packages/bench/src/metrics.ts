@@ -55,6 +55,10 @@ export interface InstanceResult {
   fixOutcome?: FixOutcome;
   /** What each call site's repair did, or why the fix could not be tried. */
   fixDetail?: string;
+  /** "llm" when Claude wrote any part of the fix, else "recipe": the fix tier cell it counts toward (U-04). */
+  fixMethod?: "recipe" | "llm";
+  /** Fixed call sites whose edit went outside the predicted lines (V-05). */
+  fixOutOfScope?: number;
 }
 
 

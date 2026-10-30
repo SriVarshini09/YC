@@ -1,0 +1,434 @@
+{
+  "benchmark": {
+    "dataset": "APIBreak-Replay v0",
+    "shapiVersion": "0.3.1",
+    "runAt": "2026-10-30T08:16:14.569Z"
+  },
+  "autoAfter": 5,
+  "cells": [
+    {
+      "recipe": "apply-fix",
+      "provider": "hubspot",
+      "changeClass": "field-rename",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "apply-fix",
+      "provider": "hubspot",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "apply-fix",
+      "provider": "meta-graph",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "apply-fix",
+      "provider": "quickbooks",
+      "changeClass": "version-sunset",
+      "benchmark": [
+        {
+          "id": "quickbooks-minorversion-below-75__hfscdogg__outgrow",
+          "outcome": "not-fixed"
+        },
+        {
+          "id": "quickbooks-minorversion-below-75__RCOLKITT__AccountingQB-MCP",
+          "outcome": "not-fixed"
+        },
+        {
+          "id": "quickbooks-minorversion-below-75__tioperfumes07__IH35-TMS",
+          "outcome": "error"
+        }
+      ],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [
+        "quickbooks-minorversion-below-75__hfscdogg__outgrow",
+        "quickbooks-minorversion-below-75__RCOLKITT__AccountingQB-MCP"
+      ],
+      "reasons": [
+        "2 benchmark instances not fixed cleanly"
+      ]
+    },
+    {
+      "recipe": "apply-fix",
+      "provider": "shopify",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "apply-fix",
+      "provider": "stripe",
+      "changeClass": "enum-added",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "anthropic",
+      "changeClass": "status-code",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "anthropic",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "google-gemini",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "google",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "hubspot",
+      "changeClass": "field-rename",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "hubspot",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "meta-graph",
+      "changeClass": "field-rename",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "meta-graph",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "openai",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "quickbooks",
+      "changeClass": "auth",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "quickbooks",
+      "changeClass": "field-rename",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "salesforce",
+      "changeClass": "auth",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "shopify",
+      "changeClass": "auth",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "shopify",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "slack",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "twilio",
+      "changeClass": "enum-added",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "twilio",
+      "changeClass": "field-rename",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "twilio",
+      "changeClass": "required-field",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "twilio",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "x",
+      "changeClass": "enum-added",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "x",
+      "changeClass": "scope-change",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "xero",
+      "changeClass": "enum-added",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "xero",
+      "changeClass": "required-field",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "xero",
+      "changeClass": "scope-change",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "xero",
+      "changeClass": "status-code",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "llm",
+      "provider": "xero",
+      "changeClass": "version-sunset",
+      "benchmark": [],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [],
+      "reasons": [
+        "0 of the 5 benchmark passes AUTO needs"
+      ]
+    },
+    {
+      "recipe": "status-code-accept-set",
+      "provider": "github",
+      "changeClass": "status-code",
+      "benchmark": [
+        {
+          "id": "github-workflow-dispatch-204-to-200__vincentng295__gemini_fbchat",
+          "outcome": "not-fixed"
+        },
+        {
+          "id": "github-workflow-dispatch-204-to-200__pyzz58__gpt-recommendations",
+          "outcome": "not-fixed"
+        }
+      ],
+      "tier": "REVIEW",
+      "passes": [],
+      "failures": [
+        "github-workflow-dispatch-204-to-200__vincentng295__gemini_fbchat",
+        "github-workflow-dispatch-204-to-200__pyzz58__gpt-recommendations"
+      ],
+      "reasons": [
+        "2 benchmark instances not fixed cleanly"
+      ]
+    }
+  ]
+}

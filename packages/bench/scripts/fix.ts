@@ -39,7 +39,7 @@ function recordedShapes(advisory: Advisory, dir: string): { before: ResponseShap
   return undefined;
 }
 
-export async function fixInstance(input: FixInstanceInput): Promise<{ outcome: FixOutcome; detail: string }> {
+export async function fixInstance(input: FixInstanceInput): Promise<{ outcome: FixOutcome; detail: string; method?: "recipe" | "llm"; outOfScope?: number }> {
   const shapes = input.advisory.fix ? {} : recordedShapes(input.advisory, input.recordings);
   if (!shapes) return { outcome: "not-fixed", detail: "no before/after shapes for this endpoint" };
   return withRepoAt({ repo: input.repo, sha: input.sha, token: input.token, cacheDir: input.cacheDir, mirror: true }, async (root) => {
@@ -52,7 +52,9 @@ export async function fixInstance(input: FixInstanceInput): Promise<{ outcome: F
       );
       const detail = repair.sites.map((s) => `${s.callSite.file}:${s.callSite.line} ${s.result.status}${s.result.method ? ` via ${s.result.method}` : ""}${s.result.reason ? ` (${s.result.reason})` : ""}`).join("; ");
       const outcome: FixOutcome = repair.status === "fixed" ? "fixed" : repair.status === "partial" ? "partial" : "not-fixed";
-      return { outcome, detail };
+      const fixed = repair.sites.filter((s) => s.result.status === "fixed");
+      const method = fixed.length ? (fixed.some((s) => s.result.method === "llm") ? ("llm" as const) : ("recipe" as const)) : undefined;
+      return { outcome, detail, ...(method ? { method, outOfScope: fixed.filter((s) => s.result.scope?.status === "out-of-scope").length } : {}) };
     } catch (err) {
       return { outcome: "error" as const, detail: err instanceof Error ? err.message : String(err) };
     }

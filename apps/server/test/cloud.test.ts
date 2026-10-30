@@ -365,6 +365,9 @@ describe("cloud fix", () => {
     const pr = t.github.pulls.find((p) => p.head.ref === "shapi/github-workflow-dispatch-204-to-200")!;
     expect(pr).toMatchObject({ head: { ref: "shapi/github-workflow-dispatch-204-to-200" }, labels: [{ name: "shapi" }] });
     expect(pr.body).toContain("**Checked:** ✅ contract test (failed before, passes after)");
+    // U-04: no cell has earned AUTO on the benchmark yet, so every fix opens as a draft for review.
+    expect(pr.draft).toBe(true);
+    expect(pr.body).toContain("· Tier: Review ·");
     expect(t.github.fileAt(pr.head.ref, "src/deploy.ts")).toContain("![200, 204].includes(res.status)");
     expect(t.github.fileAt(pr.head.ref, "test/shapi/github-workflow-dispatch-204-to-200.test.ts")).toBeTruthy();
     expect(t.github.commits.get(t.github.refs.get(pr.head.ref)!)!.message).toContain("verified in");
@@ -381,6 +384,29 @@ describe("cloud fix", () => {
     expect(again.delivery!.outcomes.find((o) => o.advisoryId === "github-workflow-dispatch-204-to-200")!.action).toBe("unchanged");
     const writes = t.github.calls.filter((c) => c.method !== "GET").slice(before).filter((c) => !c.path.endsWith("/access_tokens"));
     expect(writes).toEqual([]);
+  }, 120_000);
+
+  it("opens no PR in a cell whose fix PRs this account closed unmerged three times, and lists the fix as manual (U-04)", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    // Three other repositories closed the GitHub status-code fix without merging it.
+    const { account_id } = await owner.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    for (const n of [1, 2, 3]) {
+      const other = await owner.insertInto("repositories").values({ account_id, github_repo_id: REPO_ID + 100 + n, full_name: `acme/other${n}`, default_branch: "main", private: true }).returning("id").executeTakeFirstOrThrow();
+      await owner
+        .insertInto("fix_prs")
+        .values({ account_id, repository_id: other.id, advisory_id: "github-workflow-dispatch-204-to-200", branch: "shapi/github-workflow-dispatch-204-to-200", state: "closed", closed_at: new Date(), updated_at: new Date() })
+        .execute();
+    }
+    const report = await runFixJob(t.fixDeps, { scanId });
+    expect(report.repairs.find((r) => r.advisoryId === "github-workflow-dispatch-204-to-200")).toEqual({
+      advisoryId: "github-workflow-dispatch-204-to-200",
+      status: "alert",
+      reason: "fix tier ALERT: 3 fix PRs closed without merging, 0 merged",
+    });
+    expect(t.github.pulls.map((p) => p.head.ref)).not.toContain("shapi/github-workflow-dispatch-204-to-200");
+    expect(t.github.issues[0]!.body).toContain("## Needs a manual fix");
   }, 120_000);
 
   it("lists every inspected call site SHAPI left alone under Not changed, with its reason: exposed plus possible (D-02)", async () => {
