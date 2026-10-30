@@ -69,6 +69,15 @@ export function renderText(o: ScanOutcome, color: boolean): string {
     out.push("");
   }
 
+  if (o.lint.length > 0) {
+    out.push(paint("bold", `Retired names in the code (${o.lint.length})`));
+    for (const l of o.lint) {
+      const what = l.kind === "model" ? "model" : l.kind === "enum" ? "enum value" : "field";
+      out.push(`  ${l.file}:${l.line}  ${what} ${l.name}${l.replacement ? ` → ${l.replacement}` : ""}  ${paint("dim", l.advisoryId)}`);
+    }
+    out.push("");
+  }
+
   out.push(paint("bold", "Deadlines in the next 90 days"));
   if (match.upcoming.length === 0) out.push("  none for the providers in this repo");
   for (const u of match.upcoming) {

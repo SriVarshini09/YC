@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { AdvisorySchema, ApiLockSchema, createApiLock, matchAdvisories, type ApiLock, type Finding, type MatchResult } from "@shapi/core";
+import { AdvisorySchema, ApiLockSchema, createApiLock, isLintable, lintFiles, matchAdvisories, type ApiLock, type Finding, type MatchResult } from "@shapi/core";
 import { withService, type Db, type Tx } from "@shapi/db";
 import { extractCallSites } from "@shapi/extractor";
 import { checkRunOutput, completeCheckRun, fetchRepoSnapshot, startCheckRun } from "@shapi/github-app";
@@ -293,6 +293,12 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob, run: ScanRun = {}
     signal.throwIfAborted();
     const advisories = await reviewedAdvisories(deps.db);
     const match = matchAdvisories(lock, advisories.map((a) => a.advisory), { now: now() });
+    // S-06: retired names anywhere in the code, shown on the check run.
+    const lint = lintFiles(
+      files.filter((f) => isLintable(f.path)).map((f) => ({ path: f.path, text: f.content.toString() })),
+      advisories.map((a) => a.advisory),
+      match.affected,
+    );
     const evaluated = Object.fromEntries(advisories.map((a) => [a.advisory.id, a.modified]));
 
     const { fresh, accountId } = await withService(deps.db, async (tx) => {
@@ -312,7 +318,7 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob, run: ScanRun = {}
     if (fresh.length) await deps.notify?.({ accountId, repositoryId: scan.repository_id, sha: scan.sha, reason: "push", findings: fresh });
     if (checkRunId) {
       const failOnAffected = (scan.settings as { failOnAffected?: boolean }).failOnAffected === true;
-      await completeCheckRun(octokit, { owner, repo, checkRunId }, checkRunOutput(match, { failOnAffected })).catch(() => undefined);
+      await completeCheckRun(octokit, { owner, repo, checkRunId }, checkRunOutput(match, { failOnAffected, lint })).catch(() => undefined);
     }
     return { scanId, repositoryId: scan.repository_id, status: "succeeded", callSites: lock.callSites.length, affected: match.affected.length, exposed: match.exposed.length, fix: match.affected.length > 0 };
   } catch (caught) {

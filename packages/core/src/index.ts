@@ -3,3 +3,4 @@ export * from "./lockfile";
 export * from "./advisory";
 export * from "./matcher";
 export * from "./cyclonedx";
+export * from "./lint";

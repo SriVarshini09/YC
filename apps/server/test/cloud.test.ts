@@ -175,6 +175,9 @@ describe("cloud scan", () => {
     expect(stored.scan.check_run_id).toBe(String(check.id));
     expect(check).toMatchObject({ head_sha: sha, name: "SHAPI", status: "completed", conclusion: "neutral" });
     expect(check.output!.annotations.some((a) => a.path === "src/deploy.ts" && a.annotation_level === "warning")).toBe(true);
+    // S-06: the retired model id in a constant no call uses is on the check too.
+    expect(check.output!.summary).toContain("### Retired names in the code");
+    expect(check.output!.summary).toContain("- `src/summaries.ts:3` model `claude-sonnet-4-5` (`anthropic-claude-sonnet-4-5-retirement`)");
 
     // a scan runs once
     expect((await runScanJob({ db, github: t.githubClients }, { scanId })).status).toBe("skipped");
