@@ -1,3 +1,4 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -22,6 +23,28 @@ describe("replay of the GitHub workflow_dispatch incident", () => {
     // the two 204s are the same shape despite different rate-limit and date headers
     expect(result.observations[0]!.shapeHash).toBe(result.observations[1]!.shapeHash);
     store.close();
+  });
+
+  it("turns every recorded response into a witness, kept in fixtures/witnesses (A-01; UPDATE_WITNESSES=1 rewrites it)", () => {
+    const store = ShapeStore.open(":memory:");
+    const { witnesses } = replay(recording, store, "test");
+    store.close();
+    expect(witnesses.map((w) => [w.status, w.source, w.observedAt])).toEqual([
+      [204, "replay", "2025-12-18T09:00:00Z"],
+      [204, "replay", "2025-12-18T21:00:00Z"],
+      [200, "replay", "2025-12-19T09:00:00Z"],
+    ]);
+    // The two 204s are one shape; the 200 is another.
+    expect(witnesses[1]!.shapeId).toBe(witnesses[0]!.shapeId);
+    expect(witnesses[2]!.shapeId).not.toBe(witnesses[1]!.shapeId);
+    const file = path.resolve(path.dirname(recordingFile), "..", "witnesses", "github-workflow-dispatch-204-to-200.json");
+    const generated = JSON.stringify(witnesses, null, 2) + "\n";
+    if (process.env.UPDATE_WITNESSES || !existsSync(file)) {
+      mkdirSync(path.dirname(file), { recursive: true });
+      writeFileSync(file, generated);
+    }
+    // A second run on the same recording gives byte-identical witnesses.
+    expect(readFileSync(file, "utf8")).toBe(generated);
   });
 
   it("classifies it as a breaking status-code change", () => {
