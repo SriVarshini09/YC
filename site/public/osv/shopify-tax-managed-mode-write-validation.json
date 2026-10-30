@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-tax-managed-mode-write-validation",
+  "modified": "2027-01-01T00:00:00Z",
+  "published": "2026-10-28T00:00:00Z",
+  "summary": "Shopify Tax managed mode rejects market and publishing writes that conflict with it",
+  "details": "For stores using Shopify Tax managed mode, Markets API writes and product publishing writes can now fail validation when they conflict with managed-mode requirements, and the taxable input on custom line items is deprecated in favor of productCategoryId.\n\nHandle validation errors from marketCreate, marketUpdate and publishablePublish for stores in Shopify Tax managed mode, and omit tax settings your app doesn't need to manage. For custom line items, send productCategoryId instead of taxable.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "POST",
+          "path": "/admin/api/{version}/graphql.json"
+        },
+        "change_class": "required-field",
+        "trigger": {
+          "graphql": [
+            {
+              "field": "marketCreate",
+              "operation": "mutation"
+            },
+            {
+              "field": "marketUpdate",
+              "operation": "mutation"
+            },
+            {
+              "field": "publishablePublish",
+              "operation": "mutation"
+            }
+          ]
+        },
+        "effective_date": "2027-01-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/managed-mode-for-shopify-tax-is-released"
+    }
+  ],
+  "database_specific": {
+    "severity": "medium",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-tax-managed-mode-write-validation.json"
+  }
+}

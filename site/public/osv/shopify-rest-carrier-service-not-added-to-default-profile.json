@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-rest-carrier-service-not-added-to-default-profile",
+  "modified": "2026-10-01T00:00:00Z",
+  "published": "2026-06-26T00:00:00Z",
+  "summary": "Shopify's REST carrier service creation no longer adds it to the General shipping profile, as of 2026-10",
+  "details": "As of Admin API version 2026-10, POST carrier_services.json only registers the carrier service; Shopify no longer adds it to the General shipping profile.\n\nAfter creating a carrier service, add its rates to a shipping profile, or direct merchants to add the carrier-calculated rate in the Shopify admin.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "POST",
+          "path": "/admin/api/{version}/carrier_services.json"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-10-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/carrier-services-will-no-longer-be-automatically-added-to-the-default-shipping-profile"
+    }
+  ],
+  "database_specific": {
+    "severity": "medium",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-rest-carrier-service-not-added-to-default-profile.json"
+  }
+}

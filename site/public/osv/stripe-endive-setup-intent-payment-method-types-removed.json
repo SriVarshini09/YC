@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-stripe-endive-setup-intent-payment-method-types-removed",
+  "modified": "2026-09-30T00:00:00Z",
+  "published": "2026-09-30T00:00:00Z",
+  "summary": "Stripe 2026-09-30.endive removes payment_method_types from Setup Intent create and update",
+  "details": "From API version 2026-09-30.endive, payment_method_types is no longer writable on Setup Intents: create and update requests that send it return a 400 error. It stays a read-only property on the Setup Intent.\n\nBefore moving to 2026-09-30.endive, stop sending payment_method_types when creating or updating Setup Intents. Use dynamic payment methods, excluded_payment_method_types, or allowed_payment_method_types.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "stripe",
+        "endpoint": {
+          "method": "POST",
+          "path": "/v1/setup_intents/**"
+        },
+        "change_class": "required-field",
+        "trigger": {
+          "body": [
+            {
+              "field": "payment_method_types"
+            }
+          ]
+        },
+        "effective_date": "2026-09-30"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://docs.stripe.com/changelog/endive/2026-09-30/removes-the-payment-method-types-parameter-from-payment-intents-and-setup-intents"
+    },
+    {
+      "type": "WEB",
+      "url": "https://docs.stripe.com/api/setup_intents/create?api-version=2026-09-30.endive"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/stripe-endive-setup-intent-payment-method-types-removed.json"
+  }
+}

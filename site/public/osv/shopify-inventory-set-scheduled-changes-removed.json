@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-inventory-set-scheduled-changes-removed",
+  "modified": "2026-07-01T00:00:00Z",
+  "published": "2026-03-09T00:00:00Z",
+  "summary": "Shopify removes the inventorySetScheduledChanges mutation in API version 2026-07",
+  "details": "As of Admin API version 2026-07, the inventorySetScheduledChanges mutation is removed with no replacement.\n\nRemove calls to inventorySetScheduledChanges. Use inventoryAdjustQuantities for immediate adjustments, or schedule changes in your own app.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "POST",
+          "path": "/admin/api/{version}/graphql.json"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "graphql": [
+            {
+              "field": "inventorySetScheduledChanges",
+              "operation": "mutation"
+            }
+          ]
+        },
+        "effective_date": "2026-07-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/inventorysetscheduledchanges-mutation-is-being-removed-with-no-replacement"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-inventory-set-scheduled-changes-removed.json"
+  }
+}

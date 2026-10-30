@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-meta-graph-delivery-estimate-fields-removed",
+  "modified": "2026-10-27T00:00:00Z",
+  "published": "2026-07-29T00:00:00Z",
+  "summary": "Delivery Estimate drops daily_outcomes_curve, budget_guardrail and estimate_dau",
+  "details": "The daily_outcomes_curve, budget_guardrail and estimate_dau fields are removed from GET /{ad-account-id}/delivery_estimate and GET /{adset-id}/delivery_estimate responses because the service behind them was shut down. The removal applies to Marketing API v26.0 and to all remaining versions on 2026-10-27; the calls still succeed but the fields are missing.\n\nStop requesting and reading daily_outcomes_curve, budget_guardrail and estimate_dau; treat them as absent. Meta offers no replacement, so remove any forecasting or budget UI that depends on them or derive it from the remaining estimate fields.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "meta-graph",
+        "endpoint": {
+          "method": "GET",
+          "path": "/**/delivery_estimate"
+        },
+        "change_class": "field-rename",
+        "trigger": {
+          "fields": [
+            "daily_outcomes_curve",
+            "budget_guardrail",
+            "estimate_dau",
+            "data[].daily_outcomes_curve",
+            "data[].budget_guardrail",
+            "data[].estimate_dau"
+          ]
+        },
+        "effective_date": "2026-10-27"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/meta-graph-delivery-estimate-fields-removed.json"
+  }
+}

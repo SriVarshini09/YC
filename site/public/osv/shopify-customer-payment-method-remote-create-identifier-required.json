@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-customer-payment-method-remote-create-identifier-required",
+  "modified": "2026-07-01T00:00:00Z",
+  "published": "2026-04-01T00:00:00Z",
+  "summary": "Shopify customerPaymentMethodRemoteCreate requires a payment method identifier as of 2026-07",
+  "details": "As of Admin API version 2026-07, customerPaymentMethodRemoteCreate requires the gateway's payment method identifier: paymentMethodId for Stripe, customerPaymentProfileId for Authorize.net, paymentMethodToken for Braintree.\n\nSend the gateway's payment method identifier with every customerPaymentMethodRemoteCreate call before moving to 2026-07.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "POST",
+          "path": "/admin/api/{version}/graphql.json"
+        },
+        "change_class": "required-field",
+        "trigger": {
+          "graphql": [
+            {
+              "field": "customerPaymentMethodRemoteCreate",
+              "operation": "mutation"
+            }
+          ]
+        },
+        "effective_date": "2026-07-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/payment-method-identifier-now-required-for-customerpaymentmethodremotecreate"
+    }
+  ],
+  "database_specific": {
+    "severity": "medium",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-customer-payment-method-remote-create-identifier-required.json"
+  }
+}

@@ -1,0 +1,437 @@
+[
+  {
+    "id": "x_SHAPI-anthropic-api-version-2026-10-21-sampling-params-400",
+    "modified": "2026-10-21T00:00:00Z",
+    "url": "https://shapi.dev/osv/anthropic-api-version-2026-10-21-sampling-params-400.json"
+  },
+  {
+    "id": "x_SHAPI-anthropic-claude-sonnet-4-5-retirement",
+    "modified": "2026-11-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/anthropic-claude-sonnet-4-5-retirement.json"
+  },
+  {
+    "id": "x_SHAPI-github-workflow-dispatch-204-to-200",
+    "modified": "2025-12-19T00:00:00Z",
+    "url": "https://shapi.dev/osv/github-workflow-dispatch-204-to-200.json"
+  },
+  {
+    "id": "x_SHAPI-google-ads-api-v22-sunset",
+    "modified": "2026-10-07T00:00:00Z",
+    "url": "https://shapi.dev/osv/google-ads-api-v22-sunset.json"
+  },
+  {
+    "id": "x_SHAPI-google-custom-search-json-api-shutdown",
+    "modified": "2027-01-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/google-custom-search-json-api-shutdown.json"
+  },
+  {
+    "id": "x_SHAPI-google-gemini-2-0-flash-shutdown",
+    "modified": "2026-06-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/google-gemini-2-0-flash-shutdown.json"
+  },
+  {
+    "id": "x_SHAPI-google-gemini-2-0-flash-shutdown-sdk",
+    "modified": "2026-06-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/google-gemini-2-0-flash-shutdown-sdk.json"
+  },
+  {
+    "id": "x_SHAPI-google-gemini-2-5-flash-image-shutdown",
+    "modified": "2027-03-15T00:00:00Z",
+    "url": "https://shapi.dev/osv/google-gemini-2-5-flash-image-shutdown.json"
+  },
+  {
+    "id": "x_SHAPI-google-gemini-2-5-flash-image-shutdown-sdk",
+    "modified": "2027-03-15T00:00:00Z",
+    "url": "https://shapi.dev/osv/google-gemini-2-5-flash-image-shutdown-sdk.json"
+  },
+  {
+    "id": "x_SHAPI-google-gemini-2-5-preview-tts-shutdown",
+    "modified": "2026-11-17T00:00:00Z",
+    "url": "https://shapi.dev/osv/google-gemini-2-5-preview-tts-shutdown.json"
+  },
+  {
+    "id": "x_SHAPI-google-gemini-2-5-preview-tts-shutdown-sdk",
+    "modified": "2026-11-17T00:00:00Z",
+    "url": "https://shapi.dev/osv/google-gemini-2-5-preview-tts-shutdown-sdk.json"
+  },
+  {
+    "id": "x_SHAPI-hubspot-contact-lists-v1-sunset",
+    "modified": "2026-04-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/hubspot-contact-lists-v1-sunset.json"
+  },
+  {
+    "id": "x_SHAPI-hubspot-contacts-v1-list-memberships-removed",
+    "modified": "2026-04-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/hubspot-contacts-v1-list-memberships-removed.json"
+  },
+  {
+    "id": "x_SHAPI-hubspot-marketing-emails-folderid-removed",
+    "modified": "2026-01-28T00:00:00Z",
+    "url": "https://shapi.dev/osv/hubspot-marketing-emails-folderid-removed.json"
+  },
+  {
+    "id": "x_SHAPI-hubspot-marketing-emails-v1-sunset",
+    "modified": "2025-11-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/hubspot-marketing-emails-v1-sunset.json"
+  },
+  {
+    "id": "x_SHAPI-hubspot-pipelines-v1-sunset",
+    "modified": "2026-12-04T00:00:00Z",
+    "url": "https://shapi.dev/osv/hubspot-pipelines-v1-sunset.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-commerce-order-management-removed",
+    "modified": "2026-10-27T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-commerce-order-management-removed.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-date-format-param-removed",
+    "modified": "2026-10-27T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-date-format-param-removed.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-delivery-estimate-fields-removed",
+    "modified": "2026-10-27T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-delivery-estimate-fields-removed.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-instagram-oembed-fields-removed",
+    "modified": "2025-11-03T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-instagram-oembed-fields-removed.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-marketing-api-v24-sunset",
+    "modified": "2026-11-10T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-marketing-api-v24-sunset.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-marketing-api-v25-sunset",
+    "modified": "2027-02-23T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-marketing-api-v25-sunset.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-page-insights-impressions-fans-removed",
+    "modified": "2025-11-15T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-page-insights-impressions-fans-removed.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-page-insights-reach-video-views-removed",
+    "modified": "2026-06-15T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-page-insights-reach-video-views-removed.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-root-ids-lookup-removed",
+    "modified": "2026-10-27T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-root-ids-lookup-removed.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-v20-sunset",
+    "modified": "2026-09-24T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-v20-sunset.json"
+  },
+  {
+    "id": "x_SHAPI-meta-graph-v21-sunset",
+    "modified": "2027-01-21T00:00:00Z",
+    "url": "https://shapi.dev/osv/meta-graph-v21-sunset.json"
+  },
+  {
+    "id": "x_SHAPI-openai-assistants-api-shutdown",
+    "modified": "2026-08-26T00:00:00Z",
+    "url": "https://shapi.dev/osv/openai-assistants-api-shutdown.json"
+  },
+  {
+    "id": "x_SHAPI-openai-assistants-threads-api-shutdown",
+    "modified": "2026-08-26T00:00:00Z",
+    "url": "https://shapi.dev/osv/openai-assistants-threads-api-shutdown.json"
+  },
+  {
+    "id": "x_SHAPI-openai-audio-translations-endpoint-shutdown",
+    "modified": "2027-02-26T00:00:00Z",
+    "url": "https://shapi.dev/osv/openai-audio-translations-endpoint-shutdown.json"
+  },
+  {
+    "id": "x_SHAPI-openai-evals-api-shutdown",
+    "modified": "2026-11-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/openai-evals-api-shutdown.json"
+  },
+  {
+    "id": "x_SHAPI-openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14",
+    "modified": "2027-01-14T00:00:00Z",
+    "url": "https://shapi.dev/osv/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14.json"
+  },
+  {
+    "id": "x_SHAPI-openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses",
+    "modified": "2027-01-14T00:00:00Z",
+    "url": "https://shapi.dev/osv/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses.json"
+  },
+  {
+    "id": "x_SHAPI-openai-legacy-gpt-o-series-shutdown-2026-10-23",
+    "modified": "2026-10-23T00:00:00Z",
+    "url": "https://shapi.dev/osv/openai-legacy-gpt-o-series-shutdown-2026-10-23.json"
+  },
+  {
+    "id": "x_SHAPI-openai-legacy-gpt-o-series-shutdown-2026-10-23-responses",
+    "modified": "2026-10-23T00:00:00Z",
+    "url": "https://shapi.dev/osv/openai-legacy-gpt-o-series-shutdown-2026-10-23-responses.json"
+  },
+  {
+    "id": "x_SHAPI-quickbooks-companyinfo-neoenabled-removed",
+    "modified": "2026-01-27T00:00:00Z",
+    "url": "https://shapi.dev/osv/quickbooks-companyinfo-neoenabled-removed.json"
+  },
+  {
+    "id": "x_SHAPI-quickbooks-minorversion-below-75-ignored",
+    "modified": "2025-08-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/quickbooks-minorversion-below-75-ignored.json"
+  },
+  {
+    "id": "x_SHAPI-quickbooks-refresh-token-five-year-hard-expiry",
+    "modified": "2027-02-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/quickbooks-refresh-token-five-year-hard-expiry.json"
+  },
+  {
+    "id": "x_SHAPI-reddit-logged-out-json-403",
+    "modified": "2026-05-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/reddit-logged-out-json-403.json"
+  },
+  {
+    "id": "x_SHAPI-salesforce-soap-login-broad-ip-range-token-required",
+    "modified": "2026-12-15T00:00:00Z",
+    "url": "https://shapi.dev/osv/salesforce-soap-login-broad-ip-range-token-required.json"
+  },
+  {
+    "id": "x_SHAPI-salesforce-soap-login-disabled-when-unused",
+    "modified": "2026-12-15T00:00:00Z",
+    "url": "https://shapi.dev/osv/salesforce-soap-login-disabled-when-unused.json"
+  },
+  {
+    "id": "x_SHAPI-salesforce-soap-login-use-any-api-auth-required",
+    "modified": "2026-12-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/salesforce-soap-login-use-any-api-auth-required.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-admin-api-2026-01-unsupported",
+    "modified": "2027-01-16T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-admin-api-2026-01-unsupported.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-admin-api-2026-04-unsupported",
+    "modified": "2027-04-16T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-admin-api-2026-04-unsupported.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-automatic-discounts-query-removed",
+    "modified": "2027-01-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-automatic-discounts-query-removed.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-carrier-service-not-added-to-default-profile",
+    "modified": "2026-10-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-carrier-service-not-added-to-default-profile.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-collection-metafield-integer-condition-removed",
+    "modified": "2027-01-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-collection-metafield-integer-condition-removed.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-customer-payment-method-remote-create-identifier-required",
+    "modified": "2026-07-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-customer-payment-method-remote-create-identifier-required.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-delivery-method-definition-rate-groups",
+    "modified": "2026-02-24T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-delivery-method-definition-rate-groups.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-draft-order-warning-price-rule-removed",
+    "modified": "2026-10-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-draft-order-warning-price-rule-removed.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-global-catalog-rest-api-shutdown",
+    "modified": "2026-11-02T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-global-catalog-rest-api-shutdown.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-inventory-activate-preserves-quantities",
+    "modified": "2026-04-17T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-inventory-activate-preserves-quantities.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-inventory-set-scheduled-changes-removed",
+    "modified": "2026-07-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-inventory-set-scheduled-changes-removed.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-market-currency-settings-update-removed",
+    "modified": "2027-01-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-market-currency-settings-update-removed.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-metaobject-admin-access-private-public-read-removed",
+    "modified": "2027-01-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-metaobject-admin-access-private-public-read-removed.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-non-expiring-offline-tokens-rejected",
+    "modified": "2027-01-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-non-expiring-offline-tokens-rejected.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-order-display-fulfillment-status-not-required",
+    "modified": "2026-10-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-order-display-fulfillment-status-not-required.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-order-transaction-total-unsettled-fixed",
+    "modified": "2026-04-24T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-order-transaction-total-unsettled-fixed.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-order-update-shipping-address-recalculates-taxes",
+    "modified": "2026-10-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-order-update-shipping-address-recalculates-taxes.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-rest-carrier-service-not-added-to-default-profile",
+    "modified": "2026-10-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-rest-carrier-service-not-added-to-default-profile.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-rest-inventory-connect-preserves-quantities",
+    "modified": "2026-04-17T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-rest-inventory-connect-preserves-quantities.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-rest-order-line-item-pre-tax-price-removed",
+    "modified": "2026-03-23T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-rest-order-line-item-pre-tax-price-removed.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-rest-order-update-shipping-address-recalculates-taxes",
+    "modified": "2026-10-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-rest-order-update-shipping-address-recalculates-taxes.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-script-tags-stop-running",
+    "modified": "2027-03-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-script-tags-stop-running.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-segment-query-function-syntax",
+    "modified": "2026-10-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-segment-query-function-syntax.json"
+  },
+  {
+    "id": "x_SHAPI-shopify-tax-managed-mode-write-validation",
+    "modified": "2027-01-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/shopify-tax-managed-mode-write-validation.json"
+  },
+  {
+    "id": "x_SHAPI-slack-files-upload-retired",
+    "modified": "2025-11-12T00:00:00Z",
+    "url": "https://shapi.dev/osv/slack-files-upload-retired.json"
+  },
+  {
+    "id": "x_SHAPI-stripe-checkout-session-ui-mode-values-renamed",
+    "modified": "2026-03-25T00:00:00Z",
+    "url": "https://shapi.dev/osv/stripe-checkout-session-ui-mode-values-renamed.json"
+  },
+  {
+    "id": "x_SHAPI-stripe-endive-billing-cycle-anchor-object",
+    "modified": "2026-09-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/stripe-endive-billing-cycle-anchor-object.json"
+  },
+  {
+    "id": "x_SHAPI-stripe-endive-checkout-session-payment-method-types-removed",
+    "modified": "2026-09-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/stripe-endive-checkout-session-payment-method-types-removed.json"
+  },
+  {
+    "id": "x_SHAPI-stripe-endive-payment-intent-payment-method-types-removed",
+    "modified": "2026-09-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/stripe-endive-payment-intent-payment-method-types-removed.json"
+  },
+  {
+    "id": "x_SHAPI-stripe-endive-setup-intent-payment-method-types-removed",
+    "modified": "2026-09-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/stripe-endive-setup-intent-payment-method-types-removed.json"
+  },
+  {
+    "id": "x_SHAPI-twilio-conference-list-default-in-progress",
+    "modified": "2026-09-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/twilio-conference-list-default-in-progress.json"
+  },
+  {
+    "id": "x_SHAPI-twilio-notify-end-of-life",
+    "modified": "2027-01-31T00:00:00Z",
+    "url": "https://shapi.dev/osv/twilio-notify-end-of-life.json"
+  },
+  {
+    "id": "x_SHAPI-twilio-rcs-undelivered-error-code-30046",
+    "modified": "2026-08-10T00:00:00Z",
+    "url": "https://shapi.dev/osv/twilio-rcs-undelivered-error-code-30046.json"
+  },
+  {
+    "id": "x_SHAPI-twilio-voice-insights-conference-participant-removed",
+    "modified": "2026-08-01T00:00:00Z",
+    "url": "https://shapi.dev/osv/twilio-voice-insights-conference-participant-removed.json"
+  },
+  {
+    "id": "x_SHAPI-x-activity-api-pascalcase-event-types-removed",
+    "modified": "2026-03-18T00:00:00Z",
+    "url": "https://shapi.dev/osv/x-activity-api-pascalcase-event-types-removed.json"
+  },
+  {
+    "id": "x_SHAPI-x-self-serve-follow-writes-removed",
+    "modified": "2026-04-16T00:00:00Z",
+    "url": "https://shapi.dev/osv/x-self-serve-follow-writes-removed.json"
+  },
+  {
+    "id": "x_SHAPI-x-self-serve-like-writes-removed",
+    "modified": "2026-04-16T00:00:00Z",
+    "url": "https://shapi.dev/osv/x-self-serve-like-writes-removed.json"
+  },
+  {
+    "id": "x_SHAPI-xero-accounting-transactions-scope-split",
+    "modified": "2027-09-13T00:00:00Z",
+    "url": "https://shapi.dev/osv/xero-accounting-transactions-scope-split.json"
+  },
+  {
+    "id": "x_SHAPI-xero-allocations-contact-mismatch-rejected",
+    "modified": "2026-10-08T00:00:00Z",
+    "url": "https://shapi.dev/osv/xero-allocations-contact-mismatch-rejected.json"
+  },
+  {
+    "id": "x_SHAPI-xero-au-payroll-isqualifyingearnings-required",
+    "modified": "2026-09-10T00:00:00Z",
+    "url": "https://shapi.dev/osv/xero-au-payroll-isqualifyingearnings-required.json"
+  },
+  {
+    "id": "x_SHAPI-xero-au-payroll-isqualifyingearnings-required-earningsrates",
+    "modified": "2026-09-10T00:00:00Z",
+    "url": "https://shapi.dev/osv/xero-au-payroll-isqualifyingearnings-required-earningsrates.json"
+  },
+  {
+    "id": "x_SHAPI-xero-finance-accounting-activities-decommissioned",
+    "modified": "2026-05-04T00:00:00Z",
+    "url": "https://shapi.dev/osv/xero-finance-accounting-activities-decommissioned.json"
+  },
+  {
+    "id": "x_SHAPI-xero-invoices-email-daily-limit-429",
+    "modified": "2027-01-14T00:00:00Z",
+    "url": "https://shapi.dev/osv/xero-invoices-email-daily-limit-429.json"
+  },
+  {
+    "id": "x_SHAPI-xero-nz-payroll-employee-tax-kiwisaverstatus-required",
+    "modified": "2026-11-05T00:00:00Z",
+    "url": "https://shapi.dev/osv/xero-nz-payroll-employee-tax-kiwisaverstatus-required.json"
+  },
+  {
+    "id": "x_SHAPI-xero-organisation-class-ultra-enum",
+    "modified": "2026-06-30T00:00:00Z",
+    "url": "https://shapi.dev/osv/xero-organisation-class-ultra-enum.json"
+  }
+]

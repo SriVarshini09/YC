@@ -15,6 +15,7 @@ Maps the third-party API call sites in a repository (default: the current direct
 | `--json` | Print a JSON report, including the full api.lock. |
 | `--out <file>` | Write the api.lock to this file. |
 | `--sbom <file>` | Also write the api.lock as a [CycloneDX 1.7](https://cyclonedx.org/) SaaSBOM: each provider is a service with its endpoints, and each call site is evidence on the client it goes through. The GitHub App serves the same file for each repository from its page in the dashboard. |
+| `--vex <file>` | Also write the verdicts as an [OpenVEX 0.2.0](https://github.com/openvex/spec) document: one statement per advisory that reaches the code, `affected` (with the migration note), `not_affected` (the code calls the endpoint but doesn't depend on what changed) or `under_investigation` (possibly affected, or SHAPI could not tell). Each call site is linked on GitHub. Every advisory is also published as an [OSV](https://ossf.github.io/osv-schema/) record at `https://shapi.dev/osv/<id>.json`. |
 | `--repo <url>` | Shallow-clone a git repository into a temporary folder and scan it. |
 | `--advisories <dir>` | Use this advisory folder instead of the bundled one. |
 | `--fail-on <severity>` | Exit `1` when an affected call site is at least this severe: `critical`, `high`, `medium`, `low` or `none`. Default: `critical`. |

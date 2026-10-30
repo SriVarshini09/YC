@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-meta-graph-v20-sunset",
+  "modified": "2026-09-24T00:00:00Z",
+  "published": "2026-09-24T00:00:00Z",
+  "summary": "Graph API v20.0 removed; calls fall forward to the next version",
+  "details": "Graph API v20.0 was deprecated and removed on 2026-09-24. Calls pinned to v20.0 do not fail: they are served by the next oldest usable version, so response shapes can change silently.\n\nMove the version segment to a supported version (v22.0 or later) and re-test the fields you read.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "meta-graph",
+        "endpoint": {
+          "method": "*",
+          "path": "/v20.0/**"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-09-24",
+        "recipe": "apply-fix"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://developers.facebook.com/docs/graph-api/changelog/versions"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/meta-graph-v20-sunset.json"
+  }
+}

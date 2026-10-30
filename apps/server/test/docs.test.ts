@@ -23,6 +23,7 @@ beforeAll(() => {
   put("assets/app.abc123.js", "console.log(1)");
   put("404.html", "<h1>not found</h1>");
   put("schema/advisory.json", '{"$id":"https://shapi.dev/schema/advisory.json"}');
+  put("osv/stripe-x.json", '{"id":"x_SHAPI-stripe-x"}');
   put(".hidden", "no");
   writeFileSync(outside, "outside the docs");
 });
@@ -51,12 +52,15 @@ describe("docs site on its own hostname", () => {
     expect((await get("/", "shapi.dev", "HEAD")).statusCode).toBe(200);
   });
 
-  it("serves the published advisory JSON Schema to any origin (S-01)", async () => {
+  it("serves the published advisory JSON Schema and OSV records to any origin (S-01, S-03)", async () => {
     const schema = await get("/schema/advisory.json");
     expect(schema.statusCode).toBe(200);
     expect(schema.headers["content-type"]).toBe("application/json; charset=utf-8");
     expect(schema.headers["access-control-allow-origin"]).toBe("*");
     expect(schema.json()).toEqual({ $id: "https://shapi.dev/schema/advisory.json" });
+    const osv = await get("/osv/stripe-x.json");
+    expect(osv.headers["access-control-allow-origin"]).toBe("*");
+    expect(osv.json()).toEqual({ id: "x_SHAPI-stripe-x" });
     // Other files are not shared across origins.
     expect((await get("/guide/cli")).headers["access-control-allow-origin"]).toBeUndefined();
   });

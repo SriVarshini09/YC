@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-stripe-checkout-session-ui-mode-values-renamed",
+  "modified": "2026-03-25T00:00:00Z",
+  "published": "2026-03-25T00:00:00Z",
+  "summary": "Stripe 2026-03-25.dahlia renames Checkout Session ui_mode values",
+  "details": "From API version 2026-03-25.dahlia, Checkout Session ui_mode values hosted, embedded and custom are replaced by hosted_page, embedded_page and elements (and form is added). Creating a session with an old value fails, and code that compares the returned ui_mode to the old strings stops matching once the account or SDK is upgraded.\n\nWhen moving to 2026-03-25.dahlia or later, send ui_mode hosted_page instead of hosted, embedded_page instead of embedded and elements instead of custom, and update every comparison of session.ui_mode (including checkout.session webhook handlers) to the new values; handle the new form value too.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "stripe",
+        "endpoint": {
+          "method": "*",
+          "path": "/v1/checkout/sessions/**"
+        },
+        "change_class": "enum-added",
+        "trigger": {
+          "enums": [
+            {
+              "field": "ui_mode"
+            }
+          ],
+          "body": [
+            {
+              "field": "ui_mode",
+              "values": [
+                "hosted",
+                "embedded",
+                "custom"
+              ]
+            }
+          ]
+        },
+        "effective_date": "2026-03-25",
+        "recipe": "apply-fix"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/updates-available-checkout-session-ui-modes"
+    },
+    {
+      "type": "WEB",
+      "url": "https://docs.stripe.com/api/checkout/sessions/create"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/stripe-checkout-session-ui-mode-values-renamed.json"
+  }
+}

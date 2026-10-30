@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-hubspot-pipelines-v1-sunset",
+  "modified": "2026-12-04T00:00:00Z",
+  "published": "2026-08-14T00:00:00Z",
+  "summary": "Pipelines API v1 retired on 2026-12-04",
+  "details": "HubSpot retires the legacy CRM Pipelines API v1 on 2026-12-04; after that, calls to v1 endpoints stop working. The replacement is the Pipelines API 2026-09 version (GA 2026-09-09). The /crm-pipelines/v1 path comes from HubSpot's legacy v1 reference; the notice itself names no paths.\n\nCall GET /crm/pipelines/2026-09/{objectType} (HubSpot's OpenAPI spec for the 2026-09 Pipelines API) instead of /crm-pipelines/v1/pipelines/{objectType} before 2026-12-04. The response keeps results[] and stages[], but pipelines and stages are identified by id instead of pipelineId and stageId.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "hubspot",
+        "endpoint": {
+          "method": "*",
+          "path": "/crm-pipelines/v1/**"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-12-04",
+        "recipe": "apply-fix"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://developers.hubspot.com/changelog/pipelines-api-v1-sunset"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developers.hubspot.com/docs/api-reference/latest/crm/pipelines/guide"
+    },
+    {
+      "type": "WEB",
+      "url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection/blob/main/PublicApiSpecs/CRM/Pipelines/Rollouts/145896/2026-09/pipelines.json"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/hubspot-pipelines-v1-sunset.json"
+  }
+}

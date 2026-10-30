@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-openai-assistants-api-shutdown",
+  "modified": "2026-08-26T00:00:00Z",
+  "published": "2025-08-26T00:00:00Z",
+  "summary": "Assistants API removed on 2026-08-26",
+  "details": "OpenAI removed the Assistants API on 2026-08-26, one year after its 2025-08-26 deprecation notice. Calls to the assistants endpoints, and to the threads, messages and runs endpoints that go with them (/v1/threads/**), no longer work. The replacement is the Responses API plus the Conversations API.\n\nMove assistants to prompts (configuration created in the dashboard), threads to Conversations, and runs to Responses (send input items or a conversation id to the Responses API), and run the tool-call loop in your own code. Thread messages can no longer be fetched from the API, so read history from your own stored copy.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "openai",
+        "endpoint": {
+          "method": "*",
+          "path": "/v1/assistants/**"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-08-26"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://developers.openai.com/api/docs/deprecations"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developers.openai.com/api/docs/assistants/migration"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/openai-assistants-api-shutdown.json"
+  }
+}

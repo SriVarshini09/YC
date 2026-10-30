@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-hubspot-contact-lists-v1-sunset",
+  "modified": "2026-04-30T00:00:00Z",
+  "published": "2025-09-12T00:00:00Z",
+  "summary": "Contact Lists API v1 retired on 2026-04-30; endpoints return 404",
+  "details": "HubSpot sunset the v1 Contact Lists API on 2026-04-30 (moved from 2025-09-30). Since then the /contacts/v1/lists endpoints for creating, updating, deleting and reading lists and list contacts return HTTP 404. The replacement is the Lists API (2026-03 or v3), which uses a new listId instead of the v1 legacyListId.\n\nMap each stored legacyListId to the new listId with GET /crm/lists/2026-03/idmapping?legacyListId=... (or POST /crm/lists/2026-03/idmapping for up to 10,000 ids; ids in missingLegacyListIds no longer exist), then move reads to GET /crm/lists/2026-03/{listId} and /crm/lists/2026-03/{listId}/memberships, and membership writes to PUT /crm/lists/2026-03/{listId}/memberships/add, /remove or /add-and-remove. The legacy GET /v1/lists/{legacyListId}/sizeAndEditsHistory/between endpoint was retired too and is not covered by this path pattern.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "hubspot",
+        "endpoint": {
+          "method": "*",
+          "path": "/contacts/v1/lists/**"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-04-30"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developers.hubspot.com/docs/api-reference/legacy/crm/lists/v1-list-api-migration-guide"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developers.hubspot.com/docs/api-reference/latest/deprecated-apis"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/hubspot-contact-lists-v1-sunset.json"
+  }
+}

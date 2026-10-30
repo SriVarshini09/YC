@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-order-update-shipping-address-recalculates-taxes",
+  "modified": "2026-10-01T00:00:00Z",
+  "published": "2026-07-30T00:00:00Z",
+  "summary": "Shopify orderUpdate recalculates taxes when an unfulfilled order's shipping address changes, as of 2026-10",
+  "details": "As of Admin API version 2026-10, changing the shipping address of an unfulfilled order with orderUpdate recalculates its taxes and totals against the new destination. Before, the tax lines were left unchanged.\n\nAfter updating a shipping address, read the order's taxLines, totalTaxSet and totals again instead of assuming they are unchanged; reconcile any amounts your app stored.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "POST",
+          "path": "/admin/api/{version}/graphql.json"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "graphql": [
+            {
+              "field": "orderUpdate",
+              "operation": "mutation"
+            }
+          ]
+        },
+        "effective_date": "2026-10-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/updating-an-orders-shipping-address-returns-accurate-financial-data"
+    }
+  ],
+  "database_specific": {
+    "severity": "medium",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-order-update-shipping-address-recalculates-taxes.json"
+  }
+}
