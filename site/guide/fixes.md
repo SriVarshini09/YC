@@ -29,6 +29,17 @@ Either way, the change is kept **only if the contract test then passes** and, in
 
 When an advisory has several call sites, every site's test runs again on the combined change; a site whose test no longer passes is not reported as fixed.
 
+## Python
+
+A Python call site gets the same steps, with a contract test written for Python: `test/shapi/test_<advisory>.py`, using the standard library only, so pytest runs it and so does `python test/shapi/test_<advisory>.py`. It imports your module, sets the environment variables the function reads to placeholders, and calls the function while `urllib`, `requests` and `httpx` are stubbed: every request is recorded and none leaves the machine, and each one is answered with a JSON object holding every key the function reads.
+
+- **The request has to change** (a retired path, query value or header): the test fails if the function sends the retired request. It checks what was sent, so it works even when your code catches every error.
+- **The status code changed:** the function runs against the old and the new status, and must return the same result for both without an error.
+
+If the function returns before it calls the endpoint (for example on a missing setting the test does not know about), SHAPI says it cannot test the call rather than claiming a fix.
+
+The two deterministic recipes work on Python: `apply-fix` rewrites the URL (a string, an f-string, a concatenation, or a name assigned one) and the `params=` and `headers=` dicts; `status-code-accept-set` turns `resp.status_code != 204` into `resp.status_code not in (200, 204)`. For now Python fixes are not type-checked, Claude is not asked to fix Python, and your repository's own Python tests are not run: they need its dependencies from PyPI, which the sandbox does not reach.
+
 ## Where the test runs
 
 - **CLI on your machine (`shapi fix`):** in a temporary copy of your repository, using your installed dependencies, deleted when the run ends. Tests run without your environment's tokens and keys. This is your own code on your own machine.

@@ -702,3 +702,11 @@ function joinUrl(base: string | undefined, url: string | undefined): string | un
 function emptySurface(): Surface {
   return { fields: [], statusCodes: [], checksOk: false, enums: [], headers: [], query: [], responseHeaders: [] };
 }
+
+export type { Node as PyNode, Tree as PyTree } from "web-tree-sitter";
+
+/** A Python syntax tree for other packages (SHAPI's Python recipes); the caller deletes it. Needs loadPythonParser(). */
+export function parsePython(source: string): import("web-tree-sitter").Tree | undefined {
+  if (!parser) throw new Error("call loadPythonParser() before parsing Python");
+  return parser.parse(source) ?? undefined;
+}

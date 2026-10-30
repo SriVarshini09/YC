@@ -1,4 +1,5 @@
 import { createDb } from "@shapi/db";
+import { loadPythonParser } from "@shapi/extractor";
 import { loadConfig } from "./config";
 import { flushErrors, initErrorReporting, reportError } from "./observability";
 import { startWorker } from "./queue";
@@ -15,6 +16,9 @@ const log = {
 };
 
 const db = createDb({ connectionString: config.DATABASE_URL });
+// Scans read Python files and fix jobs repair Python call sites (U-03) once the grammar is loaded; without it Python
+// files are reported as skipped, as before.
+await loadPythonParser().catch((err: unknown) => log.error({ err }, "Python grammar did not load; Python files are skipped"));
 try {
   const boss = await startWorker({ databaseUrl: config.DATABASE_URL, db, config, env: process.env, log });
   log.info({ cron: config.CANARY_CRON, githubApp: Boolean(config.githubApp) }, "worker started");

@@ -201,6 +201,10 @@ export async function sandboxWorkspace(
       await exec("node", ["-e", "require('node:fs').rmSync(process.argv[1], { force: true })", file], { env: ENV });
     },
     async runTest(file) {
+      if (file.endsWith(".py")) {
+        const r = await exec("python3", [file], { timeoutMs: opts.testTimeoutMs ?? 120_000, env: { ...ENV, PYTHONDONTWRITEBYTECODE: "1" } });
+        return { passed: r.exitCode === 0, exitCode: r.exitCode, output: output(r, "test run") };
+      }
       const config: string[] = [];
       if (repoConfig) {
         await sandbox.write([{ path: SHAPI_VITEST_CONFIG, content: shapiVitestConfig(repoConfig) }]);

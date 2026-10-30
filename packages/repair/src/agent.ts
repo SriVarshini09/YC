@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { Advisory, LockedCallSite } from "@shapi/core";
+import { pythonParserLoaded } from "@shapi/extractor";
 import { SandboxLifetimeError } from "@shapi/sandbox";
 import type { ResponseShape } from "@shapi/shapes";
 import { BREAKAGE, CONTRACT_DIR, UNTESTABLE, generateContractTest } from "./contract";
@@ -12,6 +13,8 @@ import { checkScope, type ScopeCheck } from "./scope";
 import { checkUndo, type UndoCheck } from "./undo";
 import { checkTypes, typeBaseline, type TypeBaseline, type TypeCheck } from "./typecheck";
 import { localWorkspace, type Workspace } from "./workspace";
+import { generatePythonContractTest } from "./python/contract";
+import { runPythonRecipe } from "./python/recipes";
 
 export interface RepairInput {
   /**
@@ -73,18 +76,24 @@ const PROTECTED = new Set([".git", "node_modules", "dist", "coverage", ".shapi"]
  * 1. work in a copy of the repo, 2. write the generated contract test and confirm it fails the way
  * the advisory says, 3. apply the advisory's recipe, or ask the LLM fixer, 4. keep the change only if
  * the test passes and, in a TypeScript repository, tsc reports no new errors.
+ * A Python call site (U-03) gets a Python contract test and the Python recipes; it is not type-checked, and Claude is
+ * not asked to fix Python yet.
  */
 export async function repairCallSite(input: RepairInput): Promise<RepairResult> {
   const { advisory, callSite } = input;
   if (!input.workspace && !input.repoDir) throw new Error("repairCallSite needs a workspace or a repoDir");
-  if (!/\.(c|m)?[jt]sx?$/.test(callSite.file)) {
-    return { status: "unsupported", changes: [], attempts: [], reason: `fixes support TypeScript and JavaScript; ${callSite.file} is scanned only` };
+  const python = callSite.file.endsWith(".py");
+  if (python && !pythonParserLoaded()) return { status: "unsupported", changes: [], attempts: [], reason: `the Python grammar is not loaded, so ${callSite.file} cannot be fixed` };
+  if (!python && !/\.(c|m)?[jt]sx?$/.test(callSite.file)) {
+    return { status: "unsupported", changes: [], attempts: [], reason: `fixes support TypeScript, JavaScript and Python; ${callSite.file} is scanned only` };
   }
   if (!input.workspace) return inTempCopy(input.repoDir!, (workspace) => repairCallSite({ ...input, workspace }));
   const ws = input.workspace;
   const original = await ws.read(callSite.file);
   if (original === undefined) return { status: "unsupported", sandbox: ws.location, changes: [], attempts: [], reason: `${callSite.file} is not in the repository` };
-  const test = generateContractTest({ callSite, advisory, before: input.before, after: input.after, sourceText: original, file: input.testFile });
+  const test = python
+    ? generatePythonContractTest({ callSite, advisory, sourceText: original, file: input.testFile })
+    : generateContractTest({ callSite, advisory, before: input.before, after: input.after, sourceText: original, file: input.testFile });
   if (test.status !== "generated") return { status: "unsupported", changes: [], attempts: [], reason: test.reason };
 
   await ws.write(test.file, test.content);
@@ -128,7 +137,7 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
   let types: TypeBaseline | undefined;
   /** Run the test on a change and type-check it; the type baseline is taken before the first change is written. */
   const verify = async (write: () => Promise<void>): Promise<{ run: TestRun; typecheck?: TypeCheck }> => {
-    types ??= await typeBaseline(ws, callSite.file);
+    types ??= python ? { skipped: "Python code is not type-checked" } : await typeBaseline(ws, callSite.file);
     await write();
     const run = await ws.runTest(test.file);
     // A passing run must have run the test: "no test files found" exits 0 too.
@@ -138,9 +147,10 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
   const failure = (typecheck: TypeCheck | undefined, keep: KeepCheck | undefined, detail: string) =>
     typecheck?.status === "failed" ? `${detail}; the test passes, but ${typecheck.detail}` : keep?.status === "removed" ? `${detail}; the test passes, but ${keep.detail}` : detail;
   /** V-06: a passing change must keep the call and the read of what changed. */
-  const keepCheck = async (files: { file: string; before: string; after: string }[]) => checkKept({ advisory, callSite, files, packageJson: await ws.read("package.json") });
+  const keepCheck = async (files: { file: string; before: string; after: string }[]): Promise<KeepCheck> =>
+    python ? { status: "not-checked", detail: "the keep check reads TypeScript and JavaScript only" } : checkKept({ advisory, callSite, files, packageJson: await ws.read("package.json") });
 
-  const recipe = runRecipe(input.recipes, advisory, callSite, original);
+  const recipe = python ? runPythonRecipe(advisory, callSite, original) : runRecipe(input.recipes, advisory, callSite, original);
   if (recipe.status === "applied") {
     const { run, typecheck } = await verify(() => ws.write(callSite.file, recipe.change.after));
     const keep = run.passed && typecheck?.status !== "failed" ? await keepCheck([{ file: callSite.file, before: original, after: recipe.change.after }]) : undefined;
@@ -157,8 +167,8 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
     attempts.push({ method: "recipe", outcome: "skipped", detail: recipe.reason });
   }
 
-  if (!input.llm) {
-    attempts.push({ method: "llm", outcome: "skipped", detail: "no LLM fixer configured" });
+  if (!input.llm || python) {
+    attempts.push({ method: "llm", outcome: "skipped", detail: python ? "SHAPI does not ask Claude to fix Python yet" : "no LLM fixer configured" });
     return rejected(ws, ran, baseline, attempts);
   }
 
@@ -328,7 +338,11 @@ export async function repairAdvisory(input: AdvisoryRepairInput): Promise<Adviso
   const sites: SiteRepair[] = [];
   for (const [i, callSite] of order.entries()) {
     if (!originals.has(callSite.file)) originals.set(callSite.file, (await ws.read(callSite.file)) ?? "");
-    const testFile = `test/shapi/${input.advisory.id}${i === 0 ? "" : `.${i + 1}`}.test.ts`;
+    const suffix = i === 0 ? "" : `.${i + 1}`;
+    // pytest collects test_*.py, with a module name Python can import: no dots or dashes.
+    const testFile = callSite.file.endsWith(".py")
+      ? `${CONTRACT_DIR}/test_${input.advisory.id.replace(/[^a-zA-Z0-9]/g, "_")}${suffix.replace(".", "_")}.py`
+      : `${CONTRACT_DIR}/${input.advisory.id}${suffix}.test.ts`;
     const result = await repairCallSite({ ...input, workspace: ws, callSite, testFile });
     for (const c of result.changes) if (c.before && !originals.has(c.file)) originals.set(c.file, c.before);
     sites.push({ callSite, result });
@@ -355,18 +369,22 @@ export async function repairAdvisory(input: AdvisoryRepairInput): Promise<Adviso
   let suite: SuiteCheck | undefined;
   const passing = sites.filter((s) => s.result.status === "fixed");
   if (passing.length) {
+    // A Python repository's tests need its dependencies from PyPI, which the sandbox does not reach (see the sandbox threat model).
+    const python = !suiteBefore.run && passing.every((s) => s.callSite.file.endsWith(".py"));
     suite = suiteBefore.unavailable
       ? { status: "not-run", detail: suiteBefore.unavailable }
-      : await checkSuite(suiteBefore.run, async () => {
-          const contract = passing.flatMap((s) => (s.result.test ? [s.result.test] : []));
-          for (const t of contract) await ws.remove(t.file);
-          await ws.remove(SHAPI_VITEST_CONFIG);
-          try {
-            return await ws.runSuite!();
-          } finally {
-            for (const t of contract) await ws.write(t.file, t.content);
-          }
-        });
+      : python
+        ? { status: "not-run", detail: "SHAPI does not run Python test suites yet: they need the repository's dependencies from PyPI, which the sandbox does not reach" }
+        : await checkSuite(suiteBefore.run, async () => {
+            const contract = passing.flatMap((s) => (s.result.test ? [s.result.test] : []));
+            for (const t of contract) await ws.remove(t.file);
+            await ws.remove(SHAPI_VITEST_CONFIG);
+            try {
+              return await ws.runSuite!();
+            } finally {
+              for (const t of contract) await ws.write(t.file, t.content);
+            }
+          });
     if (suite.status === "failed") {
       for (const s of passing) s.result = { ...s.result, status: "rejected", reason: `the repository's own tests fail after the change: ${suite.detail}` };
     }
