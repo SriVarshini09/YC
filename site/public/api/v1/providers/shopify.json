@@ -1,0 +1,391 @@
+{
+  "provider": "shopify",
+  "name": "Shopify",
+  "count": 24,
+  "advisories": [
+    {
+      "id": "shopify-delivery-method-definition-rate-groups",
+      "title": "Shopify shipping options move to rateGroups; rateProvider and methodConditions are legacy",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2026-02-24",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-delivery-method-definition-rate-groups",
+      "markdown": "https://shapi.dev/advisories/shopify-delivery-method-definition-rate-groups.md",
+      "osv": "https://shapi.dev/osv/shopify-delivery-method-definition-rate-groups.json"
+    },
+    {
+      "id": "shopify-rest-order-line-item-pre-tax-price-removed",
+      "title": "Shopify removes pre_tax_price from REST order line items",
+      "endpoint": {
+        "method": "GET",
+        "path": "/admin/api/{version}/orders**"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2026-03-23",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-rest-order-line-item-pre-tax-price-removed",
+      "markdown": "https://shapi.dev/advisories/shopify-rest-order-line-item-pre-tax-price-removed.md",
+      "osv": "https://shapi.dev/osv/shopify-rest-order-line-item-pre-tax-price-removed.json"
+    },
+    {
+      "id": "shopify-inventory-activate-preserves-quantities",
+      "title": "Shopify inventoryActivate keeps existing quantities instead of resetting them to zero, as of 2026-04",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-04-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-inventory-activate-preserves-quantities",
+      "markdown": "https://shapi.dev/advisories/shopify-inventory-activate-preserves-quantities.md",
+      "osv": "https://shapi.dev/osv/shopify-inventory-activate-preserves-quantities.json"
+    },
+    {
+      "id": "shopify-rest-inventory-connect-preserves-quantities",
+      "title": "Shopify's REST inventory_levels/connect keeps existing quantities instead of resetting them, as of 2026-04",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/inventory_levels/connect.json"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-04-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-rest-inventory-connect-preserves-quantities",
+      "markdown": "https://shapi.dev/advisories/shopify-rest-inventory-connect-preserves-quantities.md",
+      "osv": "https://shapi.dev/osv/shopify-rest-inventory-connect-preserves-quantities.json"
+    },
+    {
+      "id": "shopify-order-transaction-total-unsettled-fixed",
+      "title": "Shopify fixes OrderTransaction.totalUnsettledSet for pending captures",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2026-04-24",
+      "severity": "low",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-order-transaction-total-unsettled-fixed",
+      "markdown": "https://shapi.dev/advisories/shopify-order-transaction-total-unsettled-fixed.md",
+      "osv": "https://shapi.dev/osv/shopify-order-transaction-total-unsettled-fixed.json"
+    },
+    {
+      "id": "shopify-customer-payment-method-remote-create-identifier-required",
+      "title": "Shopify customerPaymentMethodRemoteCreate requires a payment method identifier as of 2026-07",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "required-field",
+      "effectiveDate": "2026-07-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-customer-payment-method-remote-create-identifier-required",
+      "markdown": "https://shapi.dev/advisories/shopify-customer-payment-method-remote-create-identifier-required.md",
+      "osv": "https://shapi.dev/osv/shopify-customer-payment-method-remote-create-identifier-required.json"
+    },
+    {
+      "id": "shopify-inventory-set-scheduled-changes-removed",
+      "title": "Shopify removes the inventorySetScheduledChanges mutation in API version 2026-07",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-07-01",
+      "severity": "high",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-inventory-set-scheduled-changes-removed",
+      "markdown": "https://shapi.dev/advisories/shopify-inventory-set-scheduled-changes-removed.md",
+      "osv": "https://shapi.dev/osv/shopify-inventory-set-scheduled-changes-removed.json"
+    },
+    {
+      "id": "shopify-carrier-service-not-added-to-default-profile",
+      "title": "Shopify carrierServiceCreate no longer adds the carrier service to the General shipping profile, as of 2026-10",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-carrier-service-not-added-to-default-profile",
+      "markdown": "https://shapi.dev/advisories/shopify-carrier-service-not-added-to-default-profile.md",
+      "osv": "https://shapi.dev/osv/shopify-carrier-service-not-added-to-default-profile.json"
+    },
+    {
+      "id": "shopify-draft-order-warning-price-rule-removed",
+      "title": "Shopify removes priceRule from DraftOrderDiscountNotAppliedWarning in API version 2026-10",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2026-10-01",
+      "severity": "high",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-draft-order-warning-price-rule-removed",
+      "markdown": "https://shapi.dev/advisories/shopify-draft-order-warning-price-rule-removed.md",
+      "osv": "https://shapi.dev/osv/shopify-draft-order-warning-price-rule-removed.json"
+    },
+    {
+      "id": "shopify-order-display-fulfillment-status-not-required",
+      "title": "Shopify OrderDisplayFulfillmentStatus can return FULFILLMENT_NOT_REQUIRED as of 2026-10",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "enum-added",
+      "effectiveDate": "2026-10-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-order-display-fulfillment-status-not-required",
+      "markdown": "https://shapi.dev/advisories/shopify-order-display-fulfillment-status-not-required.md",
+      "osv": "https://shapi.dev/osv/shopify-order-display-fulfillment-status-not-required.json"
+    },
+    {
+      "id": "shopify-order-update-shipping-address-recalculates-taxes",
+      "title": "Shopify orderUpdate recalculates taxes when an unfulfilled order's shipping address changes, as of 2026-10",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-order-update-shipping-address-recalculates-taxes",
+      "markdown": "https://shapi.dev/advisories/shopify-order-update-shipping-address-recalculates-taxes.md",
+      "osv": "https://shapi.dev/osv/shopify-order-update-shipping-address-recalculates-taxes.json"
+    },
+    {
+      "id": "shopify-rest-carrier-service-not-added-to-default-profile",
+      "title": "Shopify's REST carrier service creation no longer adds it to the General shipping profile, as of 2026-10",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/carrier_services.json"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-rest-carrier-service-not-added-to-default-profile",
+      "markdown": "https://shapi.dev/advisories/shopify-rest-carrier-service-not-added-to-default-profile.md",
+      "osv": "https://shapi.dev/osv/shopify-rest-carrier-service-not-added-to-default-profile.json"
+    },
+    {
+      "id": "shopify-rest-order-update-shipping-address-recalculates-taxes",
+      "title": "Shopify's REST order update recalculates taxes when an unfulfilled order's shipping address changes, as of 2026-10",
+      "endpoint": {
+        "method": "PUT",
+        "path": "/admin/api/{version}/orders/{id}.json"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-rest-order-update-shipping-address-recalculates-taxes",
+      "markdown": "https://shapi.dev/advisories/shopify-rest-order-update-shipping-address-recalculates-taxes.md",
+      "osv": "https://shapi.dev/osv/shopify-rest-order-update-shipping-address-recalculates-taxes.json"
+    },
+    {
+      "id": "shopify-segment-query-function-syntax",
+      "title": "Shopify segment query functions use MATCHES instead of = true as of API version 2026-10",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "required-field",
+      "effectiveDate": "2026-10-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-segment-query-function-syntax",
+      "markdown": "https://shapi.dev/advisories/shopify-segment-query-function-syntax.md",
+      "osv": "https://shapi.dev/osv/shopify-segment-query-function-syntax.json"
+    },
+    {
+      "id": "shopify-global-catalog-rest-api-shutdown",
+      "title": "Shopify Global Catalog REST API stops serving traffic on 2026-11-02",
+      "endpoint": {
+        "method": "*",
+        "path": "/global/v2/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-11-02",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-global-catalog-rest-api-shutdown",
+      "markdown": "https://shapi.dev/advisories/shopify-global-catalog-rest-api-shutdown.md",
+      "osv": "https://shapi.dev/osv/shopify-global-catalog-rest-api-shutdown.json"
+    },
+    {
+      "id": "shopify-automatic-discounts-query-removed",
+      "title": "Shopify removes the automaticDiscounts query in API version 2027-01",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-01-01",
+      "severity": "high",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-automatic-discounts-query-removed",
+      "markdown": "https://shapi.dev/advisories/shopify-automatic-discounts-query-removed.md",
+      "osv": "https://shapi.dev/osv/shopify-automatic-discounts-query-removed.json"
+    },
+    {
+      "id": "shopify-collection-metafield-integer-condition-removed",
+      "title": "Shopify removes the metafieldInteger collection condition in API version 2027-01",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2027-01-01",
+      "severity": "high",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-collection-metafield-integer-condition-removed",
+      "markdown": "https://shapi.dev/advisories/shopify-collection-metafield-integer-condition-removed.md",
+      "osv": "https://shapi.dev/osv/shopify-collection-metafield-integer-condition-removed.json"
+    },
+    {
+      "id": "shopify-market-currency-settings-update-removed",
+      "title": "Shopify removes the marketCurrencySettingsUpdate mutation in API version 2027-01",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-01-01",
+      "severity": "high",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-market-currency-settings-update-removed",
+      "markdown": "https://shapi.dev/advisories/shopify-market-currency-settings-update-removed.md",
+      "osv": "https://shapi.dev/osv/shopify-market-currency-settings-update-removed.json"
+    },
+    {
+      "id": "shopify-metaobject-admin-access-private-public-read-removed",
+      "title": "Shopify deprecates the PRIVATE and PUBLIC_READ metaobject admin access values",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "enum-added",
+      "effectiveDate": "2027-01-01",
+      "severity": "low",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-metaobject-admin-access-private-public-read-removed",
+      "markdown": "https://shapi.dev/advisories/shopify-metaobject-admin-access-private-public-read-removed.md",
+      "osv": "https://shapi.dev/osv/shopify-metaobject-admin-access-private-public-read-removed.json"
+    },
+    {
+      "id": "shopify-non-expiring-offline-tokens-rejected",
+      "title": "Shopify rejects non-expiring offline access tokens from public apps on 2027-01-01",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "auth",
+      "effectiveDate": "2027-01-01",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-non-expiring-offline-tokens-rejected",
+      "markdown": "https://shapi.dev/advisories/shopify-non-expiring-offline-tokens-rejected.md",
+      "osv": "https://shapi.dev/osv/shopify-non-expiring-offline-tokens-rejected.json"
+    },
+    {
+      "id": "shopify-tax-managed-mode-write-validation",
+      "title": "Shopify Tax managed mode rejects market and publishing writes that conflict with it",
+      "endpoint": {
+        "method": "POST",
+        "path": "/admin/api/{version}/graphql.json"
+      },
+      "changeClass": "required-field",
+      "effectiveDate": "2027-01-01",
+      "severity": "medium",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-tax-managed-mode-write-validation",
+      "markdown": "https://shapi.dev/advisories/shopify-tax-managed-mode-write-validation.md",
+      "osv": "https://shapi.dev/osv/shopify-tax-managed-mode-write-validation.json"
+    },
+    {
+      "id": "shopify-admin-api-2026-01-unsupported",
+      "title": "Shopify Admin API version 2026-01 becomes unsupported on 2027-01-16",
+      "endpoint": {
+        "method": "*",
+        "path": "/admin/api/2026-01/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-01-16",
+      "severity": "critical",
+      "status": "verified",
+      "fix": "apply-fix",
+      "url": "https://shapi.dev/advisories/shopify-admin-api-2026-01-unsupported",
+      "markdown": "https://shapi.dev/advisories/shopify-admin-api-2026-01-unsupported.md",
+      "osv": "https://shapi.dev/osv/shopify-admin-api-2026-01-unsupported.json"
+    },
+    {
+      "id": "shopify-script-tags-stop-running",
+      "title": "Shopify script tags stop running on storefronts on 2027-03-01",
+      "endpoint": {
+        "method": "*",
+        "path": "/admin/api/{version}/script_tags**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-03-01",
+      "severity": "high",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/shopify-script-tags-stop-running",
+      "markdown": "https://shapi.dev/advisories/shopify-script-tags-stop-running.md",
+      "osv": "https://shapi.dev/osv/shopify-script-tags-stop-running.json"
+    },
+    {
+      "id": "shopify-admin-api-2026-04-unsupported",
+      "title": "Shopify Admin API version 2026-04 becomes unsupported on 2027-04-16",
+      "endpoint": {
+        "method": "*",
+        "path": "/admin/api/2026-04/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-04-16",
+      "severity": "high",
+      "status": "verified",
+      "fix": "apply-fix",
+      "url": "https://shapi.dev/advisories/shopify-admin-api-2026-04-unsupported",
+      "markdown": "https://shapi.dev/advisories/shopify-admin-api-2026-04-unsupported.md",
+      "osv": "https://shapi.dev/osv/shopify-admin-api-2026-04-unsupported.json"
+    }
+  ]
+}

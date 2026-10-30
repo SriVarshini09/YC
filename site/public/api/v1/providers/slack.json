@@ -1,0 +1,23 @@
+{
+  "provider": "slack",
+  "name": "Slack",
+  "count": 1,
+  "advisories": [
+    {
+      "id": "slack-files-upload-retired",
+      "title": "files.upload Web API method sunset on 2025-11-12",
+      "endpoint": {
+        "method": "POST",
+        "path": "/api/files.upload"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2025-11-12",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/slack-files-upload-retired",
+      "markdown": "https://shapi.dev/advisories/slack-files-upload-retired.md",
+      "osv": "https://shapi.dev/osv/slack-files-upload-retired.json"
+    }
+  ]
+}
