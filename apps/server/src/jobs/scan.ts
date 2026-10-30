@@ -32,6 +32,21 @@ export interface ScanDeps {
 /** Either a scan queued by a push, or a repository to scan at its default branch head (first scan after install). */
 export type ScanJob = { scanId: string } | { repositoryId: string };
 
+/** How this attempt of the job runs (execution plan I-02). */
+export interface ScanRun {
+  /** The queue's signal: aborted when the worker shuts down or loses the job. The scan goes back to queued. */
+  signal?: AbortSignal;
+  /** A retried job, whose earlier attempt died with its worker: it may take over the scan that attempt left running. */
+  retry?: boolean;
+  /** How long the scan may take before SHAPI stops it and marks it failed. Default SCAN_JOB_TIMEOUT_MS. */
+  timeoutMs?: number;
+}
+
+/** A scan job's time limit; the repo-scan queue expires a job a minute later, as a backstop (see QUEUE_OPTIONS). */
+export const SCAN_JOB_TIMEOUT_MS = 14 * 60_000;
+/** A scan still running this long after it started is hung: the sweep marks it failed (see stopHungScans). */
+export const SCAN_HUNG_MINUTES = 20;
+
 export interface ScanReport {
   scanId?: string;
   repositoryId?: string;
@@ -112,7 +127,8 @@ function scanChild(): string {
  * Scan a snapshot in its own process with a memory cap and a time limit, so a repository too large for memory
  * fails alone (with ScanTooLargeError) instead of crashing the worker and every job it runs.
  */
-export async function lockInProcess(files: SnapshotFile[], limits: Partial<ScanLimits> = {}): Promise<ApiLock> {
+export async function lockInProcess(files: SnapshotFile[], limits: Partial<ScanLimits> = {}, signal?: AbortSignal): Promise<ApiLock> {
+  signal?.throwIfAborted();
   const { heapMb, timeoutMs, maxSourceBytes } = { ...DEFAULT_SCAN_LIMITS, ...limits };
   const sourceBytes = files.filter((f) => SOURCE_FILE.test(f.path)).reduce((n, f) => n + Buffer.byteLength(f.content), 0);
   if (sourceBytes > maxSourceBytes) {
@@ -132,15 +148,21 @@ export async function lockInProcess(files: SnapshotFile[], limits: Partial<ScanL
         timedOut = true;
         child.kill("SIGKILL");
       }, timeoutMs);
+      // The job was stopped: so is its scan process.
+      const stop = () => child.kill("SIGKILL");
+      signal?.addEventListener("abort", stop, { once: true });
       child.on("error", (err) => {
         clearTimeout(timer);
+        signal?.removeEventListener("abort", stop);
         reject(err);
       });
-      child.on("close", (code, signal) => {
+      child.on("close", (code, exitSignal) => {
         clearTimeout(timer);
-        resolve({ code, signal, stderr, timedOut });
+        signal?.removeEventListener("abort", stop);
+        resolve({ code, signal: exitSignal, stderr, timedOut });
       });
     });
+    signal?.throwIfAborted();
     if (result.timedOut) throw new ScanTooLargeError(`the scan took longer than ${Math.round(timeoutMs / 60_000)} minutes`);
     if (/heap out of memory|Allocation failed/i.test(result.stderr)) {
       throw new ScanTooLargeError(`scanning this repository needed more than ${heapMb} MB of memory (${mb(sourceBytes)} of source)`);
@@ -210,8 +232,9 @@ export async function saveFindings(
  * api.lock, match the reviewed advisories, store the findings, and report them as the SHAPI check
  * on the commit. Code is read, never run.
  */
-export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanReport> {
+export async function runScanJob(deps: ScanDeps, job: ScanJob, run: ScanRun = {}): Promise<ScanReport> {
   const now = deps.now ?? (() => new Date());
+  const timeoutMs = run.timeoutMs ?? SCAN_JOB_TIMEOUT_MS;
   const scanId = "scanId" in job ? job.scanId : await queueHeadScan(deps, job.repositoryId);
   if (!scanId) return { status: "skipped", reason: "repository has no default branch commit, or a scan is already pending" };
 
@@ -236,7 +259,9 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
       .where("scans.id", "=", scanId)
       .forUpdate()
       .executeTakeFirst();
-    if (!row || row.status !== "queued") return { row, claimed: false };
+    // A retry may take over a running scan: its earlier attempt died with its worker (the queue's heartbeat
+    // noticed), so nothing else is running it.
+    if (!row || !(row.status === "queued" || (run.retry && row.status === "running"))) return { row, claimed: false };
     if (!row.enabled || row.suspended_at || !row.github_installation_id) {
       await tx.updateTable("scans").set({ status: "failed", error: "repository disabled or account suspended", finished_at: now() }).where("id", "=", scanId).execute();
       return { row, claimed: false };
@@ -259,10 +284,13 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
   // A missing check run (for example the checks permission was not granted) must not stop the scan.
   const checkRunId = await startCheckRun(octokit, { owner, repo, sha: scan.sha, detailsUrl: repoPageUrl(deps.publicUrl, scan.account_id, scan.repository_id) }).catch(() => undefined);
 
+  const deadline = AbortSignal.timeout(timeoutMs);
+  const signal = run.signal ? AbortSignal.any([run.signal, deadline]) : deadline;
   try {
     const readOnly = await deps.github.readOnly(installation, scan.github_repo_id);
-    const files = await fetchRepoSnapshot(readOnly, { owner, repo, ref: scan.sha });
-    const lock = await lockInProcess(files, deps.scanLimits);
+    const files = await fetchRepoSnapshot(readOnly, { owner, repo, ref: scan.sha }, undefined, signal);
+    const lock = await lockInProcess(files, deps.scanLimits, signal);
+    signal.throwIfAborted();
     const advisories = await reviewedAdvisories(deps.db);
     const match = matchAdvisories(lock, advisories.map((a) => a.advisory), { now: now() });
     const evaluated = Object.fromEntries(advisories.map((a) => [a.advisory.id, a.modified]));
@@ -287,7 +315,14 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
       await completeCheckRun(octokit, { owner, repo, checkRunId }, checkRunOutput(match, { failOnAffected })).catch(() => undefined);
     }
     return { scanId, repositoryId: scan.repository_id, status: "succeeded", callSites: lock.callSites.length, affected: match.affected.length, exposed: match.exposed.length, fix: match.affected.length > 0 };
-  } catch (err) {
+  } catch (caught) {
+    // The worker is shutting down or lost the job: the scan goes back to queued for the job's retry, or the sweep.
+    if (run.signal?.aborted && !deadline.aborted) {
+      await withService(deps.db, (tx) => tx.updateTable("scans").set({ status: "queued" }).where("id", "=", scan.id).where("status", "=", "running").execute());
+      throw caught;
+    }
+    // Past its time limit (a download or a step that hung): stopped and failed, so the dashboard and the check say so.
+    const err = deadline.aborted ? new ScanTooLargeError(`SHAPI stopped this scan after ${duration(timeoutMs)}: it took too long`) : caught;
     const message = err instanceof Error ? err.message : String(err);
     // Too large for SHAPI's limits: the user sees why, and Sentry tells the team.
     if (err instanceof ScanTooLargeError) reportError(err);
@@ -328,18 +363,35 @@ async function queueHeadScan(deps: ScanDeps, repositoryId: string): Promise<stri
   });
 }
 
-/**
- * Scans whose job was lost: still queued after `minutes` (for example the worker restarted before sending
- * it), or still running after `runningMinutes`, longer than the scan job may run (the worker died mid-scan
- * and the retried job skips a running scan). Running ones go back to queued so their job can claim them.
- */
-export async function staleQueuedScans(db: Db, now: Date, minutes = 10, runningMinutes = 30): Promise<string[]> {
-  const rows = await withService(db, async (tx) => {
-    await tx.updateTable("scans").set({ status: "queued" }).where("status", "=", "running").where("started_at", "<", new Date(now.getTime() - runningMinutes * 60_000)).execute();
-    return tx.selectFrom("scans").select("id").where("status", "=", "queued").where("created_at", "<", new Date(now.getTime() - minutes * 60_000)).orderBy("id").limit(200).execute();
-  });
+/** Scans whose job was lost: still queued after `minutes` (for example the worker restarted before sending it). */
+export async function staleQueuedScans(db: Db, now: Date, minutes = 10): Promise<string[]> {
+  const rows = await withService(db, (tx) =>
+    tx.selectFrom("scans").select("id").where("status", "=", "queued").where("created_at", "<", new Date(now.getTime() - minutes * 60_000)).orderBy("id").limit(200).execute(),
+  );
   return rows.map((r) => r.id);
 }
+
+/**
+ * Scans still running `minutes` after they started, past the scan job's time limit and its queue's expiry:
+ * whatever runs them is hung. They are marked failed, so the dashboard shows it on the next sweep, and not
+ * queued again, so a scan that hangs cannot loop. Returns the scans it stopped.
+ */
+export async function stopHungScans(db: Db, now: Date, minutes = SCAN_HUNG_MINUTES): Promise<{ id: string; repository_id: string }[]> {
+  return withService(db, (tx) =>
+    tx
+      .updateTable("scans")
+      .set({ status: "failed", error: `SHAPI stopped this scan: it was still running after ${minutes} minutes`, finished_at: now })
+      .where("status", "=", "running")
+      .where("started_at", "<", new Date(now.getTime() - minutes * 60_000))
+      .returning(["id", "repository_id"])
+      .execute(),
+  );
+}
+
+const duration = (ms: number) => {
+  const [n, unit] = ms >= 60_000 ? [Math.round(ms / 60_000), "minute"] : [Math.round(ms / 1000), "second"];
+  return `${n} ${unit}${n === 1 ? "" : "s"}`;
+};
 
 /** A stored api.lock, validated. */
 export function storedLock(value: unknown): ApiLock {

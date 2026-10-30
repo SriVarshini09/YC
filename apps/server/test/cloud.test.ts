@@ -19,10 +19,13 @@ import {
   processDelivery,
   runAdvisoryFanout,
   runFixJob,
+  QUEUE_OPTIONS,
   runScanJob,
   scansToRefix,
+  settleDeadJob,
   staleQueuedScans,
   startWorker,
+  stopHungScans,
   syncAdvisoriesJob,
   type WorkspaceRunner,
 } from "../src/index";
@@ -216,21 +219,77 @@ describe("cloud scan", () => {
     expect(t.github.checkRuns[0]!.output!.title).toBe("SHAPI could not scan this commit");
   });
 
-  it("a scan left running by a dead worker is queued again by the sweeper and then runs", async () => {
+  const running = (id: string, startedMinutesAgo: number, now = new Date()) =>
+    sql`update scans set status = 'running', started_at = ${new Date(now.getTime() - startedMinutesAgo * 60_000)}, created_at = ${new Date(now.getTime() - (startedMinutesAgo + 1) * 60_000)} where id = ${id}`.execute(owner);
+  const scanRow = (id: string) => owner.selectFrom("scans").select(["status", "error", "finished_at"]).where("id", "=", id).executeTakeFirstOrThrow();
+  /** GitHub, except the code download never answers: it only ends when its request is aborted. */
+  const hangingDownload = (t: ReturnType<typeof setup>) => {
+    const fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+      if (!String(input).includes("/tarball/")) return t.fetch(input, init);
+      // Like fetch: an aborted signal rejects at once, or as soon as it aborts.
+      return new Promise<Response>((_resolve, reject) => {
+        if (init?.signal?.aborted) return reject(init.signal.reason);
+        init?.signal?.addEventListener("abort", () => reject(init.signal!.reason), { once: true });
+      });
+    }) as typeof globalThis.fetch;
+    return githubClients({ appId: githubApp.appId, privateKey }, { fetch, resilient: false });
+  };
+
+  it("a scan that hangs is stopped at its time limit and fails with the reason, on the dashboard and the check (I-02)", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    const report = await runScanJob({ db, github: hangingDownload(t) }, { scanId }, { timeoutMs: 1000 });
+    expect(report.status).toBe("failed");
+    const row = await scanRow(scanId);
+    expect(row).toMatchObject({ status: "failed", error: "SHAPI stopped this scan after 1 second: it took too long" });
+    expect(row.finished_at).not.toBeNull();
+    expect(t.github.checkRuns[0]).toMatchObject({ status: "completed", conclusion: "neutral" });
+  }, 30_000);
+
+  it("a worker that shuts down mid-scan puts the scan back in the queue for its retry", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    const stop = new AbortController();
+    const job = runScanJob({ db, github: hangingDownload(t) }, { scanId }, { signal: stop.signal });
+    while ((await scanRow(scanId)).status !== "running") await new Promise((r) => setTimeout(r, 20));
+    stop.abort(new Error("pg-boss shut down"));
+    await expect(job).rejects.toThrow("pg-boss shut down");
+    expect((await scanRow(scanId)).status).toBe("queued");
+  }, 30_000);
+
+  it("a retried job takes over the scan its dead worker left running; another job does not", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await running(scanId, 2);
+    expect((await runScanJob({ db, github: t.githubClients }, { scanId })).status).toBe("skipped");
+    expect((await runScanJob({ db, github: t.githubClients }, { scanId }, { retry: true })).status).toBe("succeeded");
+  });
+
+  it("the sweep fails a scan still running past its time limit, once, and leaves younger ones running (I-02)", async () => {
     const t = setup();
     const now = new Date();
-    const dead = await queueScan(t.github.refs.get("main")!);
-    const alive = await queueScan("b".repeat(40));
-    const running = (id: string, startedMinutesAgo: number) =>
-      sql`update scans set status = 'running', started_at = ${new Date(now.getTime() - startedMinutesAgo * 60_000)}, created_at = ${new Date(now.getTime() - (startedMinutesAgo + 1) * 60_000)} where id = ${id}`.execute(owner);
-    await running(dead, 31);
-    await running(alive, 15);
-    // The retried job skips a running scan, so without the sweeper it would stay running for good.
-    expect((await runScanJob({ db, github: t.githubClients }, { scanId: dead })).status).toBe("skipped");
+    const hung = await queueScan(t.github.refs.get("main")!);
+    const young = await queueScan("b".repeat(40));
+    await running(hung, 21, now);
+    await running(young, 15, now);
+    expect(await stopHungScans(db, now)).toEqual([{ id: hung, repository_id: repositoryId }]);
+    expect(await scanRow(hung)).toMatchObject({ status: "failed", error: "SHAPI stopped this scan: it was still running after 20 minutes" });
+    expect((await scanRow(young)).status).toBe("running");
+    // Not queued again: a scan that hangs every time cannot loop.
+    expect(await staleQueuedScans(db, now)).not.toContain(hung);
+    expect(await stopHungScans(db, now)).toEqual([]);
+  });
 
-    expect(await staleQueuedScans(db, now)).toEqual([dead]);
-    expect((await runScanJob({ db, github: t.githubClients }, { scanId: dead })).status).toBe("succeeded");
-    expect((await owner.selectFrom("scans").select("status").where("id", "=", alive).executeTakeFirstOrThrow()).status).toBe("running");
+  it("a scan job that failed every attempt marks its scan failed with the last error (dead letter, I-02)", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await running(scanId, 3);
+    const dead = { queue: QUEUES.repoScan, id: "j1", retries: 2, data: { scanId }, output: { name: "Error", message: "socket hang up" } };
+    expect(await settleDeadJob(db, dead, QUEUES.repoScan)).toEqual({ attempts: 3, error: "socket hang up", scanFailed: scanId });
+    expect(await scanRow(scanId)).toMatchObject({ status: "failed", error: "SHAPI gave up on this scan after 3 attempts: socket hang up" });
+    // A finished scan stays as it is, and other queues' jobs only get reported.
+    expect(await settleDeadJob(db, dead, QUEUES.repoScan)).toEqual({ attempts: 3, error: "socket hang up" });
+    expect(await settleDeadJob(db, { ...dead, queue: QUEUES.repoFix, output: { value: "job expired" } }, QUEUES.repoScan)).toEqual({ attempts: 3, error: "job expired" });
   });
 
   it("allows one pending scan per commit, whoever inserts first", async () => {
@@ -581,6 +640,39 @@ describe("triggers", () => {
       await boss.stop({ graceful: false, timeout: 5_000 });
     }
   }, 150_000);
+
+  it("every queue has a time limit and a dead-letter queue (I-02)", () => {
+    expect(QUEUE_OPTIONS[0]![0]).toBe(QUEUES.deadLetter);
+    for (const [name, options] of QUEUE_OPTIONS.slice(1)) {
+      expect(options, name).toMatchObject({ deadLetter: QUEUES.deadLetter, expireInSeconds: expect.any(Number) });
+    }
+    expect(QUEUE_OPTIONS.map(([name]) => name).sort()).toEqual(Object.values(QUEUES).sort());
+  });
+
+  it("the worker dead-letters a job that failed every attempt: its scan shows failed, and the error is logged for Sentry (I-02)", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    const scanRow = (id: string) => owner.selectFrom("scans").select(["status", "error"]).where("id", "=", id).executeTakeFirstOrThrow();
+    const errors: string[] = [];
+    // No GitHub App configured: every scan job throws.
+    const boss = await startWorker({
+      databaseUrl: pg.url,
+      db,
+      config: { CANARY_CRON: "", SHAPI_ADVISORIES: ADVISORIES, WEBHOOK_SWEEP_CRON: "", WEBHOOK_RETENTION_DAYS: 14, SHAPI_RECORDINGS: RECORDINGS, FANOUT_CRON: "", ADVISORIES_SYNC_CRON: "", SHAPI_PUBLIC_URL: "https://shapi.test", GIT_SHA: "test" },
+      env: { SHAPI_SHAPE_SECRET: "test" },
+      log: { info: () => undefined, error: (o, m) => errors.push(`${m} ${String((o as { err?: unknown }).err)}`) },
+      fetch: t.fetch,
+    });
+    try {
+      await boss.send(QUEUES.repoScan, { scanId }, { retryLimit: 0 });
+      const deadline = Date.now() + 60_000;
+      while ((await scanRow(scanId)).status !== "failed" && Date.now() < deadline) await new Promise((r) => setTimeout(r, 250));
+      expect((await scanRow(scanId)).error).toBe("SHAPI gave up on this scan after 1 attempt: GitHub App is not configured");
+      expect(errors).toContain("job dead-lettered Error: repo-scan job failed after 1 attempts: GitHub App is not configured");
+    } finally {
+      await boss.stop({ graceful: false, timeout: 5_000 });
+    }
+  }, 90_000);
 
   it("the worker runs push -> scan -> fix -> PR end to end", async () => {
     const t = setup();

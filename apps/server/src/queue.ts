@@ -8,9 +8,10 @@ import { githubClients } from "./github/clients";
 import { jobsQueued, processDelivery, type ScanRequest } from "./github/events";
 import { syncAdvisoriesFromGitHub, syncAdvisoriesJob } from "./jobs/advisories";
 import { runCanaryJob } from "./jobs/canary";
+import { settleDeadJob } from "./jobs/dead-letter";
 import { runAdvisoryFanout } from "./jobs/fanout";
 import { runFixJob, sandboxRunner, scansToRefix, type WorkspaceRunner } from "./jobs/fix";
-import { runScanJob, staleQueuedScans } from "./jobs/scan";
+import { SCAN_JOB_TIMEOUT_MS, runScanJob, staleQueuedScans, stopHungScans } from "./jobs/scan";
 import { slackNotifier } from "./notify/slack";
 import { sweepWebhooks } from "./jobs/webhook-sweeper";
 
@@ -25,6 +26,8 @@ export const QUEUES = {
   advisoryFanout: "advisory-fanout",
   billingSync: "billing-sync",
   fixRetry: "fix-retry",
+  /** Every other queue's jobs land here once they fail all their attempts (see the dead-letter worker). */
+  deadLetter: "dead-letter",
 } as const;
 
 export interface Logger {
@@ -34,13 +37,18 @@ export interface Logger {
 
 type QueueOptions = NonNullable<Parameters<PgBoss["createQueue"]>[1]>;
 
-/** Every queue and its options. */
-const QUEUE_OPTIONS: [string, QueueOptions][] = [
+/**
+ * Every queue and its options (execution plan I-02). Each has a time limit (expireInSeconds: pg-boss fails the
+ * attempt and aborts its job.signal) and sends a job that fails every attempt to the dead-letter queue.
+ */
+const WORK_QUEUES: [string, QueueOptions][] = [
   [QUEUES.canaryRun, { retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: 15 * 60 }],
-  [QUEUES.advisoriesSync, { retryLimit: 3, retryDelay: 10, retryBackoff: true }],
+  [QUEUES.advisoriesSync, { retryLimit: 3, retryDelay: 10, retryBackoff: true, expireInSeconds: 10 * 60 }],
   [QUEUES.githubWebhook, { retryLimit: 5, retryDelay: 15, retryBackoff: true, expireInSeconds: 5 * 60 }],
   [QUEUES.webhookSweep, { retryLimit: 1, retryDelay: 60, expireInSeconds: 5 * 60 }],
-  [QUEUES.repoScan, { retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: 15 * 60 }],
+  // The scan stops itself at SCAN_JOB_TIMEOUT_MS and fails; the expiry a minute later is the backstop. The heartbeat
+  // retries a job whose worker died within about a minute, and the retry takes over the scan (see runScanJob).
+  [QUEUES.repoScan, { retryLimit: 2, retryDelay: 60, retryBackoff: true, expireInSeconds: SCAN_JOB_TIMEOUT_MS / 1000 + 60, heartbeatSeconds: 60 }],
   // One fix job running and one waiting per repository (keyed by repository id), so PR deliveries never race.
   // A later one is dropped while one waits; the waiting one fixes the repository's latest scan (see runFixJob).
   // Its expiry is well past the sandbox's hour (MAX_SANDBOX_LIFETIME_MS): pg-boss would otherwise retry a job still running.
@@ -48,6 +56,12 @@ const QUEUE_OPTIONS: [string, QueueOptions][] = [
   [QUEUES.advisoryFanout, { retryLimit: 2, retryDelay: 60, expireInSeconds: 15 * 60 }],
   [QUEUES.billingSync, { policy: "short", retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 10 * 60 }],
   [QUEUES.fixRetry, { policy: "short", retryLimit: 2, retryDelay: 60, expireInSeconds: 10 * 60 }],
+];
+
+/** The dead-letter queue first: the others refer to it. Its jobs are kept 30 days after they are handled. */
+export const QUEUE_OPTIONS: [string, QueueOptions][] = [
+  [QUEUES.deadLetter, { retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 5 * 60, deleteAfterSeconds: 30 * 24 * 3600 }],
+  ...WORK_QUEUES.map(([name, options]): [string, QueueOptions] => [name, { ...options, deadLetter: QUEUES.deadLetter }]),
 ];
 
 /**
@@ -190,7 +204,10 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
   });
   await boss.work<ScanRequest>(QUEUES.repoScan, { batchSize: 1 }, async ([job]) => {
     if (!job) return;
-    const report = await runScanJob({ db: deps.db, github: requireGithub(), billingEnforced, notify, publicUrl: deps.config.SHAPI_PUBLIC_URL }, job.data);
+    const report = await runScanJob({ db: deps.db, github: requireGithub(), billingEnforced, notify, publicUrl: deps.config.SHAPI_PUBLIC_URL }, job.data, {
+      signal: job.signal,
+      retry: job.retryCount > 0,
+    });
     if (report.fix && report.scanId && report.repositoryId) await sendFix(boss, report.scanId, report.repositoryId);
     deps.log.info(report, "scan finished");
     return report;
@@ -235,8 +252,18 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
     deps.log.info({ accounts: result.synced, changes: result.changes, failed: result.failed }, "billing synced");
     return result;
   });
+  await boss.work(QUEUES.deadLetter, { batchSize: 1, includeMetadata: true }, async ([job]) => {
+    if (!job) return;
+    const result = await settleDeadJob(deps.db, { queue: job.sourceName, id: job.sourceId, retries: job.sourceRetryCount, data: job.data, output: job.sourceOutput }, QUEUES.repoScan);
+    // Logged as an error, so Sentry alerts on it.
+    deps.log.error({ err: new Error(`${job.sourceName} job failed after ${result.attempts} attempts: ${result.error}`), queue: job.sourceName, jobId: job.sourceId, data: job.data, ...result }, "job dead-lettered");
+    return result;
+  });
   await boss.work(QUEUES.webhookSweep, async () => {
-    // Lost scans are re-queued first, so a failing webhook sweep cannot hold them up.
+    // Hung scans are failed first, then lost ones re-queued, so a failing webhook sweep cannot hold them up.
+    for (const scan of await stopHungScans(deps.db, new Date())) {
+      deps.log.error({ err: new Error(`scan ${scan.id} hung: still running past its time limit`), scanId: scan.id, repositoryId: scan.repository_id }, "hung scan stopped");
+    }
     const stale = await staleQueuedScans(deps.db, new Date());
     for (const scanId of stale) await sendScan(boss, { scanId });
     const result = await sweepWebhooks({

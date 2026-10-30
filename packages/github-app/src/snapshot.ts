@@ -7,14 +7,16 @@ import { Parser, type ReadEntry } from "tar";
  * outside any sandbox with a short-lived read-only token (see SCAN_PERMISSIONS), so the sandbox
  * gets the code and never a credential. Symlinks and oversized files are left out, except package
  * manifests and lockfiles (SNAPSHOT_KEEP). The archive is
- * unpacked as it downloads, so only the kept files are held in memory, and the download stops at a limit.
+ * unpacked as it downloads, so only the kept files are held in memory, and the download stops at a limit,
+ * or when `signal` aborts (the job ran out of time).
  */
 export async function fetchRepoSnapshot(
   octokit: Octokit,
   target: { owner: string; repo: string; ref: string },
   limits: SnapshotLimits = DEFAULT_SNAPSHOT_LIMITS,
+  signal?: AbortSignal,
 ): Promise<SnapshotFile[]> {
-  const res = await octokit.rest.repos.downloadTarballArchive({ owner: target.owner, repo: target.repo, ref: target.ref, request: { parseSuccessResponseBody: false } });
+  const res = await octokit.rest.repos.downloadTarballArchive({ owner: target.owner, repo: target.repo, ref: target.ref, request: { parseSuccessResponseBody: false, signal } });
   return parseTarball(res.data as unknown as ReadableStream<Uint8Array>, limits);
 }
 
