@@ -26,5 +26,11 @@
   "dependencies": {
     "@shapi/core": "workspace:*",
     "@shapi/extractor": "workspace:*"
+  },
+  "devDependencies": {
+    "@shapi/canary": "workspace:*",
+    "@shapi/repair": "workspace:*",
+    "@shapi/sandbox": "workspace:*",
+    "@shapi/shapes": "workspace:*"
   }
 }

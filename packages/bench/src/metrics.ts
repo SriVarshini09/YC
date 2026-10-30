@@ -30,6 +30,15 @@ export function wilson(k: number, n: number, z = 1.96): Rate | null {
   return { k, n, rate: round(p), low: round(Math.max(0, centre - half)), high: round(Math.min(1, centre + half)) };
 }
 
+/**
+ * SHAPI's own fix of an instance flagged `affected` at its base commit, made and checked in the sandbox:
+ * - `fixed`: every affected call site was fixed, each with a contract test that failed before and passes after;
+ * - `partial`: some call sites were fixed, not all;
+ * - `not-fixed`: none was;
+ * - `error`: the sandbox or the repository's install failed, so nothing was tried (not counted in the fix rate).
+ */
+export type FixOutcome = "fixed" | "partial" | "not-fixed" | "error";
+
 /** One instance's outcome. `error` is set when the code could not be fetched or scanned. */
 export interface InstanceResult {
   id: string;
@@ -42,6 +51,10 @@ export interface InstanceResult {
   base?: Verdict;
   fix?: Verdict;
   error?: string;
+  /** Set when fixes ran (`bench:run -- --fix`) and the base commit was flagged `affected`. */
+  fixOutcome?: FixOutcome;
+  /** What each call site's repair did, or why the fix could not be tried. */
+  fixDetail?: string;
 }
 
 
@@ -59,8 +72,12 @@ export interface Summary {
   /** Flag recall where the broken code is in a file type SHAPI scans (TypeScript, JavaScript, Python). */
   flagRecallScannedFiles: Rate | null;
   byIncident: Record<string, { flagRecall: Rate | null; fixedStatePrecision: Rate | null }>;
-  /** Fix rate is measured once fixes run in the sandbox (P-02 follow-up); null until then. */
-  fixRate: null;
+  /**
+   * Of the instances flagged `affected` whose fix was tried in the sandbox, how many SHAPI fixed completely.
+   * Null when fixes did not run. Sandbox and install failures are left out and counted in `fixErrors`.
+   */
+  fixRate: Rate | null;
+  fixErrors: number;
 }
 
 export function summarize(results: InstanceResult[]): Summary {
@@ -84,7 +101,8 @@ export function summarize(results: InstanceResult[]): Summary {
         return [i, { flagRecall: recall(rs), fixedStatePrecision: precision(rs) }];
       }),
     ),
-    fixRate: null,
+    fixRate: wilson(count(scored, (r) => r.fixOutcome === "fixed"), count(scored, (r) => r.fixOutcome !== undefined && r.fixOutcome !== "error")),
+    fixErrors: count(scored, (r) => r.fixOutcome === "error"),
   };
 }
 
