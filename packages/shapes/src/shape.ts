@@ -65,7 +65,7 @@ export interface InferOptions {
 
 /** Headers kept with their value: they carry versioning and deprecation signals. */
 const VALUE_HEADERS = new Set([
-  "content-type", "deprecation", "sunset", "link-deprecation", "x-github-api-version-selected", "stripe-version",
+  "content-type", "deprecation", "sunset", "link-deprecation", "x-shopify-api-deprecated-reason", "x-github-api-version-selected", "stripe-version",
   "x-api-version", "api-version", "openai-version", "anthropic-version", "intuit-minor-version",
 ]);
 
