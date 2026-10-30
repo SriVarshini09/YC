@@ -1,0 +1,31 @@
+{
+  "id": "stripe-endive-payment-intent-payment-method-types-removed",
+  "provider": "stripe",
+  "title": "Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+  "summary": "From API version 2026-09-30.endive, payment_method_types is no longer writable on Payment Intents: create, update and confirm requests that send it return a 400 error. It stays a read-only property on the Payment Intent, listing the computed payment methods.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/v1/payment_intents/**"
+  },
+  "changeClass": "required-field",
+  "trigger": {
+    "body": [
+      {
+        "field": "payment_method_types"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-09-30",
+    "url": "https://docs.stripe.com/changelog/endive/2026-09-30/removes-the-payment-method-types-parameter-from-payment-intents-and-setup-intents"
+  },
+  "effectiveDate": "2026-09-30",
+  "severity": "high",
+  "migrationNote": "Before moving to 2026-09-30.endive, stop sending payment_method_types when creating, updating or confirming Payment Intents. Use dynamic payment methods, excluded_payment_method_types, or allowed_payment_method_types (incompatible types are filtered out instead of failing). Reading payment_method_types from the returned object still works.",
+  "sources": [
+    "https://docs.stripe.com/changelog/endive/2026-09-30/removes-the-payment-method-types-parameter-from-payment-intents-and-setup-intents",
+    "https://docs.stripe.com/api/payment_intents/create?api-version=2026-09-30.endive"
+  ],
+  "status": "unverified"
+}
