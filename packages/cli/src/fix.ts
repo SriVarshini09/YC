@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { createApiLock, loadAdvisories, matchAdvisories, pathMatches, type Advisory, type Finding } from "@shapi/core";
+import { createApiLock, loadAdvisories, matchAdvisories, opensPullRequests, pathMatches, type Advisory, type Finding } from "@shapi/core";
 import { extractCallSites } from "@shapi/extractor";
 import { ShapeStore, diffShapes, type ResponseShape } from "@shapi/shapes";
 import { loadRecording, replay } from "@shapi/canary";
@@ -110,7 +110,9 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
         }
         deps.log(`    wrote ${files.length} files into ${dir}`);
       }
-      if (opts.pr && remote) {
+      // C-03: an unverified advisory never opens a pull request; --write still applies its fix locally.
+      if (opts.pr && remote && !opensPullRequests(advisory)) deps.log(`    no pull request: ${advisory.id} is not verified yet`);
+      else if (opts.pr && remote) {
         const fixed = repair.sites.filter((s) => s.result.status === "fixed");
         const meta = {
           title: prTitle(advisory),

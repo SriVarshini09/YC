@@ -1,4 +1,4 @@
-import { matchAdvisories, type Advisory, type LockedCallSite } from "@shapi/core";
+import { matchAdvisories, opensPullRequests, type Advisory, type LockedCallSite } from "@shapi/core";
 import { sql } from "kysely";
 import { withService, type Db } from "@shapi/db";
 import { feedbackLinks, fetchRepoSnapshot, prTitle, renderPrBody } from "@shapi/github-app";
@@ -42,7 +42,7 @@ export interface FixReport {
   scanId: string;
   skipped?: string;
   /** One entry per advisory; `sites` counts its call sites fixed out of those affected. */
-  repairs: { advisoryId: string; status: RepairResult["status"] | "no-shapes" | "no-fix" | "not-attempted"; reason?: string; sites?: { fixed: number; total: number } }[];
+  repairs: { advisoryId: string; status: RepairResult["status"] | "no-shapes" | "no-fix" | "not-attempted" | "unverified"; reason?: string; sites?: { fixed: number; total: number } }[];
   delivery?: DeliveryReport;
 }
 
@@ -120,6 +120,11 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
   const manual: { advisory: Advisory; callSites: number }[] = [];
   const todo: { advisory: Advisory; callSites: LockedCallSite[]; shapes: { before?: ResponseShape; after?: ResponseShape; source: string; witnesses?: { before: string; after: string } } }[] = [];
   for (const entry of byAdvisory.values()) {
+    // C-03: an unverified advisory is on the check and the dashboard, but never becomes a PR.
+    if (!opensPullRequests(entry.advisory)) {
+      report.repairs.push({ advisoryId: entry.advisory.id, status: "unverified", reason: "the advisory is not verified yet" });
+      continue;
+    }
     const fixable = (entry.advisory.recipeId && RECIPES[entry.advisory.recipeId]) || llm;
     if (!fixable) {
       report.repairs.push({ advisoryId: entry.advisory.id, status: "no-fix", reason: "no recipe for this change" });
