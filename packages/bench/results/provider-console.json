@@ -1,0 +1,935 @@
+{
+  "corpus": {
+    "datasets": [
+      "APIBreak-Replay v0",
+      "SHAPI provider console corpus (2026-10-30)"
+    ],
+    "repos": 895,
+    "scanned": 893,
+    "failed": 2
+  },
+  "k": 5,
+  "repos": 893,
+  "providers": [
+    {
+      "provider": "google",
+      "repos": 172,
+      "endpoints": [
+        {
+          "operation": "POST /token",
+          "repos": 14,
+          "fields": [
+            {
+              "name": "access_token",
+              "repos": 10
+            }
+          ],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "content-type",
+              "repos": 11
+            }
+          ],
+          "query": []
+        },
+        {
+          "operation": "GET /drive/v3/files/{}",
+          "repos": 6,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "authorization",
+              "repos": 5
+            }
+          ],
+          "query": [
+            {
+              "name": "alt",
+              "repos": 5
+            }
+          ]
+        },
+        {
+          "operation": "GET /oauth2/v3/userinfo",
+          "repos": 5,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 78
+    },
+    {
+      "provider": "github",
+      "repos": 150,
+      "endpoints": [
+        {
+          "operation": "GET /user",
+          "repos": 19,
+          "fields": [
+            {
+              "name": "login",
+              "repos": 11
+            }
+          ],
+          "statusCodes": [
+            {
+              "name": "401",
+              "repos": 5
+            }
+          ],
+          "headers": [
+            {
+              "name": "authorization",
+              "repos": 18
+            },
+            {
+              "name": "accept",
+              "repos": 14
+            },
+            {
+              "name": "user-agent",
+              "repos": 9
+            }
+          ],
+          "query": []
+        },
+        {
+          "operation": "GET /repos/{}/{}",
+          "repos": 18,
+          "fields": [
+            {
+              "name": "default_branch",
+              "repos": 9
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /repos/{}/{}/issues/{}/comments",
+          "repos": 11,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "GET /repos/{}/{}/contents/{}",
+          "repos": 10,
+          "fields": [
+            {
+              "name": "content",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "GET /repos/{}/{}/pulls/{}",
+          "repos": 9,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /graphql",
+          "repos": 8,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /repos/{}/{}/issues",
+          "repos": 5,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /repos/{}/{}/pulls",
+          "repos": 5,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 112
+    },
+    {
+      "provider": "openai",
+      "repos": 89,
+      "endpoints": [
+        {
+          "operation": "POST /v1/chat/completions",
+          "repos": 42,
+          "fields": [
+            {
+              "name": "choices[].message.content",
+              "repos": 27
+            }
+          ],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "authorization",
+              "repos": 5
+            },
+            {
+              "name": "content-type",
+              "repos": 5
+            }
+          ],
+          "query": []
+        },
+        {
+          "operation": "POST /v1/embeddings",
+          "repos": 14,
+          "fields": [
+            {
+              "name": "data[].embedding",
+              "repos": 13
+            },
+            {
+              "name": "data",
+              "repos": 8
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /v1/audio/transcriptions",
+          "repos": 7,
+          "fields": [
+            {
+              "name": "text",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /v1/responses",
+          "repos": 7,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /v1/images/generations",
+          "repos": 5,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 15
+    },
+    {
+      "provider": "slack",
+      "repos": 71,
+      "endpoints": [
+        {
+          "operation": "POST /api/chat.postMessage",
+          "repos": 35,
+          "fields": [
+            {
+              "name": "ok",
+              "repos": 13
+            },
+            {
+              "name": "ts",
+              "repos": 13
+            },
+            {
+              "name": "channel",
+              "repos": 6
+            },
+            {
+              "name": "error",
+              "repos": 6
+            }
+          ],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "authorization",
+              "repos": 9
+            },
+            {
+              "name": "content-type",
+              "repos": 9
+            }
+          ],
+          "query": []
+        },
+        {
+          "operation": "POST /api/conversations.history",
+          "repos": 10,
+          "fields": [
+            {
+              "name": "messages",
+              "repos": 8
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /api/files.completeUploadExternal",
+          "repos": 8,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /api/users.info",
+          "repos": 8,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /api/chat.update",
+          "repos": 7,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /api/conversations.list",
+          "repos": 7,
+          "fields": [
+            {
+              "name": "channels",
+              "repos": 7
+            },
+            {
+              "name": "channels[].id",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 21
+    },
+    {
+      "provider": "stripe",
+      "repos": 60,
+      "endpoints": [
+        {
+          "operation": "POST /v1/checkout/sessions",
+          "repos": 23,
+          "fields": [
+            {
+              "name": "url",
+              "repos": 17
+            },
+            {
+              "name": "id",
+              "repos": 12
+            }
+          ],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "stripe-version",
+              "repos": 14
+            }
+          ],
+          "query": []
+        },
+        {
+          "operation": "POST /v1/customers",
+          "repos": 15,
+          "fields": [
+            {
+              "name": "id",
+              "repos": 6
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "GET /v1/customers/{}",
+          "repos": 11,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /v1/payment_intents",
+          "repos": 9,
+          "fields": [
+            {
+              "name": "client_secret",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "GET /v1/checkout/sessions/{}",
+          "repos": 7,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "GET /v1/payment_intents/{}",
+          "repos": 7,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /v1/customers/{}",
+          "repos": 7,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "GET /v1/customers",
+          "repos": 6,
+          "fields": [
+            {
+              "name": "data",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /v1/subscriptions/{}",
+          "repos": 6,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /v1/subscriptions",
+          "repos": 5,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 7
+    },
+    {
+      "provider": "discord",
+      "repos": 59,
+      "endpoints": [],
+      "endpointsBelowK": 18
+    },
+    {
+      "provider": "anthropic",
+      "repos": 58,
+      "endpoints": [
+        {
+          "operation": "POST /v1/messages",
+          "repos": 45,
+          "fields": [
+            {
+              "name": "content",
+              "repos": 20
+            },
+            {
+              "name": "content[].type",
+              "repos": 20
+            },
+            {
+              "name": "content[].text",
+              "repos": 18
+            },
+            {
+              "name": "content[]",
+              "repos": 14
+            },
+            {
+              "name": "stop_reason",
+              "repos": 9
+            },
+            {
+              "name": "usage.input_tokens",
+              "repos": 8
+            },
+            {
+              "name": "usage.output_tokens",
+              "repos": 8
+            },
+            {
+              "name": "content[].input",
+              "repos": 6
+            },
+            {
+              "name": "content[].name",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "anthropic-version",
+              "repos": 10
+            },
+            {
+              "name": "content-type",
+              "repos": 10
+            },
+            {
+              "name": "x-api-key",
+              "repos": 9
+            }
+          ],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 9
+    },
+    {
+      "provider": "twilio",
+      "repos": 49,
+      "endpoints": [
+        {
+          "operation": "POST /2010-04-01/Accounts/{}/Messages.json",
+          "repos": 30,
+          "fields": [
+            {
+              "name": "sid",
+              "repos": 10
+            }
+          ],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "content-type",
+              "repos": 5
+            }
+          ],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 4
+    },
+    {
+      "provider": "meta-graph",
+      "repos": 46,
+      "endpoints": [],
+      "endpointsBelowK": 58
+    },
+    {
+      "provider": "google-gemini",
+      "repos": 42,
+      "endpoints": [
+        {
+          "operation": "POST /v1beta/models/{}:generateContent",
+          "repos": 20,
+          "fields": [
+            {
+              "name": "text",
+              "repos": 14
+            },
+            {
+              "name": "candidates[].content.parts",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 8
+    },
+    {
+      "provider": "resend",
+      "repos": 42,
+      "endpoints": [
+        {
+          "operation": "POST /emails",
+          "repos": 8,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "authorization",
+              "repos": 8
+            },
+            {
+              "name": "content-type",
+              "repos": 8
+            }
+          ],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 3
+    },
+    {
+      "provider": "x",
+      "repos": 39,
+      "endpoints": [],
+      "endpointsBelowK": 8
+    },
+    {
+      "provider": "microsoft-graph",
+      "repos": 38,
+      "endpoints": [],
+      "endpointsBelowK": 9
+    },
+    {
+      "provider": "notion",
+      "repos": 38,
+      "endpoints": [],
+      "endpointsBelowK": 9
+    },
+    {
+      "provider": "sendgrid",
+      "repos": 37,
+      "endpoints": [
+        {
+          "operation": "POST /v3/mail/send",
+          "repos": 29,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 3
+    },
+    {
+      "provider": "linear",
+      "repos": 36,
+      "endpoints": [
+        {
+          "operation": "POST /graphql",
+          "repos": 11,
+          "fields": [
+            {
+              "name": "errors",
+              "repos": 9
+            },
+            {
+              "name": "errors[].message",
+              "repos": 8
+            }
+          ],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "authorization",
+              "repos": 11
+            },
+            {
+              "name": "content-type",
+              "repos": 11
+            }
+          ],
+          "query": []
+        },
+        {
+          "operation": "POST /oauth/token",
+          "repos": 10,
+          "fields": [
+            {
+              "name": "access_token",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "content-type",
+              "repos": 10
+            }
+          ],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 1
+    },
+    {
+      "provider": "reddit",
+      "repos": 34,
+      "endpoints": [],
+      "endpointsBelowK": 7
+    },
+    {
+      "provider": "hubspot",
+      "repos": 32,
+      "endpoints": [],
+      "endpointsBelowK": 48
+    },
+    {
+      "provider": "salesforce",
+      "repos": 31,
+      "endpoints": [
+        {
+          "operation": "POST /services/Soap/u/{}",
+          "repos": 16,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 4
+    },
+    {
+      "provider": "zendesk",
+      "repos": 29,
+      "endpoints": [],
+      "endpointsBelowK": 5
+    },
+    {
+      "provider": "atlassian",
+      "repos": 28,
+      "endpoints": [],
+      "endpointsBelowK": 7
+    },
+    {
+      "provider": "linkedin",
+      "repos": 25,
+      "endpoints": [
+        {
+          "operation": "POST /v2/ugcPosts",
+          "repos": 7,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "authorization",
+              "repos": 7
+            },
+            {
+              "name": "content-type",
+              "repos": 7
+            },
+            {
+              "name": "x-restli-protocol-version",
+              "repos": 7
+            }
+          ],
+          "query": []
+        },
+        {
+          "operation": "GET /v2/userinfo",
+          "repos": 5,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "authorization",
+              "repos": 5
+            }
+          ],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 19
+    },
+    {
+      "provider": "quickbooks",
+      "repos": 25,
+      "endpoints": [
+        {
+          "operation": "POST /oauth2/v1/tokens/bearer",
+          "repos": 12,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "accept",
+              "repos": 5
+            },
+            {
+              "name": "authorization",
+              "repos": 5
+            },
+            {
+              "name": "content-type",
+              "repos": 5
+            }
+          ],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 7
+    },
+    {
+      "provider": "shopify",
+      "repos": 25,
+      "endpoints": [
+        {
+          "operation": "POST /admin/api/{}/graphql.json",
+          "repos": 6,
+          "fields": [
+            {
+              "name": "json",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 2
+    },
+    {
+      "provider": "xero",
+      "repos": 25,
+      "endpoints": [
+        {
+          "operation": "GET /api.xro/2.0/Invoices",
+          "repos": 7,
+          "fields": [
+            {
+              "name": "body.invoices",
+              "repos": 5
+            }
+          ],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "GET /api.xro/2.0/Contacts",
+          "repos": 6,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "GET /api.xro/2.0/Organisation",
+          "repos": 6,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [],
+          "query": []
+        },
+        {
+          "operation": "POST /connect/token",
+          "repos": 6,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "content-type",
+              "repos": 6
+            }
+          ],
+          "query": []
+        },
+        {
+          "operation": "GET /connections",
+          "repos": 5,
+          "fields": [],
+          "statusCodes": [],
+          "headers": [
+            {
+              "name": "authorization",
+              "repos": 5
+            }
+          ],
+          "query": []
+        }
+      ],
+      "endpointsBelowK": 19
+    },
+    {
+      "provider": "dropbox",
+      "repos": 24,
+      "endpoints": [],
+      "endpointsBelowK": 5
+    },
+    {
+      "provider": "plaid",
+      "repos": 24,
+      "endpoints": [],
+      "endpointsBelowK": 2
+    },
+    {
+      "provider": "mailchimp",
+      "repos": 23,
+      "endpoints": [],
+      "endpointsBelowK": 4
+    },
+    {
+      "provider": "paypal",
+      "repos": 16,
+      "endpoints": [],
+      "endpointsBelowK": 7
+    },
+    {
+      "provider": "cloudflare",
+      "repos": 14,
+      "endpoints": [],
+      "endpointsBelowK": 10
+    },
+    {
+      "provider": "intercom",
+      "repos": 14,
+      "endpoints": [],
+      "endpointsBelowK": 3
+    },
+    {
+      "provider": "airtable",
+      "repos": 13,
+      "endpoints": [],
+      "endpointsBelowK": 4
+    },
+    {
+      "provider": "square",
+      "repos": 11,
+      "endpoints": [],
+      "endpointsBelowK": 9
+    },
+    {
+      "provider": "zoom",
+      "repos": 7,
+      "endpoints": [],
+      "endpointsBelowK": 0
+    }
+  ],
+  "providersBelowK": 1
+}

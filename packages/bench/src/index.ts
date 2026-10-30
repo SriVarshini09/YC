@@ -13,3 +13,4 @@ export { changeMatchesGithubEntry, parseGithubBreakingChanges, scoreGithubReplay
 export { changeMatchesRow, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseReleasePage, previewOnly, resourceKey, scoreRelease, type ChangelogEntry, type ChangelogRow, type DiffOptions, type ReleaseScore, type SpecChange, type SpecChangeKind } from "./spec-replay";
 export { BREAKING_KINDS, apiOf, breakingChanges, churnIndex, normalizeSpec, parseRawLog, type ProviderChurn, type SpecEdit, type VersionPair } from "./spec-churn";
 export { buildTierRegistry, latestRun, type BenchmarkRun } from "./tiers";
+export { CONSOLE_K, providerConsole, type ConsoleEndpoint, type Count, type ProviderConsole, type ProviderReport } from "./provider-console";

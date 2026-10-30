@@ -29,6 +29,8 @@
     "bench:canary-backtest": "node ../../scripts/run-ts.mjs scripts/canary-backtest.ts",
     "bench:stripe-coverage": "node ../../scripts/run-ts.mjs scripts/stripe-coverage.ts",
     "bench:shopify-coverage": "node ../../scripts/run-ts.mjs scripts/shopify-coverage.ts",
+    "bench:console": "node ../../scripts/run-ts.mjs scripts/provider-console.ts",
+    "bench:console-corpus": "node ../../scripts/run-ts.mjs scripts/console-corpus.ts",
     "bench:spec-churn": "node ../../scripts/run-ts.mjs scripts/spec-churn.ts"
   },
   "dependencies": {
