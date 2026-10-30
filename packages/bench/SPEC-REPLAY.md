@@ -2,6 +2,15 @@
 
 Could SHAPI have drafted a provider's breaking changes from its published OpenAPI spec alone, before anyone read the changelog? Each replay diffs two versions of the spec, drafts every change a client could trip over as an `unverified` advisory, and scores the changes against the provider's own list of breaking changes. Drafts are written to the results files and **are not published**.
 
+| Provider | What is scored | Found | Found, of what a spec can show |
+| --- | --- | --- | --- |
+| Stripe (4 releases) | GA breaking REST API entries | 20 of 78 (26%) | 20 of 37 (54%) |
+| GitHub (`2026-03-10`) | Breaking-changes page entries | 20 of 26 (77%) | 20 of 23 (87%) |
+| Twilio (10 releases) | CHANGES.md breaking lines | 5 of 14 (36%) | 5 of 7 (71%) |
+| OpenAI (6 entries) | Deprecated models and endpoints | 1 of 26 (4%) | 1 of 1 endpoint; 0 of 25 models |
+
+A spec diff finds most field, parameter, enum and status-code changes a provider names. It can't show behavior changes, APIs outside the published spec (Stripe's v2 and previews, TwiML), or model deprecations: OpenAI's spec keeps a deprecated model in its enums until it is gone, with nothing marking it. Those need the provider's notices and live probes.
+
 ## Stripe
 
 Could SHAPI have drafted Stripe's breaking changes from the published OpenAPI spec alone, before anyone read the changelog? This replays four Stripe releases (execution plan P-08):
@@ -86,9 +95,52 @@ Run on 2026-10-30. Results: [results/spec-replay/github/](results/spec-replay/gi
   - 4 are changes the page doesn't mention: `master_branch` and `base-gist.user` removed from responses, and `return_run_details` removed from the workflow dispatch request;
   - the issue `pull_request` URLs became non-nullable. That's safe for a client that reads them, so it's a false positive of the diff.
 
+## Twilio
+
+[`twilio/twilio-oai`](https://github.com/twilio/twilio-oai) tags every release and keeps one spec per product and version (`spec/json/twilio_conversations_v1.json`). This replay (execution plan P-10) takes each release since 2.1.0 whose [CHANGES.md](https://github.com/twilio/twilio-oai/blob/main/CHANGES.md) section marks a breaking change, and diffs the named products' specs at its tag against the previous release's.
+
+- **Breaking lines:** lines marked `(breaking change)`, and the lines after a `**Breaking change**:` lead-in. 2.0.0 is left out: its breaking lines are branch merges that name nothing.
+- **Found:** a change in the product's specs whose field, schema, a value it lost, or its path is one the line quotes in backticks.
+
+Run it again with `pnpm --filter @shapi/bench bench:spec-replay:twilio`.
+
+<!-- twilio:start -->
+Run on 2026-10-30. Results: [results/spec-replay/twilio/](results/spec-replay/twilio/).
+
+| Releases | Breaking lines | Found in the spec diff | No spec for the product | Names nothing | Found, of those a spec can show | Spec changes found / matching a breaking line |
+|---|---|---|---|---|---|---|
+| 10 (2.1.0 to 2.10.0) | 14 | 5 (36%) | 3 | 4 | 5 of 7 (71%) | 41 / 10 |
+<!-- twilio:end -->
+
+- **Found (5):** the Conversations `StartConversation` restructuring and the `VOICE` channel value (2.8.1), the WhatsApp template category enum (2.8.1), the Memory `CSV` and `DATASET` data mapping types (2.8.0), and the Events `SinkSid` parameter (2.4.0).
+- **No spec for the product (3):** TwiML changes (`<Assistant>` removed from `<Connect>`, listed twice, and `speechModel`). TwiML is XML, not a REST API, so twilio-oai has no spec for it.
+- **Names nothing (4):** lines like "Remove usage category enum from usage record and usage triggers API" quote no field. The diff does show that one (the `usage_record_enum_category` schemas are gone and `category` became a string), but nothing links the two by name.
+- **Missed (2):** the Events Replays API (the diff shows its enum schemas removed, not a `/v1/Replays` path), and the Video transcription fields (no change in the Video spec between the two tags).
+
+## OpenAI
+
+[`openai/openai-openapi`](https://github.com/openai/openai-openapi) publishes one spec, updated several times a day. OpenAI's breaking changes are deprecations, listed on its [deprecations page](https://developers.openai.com/api/docs/deprecations) with a shutdown date for each model and endpoint. For each entry announced since the spec was first published as `openapi.json`, this replay (execution plan P-10) diffs the last spec before the announcement against the current one, and asks whether it shows each model or endpoint: an endpoint removed or newly marked `deprecated: true`, or a model gone from an enum.
+
+Run it again with `pnpm --filter @shapi/bench bench:spec-replay:openai`.
+
+<!-- openai:start -->
+Run on 2026-10-30, against [`b85fb6c`](https://github.com/openai/openai-openapi/commit/b85fb6c6239c20f9c739413065c56d9831aeedad). `openapi.json` is published since 2026-07-16. Results: [results/spec-replay/openai/](results/spec-replay/openai/).
+
+| Deprecation entries | Rows (models and endpoints) | Shown by the spec diff | Endpoint rows shown | Model rows shown |
+|---|---|---|---|---|
+| 6 | 26 | 1 (4%) | 1 of 1 | 0 of 25 |
+<!-- openai:end -->
+
+- **Endpoints:** `/v1/audio/translations` is marked `deprecated: true` after its announcement, so the diff shows it. The spec marks 17 operations this way, the Assistants API among them.
+- **Models (0 of 25):**
+  - 17 are still in the spec's enums, with nothing marking them deprecated;
+  - 8 aren't named in the current spec at all, and no enum dropped them. That includes `gpt-5.4-cyber`, whose shutdown (October 1, 2026) has passed.
+  - A model deprecation is invisible in OpenAI's spec: nothing marks it, and no enum changed for any of these 25. SHAPI has to read them from the deprecations page and models.dev instead (C-04).
+- **Window:** `openapi.json` goes back to 2026-07-16. Earlier history is YAML only, which this replay doesn't read, so 6 entries are scored.
+
 ## Files
 
 - [`src/spec-replay.ts`](src/spec-replay.ts): the diff, the changelog parsers, matching, scoring and drafting.
-- [`src/spec-replay-github.ts`](src/spec-replay-github.ts): GitHub's breaking-changes page parser, matching and scoring.
-- [`scripts/spec-replay.ts`](scripts/spec-replay.ts) and [`scripts/spec-replay-github.ts`](scripts/spec-replay-github.ts): find the spec versions, fetch the changelogs, write the results and these tables.
-- [`results/spec-replay/stripe/`](results/spec-replay/stripe/) and [`results/spec-replay/github/`](results/spec-replay/github/): the score (with every missed entry and why), the spec changes, and the drafted advisories.
+- [`src/spec-replay-github.ts`](src/spec-replay-github.ts), [`src/spec-replay-twilio.ts`](src/spec-replay-twilio.ts) and [`src/spec-replay-openai.ts`](src/spec-replay-openai.ts): each provider's changelog parser, matching and scoring.
+- [`scripts/spec-replay.ts`](scripts/spec-replay.ts) and `scripts/spec-replay-{github,twilio,openai}.ts`: find the spec versions, fetch the changelogs, write the results and these tables.
+- [`results/spec-replay/`](results/spec-replay/), one folder per provider: the score (with every missed entry and why), the spec changes, and the drafted advisories.
