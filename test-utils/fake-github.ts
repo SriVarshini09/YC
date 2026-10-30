@@ -21,6 +21,7 @@ export interface FakePull {
   labels: { name: string }[];
   /** null while GitHub computes it; false when the PR conflicts with its base. */
   mergeable: boolean | null;
+  draft: boolean;
 }
 
 export interface FakeIssue {
@@ -56,7 +57,7 @@ async function tarball(owner: string, repo: string, sha: string, files: Map<stri
   }
 }
 
-export function fakeRepoGitHub(fullName: string, files: Record<string, string>, opts: { defaultBranch?: string; repoId?: number } = {}) {
+export function fakeRepoGitHub(fullName: string, files: Record<string, string>, opts: { defaultBranch?: string; repoId?: number; refuseDrafts?: boolean } = {}) {
   const [owner, repo] = fullName.split("/") as [string, string];
   const defaultBranch = opts.defaultBranch ?? "main";
   let seq = 0;
@@ -262,6 +263,8 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
       return json(200, list, href);
     }
     if (method === "POST" && rest === "/pulls") {
+      // A private repository on GitHub's free plan refuses drafts.
+      if (body.draft && opts.refuseDrafts) return json(422, { message: "Draft pull requests are not supported in this repository." });
       const number = nextNumber++;
       const pr: FakePull = {
         number,
@@ -274,6 +277,7 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
         base: { ref: body.base },
         labels: [],
         mergeable: null,
+        draft: body.draft === true,
       };
       pulls.push(pr);
       return json(201, pr);

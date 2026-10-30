@@ -29,6 +29,8 @@ export interface FixPullRequest {
    * it the fix goes on the base branch's current head.
    */
   baseSha?: string;
+  /** Open the PR as a draft (V-05: an edit outside the predicted lines), where the repository allows drafts. */
+  draft?: boolean;
 }
 
 export interface OpenedPullRequest {
@@ -147,7 +149,12 @@ export async function upsertFixPr(octokit: Octokit, pr: UpsertFixPullRequest): P
   const commit = await commitFix(octokit, owner, repo, pr.baseSha ?? (await branchSha(octokit, owner, repo, base)), pr.files, message);
   if (head) await octokit.rest.git.updateRef({ owner, repo, ref: `heads/${pr.branch}`, sha: commit, force: true });
   else await octokit.rest.git.createRef({ owner, repo, ref: `refs/heads/${pr.branch}`, sha: commit });
-  const opened = await octokit.rest.pulls.create({ owner, repo, head: pr.branch, base, title: pr.title, body: pr.body });
+  const create = (draft: boolean) => octokit.rest.pulls.create({ owner, repo, head: pr.branch, base, title: pr.title, body: pr.body, ...(draft ? { draft: true } : {}) });
+  // A private repository on a free plan refuses drafts (422): it opens as a normal PR, and the label still asks for a person.
+  const opened = await create(pr.draft === true).catch((err: unknown) => {
+    if (pr.draft && (err as { status?: number }).status === 422 && /draft/i.test(String((err as Error).message))) return create(false);
+    throw err;
+  });
   if (pr.labels?.length) await octokit.rest.issues.addLabels({ owner, repo, issue_number: opened.data.number, labels: pr.labels });
   return { action: "created", url: opened.data.html_url, number: opened.data.number, branch: pr.branch, commit };
 }

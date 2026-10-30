@@ -1,5 +1,5 @@
 import type { Advisory } from "@shapi/core";
-import { codeSpan, testCounts, type AdvisoryRepair, type SuiteCheck, type TestRun, type TypeCheck, type UndoCheck } from "@shapi/repair";
+import { codeSpan, testCounts, type AdvisoryRepair, type SuiteCheck, type TestRun, type ScopeCheck, type TypeCheck, type UndoCheck } from "@shapi/repair";
 
 export { codeSpan };
 
@@ -59,6 +59,8 @@ export function renderPrBody({ advisory, repair, shapeSource, dashboardUrl, witn
     stubLine(fixed.map((s) => s.result.test?.kind), shapeSource, witnesses),
     "",
     undoLine(fixed.map((s) => s.result.undo)),
+    "",
+    scopeLine(fixed.map((s) => s.result.scope)),
     "",
     "| Test | Before this change | After this change | Type check |",
     "|---|---|---|---|",
@@ -125,6 +127,16 @@ function stubLine(kinds: (string | undefined)[], shapeSource: string, witnesses:
     return `**Stub:** from recorded responses (${shapeSource}${ids}).`;
   }
   return "**Stub:** synthesized from the advisory (no recorded responses for this endpoint).";
+}
+
+/** The scope check across the fixed call sites (V-05): every edit inside the function that makes the call. */
+export function scopeLine(checks: (ScopeCheck | undefined)[]): string {
+  const outside = checks.flatMap((c) => (c?.status === "out-of-scope" ? (c.outside ?? []) : []));
+  if (outside.length) {
+    return `**Scope:** ⚠️ the change also edits ${outside.map((o) => codeSpan(o)).join(", ")}, outside the function that makes the call. This PR is a draft for a person to check (labelled \`needs-human\`).`;
+  }
+  if (checks.some((c) => c?.status === "in-scope")) return "**Scope:** ✅ every edit is inside the function that makes the call.";
+  return "**Scope:** ⚪ not checked.";
 }
 
 /** The undo check across the fixed call sites (V-04): undoing each part of the change must make its test fail. */

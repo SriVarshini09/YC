@@ -10,7 +10,8 @@ export { DEFAULT_LLM_CALLS_PER_JOB, DEFAULT_REPAIR_MODEL, MAX_LLM_FILE_BYTES, cl
 export { SHAPI_VITEST_CONFIG, runFailure, runTestFile, testCounts, testsRan, type TestRun } from "./runner";
 export { checkKept, type KeepCheck, type KeepInput } from "./keep";
 export { checkTypes, tscErrors, typeBaseline, type TypeBaseline, type TypeCheck } from "./typecheck";
-export { MAX_UNDO_PARTS, checkUndo, partsOf, type UndoCheck } from "./undo";
+export { MAX_UNDO_PARTS, changedRanges, checkUndo, partsOf, type Hunk, type UndoCheck } from "./undo";
+export { checkScope, type ScopeCheck } from "./scope";
 export { SUITE_ATTEMPTS, checkSuite, failingTests, suiteCommand, suiteCounts, testTotal, type SuiteCheck, type SuiteRun } from "./suite";
 export { bodyFromPaths, synthesizeBody } from "./synth";
 export { statusCodeAcceptSet } from "./recipes/status-code-accept-set";

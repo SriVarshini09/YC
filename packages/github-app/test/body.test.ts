@@ -3,7 +3,17 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadAdvisories, type LockedCallSite } from "@shapi/core";
 import { swap, type AdvisoryRepair, type FileChange, type RepairResult } from "@shapi/repair";
-import { codeSpan, renderPrBody, suiteLine, undoLine } from "@shapi/github-app";
+import { codeSpan, renderPrBody, scopeLine, suiteLine, undoLine } from "@shapi/github-app";
+
+describe("scope check line (V-05)", () => {
+  it("says the edits stay in the calling function, or names the ones outside it", () => {
+    expect(scopeLine([{ status: "in-scope", detail: "" }])).toBe("**Scope:** ✅ every edit is inside the function that makes the call.");
+    expect(scopeLine([{ status: "out-of-scope", detail: "", outside: ["src/helper.ts"] }, { status: "in-scope", detail: "" }])).toBe(
+      "**Scope:** ⚠️ the change also edits ` src/helper.ts `, outside the function that makes the call. This PR is a draft for a person to check (labelled `needs-human`).",
+    );
+    expect(scopeLine([undefined])).toBe("**Scope:** ⚪ not checked.");
+  });
+});
 
 describe("undo check line (V-04)", () => {
   it("shows k/k, names an uncovered part for a person, or says why it did not run", () => {

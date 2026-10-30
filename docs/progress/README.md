@@ -100,3 +100,4 @@ One line per task: task, summary file, PR, status.
 - PB-51 contract-test stubs from recorded witnesses, and the PR says whether the stub is recorded or synthesized from the advisory (V-03): [summary](PB-51-stubs-from-witnesses.md) · PR: open
 - PB-52 Anthropic messages.parse() and batch methods are mapped, a gap A-03 surfaced on Nori: [summary](PB-52-anthropic-sdk-methods.md) · PR: open
 - PB-53 the undo check: each part of a fix is undone alone and must make its contract test fail; a part it survives labels the PR needs-human (V-04): [summary](PB-53-undo-check.md) · PR: open
+- PB-54 the scope check: an LLM fix that edits outside the function making the call opens as a draft labelled needs-human (V-05): [summary](PB-54-scope-check.md) · PR: open
