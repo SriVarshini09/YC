@@ -175,6 +175,12 @@ importers:
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
+      ajv:
+        specifier: 8.20.0
+        version: 8.20.0
+      ajv-formats:
+        specifier: 3.0.1
+        version: 3.0.1(ajv@8.20.0)
       embedded-postgres:
         specifier: 18.4.0-beta.17
         version: 18.4.0-beta.17

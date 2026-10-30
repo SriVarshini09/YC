@@ -90,3 +90,4 @@ One line per task: task, summary file, PR, status.
 - PB-41 from GitHub to the dashboard in one click: Setup URL, and dashboard links on checks, PRs and the Dashboard issue (U-01, U-02): [summary](PB-41-dashboard-links.md) · PR: open
 - PB-42 a repository too large to scan fails alone: its own memory-capped process, a size gate, a Sentry alert, and a 1 GB worker (I-01): [summary](PB-42-scan-isolation.md) · PR: open
 - PB-43 every job has a time limit, a hung scan shows failed on the next sweep, and a job that keeps failing lands in a dead-letter queue (I-02): [summary](PB-43-job-timeouts.md) · PR: open
+- PB-44 the advisory JSON Schema is published at shapi.dev/schema/advisory.json, and every advisory validates against it (S-01): [summary](PB-44-advisory-schema.md) · PR: open

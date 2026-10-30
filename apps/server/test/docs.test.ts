@@ -22,6 +22,7 @@ beforeAll(() => {
   put("legal/index.html", "<h1>legal</h1>");
   put("assets/app.abc123.js", "console.log(1)");
   put("404.html", "<h1>not found</h1>");
+  put("schema/advisory.json", '{"$id":"https://shapi.dev/schema/advisory.json"}');
   put(".hidden", "no");
   writeFileSync(outside, "outside the docs");
 });
@@ -48,6 +49,16 @@ describe("docs site on its own hostname", () => {
     expect((await get("/legal/")).body).toBe("<h1>legal</h1>");
     expect((await get("/legal")).body).toBe("<h1>legal</h1>");
     expect((await get("/", "shapi.dev", "HEAD")).statusCode).toBe(200);
+  });
+
+  it("serves the published advisory JSON Schema to any origin (S-01)", async () => {
+    const schema = await get("/schema/advisory.json");
+    expect(schema.statusCode).toBe(200);
+    expect(schema.headers["content-type"]).toBe("application/json; charset=utf-8");
+    expect(schema.headers["access-control-allow-origin"]).toBe("*");
+    expect(schema.json()).toEqual({ $id: "https://shapi.dev/schema/advisory.json" });
+    // Other files are not shared across origins.
+    expect((await get("/guide/cli")).headers["access-control-allow-origin"]).toBeUndefined();
   });
 
   it("caches hashed assets for a year", async () => {
