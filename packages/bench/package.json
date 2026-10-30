@@ -25,16 +25,17 @@
     "bench:spec-replay:github": "node ../../scripts/run-ts.mjs scripts/spec-replay-github.ts",
     "bench:spec-replay:twilio": "node ../../scripts/run-ts.mjs scripts/spec-replay-twilio.ts",
     "bench:spec-replay:openai": "node ../../scripts/run-ts.mjs scripts/spec-replay-openai.ts",
-    "bench:wayback": "node ../../scripts/run-ts.mjs scripts/wayback.ts"
+    "bench:wayback": "node ../../scripts/run-ts.mjs scripts/wayback.ts",
+    "bench:canary-backtest": "node ../../scripts/run-ts.mjs scripts/canary-backtest.ts"
   },
   "dependencies": {
+    "@shapi/canary": "workspace:*",
     "@shapi/core": "workspace:*",
-    "@shapi/extractor": "workspace:*"
+    "@shapi/extractor": "workspace:*",
+    "@shapi/shapes": "workspace:*"
   },
   "devDependencies": {
-    "@shapi/canary": "workspace:*",
     "@shapi/repair": "workspace:*",
-    "@shapi/sandbox": "workspace:*",
-    "@shapi/shapes": "workspace:*"
+    "@shapi/sandbox": "workspace:*"
   }
 }
