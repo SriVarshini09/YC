@@ -1,0 +1,1778 @@
+{
+  "score": {
+    "releases": [
+      {
+        "version": "2.10.0",
+        "previous": "2.9.0",
+        "date": "2026-10-12",
+        "files": [
+          "twilio_events_v1.json"
+        ],
+        "changes": 2
+      },
+      {
+        "version": "2.8.1",
+        "previous": "2.8.0",
+        "date": "2026-08-27",
+        "files": [
+          "twilio_conversations_v1.json",
+          "twilio_conversations_v2.json",
+          "twilio_messaging_v1.json",
+          "twilio_messaging_v2.json",
+          "twilio_messaging_v3.json"
+        ],
+        "changes": 12
+      },
+      {
+        "version": "2.8.0",
+        "previous": "2.7.1",
+        "date": "2026-08-25",
+        "files": [
+          "twilio_memory_v1.json"
+        ],
+        "changes": 3
+      },
+      {
+        "version": "2.7.0",
+        "previous": "2.6.9",
+        "date": "2026-08-11",
+        "files": [],
+        "changes": 0
+      },
+      {
+        "version": "2.6.0",
+        "previous": "2.5.8",
+        "date": "2025-12-17",
+        "files": [
+          "twilio_trunking_v1.json"
+        ],
+        "changes": 1
+      },
+      {
+        "version": "2.5.0",
+        "previous": "2.4.2",
+        "date": "2025-09-04",
+        "files": [
+          "twilio_api_v2010.json"
+        ],
+        "changes": 21
+      },
+      {
+        "version": "2.4.0",
+        "previous": "2.3.5",
+        "date": "2025-07-24",
+        "files": [
+          "twilio_events_v1.json"
+        ],
+        "changes": 1
+      },
+      {
+        "version": "2.3.0",
+        "previous": "2.2.3",
+        "date": "2025-05-05",
+        "files": [
+          "twilio_video_v1.json"
+        ],
+        "changes": 0
+      },
+      {
+        "version": "2.2.0",
+        "previous": "2.1.13",
+        "date": "2025-03-11",
+        "files": [],
+        "changes": 0
+      },
+      {
+        "version": "2.1.0",
+        "previous": "2.0.3",
+        "date": "2024-09-05",
+        "files": [
+          "twilio_numbers_v1.json",
+          "twilio_numbers_v2.json"
+        ],
+        "changes": 1
+      }
+    ],
+    "breakingEntries": 14,
+    "found": 5,
+    "outsideSpec": 3,
+    "namesNothing": 4,
+    "missed": [
+      {
+        "version": "2.10.0",
+        "product": "Events",
+        "text": "Remove the Replays API (`/v1/Replays`, beta feature `api.eventstreams.replay`); the feature was never GA and is being sunset",
+        "reason": "no change in the Events specs matches /v1/Replays, api.eventstreams.replay"
+      },
+      {
+        "version": "2.8.0",
+        "product": "Twiml",
+        "text": "Remove `<Assistant>` noun from `<Connect>` verb as part of the AI Assistants deprecation",
+        "reason": "twilio-oai has no spec for Twiml"
+      },
+      {
+        "version": "2.7.0",
+        "product": "Twiml",
+        "text": "Remove `<Assistant>` noun from `<Connect>` verb as part of the AI Assistants deprecation",
+        "reason": "twilio-oai has no spec for Twiml"
+      },
+      {
+        "version": "2.6.0",
+        "product": "Trunking",
+        "text": "Corrected the type used for phone number capabilities when accessed through a Trunk.",
+        "reason": "the line names no field, value, schema or path"
+      },
+      {
+        "version": "2.6.0",
+        "product": "Trunking",
+        "text": "Corrected the type used for phone number capabilities when accessed through a Trunk.",
+        "reason": "the line names no field, value, schema or path"
+      },
+      {
+        "version": "2.5.0",
+        "product": "Api",
+        "text": "Remove usage category enum from usage record and usage triggers API",
+        "reason": "the line names no field, value, schema or path"
+      },
+      {
+        "version": "2.3.0",
+        "product": "Video",
+        "text": "removed `transcribe_participants_on_connect` and `transcriptions_configuration` from the room resource",
+        "reason": "no change in the Video specs matches transcribe_participants_on_connect, transcriptions_configuration"
+      },
+      {
+        "version": "2.2.0",
+        "product": "Twiml",
+        "text": "Convert Twiml Attribute `speechModel` of type enum to string",
+        "reason": "twilio-oai has no spec for Twiml"
+      },
+      {
+        "version": "2.1.0",
+        "product": "Numbers",
+        "text": "Change typing of Port In Request date_created field to date_time instead of date",
+        "reason": "the line names no field, value, schema or path"
+      }
+    ],
+    "candidates": 41,
+    "candidatesMatching": 10
+  },
+  "releases": [
+    {
+      "version": "2.10.0",
+      "previous": "2.9.0",
+      "date": "2026-10-12",
+      "files": [
+        "twilio_events_v1.json"
+      ],
+      "entries": [
+        {
+          "version": "2.10.0",
+          "date": "2026-10-12",
+          "product": "Events",
+          "text": "Remove the Replays API (`/v1/Replays`, beta feature `api.eventstreams.replay`); the feature was never GA and is being sunset",
+          "names": [
+            "/v1/Replays",
+            "api.eventstreams.replay"
+          ]
+        }
+      ],
+      "changes": [
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "replay_enum_status",
+          "detail": "the replay_enum_status object is gone",
+          "file": "twilio_events_v1.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "replay_enum_patchstatus",
+          "detail": "the replay_enum_patchstatus object is gone",
+          "file": "twilio_events_v1.json"
+        }
+      ]
+    },
+    {
+      "version": "2.8.1",
+      "previous": "2.8.0",
+      "date": "2026-08-27",
+      "files": [
+        "twilio_conversations_v1.json",
+        "twilio_conversations_v2.json",
+        "twilio_messaging_v1.json",
+        "twilio_messaging_v2.json",
+        "twilio_messaging_v3.json"
+      ],
+      "entries": [
+        {
+          "version": "2.8.1",
+          "date": "2026-08-27",
+          "product": "Conversations",
+          "text": "Restructured the `StartConversation` request body: removed the top-level `channel`, `from`, `to`, `content`, and `orchestratorPolicy` fields in favor of a `participants` roster plus a single dispatched `action` (`SEND_MESSAGE`, `START_FLOW`, or `CALL`)",
+          "names": [
+            "StartConversation",
+            "channel",
+            "from",
+            "to",
+            "content",
+            "orchestratorPolicy",
+            "participants",
+            "action",
+            "SEND_MESSAGE",
+            "START_FLOW",
+            "CALL"
+          ]
+        },
+        {
+          "version": "2.8.1",
+          "date": "2026-08-27",
+          "product": "Conversations",
+          "text": "Removed the `VOICE` value from the `start_conversation_channel` enum and dropped the `orchestratorPolicy`/`orchestratorPolicyAction` schemas; voice calls are now placed via the new `CALL` action and Studio Flow dispatch via the new `START_FLOW` action",
+          "names": [
+            "VOICE",
+            "start_conversation_channel",
+            "orchestratorPolicy",
+            "orchestratorPolicyAction",
+            "CALL",
+            "START_FLOW"
+          ]
+        },
+        {
+          "version": "2.8.1",
+          "date": "2026-08-27",
+          "product": "Messaging",
+          "text": "Removed the `whatsapp_template_enum_category` enum and the WhatsApp Template resource from the spec",
+          "names": [
+            "whatsapp_template_enum_category"
+          ]
+        }
+      ],
+      "changes": [
+        {
+          "kind": "property-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.start_conversation_participant",
+          "field": "participantId",
+          "detail": "conversations.v2.start_conversation_participant.participantId is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "property-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.start_conversation_participant",
+          "field": "address",
+          "detail": "conversations.v2.start_conversation_participant.address is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.orchestrator_policy_action",
+          "detail": "the conversations.v2.orchestrator_policy_action object is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.orchestrator_policy",
+          "detail": "the conversations.v2.orchestrator_policy object is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "property-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.start_conversation_request",
+          "field": "channel",
+          "detail": "conversations.v2.start_conversation_request.channel is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "property-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.start_conversation_request",
+          "field": "from",
+          "detail": "conversations.v2.start_conversation_request.from is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "property-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.start_conversation_request",
+          "field": "to",
+          "detail": "conversations.v2.start_conversation_request.to is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "property-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.start_conversation_request",
+          "field": "content",
+          "detail": "conversations.v2.start_conversation_request.content is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "property-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.start_conversation_request",
+          "field": "channelSettings",
+          "detail": "conversations.v2.start_conversation_request.channelSettings is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "property-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.start_conversation_request",
+          "field": "orchestratorPolicy",
+          "detail": "conversations.v2.start_conversation_request.orchestratorPolicy is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "conversations.v2.start_conversation_channel",
+          "detail": "the conversations.v2.start_conversation_channel object is gone",
+          "file": "twilio_conversations_v2.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "whatsapp_template_enum_category",
+          "detail": "the whatsapp_template_enum_category object is gone",
+          "file": "twilio_messaging_v1.json"
+        }
+      ]
+    },
+    {
+      "version": "2.8.0",
+      "previous": "2.7.1",
+      "date": "2026-08-25",
+      "files": [
+        "twilio_memory_v1.json"
+      ],
+      "entries": [
+        {
+          "version": "2.8.0",
+          "date": "2026-08-25",
+          "product": "Twiml",
+          "text": "Remove `<Assistant>` noun from `<Connect>` verb as part of the AI Assistants deprecation",
+          "names": [
+            "Assistant",
+            "Connect"
+          ]
+        },
+        {
+          "version": "2.8.0",
+          "date": "2026-08-25",
+          "product": "Memory",
+          "text": "Removed the deprecated `CSV` and `DATASET` values from the `DataMappingType` enum. `INGRESS`, `DATASET_CLOUDAPP`, and `DATASET_WAREHOUSE` are the only valid values now. Removed the `DataMappingFromCSV` and `DataMappingFromDataSet` schemas and their `oneOf`/discriminator entries on `DataMappingFromTypes`, along with the corresponding `CSV`/`DATASET` discriminator mapping keys. Any caller still sending `type: CSV` or `type: DATASET` on `CreateDataMapping` or `UpdateDataMapping` (or filtering `ListDataMappings`/`ListDataMappingSuggestions` by those values) will get a 400.",
+          "names": [
+            "CSV",
+            "DATASET",
+            "DataMappingType",
+            "INGRESS",
+            "DATASET_CLOUDAPP",
+            "DATASET_WAREHOUSE",
+            "DataMappingFromCSV",
+            "DataMappingFromDataSet",
+            "oneOf",
+            "DataMappingFromTypes",
+            "type: CSV",
+            "type: DATASET",
+            "CreateDataMapping",
+            "UpdateDataMapping",
+            "ListDataMappings",
+            "ListDataMappingSuggestions"
+          ]
+        }
+      ],
+      "changes": [
+        {
+          "kind": "enum-value-removed",
+          "changeClass": "enum-added",
+          "operation": "GET /v1/ControlPlane/Stores/{storeId}/DataMappings",
+          "field": "type",
+          "values": [
+            "CSV",
+            "DATASET"
+          ],
+          "detail": "GET /v1/ControlPlane/Stores/{storeId}/DataMappings no longer accepts type = CSV, DATASET",
+          "file": "twilio_memory_v1.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "DataMappingFromDataSet",
+          "detail": "the DataMappingFromDataSet object is gone",
+          "file": "twilio_memory_v1.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "DataMappingFromCSV",
+          "detail": "the DataMappingFromCSV object is gone",
+          "file": "twilio_memory_v1.json"
+        }
+      ]
+    },
+    {
+      "version": "2.7.0",
+      "previous": "2.6.9",
+      "date": "2026-08-11",
+      "files": [],
+      "entries": [
+        {
+          "version": "2.7.0",
+          "date": "2026-08-11",
+          "product": "Twiml",
+          "text": "Remove `<Assistant>` noun from `<Connect>` verb as part of the AI Assistants deprecation",
+          "names": [
+            "Assistant",
+            "Connect"
+          ]
+        }
+      ],
+      "changes": []
+    },
+    {
+      "version": "2.6.0",
+      "previous": "2.5.8",
+      "date": "2025-12-17",
+      "files": [
+        "twilio_trunking_v1.json"
+      ],
+      "entries": [
+        {
+          "version": "2.6.0",
+          "date": "2025-12-17",
+          "product": "Trunking",
+          "text": "Corrected the type used for phone number capabilities when accessed through a Trunk.",
+          "names": []
+        },
+        {
+          "version": "2.6.0",
+          "date": "2025-12-17",
+          "product": "Trunking",
+          "text": "Corrected the type used for phone number capabilities when accessed through a Trunk.",
+          "names": []
+        }
+      ],
+      "changes": [
+        {
+          "kind": "response-status-removed",
+          "changeClass": "status-code",
+          "operation": "POST /v1/Trunks/{TrunkSid}/Recording",
+          "field": "202",
+          "detail": "POST /v1/Trunks/{TrunkSid}/Recording no longer answers 202",
+          "file": "twilio_trunking_v1.json"
+        }
+      ]
+    },
+    {
+      "version": "2.5.0",
+      "previous": "2.4.2",
+      "date": "2025-09-04",
+      "files": [
+        "twilio_api_v2010.json"
+      ],
+      "entries": [
+        {
+          "version": "2.5.0",
+          "date": "2025-09-04",
+          "product": "Api",
+          "text": "Remove usage category enum from usage record and usage triggers API",
+          "names": []
+        }
+      ],
+      "changes": [
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_record",
+          "field": "category",
+          "detail": "api.v2010.account.usage.usage_record.category changed from ref:usage_record_enum_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_enum_category",
+          "detail": "the usage_record_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_record.usage_record_all_time",
+          "field": "category",
+          "detail": "api.v2010.account.usage.usage_record.usage_record_all_time.category changed from ref:usage_record_all_time_enum_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_all_time_enum_category",
+          "detail": "the usage_record_all_time_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_record.usage_record_daily",
+          "field": "category",
+          "detail": "api.v2010.account.usage.usage_record.usage_record_daily.category changed from ref:usage_record_daily_enum_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_daily_enum_category",
+          "detail": "the usage_record_daily_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_record.usage_record_last_month",
+          "field": "category",
+          "detail": "api.v2010.account.usage.usage_record.usage_record_last_month.category changed from ref:usage_record_last_month_enum_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_last_month_enum_category",
+          "detail": "the usage_record_last_month_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_record.usage_record_monthly",
+          "field": "category",
+          "detail": "api.v2010.account.usage.usage_record.usage_record_monthly.category changed from ref:usage_record_monthly_enum_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_monthly_enum_category",
+          "detail": "the usage_record_monthly_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_record.usage_record_this_month",
+          "field": "category",
+          "detail": "api.v2010.account.usage.usage_record.usage_record_this_month.category changed from ref:usage_record_this_month_enum_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_this_month_enum_category",
+          "detail": "the usage_record_this_month_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_time_parameterized_enum_category",
+          "detail": "the usage_record_time_parameterized_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_record.usage_record_today",
+          "field": "category",
+          "detail": "api.v2010.account.usage.usage_record.usage_record_today.category changed from ref:usage_record_today_enum_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_today_enum_category",
+          "detail": "the usage_record_today_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_record.usage_record_yearly",
+          "field": "category",
+          "detail": "api.v2010.account.usage.usage_record.usage_record_yearly.category changed from ref:usage_record_yearly_enum_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_yearly_enum_category",
+          "detail": "the usage_record_yearly_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_record.usage_record_yesterday",
+          "field": "category",
+          "detail": "api.v2010.account.usage.usage_record.usage_record_yesterday.category changed from ref:usage_record_yesterday_enum_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_record_yesterday_enum_category",
+          "detail": "the usage_record_yesterday_enum_category object is gone",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "api.v2010.account.usage.usage_trigger",
+          "field": "usage_category",
+          "detail": "api.v2010.account.usage.usage_trigger.usage_category changed from ref:usage_trigger_enum_usage_category to string|null",
+          "file": "twilio_api_v2010.json"
+        },
+        {
+          "kind": "schema-removed",
+          "changeClass": "field-rename",
+          "schema": "usage_trigger_enum_usage_category",
+          "detail": "the usage_trigger_enum_usage_category object is gone",
+          "file": "twilio_api_v2010.json"
+        }
+      ]
+    },
+    {
+      "version": "2.4.0",
+      "previous": "2.3.5",
+      "date": "2025-07-24",
+      "files": [
+        "twilio_events_v1.json"
+      ],
+      "entries": [
+        {
+          "version": "2.4.0",
+          "date": "2025-07-24",
+          "product": "Events",
+          "text": "Remove `SinkSid` parameter when updating subscriptions.",
+          "names": [
+            "SinkSid"
+          ]
+        }
+      ],
+      "changes": [
+        {
+          "kind": "parameter-removed",
+          "changeClass": "required-field",
+          "operation": "POST /v1/Subscriptions/{Sid}",
+          "field": "SinkSid",
+          "detail": "POST /v1/Subscriptions/{Sid} no longer takes SinkSid",
+          "file": "twilio_events_v1.json"
+        }
+      ]
+    },
+    {
+      "version": "2.3.0",
+      "previous": "2.2.3",
+      "date": "2025-05-05",
+      "files": [
+        "twilio_video_v1.json"
+      ],
+      "entries": [
+        {
+          "version": "2.3.0",
+          "date": "2025-05-05",
+          "product": "Video",
+          "text": "removed `transcribe_participants_on_connect` and `transcriptions_configuration` from the room resource",
+          "names": [
+            "transcribe_participants_on_connect",
+            "transcriptions_configuration"
+          ]
+        }
+      ],
+      "changes": []
+    },
+    {
+      "version": "2.2.0",
+      "previous": "2.1.13",
+      "date": "2025-03-11",
+      "files": [],
+      "entries": [
+        {
+          "version": "2.2.0",
+          "date": "2025-03-11",
+          "product": "Twiml",
+          "text": "Convert Twiml Attribute `speechModel` of type enum to string",
+          "names": [
+            "speechModel"
+          ]
+        }
+      ],
+      "changes": []
+    },
+    {
+      "version": "2.1.0",
+      "previous": "2.0.3",
+      "date": "2024-09-05",
+      "files": [
+        "twilio_numbers_v1.json",
+        "twilio_numbers_v2.json"
+      ],
+      "entries": [
+        {
+          "version": "2.1.0",
+          "date": "2024-09-05",
+          "product": "Numbers",
+          "text": "Change typing of Port In Request date_created field to date_time instead of date",
+          "names": []
+        }
+      ],
+      "changes": [
+        {
+          "kind": "property-type-changed",
+          "changeClass": "field-rename",
+          "schema": "numbers.v2.bulk_hosted_number_order",
+          "field": "total_count",
+          "detail": "numbers.v2.bulk_hosted_number_order.total_count changed from integer|null to integer",
+          "file": "twilio_numbers_v2.json"
+        }
+      ]
+    }
+  ],
+  "drafts": [
+    {
+      "id": "twilio-schema-removed-replay-enum-status",
+      "provider": "twilio",
+      "title": "the replay_enum_status object is gone in 2026-10-12",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-10-12: the replay_enum_status object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-10-12",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads replay_enum_status before moving to 2026-10-12.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.10.0/spec/json/twilio_events_v1.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-replay-enum-patchstatus",
+      "provider": "twilio",
+      "title": "the replay_enum_patchstatus object is gone in 2026-10-12",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-10-12: the replay_enum_patchstatus object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-10-12",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads replay_enum_patchstatus before moving to 2026-10-12.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.10.0/spec/json/twilio_events_v1.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-removed-conversations-v2-start-conversation-participant-participantid",
+      "provider": "twilio",
+      "title": "conversations.v2.start_conversation_participant.participantId is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: conversations.v2.start_conversation_participant.participantId is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "participantId"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads participantId before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-removed-conversations-v2-start-conversation-participant-address",
+      "provider": "twilio",
+      "title": "conversations.v2.start_conversation_participant.address is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: conversations.v2.start_conversation_participant.address is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "address"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads address before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-conversations-v2-orchestrator-policy-action",
+      "provider": "twilio",
+      "title": "the conversations.v2.orchestrator_policy_action object is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: the conversations.v2.orchestrator_policy_action object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads conversations.v2.orchestrator_policy_action before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-conversations-v2-orchestrator-policy",
+      "provider": "twilio",
+      "title": "the conversations.v2.orchestrator_policy object is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: the conversations.v2.orchestrator_policy object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads conversations.v2.orchestrator_policy before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-removed-conversations-v2-start-conversation-request-channel",
+      "provider": "twilio",
+      "title": "conversations.v2.start_conversation_request.channel is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: conversations.v2.start_conversation_request.channel is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "channel"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads channel before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-removed-conversations-v2-start-conversation-request-from",
+      "provider": "twilio",
+      "title": "conversations.v2.start_conversation_request.from is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: conversations.v2.start_conversation_request.from is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "from"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads from before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-removed-conversations-v2-start-conversation-request-to",
+      "provider": "twilio",
+      "title": "conversations.v2.start_conversation_request.to is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: conversations.v2.start_conversation_request.to is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "to"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads to before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-removed-conversations-v2-start-conversation-request-content",
+      "provider": "twilio",
+      "title": "conversations.v2.start_conversation_request.content is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: conversations.v2.start_conversation_request.content is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "content"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads content before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-removed-conversations-v2-start-conversation-request-channelsettings",
+      "provider": "twilio",
+      "title": "conversations.v2.start_conversation_request.channelSettings is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: conversations.v2.start_conversation_request.channelSettings is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "channelSettings"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads channelSettings before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-removed-conversations-v2-start-conversation-request-orchestratorpolicy",
+      "provider": "twilio",
+      "title": "conversations.v2.start_conversation_request.orchestratorPolicy is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: conversations.v2.start_conversation_request.orchestratorPolicy is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "orchestratorPolicy"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads orchestratorPolicy before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-conversations-v2-start-conversation-channel",
+      "provider": "twilio",
+      "title": "the conversations.v2.start_conversation_channel object is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: the conversations.v2.start_conversation_channel object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads conversations.v2.start_conversation_channel before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_conversations_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-whatsapp-template-enum-category",
+      "provider": "twilio",
+      "title": "the whatsapp_template_enum_category object is gone in 2026-08-27",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-27: the whatsapp_template_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-27",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads whatsapp_template_enum_category before moving to 2026-08-27.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.1/spec/json/twilio_messaging_v1.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-enum-value-removed-get-v1-controlplane-stores-storeid-datamappings-type",
+      "provider": "twilio",
+      "title": "GET /v1/ControlPlane/Stores/{storeId}/DataMappings no longer accepts type = CSV, DATASET in 2026-08-25",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-25: GET /v1/ControlPlane/Stores/{storeId}/DataMappings no longer accepts type = CSV, DATASET. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "GET",
+        "path": "/v1/ControlPlane/Stores/{storeId}/DataMappings"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "body": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2026-08-25.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.0/spec/json/twilio_memory_v1.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-datamappingfromdataset",
+      "provider": "twilio",
+      "title": "the DataMappingFromDataSet object is gone in 2026-08-25",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-25: the DataMappingFromDataSet object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads DataMappingFromDataSet before moving to 2026-08-25.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.0/spec/json/twilio_memory_v1.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-datamappingfromcsv",
+      "provider": "twilio",
+      "title": "the DataMappingFromCSV object is gone in 2026-08-25",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2026-08-25: the DataMappingFromCSV object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-08-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads DataMappingFromCSV before moving to 2026-08-25.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.8.0/spec/json/twilio_memory_v1.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-response-status-removed-post-v1-trunks-trunksid-recording-202",
+      "provider": "twilio",
+      "title": "POST /v1/Trunks/{TrunkSid}/Recording no longer answers 202 in 2025-12-17",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-12-17: POST /v1/Trunks/{TrunkSid}/Recording no longer answers 202. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/Trunks/{TrunkSid}/Recording"
+      },
+      "changeClass": "status-code",
+      "trigger": {
+        "statusCodes": [
+          202
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-12-17",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads 202 before moving to 2025-12-17.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.6.0/spec/json/twilio_trunking_v1.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-record-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_record.category changed from ref:usage_record_enum_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_record.category changed from ref:usage_record_enum_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-record-usage-record-all-time-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_record.usage_record_all_time.category changed from ref:usage_record_all_time_enum_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_record.usage_record_all_time.category changed from ref:usage_record_all_time_enum_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-all-time-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_all_time_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_all_time_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_all_time_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-record-usage-record-daily-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_record.usage_record_daily.category changed from ref:usage_record_daily_enum_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_record.usage_record_daily.category changed from ref:usage_record_daily_enum_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-daily-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_daily_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_daily_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_daily_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-record-usage-record-last-month-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_record.usage_record_last_month.category changed from ref:usage_record_last_month_enum_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_record.usage_record_last_month.category changed from ref:usage_record_last_month_enum_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-last-month-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_last_month_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_last_month_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_last_month_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-record-usage-record-monthly-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_record.usage_record_monthly.category changed from ref:usage_record_monthly_enum_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_record.usage_record_monthly.category changed from ref:usage_record_monthly_enum_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-monthly-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_monthly_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_monthly_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_monthly_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-record-usage-record-this-month-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_record.usage_record_this_month.category changed from ref:usage_record_this_month_enum_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_record.usage_record_this_month.category changed from ref:usage_record_this_month_enum_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-this-month-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_this_month_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_this_month_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_this_month_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-time-parameterized-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_time_parameterized_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_time_parameterized_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_time_parameterized_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-record-usage-record-today-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_record.usage_record_today.category changed from ref:usage_record_today_enum_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_record.usage_record_today.category changed from ref:usage_record_today_enum_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-today-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_today_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_today_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_today_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-record-usage-record-yearly-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_record.usage_record_yearly.category changed from ref:usage_record_yearly_enum_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_record.usage_record_yearly.category changed from ref:usage_record_yearly_enum_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-yearly-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_yearly_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_yearly_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_yearly_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-record-usage-record-yesterday-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_record.usage_record_yesterday.category changed from ref:usage_record_yesterday_enum_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_record.usage_record_yesterday.category changed from ref:usage_record_yesterday_enum_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-record-yesterday-enum-category",
+      "provider": "twilio",
+      "title": "the usage_record_yesterday_enum_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_record_yesterday_enum_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_record_yesterday_enum_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-api-v2010-account-usage-usage-trigger-usage-category",
+      "provider": "twilio",
+      "title": "api.v2010.account.usage.usage_trigger.usage_category changed from ref:usage_trigger_enum_usage_category to string|null in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: api.v2010.account.usage.usage_trigger.usage_category changed from ref:usage_trigger_enum_usage_category to string|null. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/2010-04-01/Accounts/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "usage_category"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-schema-removed-usage-trigger-enum-usage-category",
+      "provider": "twilio",
+      "title": "the usage_trigger_enum_usage_category object is gone in 2025-09-04",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-09-04: the usage_trigger_enum_usage_category object is gone. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-04",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads usage_trigger_enum_usage_category before moving to 2025-09-04.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.5.0/spec/json/twilio_api_v2010.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-parameter-removed-post-v1-subscriptions-sid-sinksid",
+      "provider": "twilio",
+      "title": "POST /v1/Subscriptions/{Sid} no longer takes SinkSid in 2025-07-24",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2025-07-24: POST /v1/Subscriptions/{Sid} no longer takes SinkSid. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/Subscriptions/{Sid}"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "SinkSid"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-07-24",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends SinkSid before moving to 2025-07-24.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.4.0/spec/json/twilio_events_v1.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "twilio-property-type-changed-numbers-v2-bulk-hosted-number-order-total-count",
+      "provider": "twilio",
+      "title": "numbers.v2.bulk_hosted_number_order.total_count changed from integer|null to integer in 2024-09-05",
+      "summary": "Spec-history replay found this change between Twilio's published specs for the previous version and 2024-09-05: numbers.v2.bulk_hosted_number_order.total_count changed from integer|null to integer. Unverified: drafted from the spec alone, not yet checked against Twilio's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v2/HostedNumber/Orders/Bulk/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "total_count"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2024-09-05",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads total_count before moving to 2024-09-05.",
+      "sources": [
+        "https://github.com/twilio/twilio-oai/blob/2.1.0/spec/json/twilio_numbers_v2.json",
+        "https://github.com/twilio/twilio-oai/blob/main/CHANGES.md"
+      ],
+      "status": "unverified"
+    }
+  ]
+}

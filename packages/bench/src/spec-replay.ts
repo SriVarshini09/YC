@@ -20,12 +20,15 @@ export interface DiffOptions {
    * as breaking (403 becoming 451); Stripe doesn't, so it is off by default.
    */
   statusAdded?: boolean;
+  /** Also report an operation newly marked `deprecated: true` (`operation-deprecated`), as OpenAI's spec does before a shutdown. */
+  deprecations?: boolean;
 }
 
 export type SpecChangeKind =
   | "operation-removed"
   | "response-status-removed"
   | "response-status-added"
+  | "operation-deprecated"
   | "parameter-removed"
   | "parameter-required"
   | "property-removed"
@@ -46,6 +49,8 @@ export interface SpecChange {
   /** Enum values that are gone. */
   values?: string[];
   detail: string;
+  /** The spec file, for a provider that publishes one per product (Twilio). */
+  file?: string;
 }
 
 const METHODS = ["get", "post", "put", "patch", "delete"];
@@ -65,6 +70,9 @@ export function diffSpecs(before: OpenApi, after: OpenApi, opts: DiffOptions = {
       }
       for (const status of Object.keys((old.responses as Json) ?? {})) {
         if (/^2/.test(status) && !((now.responses as Json) ?? {})[status]) out.push({ kind: "response-status-removed", changeClass: "status-code", operation, field: status, detail: `${operation} no longer answers ${status}` });
+      }
+      if (opts.deprecations && now.deprecated === true && old.deprecated !== true) {
+        out.push({ kind: "operation-deprecated", changeClass: "version-sunset", operation, detail: `${operation} is marked deprecated` });
       }
       if (opts.statusAdded) {
         for (const status of Object.keys((now.responses as Json) ?? {})) {
@@ -428,7 +436,7 @@ export function draftAdvisory(c: SpecChange, ctx: { provider: string; providerNa
   const common = commonPrefix(paths);
   const path = paths.length === 1 ? paths[0]! : common && common !== "/" ? `${common.replace(/\/$/, "")}/**` : "/**";
   const trigger: Advisory["trigger"] =
-    c.kind === "operation-removed"
+    c.kind === "operation-removed" || c.kind === "operation-deprecated"
       ? { any: true }
       : c.kind === "response-status-removed"
         ? { statusCodes: [Number(c.field)] }

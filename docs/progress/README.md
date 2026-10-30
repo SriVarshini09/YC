@@ -108,3 +108,4 @@ One line per task: task, summary file, PR, status.
 - PB-59 an end-to-end test holds every fix PR's "Not changed (N)" to the advisory's exposed plus possible call sites, each with its reason (D-02): [summary](PB-59-not-changed-count.md) · PR: open
 - PB-60 the promotion rule in code: verified needs provenance plus a witness or a second source; unverified advisories never open PRs (C-03): [summary](PB-60-promotion-rule.md) · PR: open
 - PB-61 spec-history replay for GitHub: 20 of 26 breaking changes of 2026-03-10 found in the spec diff, plus what GitHub does not list (P-09): [summary](PB-61-github-spec-replay.md) · PR: open
+- PB-62 spec-history replay for Twilio (5 of 7 showable breaking lines found) and OpenAI (model deprecations invisible in the spec: 0 of 25), with a summary across four providers (P-10): [summary](PB-62-twilio-openai-spec-replay.md) · PR: open
