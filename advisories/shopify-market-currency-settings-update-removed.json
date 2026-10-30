@@ -1,0 +1,31 @@
+{
+  "id": "shopify-market-currency-settings-update-removed",
+  "provider": "shopify",
+  "title": "Shopify removes the marketCurrencySettingsUpdate mutation in API version 2027-01",
+  "summary": "As of Admin API version 2027-01, the marketCurrencySettingsUpdate mutation and its payload and error types are removed. Every call already returns the UNIFIED_MARKETS_ENABLED user error; on 2027-01 the request is rejected at validation.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "graphql": [
+      {
+        "field": "marketCurrencySettingsUpdate",
+        "operation": "mutation"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-09-22",
+    "url": "https://shopify.dev/changelog/removing-marketcurrencysettingsupdate-mutation"
+  },
+  "effectiveDate": "2027-01-01",
+  "severity": "high",
+  "migrationNote": "Set market currency settings through marketCreate and marketUpdate, which accept them directly, and remove calls to marketCurrencySettingsUpdate before moving to 2027-01.",
+  "sources": [
+    "https://shopify.dev/changelog/removing-marketcurrencysettingsupdate-mutation"
+  ],
+  "status": "unverified"
+}

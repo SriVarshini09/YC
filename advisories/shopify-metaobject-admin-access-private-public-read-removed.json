@@ -1,0 +1,33 @@
+{
+  "id": "shopify-metaobject-admin-access-private-public-read-removed",
+  "provider": "shopify",
+  "title": "Shopify deprecates the PRIVATE and PUBLIC_READ metaobject admin access values",
+  "summary": "The PRIVATE and PUBLIC_READ values of the MetaobjectAdminAccess enum are deprecated and are never returned by the API; they go away with API version 2027-01.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "enum-added",
+  "trigger": {
+    "graphql": [
+      {
+        "field": "PRIVATE"
+      },
+      {
+        "field": "PUBLIC_READ"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-05-20",
+    "url": "https://shopify.dev/changelog/removing-deprecated-private-and-publicread-enums-on-metaobject-definitions"
+  },
+  "effectiveDate": "2027-01-01",
+  "severity": "low",
+  "migrationNote": "Stop sending PRIVATE or PUBLIC_READ as a metaobject definition's admin access, and drop code that expects them back.",
+  "sources": [
+    "https://shopify.dev/changelog/removing-deprecated-private-and-publicread-enums-on-metaobject-definitions"
+  ],
+  "status": "unverified"
+}

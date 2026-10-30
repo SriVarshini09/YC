@@ -1,0 +1,36 @@
+{
+  "id": "shopify-collection-metafield-integer-condition-removed",
+  "provider": "shopify",
+  "title": "Shopify removes the metafieldInteger collection condition in API version 2027-01",
+  "summary": "As of Admin API version 2027-01, the metafieldInteger collection source condition inputs and types are removed and replaced by metafieldInt, whose value is a String instead of an Int.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "field-rename",
+  "trigger": {
+    "graphql": [
+      {
+        "field": "metafieldInteger"
+      },
+      {
+        "field": "CollectionSourceInclusionConditionMetafieldInteger"
+      },
+      {
+        "field": "CollectionSourceInclusionConditionMetafieldIntegerRelation"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-10-01",
+    "url": "https://shopify.dev/changelog/metafieldinteger-collection-condition-removed-in-api-version-2027-01"
+  },
+  "effectiveDate": "2027-01-01",
+  "severity": "high",
+  "migrationNote": "Before moving to 2027-01, replace metafieldInteger with metafieldInt in collection condition inputs and reads (CollectionSourceInclusionConditionMetafieldInt), and send the value as a String.",
+  "sources": [
+    "https://shopify.dev/changelog/metafieldinteger-collection-condition-removed-in-api-version-2027-01"
+  ],
+  "status": "unverified"
+}

@@ -2,6 +2,8 @@
  * What a GraphQL document asks for, enough to match advisories against it: each operation's type, and the dotted
  * path of every field it selects (`automaticDiscounts.nodes.id`). Arguments, variables, directives and aliases are
  * read past; inline fragments (`... on Type`) select into their parent; named fragments are expanded where spread.
+ * Argument keys, enum values written in arguments, and type conditions are kept apart as `names`, for changes to
+ * input fields, enum values and types rather than to selected fields.
  * Not a validating parser: a document it cannot follow gives undefined, and the matcher then treats the call as
  * one it cannot read.
  */
@@ -9,6 +11,8 @@ export interface GraphqlSelections {
   operations: ("query" | "mutation" | "subscription")[];
   /** Every selected field as a dotted path from the operation root, aliases resolved to field names. */
   paths: string[];
+  /** Argument keys and enum values written in arguments (`input: { metafieldInteger: … }`, `admin: PRIVATE`), and type conditions (`... on X`). */
+  names: string[];
 }
 
 type Token = { kind: "name" | "punct" | "string"; value: string };
@@ -60,6 +64,18 @@ export function graphqlSelections(doc: string): GraphqlSelections | undefined {
       else if (t.value === close) depth--;
     } while (depth > 0);
   };
+  const names = new Set<string>();
+  /** Arguments at tokens[i] === "(": their keys and bare enum values go to `names`; variables and literals don't. */
+  const readArguments = () => {
+    let depth = 0;
+    do {
+      const t = tokens[i++];
+      if (!t) throw new Error("unbalanced");
+      if (t.value === "(" || t.value === "{" || t.value === "[") depth++;
+      else if (t.value === ")" || t.value === "}" || t.value === "]") depth--;
+      else if (t.kind === "name" && tokens[i - 2]?.value !== "$" && !["true", "false", "null"].includes(t.value)) names.add(t.value);
+    } while (depth > 0);
+  };
   const skipDirectives = () => {
     while (peek()?.value === "@") {
       i += 2;
@@ -75,6 +91,7 @@ export function graphqlSelections(doc: string): GraphqlSelections | undefined {
       if (t.value === "...") {
         i++;
         if (peek()?.value === "on") {
+          if (tokens[i + 1]) names.add(tokens[i + 1]!.value);
           i += 2;
           skipDirectives();
           selectionSet(prefix, out, spreads);
@@ -96,7 +113,7 @@ export function graphqlSelections(doc: string): GraphqlSelections | undefined {
       }
       const path = prefix ? `${prefix}.${name}` : name;
       out.push(path);
-      if (peek()?.value === "(") skipBalanced("(", ")");
+      if (peek()?.value === "(") readArguments();
       skipDirectives();
       if (peek()?.value === "{") selectionSet(path, out, spreads);
     }
@@ -123,6 +140,7 @@ export function graphqlSelections(doc: string): GraphqlSelections | undefined {
         selectionSet("", paths, spreads);
       } else if (t.value === "fragment") {
         const name = tokens[i + 1]?.value ?? "";
+        if (tokens[i + 3]) names.add(tokens[i + 3]!.value);
         i += 4;
         skipDirectives();
         const own = { paths: [] as string[], spreads: [] as { name: string; prefix: string }[] };
@@ -145,7 +163,7 @@ export function graphqlSelections(doc: string): GraphqlSelections | undefined {
       }
     };
     expand(spreads, new Set());
-    return { operations: [...new Set(operations)], paths: [...new Set(paths)] };
+    return { operations: [...new Set(operations)], paths: [...new Set(paths)], names: [...names].sort() };
   } catch {
     return undefined;
   }

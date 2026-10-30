@@ -1,0 +1,42 @@
+{
+  "id": "shopify-segment-query-function-syntax",
+  "provider": "shopify",
+  "title": "Shopify segment query functions use MATCHES instead of = true as of API version 2026-10",
+  "summary": "As of Admin API version 2026-10, functions in the customer segment query language use MATCHES / NOT MATCHES instead of = true / = false (shopify_email.opened MATCHES ()), function parameters take their own operators, and the named dates 12_months_ago, 90_days_ago, 30_days_ago and 7_days_ago are deprecated.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "required-field",
+  "trigger": {
+    "graphql": [
+      {
+        "field": "segmentCreate",
+        "operation": "mutation"
+      },
+      {
+        "field": "segmentUpdate",
+        "operation": "mutation"
+      },
+      {
+        "field": "customerSegmentMembers"
+      },
+      {
+        "field": "customerSegmentMembersQueryCreate",
+        "operation": "mutation"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-10-01",
+    "url": "https://shopify.dev/changelog/updated-function-syntax-on-the-segment-query-language"
+  },
+  "effectiveDate": "2026-10-01",
+  "severity": "medium",
+  "migrationNote": "Rewrite segment queries for 2026-10: replace function() = true with function MATCHES () and = false with NOT MATCHES (), move parameters inside the parentheses (products_purchased MATCHES (quantity = 5)), and replace named dates with offsets such as -12m.",
+  "sources": [
+    "https://shopify.dev/changelog/updated-function-syntax-on-the-segment-query-language"
+  ],
+  "status": "unverified"
+}

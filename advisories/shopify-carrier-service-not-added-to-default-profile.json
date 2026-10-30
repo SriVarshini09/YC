@@ -1,0 +1,31 @@
+{
+  "id": "shopify-carrier-service-not-added-to-default-profile",
+  "provider": "shopify",
+  "title": "Shopify carrierServiceCreate no longer adds the carrier service to the General shipping profile, as of 2026-10",
+  "summary": "As of Admin API version 2026-10, creating a carrier service with carrierServiceCreate only registers it; Shopify no longer adds it to the General shipping profile, so merchants see no rates from it until it is added to a profile.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "graphql": [
+      {
+        "field": "carrierServiceCreate",
+        "operation": "mutation"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-06-26",
+    "url": "https://shopify.dev/changelog/carrier-services-will-no-longer-be-automatically-added-to-the-default-shipping-profile"
+  },
+  "effectiveDate": "2026-10-01",
+  "severity": "medium",
+  "migrationNote": "After creating a carrier service, add its rates to a shipping profile with the delivery profile APIs, or direct merchants to add the carrier-calculated rate in the Shopify admin.",
+  "sources": [
+    "https://shopify.dev/changelog/carrier-services-will-no-longer-be-automatically-added-to-the-default-shipping-profile"
+  ],
+  "status": "unverified"
+}

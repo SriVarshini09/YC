@@ -13,11 +13,12 @@ describe("graphqlSelections", () => {
     expect(graphqlSelections(doc)).toEqual({
       operations: ["query"],
       paths: ["automaticDiscounts", "automaticDiscounts.nodes", "automaticDiscounts.nodes.id", "automaticDiscounts.nodes.title", "shop", "shop.name"],
+      names: ["first", "query"],
     });
   });
 
   it("handles mutations, the shorthand query, inline fragments and named fragments", () => {
-    expect(graphqlSelections(`{ shop { id } }`)).toEqual({ operations: ["query"], paths: ["shop", "shop.id"] });
+    expect(graphqlSelections(`{ shop { id } }`)).toEqual({ operations: ["query"], paths: ["shop", "shop.id"], names: [] });
     const doc = `
       mutation Update($input: In!) { marketCurrencySettingsUpdate(input: $input) { userErrors { ...Err } } }
       query { node(id: "x") { ... on DraftOrder { warnings { ... on DraftOrderDiscountNotAppliedWarning { priceRule { id } } } } } }
@@ -27,6 +28,14 @@ describe("graphqlSelections", () => {
     expect(s.paths).toEqual(
       expect.arrayContaining(["marketCurrencySettingsUpdate.userErrors.field", "marketCurrencySettingsUpdate.userErrors.message", "node.warnings.priceRule", "node.warnings.priceRule.id"]),
     );
+  });
+
+  it("keeps argument keys, enum values written in arguments, and type conditions as names; not variables or literals", () => {
+    const s = graphqlSelections(`mutation C($input: In!) {
+      collectionCreate(input: { ruleSet: { rules: [{ metafieldInteger: { value: 5, relation: EQUALS } }] }, flag: true, ref: $input }) { collection { id } }
+      metaobjectDefinitionCreate(definition: { access: { admin: PRIVATE } }) { metaobjectDefinition { ... on MetaobjectDefinition { id } } }
+    }`)!;
+    expect(s.names).toEqual(["EQUALS", "MetaobjectDefinition", "PRIVATE", "access", "admin", "definition", "flag", "input", "metafieldInteger", "ref", "relation", "ruleSet", "rules", "value"]);
   });
 
   it("gives undefined for text it cannot follow, such as a document with an interpolated piece", () => {
@@ -81,16 +90,23 @@ describe("the graphql trigger", () => {
     return [...m.affected.map((f) => `affected ${f.callSite.line} ${f.reasons[0]}`), ...m.possible.map((f) => `possible ${f.callSite.line}`), ...m.exposed.map((f) => `exposed ${f.callSite.line}`)].sort();
   };
 
-  it("affects calls whose document selects the field, exposes the rest, and is unsure of documents it cannot read", () => {
+  it("affects calls whose document selects the field, exposes the rest, and lists documents it cannot read once each under Could not tell", () => {
     line = 0;
     const sites = [site("query { automaticDiscounts(first: 1) { nodes { id } } }"), site("query { shop { name } }"), site(null), site(undefined), site("query { shop { {X} } }")];
-    expect(verdicts(advisory({ graphql: [{ field: "automaticDiscounts" }] }), sites)).toEqual([
-      "affected 1 selects automaticDiscounts in its GraphQL document",
-      "exposed 2",
-      "possible 3",
-      "possible 4",
-      "possible 5",
-    ]);
+    const a = advisory({ graphql: [{ field: "automaticDiscounts" }] });
+    expect(verdicts(a, sites)).toEqual(["affected 1 selects automaticDiscounts in its GraphQL document", "exposed 2"]);
+    // Two GraphQL advisories, one entry per unreadable call, naming both.
+    const b = { ...advisory({ graphql: [{ field: "priceRule" }] }), id: "shopify-y" };
+    const m = matchAdvisories(createApiLock({ callSites: sites, declared: [] }, "t"), [a, b], { now: new Date("2026-10-30") });
+    expect(m.possible).toEqual([]);
+    expect(m.unresolved.map((u) => `${u.callSite.line} ${u.advisories.join(",")}`)).toEqual(["3 shopify-x,shopify-y", "4 shopify-x,shopify-y", "5 shopify-x,shopify-y"]);
+    expect(m.unresolved[0]!.reason).toMatch(/cannot read the GraphQL document/);
+  });
+
+  it("matches an argument key or an enum value the document writes", () => {
+    line = 0;
+    const sites = [site("mutation { collectionCreate(input: { ruleSet: { rules: [{ metafieldInteger: { value: 5 } }] } }) { collection { id } } }"), site("mutation { collectionCreate(input: $input) { collection { id } } }")];
+    expect(verdicts(advisory({ graphql: [{ field: "metafieldInteger" }] }), sites)).toEqual(["affected 1 uses metafieldInteger in its GraphQL document", "exposed 2"]);
   });
 
   it("can be limited to mutations", () => {

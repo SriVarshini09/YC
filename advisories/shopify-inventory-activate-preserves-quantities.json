@@ -1,0 +1,31 @@
+{
+  "id": "shopify-inventory-activate-preserves-quantities",
+  "provider": "shopify",
+  "title": "Shopify inventoryActivate keeps existing quantities instead of resetting them to zero, as of 2026-04",
+  "summary": "As of Admin API version 2026-04, inventoryActivate without an available or onHand argument keeps an inventory level's earlier quantities instead of resetting them to zero.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "graphql": [
+      {
+        "field": "inventoryActivate",
+        "operation": "mutation"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-04-17",
+    "url": "https://shopify.dev/changelog/inventoryactivate-now-preserves-available-quantity"
+  },
+  "effectiveDate": "2026-04-01",
+  "severity": "medium",
+  "migrationNote": "Pass available or onHand explicitly to inventoryActivate if your app relied on activation resetting quantities to zero.",
+  "sources": [
+    "https://shopify.dev/changelog/inventoryactivate-now-preserves-available-quantity"
+  ],
+  "status": "unverified"
+}

@@ -1,0 +1,6 @@
+{
+  "https://shopify.dev/changelog/tax-webhook-summary-and-calculation-requests-now-use-global-ids": "The change is in what Shopify sends to tax apps (calculation requests and tax summary webhook payloads), not in a call the app makes, and SHAPI matches the calls an app makes.",
+  "https://shopify.dev/changelog/invalid-metafield-queries-now-return-errors-in-the-graphql-admin-api": "Whether a query breaks depends on the metafield filter inside a search string and on how the store's metafield definitions are configured, neither of which a scan of the code can see.",
+  "https://shopify.dev/changelog/removal-of-itemnotstockedatlocation-error": "Removes an error code that can no longer occur; code that handles ITEM_NOT_STOCKED_AT_LOCATION keeps working, it just never runs.",
+  "https://shopify.dev/changelog/reduced-metafield-value-sizes": "The limit applies to the size of a JSON metafield value written at runtime, which a scan of the code can't know; existing apps keep the 2 MB limit."
+}
