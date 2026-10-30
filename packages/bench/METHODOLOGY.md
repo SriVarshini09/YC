@@ -10,6 +10,11 @@ APIBreak-Replay measures whether SHAPI catches real third-party API breakages. E
   1. Its hand label is a breakage fix with a SHAPI advisory. The GitHub labels `empty-204` (the February 2026 partial revert, which has no SHAPI advisory yet) and `run-details` (adopting a new feature) are not scored.
   2. The fix removes a line that shows the old behavior (`TRIGGER_EVIDENCE` in `src/instances.ts`): a check for `204`, or a `minorversion` below 75. A fix that only *adds* a minor version proves nothing about the code before it.
 - **Unavailable commits** (a deleted repository, a force-pushed branch) are kept and reported as unavailable.
+- **Mirror.** Every instance is mirrored in [Software Heritage](https://archive.softwareheritage.org), the public archive of source code (execution plan P-07):
+    - [`datasets/apibreak-v0.mirrors.json`](datasets/apibreak-v0.mirrors.json) holds each instance's mirror URL (`swh:1:rev:<fix commit>`) and whether it is archived;
+    - `bench:archive -- --save` asks Software Heritage to archive the repositories it does not hold yet, and `bench:archive` records the result;
+    - when GitHub answers 404 for a commit, `bench:run` fetches it from Software Heritage's vault instead, so a deleted repository still scores.
+    - The mirror file is kept apart from the dataset, so the dataset's hash and the CI baseline do not change when it is updated.
 
 ## Metrics
 

@@ -19,7 +19,8 @@
     "build": "tsup src/index.ts --format esm --dts --clean",
     "bench:build": "node ../../scripts/run-ts.mjs scripts/build.ts",
     "bench:run": "node ../../scripts/run-ts.mjs scripts/run.ts",
-    "bench:okapi": "node ../../scripts/run-ts.mjs scripts/okapi.ts"
+    "bench:okapi": "node ../../scripts/run-ts.mjs scripts/okapi.ts",
+    "bench:archive": "node ../../scripts/run-ts.mjs scripts/archive.ts"
   },
   "dependencies": {
     "@shapi/core": "workspace:*",
