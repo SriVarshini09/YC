@@ -21,6 +21,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^1.1.0",
     "@shapi/core": "workspace:*",
+    "@shapi/extractor": "workspace:*",
     "@shapi/sandbox": "workspace:*",
     "@shapi/shapes": "workspace:*",
     "ts-morph": "^28.0.0",
@@ -28,7 +29,6 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@shapi/canary": "workspace:*",
-    "@shapi/extractor": "workspace:*"
+    "@shapi/canary": "workspace:*"
   }
 }

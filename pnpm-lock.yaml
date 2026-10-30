@@ -418,6 +418,9 @@ importers:
       '@shapi/core':
         specifier: workspace:*
         version: link:../core
+      '@shapi/extractor':
+        specifier: workspace:*
+        version: link:../extractor
       '@shapi/sandbox':
         specifier: workspace:*
         version: link:../sandbox
@@ -437,9 +440,6 @@ importers:
       '@shapi/canary':
         specifier: workspace:*
         version: link:../canary
-      '@shapi/extractor':
-        specifier: workspace:*
-        version: link:../extractor
 
   packages/sandbox:
     dependencies:

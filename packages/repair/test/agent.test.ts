@@ -307,6 +307,25 @@ describe("repairCallSite: what an LLM change has to get past", () => {
     expect(r.attempts.at(-1)).toMatchObject({ method: "llm", outcome: "failed" });
   });
 
+  it("rejects a 'fix' that deletes the call or its status check, even though the test passes (V-06)", async () => {
+    const dispatch = "POST /repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches";
+    // The whole function body goes: nothing calls GitHub any more.
+    const noCall = original.replace(/const res = await fetch\(`\$\{GITHUB_API\}\/repos[\s\S]*?\n {2}\}\n(?=\}\n\nexport async function latest)/, "void req;\n  void token;\n");
+    expect(noCall).not.toContain("/dispatches");
+    const deleted = await attempt(proposing([{ path: callSite.file, content: noCall }])).result;
+    expect(deleted.status).toBe("rejected");
+    expect(deleted.attempts.at(-1)?.detail).toBe(`stub: x; the test passes, but the change removes the call to ${dispatch}`);
+    // The call stays, but the status check that the change is about is gone.
+    const unchecked = original.replace(/ {2}if \(res\.status !== 204\) \{\n.*\n {2}\}\n/, "");
+    expect(unchecked).not.toContain("res.status !== 204");
+    const r = await attempt(proposing([{ path: callSite.file, content: unchecked }])).result;
+    expect(r.status).toBe("rejected");
+    expect(r.attempts.at(-1)?.detail).toBe(`stub: x; the test passes, but the change stops checking the status at ${dispatch}`);
+    // A real fix keeps both.
+    const fixed = await attempt(proposing([{ path: callSite.file, content: fixedText(original) }])).result;
+    expect(fixed).toMatchObject({ status: "fixed", keep: { status: "kept" } });
+  });
+
   it("undoes a rejected change exactly: a path given twice, and a file it created", async () => {
     const { mem, result } = attempt(
       proposing([
