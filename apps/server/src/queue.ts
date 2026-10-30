@@ -190,7 +190,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
   });
   await boss.work<ScanRequest>(QUEUES.repoScan, { batchSize: 1 }, async ([job]) => {
     if (!job) return;
-    const report = await runScanJob({ db: deps.db, github: requireGithub(), billingEnforced, notify }, job.data);
+    const report = await runScanJob({ db: deps.db, github: requireGithub(), billingEnforced, notify, publicUrl: deps.config.SHAPI_PUBLIC_URL }, job.data);
     if (report.fix && report.scanId && report.repositoryId) await sendFix(boss, report.scanId, report.repositoryId);
     deps.log.info(report, "scan finished");
     return report;
@@ -207,6 +207,7 @@ export async function startWorker(deps: WorkerDeps): Promise<PgBoss> {
         llm,
         billingEnforced,
         engine: deps.config.GIT_SHA,
+        publicUrl: deps.config.SHAPI_PUBLIC_URL,
       },
       // The job's id stays the same across its retries: they share its LLM budget.
       { scanId: job.data.scanId, jobId: job.id },

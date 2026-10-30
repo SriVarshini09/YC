@@ -47,6 +47,8 @@ const manifest = appManifest({
   redirectUrl: `http://localhost:${port}/callback`,
   public: values.public,
   callbackUrls: values["callback-url"] ? [values["callback-url"]] : undefined,
+  // After installing, GitHub sends people to the web app, which signs them in and opens their dashboard.
+  setupUrl: values["callback-url"] ? new URL("/setup", values["callback-url"]).toString() : undefined,
 });
 const target = values.org
   ? `https://github.com/organizations/${encodeURIComponent(values.org)}/settings/apps/new?state=${state}`

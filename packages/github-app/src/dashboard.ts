@@ -19,6 +19,8 @@ export interface DashboardInput {
   /** Paused from the SHAPI web app (separate from this issue's checkbox). */
   pausedFromWeb?: boolean;
   limits: PrLimits;
+  /** The repository's page in the SHAPI web app. */
+  dashboardUrl?: string;
 }
 
 export interface DashboardIntents {
@@ -34,6 +36,7 @@ export function renderDashboard(d: DashboardInput): string {
   const lines = [
     MARKER,
     "SHAPI checks this repository's third-party API calls against known API changes and opens a verified fix PR for each one it can fix.",
+    ...(d.dashboardUrl ? ["", `[View this repository in SHAPI](${d.dashboardUrl}): every call site, problem and fix.`] : []),
     "",
     `- [${d.paused ? "x" : " "}] <!-- shapi:pause --> Pause SHAPI on this repository`,
     "",

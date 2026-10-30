@@ -121,6 +121,16 @@ async function queueScan(sha: string) {
 }
 
 describe("cloud scan", () => {
+  it("links the SHAPI check to the repository's page in the web app (U-02)", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients, publicUrl: "https://app.shapi.dev/" }, { scanId });
+    const created = t.github.calls.find((c) => c.method === "POST" && c.path === "/repos/acme/demo/check-runs");
+    const detailsUrl = (created?.body as { details_url?: string } | undefined)?.details_url ?? "";
+    expect(detailsUrl.startsWith("https://app.shapi.dev/a/")).toBe(true);
+    expect(detailsUrl.endsWith(`/r/${repositoryId}`)).toBe(true);
+  });
+
   it("scans a commit with a read-only token, stores findings, and posts the SHAPI check", async () => {
     const t = setup();
     const sha = t.github.refs.get("main")!;

@@ -78,6 +78,11 @@ describe("app registration and auth", () => {
     expect(m).not.toHaveProperty("callback_urls");
   });
 
+  it("sends people back to the web app's /setup after they install (U-01)", () => {
+    const m = appManifest({ name: "SHAPI", url: "https://shapi.dev", webhookUrl: "https://hooks.example/x", redirectUrl: "http://localhost:3999/callback", public: true, setupUrl: "https://app.shapi.dev/setup" });
+    expect(m).toMatchObject({ setup_url: "https://app.shapi.dev/setup", setup_on_update: true });
+  });
+
   it("adds the web app's sign-in callback when given", () => {
     const m = appManifest({ name: "SHAPI", url: "https://shapi.dev", webhookUrl: "https://hooks.example/x", redirectUrl: "http://localhost:3999/callback", public: true, callbackUrls: ["https://shapi.example/auth/github/callback"] });
     expect(m.callback_urls).toEqual(["https://shapi.example/auth/github/callback"]);

@@ -108,6 +108,8 @@ export interface ManifestInput {
   public: boolean;
   /** Where GitHub sends users back after signing in to the web app (`/auth/github/callback`). */
   callbackUrls?: string[];
+  /** Where GitHub sends users after they install or update the app (the web app's `/setup`). */
+  setupUrl?: string;
 }
 
 /** A GitHub App manifest (https://docs.github.com/apps/sharing-github-apps/registering-a-github-app-from-a-manifest). */
@@ -119,6 +121,7 @@ export function appManifest(input: ManifestInput) {
     hook_attributes: { url: input.webhookUrl, active: true },
     redirect_url: input.redirectUrl,
     ...(input.callbackUrls?.length ? { callback_urls: input.callbackUrls } : {}),
+    ...(input.setupUrl ? { setup_url: input.setupUrl, setup_on_update: true } : {}),
     public: input.public,
     default_permissions: APP_PERMISSIONS,
     default_events: [...APP_EVENTS],

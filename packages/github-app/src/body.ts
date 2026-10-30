@@ -9,6 +9,8 @@ export interface PrBodyInput {
   repair: AdvisoryRepair;
   /** Where the before/after shapes came from, for example "canary:github:token" or a recording file. */
   shapeSource: string;
+  /** The repository's page in the SHAPI web app. */
+  dashboardUrl?: string;
 }
 
 export function prTitle(advisory: Advisory): string {
@@ -20,7 +22,7 @@ export function prBranch(advisory: Advisory): string {
 }
 
 /** Pull request description: what broke, every call site it hits, what changed, the tests that prove it, and the evidence. */
-export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): string {
+export function renderPrBody({ advisory, repair, shapeSource, dashboardUrl }: PrBodyInput): string {
   const fixed = repair.sites.filter((s) => s.result.status === "fixed");
   const tests = new Set(fixed.map((s) => s.result.test?.file));
   // Claude's explanations are model output (the model read the repository's code): shown as literal text.
@@ -77,7 +79,7 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
     `Migration note: ${advisory.migrationNote}`,
     "",
     "---",
-    "Opened by [SHAPI](https://shapi.dev). A change is kept only when its contract test failed before it and passes after it.",
+    `Opened by [SHAPI](https://shapi.dev). A change is kept only when its contract test failed before it and passes after it.${dashboardUrl ? ` [View this repository in SHAPI](${dashboardUrl}).` : ""}`,
   ];
   return lines.join("\n") + "\n";
 }

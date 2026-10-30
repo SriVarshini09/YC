@@ -10,6 +10,7 @@ import { repositoryCovered } from "../billing/plan";
 import type { Notifier } from "../notify/slack";
 import type { GitHubClients } from "../github/clients";
 import { insertPendingScan } from "../github/events";
+import { repoPageUrl } from "../links";
 
 export interface ScanDeps {
   db: Db;
@@ -19,6 +20,8 @@ export interface ScanDeps {
   now?: () => Date;
   /** Told about newly affected call sites once the scan is stored (Slack alerts). */
   notify?: Notifier;
+  /** The web app's public URL: each check run links to the repository's page there. */
+  publicUrl?: string;
 }
 
 /** Either a scan queued by a push, or a repository to scan at its default branch head (first scan after install). */
@@ -159,7 +162,7 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
   const [owner, repo] = scan.full_name.split("/") as [string, string];
   const octokit = deps.github.installation(installation);
   // A missing check run (for example the checks permission was not granted) must not stop the scan.
-  const checkRunId = await startCheckRun(octokit, { owner, repo, sha: scan.sha }).catch(() => undefined);
+  const checkRunId = await startCheckRun(octokit, { owner, repo, sha: scan.sha, detailsUrl: repoPageUrl(deps.publicUrl, scan.account_id, scan.repository_id) }).catch(() => undefined);
 
   try {
     const readOnly = await deps.github.readOnly(installation, scan.github_repo_id);
