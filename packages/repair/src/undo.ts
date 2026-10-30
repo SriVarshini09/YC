@@ -63,11 +63,17 @@ export function partsOf(file: string, before: string, after: string): Part[] {
   }));
 }
 
-interface Hunk {
+/** A changed region: lines [a0, a1) of the old file became lines [b0, b1) of the new one (0-based). */
+export interface Hunk {
   a0: number;
   a1: number;
   b0: number;
   b1: number;
+}
+
+/** The changed regions between two versions of a file. */
+export function changedRanges(before: string, after: string): Hunk[] {
+  return hunks(before.split("\n"), after.split("\n"));
 }
 
 /** Changed line ranges, from the longest common subsequence of the lines between the shared prefix and suffix. */

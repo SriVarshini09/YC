@@ -184,8 +184,10 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
               files: repair.changes.map((c) => ({ path: c.file, content: c.after })),
               sha: scan.sha,
               repair: summarizeRepair({ advisory: t.advisory, sites: repair.sites, changes: repair.changes, method: repair.method, sandbox: repair.sandbox }, now()),
-              // V-04: a part of the change its contract test does not cover needs a person.
-              ...(fixedSites.some((s) => s.result.undo?.status === "survived") ? { labels: [NEEDS_HUMAN_LABEL] } : {}),
+              // A part of the change its contract test does not cover (V-04), or an edit outside the predicted lines (V-05),
+              // needs a person; the second also opens the PR as a draft.
+              ...(fixedSites.some((s) => s.result.undo?.status === "survived" || s.result.scope?.status === "out-of-scope") ? { labels: [NEEDS_HUMAN_LABEL] } : {}),
+              ...(fixedSites.some((s) => s.result.scope?.status === "out-of-scope") ? { draft: true } : {}),
             });
           }
         }

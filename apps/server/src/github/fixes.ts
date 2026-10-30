@@ -32,6 +32,8 @@ export interface FixCandidate {
   repair?: FixRepair;
   /** Labels beside SHAPI's own on a newly opened PR, for example needs-human when the undo check found an untested part. */
   labels?: string[];
+  /** Open a new PR as a draft (V-05: the fix edits outside the predicted lines). */
+  draft?: boolean;
 }
 
 export interface DeliverInput {
@@ -124,7 +126,7 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients; pu
       continue;
     }
     try {
-      const outcome = await upsertFixPr(octokit, { repo: repo.full_name, branch: prBranch(d.advisory), title: fix.title, body: fix.body, commitMessage: fix.commitMessage, files: fix.files, baseSha: fix.sha, labels: [PR_LABEL, ...(fix.labels ?? [])], retryClosed: intents.retry.has(d.advisory.id) });
+      const outcome = await upsertFixPr(octokit, { repo: repo.full_name, branch: prBranch(d.advisory), title: fix.title, body: fix.body, commitMessage: fix.commitMessage, files: fix.files, baseSha: fix.sha, labels: [PR_LABEL, ...(fix.labels ?? [])], draft: fix.draft, retryClosed: intents.retry.has(d.advisory.id) });
       await withService(deps.db, (tx) => recordOutcome(tx, repo, d.advisory.id, outcome, now, fix.repair));
       // A maintainer's branch: no box to tick, since SHAPI cannot open the fix until they delete the branch.
       if (outcome.action === "skipped" && outcome.foreignBranch) blocked.push({ advisory: d.advisory, branch: outcome.branch, number: outcome.number, url: outcome.url, retried: intents.retry.has(d.advisory.id) });

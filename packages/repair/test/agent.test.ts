@@ -308,6 +308,35 @@ describe("undo check (V-04)", () => {
   });
 });
 
+describe("scope check (V-05)", () => {
+  const { callSite, original } = demoRepo("scope");
+  const contract = (_n: number, files: Map<string, string>) => (files.get(callSite.file)!.includes("if (res.status !== 204) {") ? BROKEN : PASSED);
+  const attempt = (llm: LlmFixer) => repairCallSite({ workspace: memoryWorkspace({ [callSite.file]: original }, contract).ws, advisory: { ...advisory, recipeId: undefined }, callSite, ...shapes, recipes: RECIPES, llm });
+
+  it("keeps an LLM fix inside the function that makes the call in scope", async () => {
+    const r = await attempt(proposing([{ path: callSite.file, content: fixedText(original) }]));
+    expect(r.scope).toMatchObject({ status: "in-scope", detail: "every edit is inside triggerDeploy() (lines 12-25)" });
+  });
+
+  it("flags an LLM fix that also edits a helper file, or code outside the function, for a person", async () => {
+    const helper = await attempt(proposing([
+      { path: callSite.file, content: fixedText(original) },
+      { path: "src/helper.ts", content: "export const accepted = [200, 204];\n" },
+    ]));
+    expect(helper.status).toBe("fixed");
+    expect(helper.scope).toMatchObject({ status: "out-of-scope", outside: ["src/helper.ts"] });
+    const outside = fixedText(original).replace('?? "https://api.github.com";', '?? "https://api.github.com/";');
+    const moved = await attempt(proposing([{ path: callSite.file, content: outside }]));
+    expect(moved.scope).toMatchObject({ status: "out-of-scope", outside: [`${callSite.file}:3`] });
+    expect(moved.scope!.detail).toBe(`the change also edits ${callSite.file}:3, outside triggerDeploy() that makes the call`);
+  });
+
+  it("counts a deterministic recipe's change as in scope", async () => {
+    const r = await repairCallSite({ workspace: memoryWorkspace({ [callSite.file]: original }, contract).ws, advisory, callSite, ...shapes, recipes: RECIPES });
+    expect(r).toMatchObject({ status: "fixed", method: "recipe", scope: { status: "in-scope" } });
+  });
+});
+
 describe("repairCallSite: what an LLM change has to get past", () => {
   const { callSite, original } = demoRepo("llm-guards");
   const testFile = "test/shapi/github-workflow-dispatch-204-to-200.test.ts";

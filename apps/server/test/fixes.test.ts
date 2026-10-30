@@ -48,8 +48,8 @@ beforeEach(async () => {
   repositoryId = repo.id;
 });
 
-function setup() {
-  const fake = fakeRepoGitHub("acme/demo", { "src/a.ts": "a\n", "src/b.ts": "b\n", "src/c.ts": "c\n" });
+function setup(opts: { refuseDrafts?: boolean } = {}) {
+  const fake = fakeRepoGitHub("acme/demo", { "src/a.ts": "a\n", "src/b.ts": "b\n", "src/c.ts": "c\n" }, opts);
   const github = githubClients({ appId: "1", privateKey }, { fetch: fake.fetch, resilient: false });
   return { ...fake, deps: { db, github } };
 }
@@ -118,6 +118,17 @@ describe("fix delivery", () => {
     const t = setup();
     await deliverRepoFixes(t.deps, { repositoryId, fixes: [{ ...candidate(crit, "src/a.ts"), labels: ["needs-human"] }], now: new Date() });
     expect(t.github.pulls.map((p) => p.labels.map((l) => l.name))).toEqual([["shapi", "needs-human"]]);
+  });
+
+  it("opens a fix that edits outside its predicted lines as a draft, or a labelled PR where drafts are refused (V-05)", async () => {
+    const outOfScope = { ...candidate(crit, "src/a.ts"), labels: ["needs-human"], draft: true };
+    const t = setup();
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [outOfScope], now: new Date() });
+    expect(t.github.pulls.map((p) => [p.draft, p.labels.map((l) => l.name)])).toEqual([[true, ["shapi", "needs-human"]]]);
+    await withService(db, (tx) => tx.deleteFrom("fix_prs").execute());
+    const free = setup({ refuseDrafts: true });
+    await deliverRepoFixes(free.deps, { repositoryId, fixes: [outOfScope], now: new Date() });
+    expect(free.github.pulls.map((p) => [p.draft, p.labels.map((l) => l.name)])).toEqual([[false, ["shapi", "needs-human"]]]);
   });
 
   it("stores how a fix was verified with its PR: kept by a rerun without one, rewritten by any rerun with one", async () => {

@@ -8,6 +8,7 @@ import { runRecipe, type FileChange, type Recipe } from "./recipe";
 import { SHAPI_VITEST_CONFIG, runFailure, testsRan, type TestRun } from "./runner";
 import { checkSuite, type SuiteCheck, type SuiteRun } from "./suite";
 import { checkKept, type KeepCheck } from "./keep";
+import { checkScope, type ScopeCheck } from "./scope";
 import { checkUndo, type UndoCheck } from "./undo";
 import { checkTypes, typeBaseline, type TypeBaseline, type TypeCheck } from "./typecheck";
 import { localWorkspace, type Workspace } from "./workspace";
@@ -61,6 +62,8 @@ export interface RepairResult {
   keep?: KeepCheck;
   /** For a fix: whether undoing each part of it makes the contract test fail (V-04). A part the test survives needs a person. */
   undo?: UndoCheck;
+  /** For a fix: whether every edit stays inside the function that makes the call (V-05). An edit outside makes the PR a draft. */
+  scope?: ScopeCheck;
 }
 
 const PROTECTED = new Set([".git", "node_modules", "dist", "coverage", ".shapi"]);
@@ -144,8 +147,10 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
     const kept = run.passed && typecheck?.status !== "failed" && keep?.status !== "removed";
     attempts.push({ method: "recipe", outcome: kept ? "passed" : "failed", detail: kept ? recipe.recipe : failure(typecheck, keep, recipe.recipe), run });
     if (kept) {
-      const undo = await checkUndo(ws, test.file, [{ file: callSite.file, before: original, after: recipe.change.after }]);
-      return { status: "fixed", method: "recipe", sandbox: ws.location, changes: [recipe.change, testChange], test: ran, baseline, attempts, typecheck, keep, undo };
+      const files = [{ file: callSite.file, before: original, after: recipe.change.after }];
+      const undo = await checkUndo(ws, test.file, files);
+      const scope = checkScope({ callSite, method: "recipe", files });
+      return { status: "fixed", method: "recipe", sandbox: ws.location, changes: [recipe.change, testChange], test: ran, baseline, attempts, typecheck, keep, undo, scope };
     }
     await ws.write(callSite.file, original);
   } else {
@@ -195,8 +200,10 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
     const detail = `${proposal.model}: ${proposal.explanation}`;
     attempts.push({ method: "llm", outcome: kept ? "passed" : "failed", detail: kept ? detail : failure(typecheck, keep, detail), run });
     if (kept) {
-      const undo = await checkUndo(ws, test.file, changes.map(({ file, before, after }) => ({ file, before, after })));
-      return { status: "fixed", method: "llm", sandbox: ws.location, changes: [...changes.map(({ file, before, after, notes }) => ({ file, before, after, notes })), testChange], test: ran, baseline, attempts, typecheck, keep, undo };
+      const files = changes.map(({ file, before, after }) => ({ file, before, after }));
+      const undo = await checkUndo(ws, test.file, files);
+      const scope = checkScope({ callSite, method: "llm", files });
+      return { status: "fixed", method: "llm", sandbox: ws.location, changes: [...changes.map(({ file, before, after, notes }) => ({ file, before, after, notes })), testChange], test: ran, baseline, attempts, typecheck, keep, undo, scope };
     }
   } catch (err) {
     // The sandbox is out of time: nothing more can run in it, so the caller decides what to deliver.
