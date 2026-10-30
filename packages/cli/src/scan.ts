@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
@@ -7,15 +7,17 @@ import {
   SEVERITY_RANK,
   apiLockToCycloneDx,
   createApiLock,
+  lintFiles,
   loadAdvisories,
   matchAdvisories,
   writeApiLock,
   type ApiLock,
   type Finding,
+  type LintFinding,
   type MatchResult,
   type Severity,
 } from "@shapi/core";
-import { extractCallSites, loadPythonParser } from "@shapi/extractor";
+import { extractCallSites, listRepoFiles, loadPythonParser, toPosix } from "@shapi/extractor";
 import { bundledDir } from "./paths";
 
 export const VERSION = "0.3.1";
@@ -44,6 +46,8 @@ export interface ScanOutcome {
   skipped: { file: string; reason: string }[];
   lock: ApiLock;
   match: MatchResult;
+  /** Retired names from verified advisories found anywhere in the code (S-06), minus lines already reported as affected. */
+  lint: LintFinding[];
   elapsedMs: number;
   exitCode: number;
 }
@@ -83,6 +87,7 @@ export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome
     }
     const advisories = loadAdvisories(opts.advisories ?? DEFAULT_ADVISORIES);
     const match = matchAdvisories(lock, advisories, { now });
+    const lint = deprecatedNames(dir, advisories, match);
     const failing = failOn === "none" ? [] : match.affected.filter((f) => SEVERITY_RANK[f.advisory.severity] <= SEVERITY_RANK[failOn]);
     const quote = (s: string) => (/\s/.test(s) ? JSON.stringify(s) : s);
     return {
@@ -92,12 +97,20 @@ export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome
       skipped: extracted.skipped,
       lock,
       match,
+      lint,
       elapsedMs: Math.round(performance.now() - started),
       exitCode: failing.length > 0 ? 1 : 0,
     };
   } finally {
     if (cleanup) rmSync(cleanup, { recursive: true, force: true });
   }
+}
+
+/** S-06: the scanned files through the deprecated-shape lint. */
+function deprecatedNames(dir: string, advisories: Parameters<typeof lintFiles>[1], match: MatchResult): LintFinding[] {
+  const { sources, python } = listRepoFiles(dir);
+  const files = [...sources, ...python].map((abs) => ({ path: toPosix(path.relative(dir, abs)), text: readFileSync(abs, "utf8") }));
+  return lintFiles(files, advisories, match.affected);
 }
 
 /** `url` with any credentials (`https://user:token@host/...`) removed, for output and error messages. */
@@ -158,6 +171,7 @@ export function toJsonReport(o: ScanOutcome): unknown {
       daysUntil: u.daysUntil,
       callSites: u.callSites,
     })),
+    deprecatedNames: o.lint.map((l) => ({ file: l.file, line: l.line, column: l.column, kind: l.kind, name: l.name, replacement: l.replacement ?? null, advisory: l.advisoryId })),
     lock: o.lock,
   };
 }

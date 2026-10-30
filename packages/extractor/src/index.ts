@@ -10,7 +10,8 @@ import { extractPython, pythonParserLoaded } from "./python";
 export type { CallKind, CallSite, NameValue, Surface } from "@shapi/core";
 export type { FoundCall } from "./callsites";
 export { evalString, parseUrl } from "./callsites";
-export type { DeclaredProvider } from "./files";
+export type { DeclaredProvider, RepoFiles } from "./files";
+export { listRepoFiles, toPosix } from "./files";
 export { loadPythonParser, pythonParserLoaded } from "./python";
 
 export interface ExtractResult {

@@ -30,6 +30,11 @@ describe("demo: shapi scan fixtures/demo-ts", () => {
     expect(outcome.exitCode).toBe(1);
   });
 
+  it("lints a retired model id kept in a constant no API call uses, and nothing else (S-06)", () => {
+    const { lint } = scan(demo, { now: "2026-10-21" });
+    expect(lint.map((l) => `${l.file}:${l.line} ${l.kind} ${l.name} ${l.advisoryId}`)).toEqual(["src/summaries.ts:3 model claude-sonnet-4-5 anthropic-claude-sonnet-4-5-retirement"]);
+  });
+
   it("also flags QuickBooks and the HubSpot deadline, finds Stripe, and leaves the .ok-only GitHub call unflagged", () => {
     const { match, lock } = scan(demo, { now: "2026-10-21" });
     expect(match.affected.map((f) => `${f.advisory.id} ${f.callSite.file}`)).toEqual([
