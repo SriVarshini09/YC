@@ -95,3 +95,4 @@ One line per task: task, summary file, PR, status.
 - PB-46 the benchmark runs in CI as the matcher regression suite: a lost catch or a new false positive fails the PR (P-05): [summary](PB-46-bench-regression-gate.md) · PR: open
 - PB-47 every benchmark instance is mirrored in Software Heritage, and a commit deleted from GitHub is scanned from there (P-07): [summary](PB-47-bench-archive.md) · PR: open
 - PB-48 one shared shape record, the shape witness: values zeroed, a key allowlist that fails closed, map collapse and a stable shape_id; the canary and replay emit it (A-01): [summary](PB-48-shape-witness.md) · PR: open
+- PB-50 a fix may not delete the call or the read of what changed, even when the contract test passes (V-06): [summary](PB-50-fix-keeps-the-call.md) · PR: open
