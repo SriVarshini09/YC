@@ -1,0 +1,55 @@
+{
+  "provider": "quickbooks",
+  "name": "QuickBooks Online",
+  "count": 3,
+  "advisories": [
+    {
+      "id": "quickbooks-minorversion-below-75-ignored",
+      "title": "Minor versions below 75 are silently answered as minor version 75",
+      "endpoint": {
+        "method": "*",
+        "path": "/v3/company/{realmId}/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2025-08-01",
+      "severity": "high",
+      "status": "verified",
+      "fix": "apply-fix",
+      "url": "https://shapi.dev/advisories/quickbooks-minorversion-below-75-ignored",
+      "markdown": "https://shapi.dev/advisories/quickbooks-minorversion-below-75-ignored.md",
+      "osv": "https://shapi.dev/osv/quickbooks-minorversion-below-75-ignored.json"
+    },
+    {
+      "id": "quickbooks-companyinfo-neoenabled-removed",
+      "title": "CompanyInfo no longer returns the NeoEnabled NameValue",
+      "endpoint": {
+        "method": "GET",
+        "path": "/v3/company/{realmId}/companyinfo/{companyId}"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2026-01-27",
+      "severity": "low",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/quickbooks-companyinfo-neoenabled-removed",
+      "markdown": "https://shapi.dev/advisories/quickbooks-companyinfo-neoenabled-removed.md",
+      "osv": "https://shapi.dev/osv/quickbooks-companyinfo-neoenabled-removed.json"
+    },
+    {
+      "id": "quickbooks-refresh-token-five-year-hard-expiry",
+      "title": "Refresh tokens hard-expire after five years, first ones in February 2027",
+      "endpoint": {
+        "method": "POST",
+        "path": "/oauth2/v1/tokens/bearer"
+      },
+      "changeClass": "auth",
+      "effectiveDate": "2027-02-01",
+      "severity": "high",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/quickbooks-refresh-token-five-year-hard-expiry",
+      "markdown": "https://shapi.dev/advisories/quickbooks-refresh-token-five-year-hard-expiry.md",
+      "osv": "https://shapi.dev/osv/quickbooks-refresh-token-five-year-hard-expiry.json"
+    }
+  ]
+}

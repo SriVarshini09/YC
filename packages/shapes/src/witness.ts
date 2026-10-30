@@ -42,6 +42,10 @@ export const WitnessSchema = z.object({
   deprecation: z.string().nullable(),
   /** RFC 8594 Sunset, as an ISO date-time, when the response carries it. */
   sunset: z.string().nullable(),
+  /** Why the provider deprecated what was called (Shopify's X-Shopify-API-Deprecated-Reason), when it says (CN-05). Absent otherwise. */
+  deprecationReason: z.string().optional(),
+  /** Where the provider documents the deprecation or sunset: a Link header with rel="deprecation" or rel="sunset" (RFC 9745, RFC 8594). */
+  deprecationLink: z.string().optional(),
   body: z.object({
     kind: z.enum(["empty", "json", "text"]),
     /** Key path (`$.data[].id`, `$.rates{}.value`) to its type: `string:uuid`, `integer`, `null|string:datetime`, `enum{closed,open}`. */
@@ -142,6 +146,9 @@ export function toWitness(res: RawResponse, ctx: WitnessContext): Witness {
     headerNames: [...headers.keys()].filter((h) => !VOLATILE.test(h)).sort(),
     deprecation: httpDate(headers.get("deprecation")),
     sunset: httpDate(headers.get("sunset")),
+    // Left out when absent, so witnesses without them keep the shape ids they had.
+    ...(headers.get("x-shopify-api-deprecated-reason") ? { deprecationReason: headers.get("x-shopify-api-deprecated-reason")!.slice(0, 300) } : {}),
+    ...(deprecationLink(headers.get("link")) ? { deprecationLink: deprecationLink(headers.get("link"))! } : {}),
     body,
     mapCollapsed: [...collapsed].sort(),
     dropped: dropped.size,
@@ -212,6 +219,15 @@ function allowedPaths(allow: WitnessAllowlist): Set<string> | undefined {
 
 function escape(key: string): string {
   return key.replace(/[\\.[\]{}]/g, "\\$&");
+}
+
+/** The first link a Link header marks rel="deprecation" or rel="sunset". */
+function deprecationLink(value: string | undefined): string | undefined {
+  for (const part of value?.split(/,(?=\s*<)/) ?? []) {
+    const m = /^\s*<([^>]+)>\s*;(.*)$/.exec(part);
+    if (m && /\brel\s*=\s*"?[^";]*\b(deprecation|sunset)\b/i.test(m[2]!)) return m[1]!.slice(0, 500);
+  }
+  return undefined;
 }
 
 /** An RFC 9745 structured date (`@1735689600`) or an HTTP-date, as ISO; anything else as sent. */

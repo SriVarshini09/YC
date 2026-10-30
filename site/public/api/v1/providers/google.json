@@ -1,0 +1,39 @@
+{
+  "provider": "google",
+  "name": "Google APIs",
+  "count": 2,
+  "advisories": [
+    {
+      "id": "google-ads-api-v22-sunset",
+      "title": "Google Ads API v22 sunset on 2026-10-07",
+      "endpoint": {
+        "method": "*",
+        "path": "/v22/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-07",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/google-ads-api-v22-sunset",
+      "markdown": "https://shapi.dev/advisories/google-ads-api-v22-sunset.md",
+      "osv": "https://shapi.dev/osv/google-ads-api-v22-sunset.json"
+    },
+    {
+      "id": "google-custom-search-json-api-shutdown",
+      "title": "Custom Search JSON API discontinued on 2027-01-01",
+      "endpoint": {
+        "method": "GET",
+        "path": "/customsearch/v1/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-01-01",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/google-custom-search-json-api-shutdown",
+      "markdown": "https://shapi.dev/advisories/google-custom-search-json-api-shutdown.md",
+      "osv": "https://shapi.dev/osv/google-custom-search-json-api-shutdown.json"
+    }
+  ]
+}

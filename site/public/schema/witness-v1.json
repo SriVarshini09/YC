@@ -59,6 +59,12 @@
         "null"
       ]
     },
+    "deprecationReason": {
+      "type": "string"
+    },
+    "deprecationLink": {
+      "type": "string"
+    },
     "body": {
       "type": "object",
       "properties": {

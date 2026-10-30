@@ -39,7 +39,7 @@ const IMPACT_ORDER: Record<Impact, number> = { breaking: 0, "non-breaking": 1, i
 
 /** Headers whose value changing is a contract change rather than metadata. */
 const CONTRACT_HEADERS = new Set(["content-type"]);
-const SUNSET_HEADERS = new Set(["deprecation", "sunset", "link-deprecation"]);
+const SUNSET_HEADERS = new Set(["deprecation", "sunset", "link-deprecation", "x-shopify-api-deprecated-reason"]);
 
 /** Compare two shapes of the same endpoint and classify every difference. */
 export function diffShapes(before: ResponseShape, after: ResponseShape): ShapeDiff {

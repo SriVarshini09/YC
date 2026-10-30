@@ -1,0 +1,71 @@
+{
+  "provider": "twilio",
+  "name": "Twilio",
+  "count": 4,
+  "advisories": [
+    {
+      "id": "twilio-voice-insights-conference-participant-removed",
+      "title": "Twilio Voice Insights Call Summary drops attributes.conference_participant on 2026-08-01",
+      "endpoint": {
+        "method": "GET",
+        "path": "/v1/Voice/{CallSid}/Summary"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2026-08-01",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/twilio-voice-insights-conference-participant-removed",
+      "markdown": "https://shapi.dev/advisories/twilio-voice-insights-conference-participant-removed.md",
+      "osv": "https://shapi.dev/osv/twilio-voice-insights-conference-participant-removed.json"
+    },
+    {
+      "id": "twilio-rcs-undelivered-error-code-30046",
+      "title": "Twilio RCS unconfirmed-delivery error code changed from 30036 to 30046",
+      "endpoint": {
+        "method": "GET",
+        "path": "/2010-04-01/Accounts/{AccountSid}/Messages**"
+      },
+      "changeClass": "enum-added",
+      "effectiveDate": "2026-08-10",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/twilio-rcs-undelivered-error-code-30046",
+      "markdown": "https://shapi.dev/advisories/twilio-rcs-undelivered-error-code-30046.md",
+      "osv": "https://shapi.dev/osv/twilio-rcs-undelivered-error-code-30046.json"
+    },
+    {
+      "id": "twilio-conference-list-default-in-progress",
+      "title": "Twilio Conference list returns only in-progress conferences by default from 2026-09-30",
+      "endpoint": {
+        "method": "GET",
+        "path": "/2010-04-01/Accounts/{AccountSid}/Conferences.json"
+      },
+      "changeClass": "required-field",
+      "effectiveDate": "2026-09-30",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/twilio-conference-list-default-in-progress",
+      "markdown": "https://shapi.dev/advisories/twilio-conference-list-default-in-progress.md",
+      "osv": "https://shapi.dev/osv/twilio-conference-list-default-in-progress.json"
+    },
+    {
+      "id": "twilio-notify-end-of-life",
+      "title": "Twilio Notify reaches end of life on 2027-01-31",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/Services/{ServiceSid}/Notifications"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-01-31",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/twilio-notify-end-of-life",
+      "markdown": "https://shapi.dev/advisories/twilio-notify-end-of-life.md",
+      "osv": "https://shapi.dev/osv/twilio-notify-end-of-life.json"
+    }
+  ]
+}

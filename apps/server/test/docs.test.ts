@@ -26,6 +26,9 @@ beforeAll(() => {
   put("osv/stripe-x.json", '{"id":"x_SHAPI-stripe-x"}');
   put("overlays/stripe-x.overlay.json", '{"overlay":"1.0.0"}');
   put("arazzo/stripe-x.arazzo.json", '{"arazzo":"1.0.1"}');
+  put("advisories/stripe-x.md", "# Stripe x");
+  put("deadlines.ics", "BEGIN:VCALENDAR");
+  put("api/v1/providers/stripe.json", '{"provider":"stripe"}');
   put(".hidden", "no");
   writeFileSync(outside, "outside the docs");
 });
@@ -66,6 +69,14 @@ describe("docs site on its own hostname", () => {
     for (const p of ["/overlays/stripe-x.overlay.json", "/arazzo/stripe-x.arazzo.json"]) expect((await get(p)).headers["access-control-allow-origin"]).toBe("*");
     // Other files are not shared across origins.
     expect((await get("/guide/cli")).headers["access-control-allow-origin"]).toBeUndefined();
+  });
+
+  it("serves the advisory Markdown twins, the deadlines feed and the provider JSON with their types (G-04)", async () => {
+    expect((await get("/advisories/stripe-x.md")).headers["content-type"]).toBe("text/markdown; charset=utf-8");
+    expect((await get("/deadlines.ics")).headers["content-type"]).toBe("text/calendar; charset=utf-8");
+    const json = await get("/api/v1/providers/stripe.json");
+    expect(json.headers["access-control-allow-origin"]).toBe("*");
+    expect(json.json()).toEqual({ provider: "stripe" });
   });
 
   it("caches hashed assets for a year", async () => {
