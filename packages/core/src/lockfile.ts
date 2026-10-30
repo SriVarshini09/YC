@@ -81,6 +81,17 @@ export type ApiLock = z.infer<typeof ApiLockSchema>;
 
 export const LOCKFILE_VERSION = 1;
 
+/**
+ * A path SHAPI cannot place (execution plan A-03): none was found, or every segment of it is built at runtime
+ * (`/{path}`, from `${base}${path}`). Such a call site could reach any endpoint of its provider, so it is
+ * reported as unresolved instead of being matched by a guess. The root path "/" is resolved.
+ */
+export function pathUnresolved(endpoint: string | null): boolean {
+  if (endpoint === null) return true;
+  const segments = endpoint.split("/").filter(Boolean);
+  return segments.length > 0 && segments.every((s) => /^\{[^{}]*\}$/.test(s));
+}
+
 export function callSiteId(site: Pick<CallSite, "file" | "line" | "column" | "method" | "endpoint">): string {
   return createHash("sha256")
     .update(`${site.file}:${site.line}:${site.column}:${site.method ?? "?"}:${site.endpoint ?? "?"}`)

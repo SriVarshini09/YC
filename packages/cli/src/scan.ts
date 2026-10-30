@@ -135,6 +135,7 @@ export function toJsonReport(o: ScanOutcome): unknown {
     affected: o.match.affected.map(finding),
     exposed: o.match.exposed.map(finding),
     possible: o.match.possible.map(finding),
+    unresolved: o.match.unresolved.map((u) => ({ provider: u.callSite.provider, file: u.callSite.file, line: u.callSite.line, method: u.callSite.method, endpoint: u.callSite.endpoint, reason: u.reason, advisories: u.advisories })),
     upcoming: o.match.upcoming.map((u) => ({
       advisory: u.advisory.id,
       provider: u.advisory.provider,
