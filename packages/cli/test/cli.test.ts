@@ -67,6 +67,17 @@ describe("shapi scan", () => {
     expect(ApiLockSchema.parse(JSON.parse(readFileSync(a, "utf8"))).callSites).toHaveLength(3);
   });
 
+  it("--sbom writes the api.lock as a CycloneDX SaaSBOM, the same bytes each time (S-02)", async () => {
+    const a = path.join(tmp, "a.cdx.json");
+    const b = path.join(tmp, "b.cdx.json");
+    await shapi("scan", fixture, "--sbom", a);
+    await shapi("scan", fixture, "--sbom", b);
+    expect(readFileSync(a, "utf8")).toBe(readFileSync(b, "utf8"));
+    const sbom = JSON.parse(readFileSync(a, "utf8")) as { bomFormat: string; specVersion: string; metadata: { component: { name: string } }; components: { evidence: { occurrences: unknown[] } }[] };
+    expect(sbom).toMatchObject({ bomFormat: "CycloneDX", specVersion: "1.7", metadata: { component: { name: "app" } } });
+    expect(sbom.components.flatMap((c) => c.evidence.occurrences)).toHaveLength(3);
+  });
+
   it("--repo clones a git repository and scans it", async () => {
     const repo = path.join(tmp, "repo");
     cpSync(fixture, repo, { recursive: true });

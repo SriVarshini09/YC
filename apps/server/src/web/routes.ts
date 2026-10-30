@@ -5,6 +5,7 @@ import formbody from "@fastify/formbody";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { sql } from "kysely";
 import { z } from "zod";
+import { apiLockToCycloneDx } from "@shapi/core";
 import { withService, withTenant, type Db } from "@shapi/db";
 import type { FixtureStatus } from "@shapi/canary";
 import { readFeedbackToken } from "@shapi/github-app";
@@ -463,6 +464,22 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       const repos = await withTenant(deps.db, account.id, (tx) => tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at"]).execute());
       await setQuantity(billing, account.id, Math.max(1, requiredQuantity(repos)));
       return `/a/${account.id}/billing?billing=updated`;
+    });
+
+    // The repository's latest api.lock as a CycloneDX 1.7 SaaSBOM (S-02): one URL per repository, for whoever can open it.
+    scope.get("/a/:accountId/r/:repoId/sbom.cdx.json", async (req, reply) => {
+      const ctx = await accountFor(req, reply);
+      if (!ctx) return;
+      const repoId = idParam.safeParse((req.params as { repoId?: string }).repoId);
+      if (!repoId.success) return notFound(req, reply, ctx);
+      const data = await dataFor(ctx, { lockRepo: repoId.data });
+      const repo = data.repos.find((r) => r.id === repoId.data);
+      if (!repo?.lock) return notFound(req, reply, ctx);
+      const sbom = apiLockToCycloneDx(repo.lock, { name: repo.full_name, sha: repo.lockSha });
+      return reply
+        .type("application/vnd.cyclonedx+json; charset=utf-8")
+        .header("content-disposition", `attachment; filename="${repo.full_name.replace("/", "-")}.cdx.json"`)
+        .send(`${JSON.stringify(sbom, null, 2)}\n`);
     });
 
     scope.get("/a/:accountId/r/:repoId", async (req, reply) => {
