@@ -96,6 +96,24 @@ export const FixSchema = z
     fields: z.array(z.object({ from: z.string().min(1), to: z.string().min(1) })).optional(),
     /** Enum values that were renamed: comparisons with an old value also accept the new one. */
     enums: z.array(z.object({ field: z.string().min(1), values: z.array(z.object({ from: z.string(), to: z.string() })).min(1) })).optional(),
+    /**
+     * Top-level request body fields to change (execution plan C-07): send `to` where the code sends `from` (a retired
+     * model), send the field under a new name (`max_tokens` to `max_completion_tokens`), or stop sending it. Together
+     * they keep a request's behaviour across a model swap.
+     */
+    body: z
+      .array(
+        z
+          .object({
+            field: z.string().min(1),
+            values: z.array(z.object({ from: z.string(), to: z.string() })).min(1).optional(),
+            rename: z.string().min(1).optional(),
+            remove: z.literal(true).optional(),
+          })
+          .refine((b) => b.values !== undefined || b.rename !== undefined || b.remove !== undefined, "a body change needs values, rename or remove"),
+      )
+      .min(1)
+      .optional(),
   })
   .refine((f) => Object.values(f).some((v) => v !== undefined), "fix needs at least one change");
 export type Fix = z.infer<typeof FixSchema>;

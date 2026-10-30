@@ -19,8 +19,8 @@ export function generatePythonContractTest(input: { callSite: LockedCallSite; ad
   const fix = advisory.fix;
   const statuses = advisory.trigger.statusCodes ?? [];
   const newStatuses = advisory.trigger.newStatusCodes ?? [];
-  const kind = fix && (fix.path || fix.query || fix.header) ? "request" : statuses.length && newStatuses.length ? "recorded" : undefined;
-  if (!kind) return { status: "unsupported", reason: "Python contract tests cover a changed request (path, query, header) or a changed status code" };
+  const kind = fix && (fix.path || fix.query || fix.header || fix.body) ? "request" : statuses.length && newStatuses.length ? "recorded" : undefined;
+  if (!kind) return { status: "unsupported", reason: "Python contract tests cover a changed request (path, query, header, body) or a changed status code" };
 
   const tree = parsePython(input.sourceText);
   if (!tree) return { status: "unsupported", reason: `${callSite.file} does not parse` };
@@ -70,6 +70,8 @@ export function generatePythonContractTest(input: { callSite: LockedCallSite; ad
             path: fix!.path ? fix!.path.from : null,
             query: fix!.query ? { name: fix!.query.name, value: fix!.query.value, below: advisory.trigger.query?.find((q) => q.name === fix!.query!.name)?.below ?? null } : null,
             header: fix!.header ? { name: fix!.header.name, value: fix!.header.value, values: advisory.trigger.headers?.find((h) => h.name.toLowerCase() === fix!.header!.name.toLowerCase())?.values ?? null } : null,
+            // C-07: a body field sent with a retired value, or still sent under a name the fix renames or drops.
+            body: (fix!.body ?? []).map((b) => ({ field: b.field, values: b.values?.map((v) => v.from) ?? null, gone: Boolean(b.rename || b.remove) })),
           }
         : { before: statuses[0], after: newStatuses.find((s) => !statuses.includes(s)) ?? newStatuses[0] }),
     };
@@ -102,8 +104,20 @@ UNTESTABLE = ${JSON.stringify(UNTESTABLE)}
 BODY = json.dumps({key: "shapi-test" for key in CONFIG["keys"]}).encode()
 
 
+def as_json(data):
+    """A request body as Python values when it is JSON (bytes, text or already a dict), else None."""
+    if isinstance(data, (dict, list)):
+        return data
+    if isinstance(data, (bytes, bytearray, str)):
+        try:
+            return json.loads(data)
+        except ValueError:
+            return None
+    return None
+
+
 class Sent:
-    def __init__(self, method, url, params=None, headers=None):
+    def __init__(self, method, url, params=None, headers=None, body=None):
         parts = urllib.parse.urlsplit(str(url))
         self.method = (method or "GET").upper()
         self.url = str(url)
@@ -112,6 +126,7 @@ class Sent:
         for key, value in dict(params or {}).items():
             self.query[str(key)] = str(value)
         self.headers = {str(k).lower(): str(v) for k, v in dict(headers or {}).items()}
+        self.body = as_json(body)
 
     def retired(self):
         """Why this request is the one the provider retired, or None."""
@@ -130,6 +145,13 @@ class Sent:
             value = self.headers[header["name"].lower()]
             if value != header["value"] and (header["values"] is None or value in header["values"]):
                 return "%s: %s" % (header["name"], value)
+        for field in CONFIG.get("body") or []:
+            if not isinstance(self.body, dict) or field["field"] not in self.body:
+                continue
+            if field["values"] is not None and str(self.body[field["field"]]) in field["values"]:
+                return "%s: %s" % (field["field"], self.body[field["field"]])
+            if field["gone"]:
+                return "it still sends %s" % field["field"]
         return None
 
 
@@ -140,8 +162,8 @@ class Stubs:
         self.status = status
         self.sent = []
 
-    def answer(self, method, url, params=None, headers=None):
-        self.sent.append(Sent(method, url, params, headers))
+    def answer(self, method, url, params=None, headers=None, body=None):
+        self.sent.append(Sent(method, url, params, headers, body))
         return self.status
 
     def __enter__(self):
@@ -164,9 +186,10 @@ class Stubs:
 
         def urlopen(req, *args, **kwargs):
             if isinstance(req, urllib.request.Request):
-                status = stubs.answer(req.get_method(), req.full_url, None, dict(req.header_items()))
+                status = stubs.answer(req.get_method(), req.full_url, None, dict(req.header_items()), req.data)
                 return UrllibResponse(status, req.full_url)
-            status = stubs.answer("POST" if kwargs.get("data") or (args and args[0]) else "GET", req)
+            data = kwargs.get("data", args[0] if args else None)
+            status = stubs.answer("POST" if data else "GET", req, None, None, data)
             return UrllibResponse(status, str(req))
 
         self.patches.append(mock.patch("urllib.request.urlopen", urlopen))
@@ -193,19 +216,22 @@ class Stubs:
         try:
             import requests  # noqa: F401
 
-            def session_request(session, method, url, params=None, headers=None, **kwargs):
-                return HttpResponse(stubs.answer(method, url, params, {**dict(getattr(session, "headers", {}) or {}), **dict(headers or {})}), url)
+            def session_request(session, method, url, params=None, headers=None, data=None, json=None, **kwargs):
+                sent_headers = {**dict(getattr(session, "headers", {}) or {}), **dict(headers or {})}
+                return HttpResponse(stubs.answer(method, url, params, sent_headers, json if json is not None else data), url)
 
             self.patches.append(mock.patch("requests.sessions.Session.request", session_request))
         except ImportError:
             pass
         try:
-            import httpx  # noqa: F401
+            import httpx
 
-            def client_request(client, method, url, *args, params=None, headers=None, **kwargs):
-                return HttpResponse(stubs.answer(method, str(client.base_url.join(url)) if getattr(client, "base_url", None) else url, params, headers), str(url))
+            # Every httpx request goes through Client.send, the OpenAI and Anthropic SDKs' included: it gets a real response.
+            def client_send(client, request, **kwargs):
+                status = stubs.answer(request.method, str(request.url), None, dict(request.headers), request.content)
+                return httpx.Response(status, content=BODY, headers={"content-type": "application/json"}, request=request)
 
-            self.patches.append(mock.patch("httpx.Client.request", client_request))
+            self.patches.append(mock.patch("httpx.Client.send", client_send))
         except ImportError:
             pass
         for p in self.patches:

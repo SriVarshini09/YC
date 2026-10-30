@@ -86,8 +86,9 @@ export function generateContractTest(input: ContractTestInput): ContractTest {
     transport,
   };
 
-  if (fix && (fix.path || fix.query || fix.header)) {
-    if (callSite.kind === "sdk") return { status: "unsupported", reason: `the fix changes the request, which ${callSite.client} builds itself` };
+  if (fix && (fix.path || fix.query || fix.header || fix.body)) {
+    // An SDK builds its own URL and headers; the body is the object the code passes it (C-07).
+    if (callSite.kind === "sdk" && (fix.path || fix.query || fix.header)) return { status: "unsupported", reason: `the fix changes the request, which ${callSite.client} builds itself` };
     return { status: "generated", file, content: requestTest({ ...parts, fix, body: renamePair(callSite, fix).after }), functionName: fn.name, kind: "request" };
   }
   if (fix && (fix.fields || fix.enums)) {
@@ -143,14 +144,14 @@ function transportFor(site: LockedCallSite, sf: SourceFile): Transport | { reaso
   const envelope = site.provider === "github" ? `{ status: res.status, data: res.body, headers: res.headers }` : `res.body`;
   return {
     mock: `vi.mock(${JSON.stringify(site.client)}, () => {
-  const call = async () => {
-    const res = shapi.respond({ method: ${JSON.stringify(site.method ?? "GET")}, url: ${JSON.stringify(url)}, headers: {} });
+  const call = async (body?: unknown) => {
+    const res = shapi.respond({ method: ${JSON.stringify(site.method ?? "GET")}, url: ${JSON.stringify(url)}, headers: {}, body });
     if (res.status >= 400) throw Object.assign(new Error(\`${site.client} request failed with \${res.status}\`), { status: res.status, statusCode: res.status, response: { status: res.status, data: res.body } });
     return ${envelope};
   };
   const client: any = new Proxy(function () {}, {
     get: (_t, prop) => (prop === "then" || typeof prop === "symbol" ? undefined : client),
-    apply: () => call(),
+    apply: (_t: unknown, _this: unknown, args: unknown[]) => call(args[0]),
     construct: () => client,
   });
   return { ${exports} };
@@ -165,10 +166,10 @@ function transportFor(site: LockedCallSite, sf: SourceFile): Transport | { reaso
 function preamble(p: TestParts): string {
   return `import { afterEach, describe, expect, it, vi } from "vitest";
 
-type ShapiRequest = { method: string; url: string; headers: Record<string, string> };
+type ShapiRequest = { method: string; url: string; headers: Record<string, string>; body?: unknown };
 type ShapiResponse = { status: number; body: unknown; headers: Record<string, string> };
 const shapi = vi.hoisted(() => ({
-  respond: (_req: { method: string; url: string; headers: Record<string, string> }): { status: number; body: unknown; headers: Record<string, string> } => ({ status: 200, body: null, headers: {} }),
+  respond: (_req: { method: string; url: string; headers: Record<string, string>; body?: unknown }): { status: number; body: unknown; headers: Record<string, string> } => ({ status: 200, body: null, headers: {} }),
   lower: (h: unknown): Record<string, string> =>
     Object.fromEntries(Object.entries((h ?? {}) as Record<string, unknown>).filter(([, v]) => v !== undefined).map(([k, v]) => [k.toLowerCase(), String(v)])),
 }));
@@ -184,7 +185,15 @@ const shapiFetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) =>
   new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined)).forEach((value, name) => {
     headers[name] = value;
   });
-  const res = shapi.respond({ method: (init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase(), url, headers });
+  let body: unknown = init?.body ?? undefined;
+  if (typeof body === "string") {
+    try {
+      body = JSON.parse(body);
+    } catch {
+      // a form or text body stays as it is
+    }
+  }
+  const res = shapi.respond({ method: (init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase(), url, headers, body });
   return new Response(res.body === null ? null : JSON.stringify(res.body), { status: res.status, headers: res.headers });
 });
 `
@@ -226,6 +235,12 @@ function requestTest(p: TestParts & { fix: Fix; body: unknown }): string {
   if (p.fix.header) {
     const name = JSON.stringify(p.fix.header.name.toLowerCase());
     checks.push(`(${name} in req.headers && req.headers[${name}] !== ${JSON.stringify(p.fix.header.value)})`);
+  }
+  for (const b of p.fix.body ?? []) {
+    const key = JSON.stringify(b.field);
+    const sent = `(typeof req.body === "object" && req.body !== null && ${key} in req.body)`;
+    if (b.values) checks.push(`(${sent} && ${JSON.stringify(b.values.map((v) => v.from))}.includes(String((req.body as Record<string, unknown>)[${key}])))`);
+    if (b.rename || b.remove) checks.push(sent);
   }
   return `${p.header}
 // The provider no longer accepts the old request: ${p.transport.name} is replaced by a stub that answers it
@@ -357,6 +372,11 @@ function describeFix(fix: Fix): string {
   if (fix.path) parts.push(`${fix.path.to} instead of ${fix.path.from}`);
   if (fix.query) parts.push(`${fix.query.name}=${fix.query.value}`);
   if (fix.header) parts.push(`${fix.header.name}: ${fix.header.value}`);
+  for (const b of fix.body ?? []) {
+    if (b.values) parts.push(`${b.field}: ${b.values.map((v) => v.to).join(" or ")}`);
+    if (b.rename) parts.push(`${b.rename} instead of ${b.field}`);
+    if (b.remove) parts.push(`no ${b.field}`);
+  }
   return parts.join(", ");
 }
 
@@ -375,7 +395,7 @@ const AXIOS_FAKE = `vi.mock("axios", () => {
       if (c.baseURL && !/^[a-z]+:\\/\\//i.test(url)) url = String(c.baseURL).replace(/\\/+$/, "") + "/" + url.replace(/^\\/+/, "");
       const qs = new URLSearchParams(Object.entries(c.params).filter(([, v]) => v !== undefined && v !== null).map(([k, v]) => [k, String(v)])).toString();
       if (qs) url += (url.includes("?") ? "&" : "?") + qs;
-      const res = shapi.respond({ method: String(c.method ?? "get").toUpperCase(), url, headers: shapi.lower(c.headers) });
+      const res = shapi.respond({ method: String(c.method ?? "get").toUpperCase(), url, headers: shapi.lower(c.headers), body: c.data });
       const response = { status: res.status, statusText: "", headers: res.headers, data: res.body, config: c };
       if (res.status < 200 || res.status >= 300) throw new AxiosError(\`Request failed with status code \${res.status}\`, response, res.status);
       return response;
@@ -411,7 +431,7 @@ const GOT_FAKE = `vi.mock("got", () => {
       const sp = o.searchParams;
       const qs = sp ? new URLSearchParams(typeof sp === "string" || sp instanceof URLSearchParams ? sp : Object.entries(sp).map(([k, v]) => [k, String(v)])).toString() : "";
       if (qs) url += (url.includes("?") ? "&" : "?") + qs;
-      const res = shapi.respond({ method: String(o.method ?? "GET").toUpperCase(), url, headers: shapi.lower(o.headers) });
+      const res = shapi.respond({ method: String(o.method ?? "GET").toUpperCase(), url, headers: shapi.lower(o.headers), body: o.json ?? o.body });
       const text = res.body === null ? "" : JSON.stringify(res.body);
       const response = { statusCode: res.status, headers: res.headers, body: o.responseType === "json" ? res.body : text, url };
       const failed = (o.throwHttpErrors ?? true) && res.status >= 400;

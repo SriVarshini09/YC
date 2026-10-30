@@ -1,5 +1,5 @@
 import type { Fix } from "@shapi/core";
-import { Node, SyntaxKind, type CallExpression, type SourceFile, type Type } from "ts-morph";
+import { Node, SyntaxKind, type CallExpression, type ObjectLiteralExpression, type SourceFile, type Type } from "ts-morph";
 import { codeSpan, swap, type Edit, type Recipe, type RecipeContext } from "../recipe";
 
 /**
@@ -16,14 +16,14 @@ import { codeSpan, swap, type Edit, type Recipe, type RecipeContext } from "../r
 export const applyFix: Recipe = {
   id: "apply-fix",
   changeClass: "version-sunset",
-  description: "Apply the advisory's fix: the new path, query value or header, and the renamed fields and enum values",
-  edits({ sourceFile, call, advisory }: RecipeContext): Edit[] {
+  description: "Apply the advisory's fix: the new path, query value, header or body field, and the renamed fields and enum values",
+  edits({ sourceFile, call, callSite, advisory }: RecipeContext): Edit[] {
     const fix = advisory.fix;
     if (!fix) return [];
     // Notes are Markdown for the PR body: the repository's paths and code go in code spans (see Edit.note).
     const where = (n: Node) => codeSpan(`${sourceFile.getFilePath().slice(1)}:${n.getStartLineNumber()}`);
     const below = fix.query ? advisory.trigger.query?.find((q) => q.name === fix.query!.name)?.below : undefined;
-    const edits: Edit[] = [...requestEdits(call, sourceFile, fix, where, below), ...headerEdits(call, fix, where)];
+    const edits: Edit[] = [...requestEdits(call, sourceFile, fix, where, below), ...headerEdits(call, fix, where), ...bodyEdits(call, sourceFile, fix, where, callSite.kind === "sdk")];
     const scope = enclosingFunction(call) ?? sourceFile;
     const ts = /\.(c|m)?tsx?$/.test(sourceFile.getFilePath());
     edits.push(...fieldEdits(scope, fix, where, edits, ts));
@@ -283,4 +283,80 @@ function leaf(path: string): string {
 
 function escapeRe(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * The objects a call sends as its body: an SDK method's object argument, a `body: JSON.stringify({...})` (fetch),
+ * `data` (axios) or `json` (got), each also through a `const` the function or file defines.
+ */
+function bodyObjects(call: CallExpression, sf: SourceFile, sdk: boolean): ObjectLiteralExpression[] {
+  const out: ObjectLiteralExpression[] = [];
+  const objectOf = (n: Node | undefined, depth = 0): ObjectLiteralExpression | undefined => {
+    if (!n || depth > 3) return undefined;
+    if (Node.isObjectLiteralExpression(n)) return n;
+    if (Node.isParenthesizedExpression(n) || Node.isAsExpression(n) || Node.isSatisfiesExpression(n)) return objectOf(n.getExpression(), depth + 1);
+    if (Node.isCallExpression(n) && n.getExpression().getText() === "JSON.stringify") return objectOf(n.getArguments()[0], depth + 1);
+    if (Node.isIdentifier(n)) {
+      const scope = enclosingFunction(call) ?? sf;
+      const decl = scope.getDescendantsOfKind(SyntaxKind.VariableDeclaration).find((d) => d.getName() === n.getText() && d.getStart() < call.getStart()) ?? sf.getVariableDeclaration(n.getText());
+      return objectOf(decl?.getInitializer(), depth + 1);
+    }
+    return undefined;
+  };
+  const args = call.getArguments();
+  for (const arg of args) {
+    const obj = objectOf(arg);
+    if (!obj) continue;
+    if (sdk) out.push(obj);
+    for (const name of ["body", "data", "json"]) {
+      const prop = obj.getProperty(name);
+      const inner = prop && Node.isPropertyAssignment(prop) ? objectOf(prop.getInitializer()) : undefined;
+      if (inner) out.push(inner);
+    }
+  }
+  // axios.post(url, data) and got.post(url, { json }) put the body second.
+  const second = objectOf(args[1]);
+  if (!sdk && second && !out.includes(second) && !["method", "headers", "body", "json"].some((k) => second.getProperty(k))) out.push(second);
+  return [...new Set(out)];
+}
+
+/** C-07: the body fields a fix changes: a value (`model`), a name (`max_tokens` → `max_completion_tokens`), or the field itself. */
+function bodyEdits(call: CallExpression, sf: SourceFile, fix: Fix, where: Where, sdk: boolean): Edit[] {
+  if (!fix.body) return [];
+  const edits: Edit[] = [];
+  for (const obj of bodyObjects(call, sf, sdk)) {
+    const props = obj.getProperties();
+    for (const change of fix.body) {
+      const prop = props.find((p) => propName(p) === change.field);
+      if (!prop || !Node.isPropertyAssignment(prop)) continue;
+      if (change.remove) {
+        // The property and the comma after it (or before it, for the last one).
+        const i = props.indexOf(prop);
+        const next = props[i + 1];
+        const start = next ? prop.getStart() : (props[i - 1]?.getEnd() ?? prop.getStart());
+        const end = next ? next.getStart() : prop.getEnd();
+        edits.push({ start, end, text: "", note: `${where(prop)} stop sending ${codeSpan(prop.getText())}` });
+        continue;
+      }
+      const init = prop.getInitializer();
+      const value = init && (Node.isStringLiteral(init) || Node.isNoSubstitutionTemplateLiteral(init)) ? init.getLiteralText() : undefined;
+      const to = change.values?.find((v) => v.from === value)?.to;
+      const nameNode = prop.getNameNode();
+      if (change.rename) {
+        const name = /^[A-Za-z_$][\w$]*$/.test(change.rename) ? change.rename : JSON.stringify(change.rename);
+        const text = to !== undefined && init ? `${name}: ${quoteLike(init.getText(), to)}` : `${name}: ${init?.getText() ?? ""}`;
+        edits.push({ start: nameNode.getStart(), end: prop.getEnd(), text, note: `${where(prop)} ${swap(prop.getText(), text)}` });
+      } else if (to !== undefined && init) {
+        const text = quoteLike(init.getText(), to);
+        edits.push({ start: init.getStart(), end: init.getEnd(), text, note: `${where(init)} ${change.field}: ${swap(init.getText(), text)}` });
+      }
+    }
+  }
+  return edits;
+}
+
+/** `to` as a string literal in the quote style of `literal`. */
+function quoteLike(literal: string, to: string): string {
+  const q = literal[0] === "'" || literal[0] === "`" ? literal[0] : '"';
+  return q === '"' ? JSON.stringify(to) : `${q}${to.replace(/\\/g, "\\\\").replaceAll(q, `\\${q}`)}${q}`;
 }
