@@ -50,4 +50,5 @@ The [GitHub App](/guide/github-app) runs all of this on every push to your defau
 
 - **Advisories:** reviewed entries in the open [advisory database](/advisories).
 - **Canaries:** SHAPI probes the provider APIs it holds its own test accounts for (never with your keys) and records the *shape* of each response (status, field names and types; never the values), so it notices a silent change and can draft a new advisory for review.
+- **Spec history:** SHAPI diffs providers' published OpenAPI specs across releases to draft advisories, and measures how often each provider's spec breaks clients in the [spec churn index](./spec-churn).
 - **Recordings:** before and after response shapes for an endpoint, used to build a contract test when the advisory's fix doesn't describe the change by itself.

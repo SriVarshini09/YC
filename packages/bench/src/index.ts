@@ -11,5 +11,6 @@ export { changeShowsName, parseOpenAiDeprecations, scoreOpenAiReplay, type OpenA
 export { changeMatchesTwilioEntry, parseTwilioChanges, scoreTwilioReplay, twilioSpecFiles, type TwilioBreakingEntry, type TwilioRelease, type TwilioReplayScore } from "./spec-replay-twilio";
 export { changeMatchesGithubEntry, parseGithubBreakingChanges, scoreGithubReplay, type GithubBreakingEntry, type GithubReplayScore } from "./spec-replay-github";
 export { changeMatchesRow, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseReleasePage, previewOnly, resourceKey, scoreRelease, type ChangelogEntry, type ChangelogRow, type DiffOptions, type ReleaseScore, type SpecChange, type SpecChangeKind } from "./spec-replay";
+export { BREAKING_KINDS, apiOf, breakingChanges, churnIndex, normalizeSpec, parseRawLog, type ProviderChurn, type SpecEdit, type VersionPair } from "./spec-churn";
 export { buildTierRegistry, latestRun, type BenchmarkRun } from "./tiers";
 export { CONSOLE_K, providerConsole, type ConsoleEndpoint, type Count, type ProviderConsole, type ProviderReport } from "./provider-console";
