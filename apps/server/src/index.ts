@@ -7,7 +7,7 @@ export { sweepWebhooks, type SweepDeps, type SweepResult } from "./jobs/webhook-
 export { githubClients, type GitHubClients } from "./github/clients";
 export { insertPendingScan, jobsQueued, processDelivery, type ProcessResult } from "./github/events";
 export { PR_LABEL, deliverRepoFixes, type DeliverInput, type DeliveryReport, type FixCandidate } from "./github/fixes";
-export { runScanJob, lockFromSnapshot, staleQueuedScans, type ScanDeps, type ScanJob, type ScanReport } from "./jobs/scan";
+export { DEFAULT_SCAN_LIMITS, ScanTooLargeError, lockFromSnapshot, lockInProcess, runScanJob, staleQueuedScans, type ScanDeps, type ScanJob, type ScanLimits, type ScanReport } from "./jobs/scan";
 export { runFixJob, sandboxRunner, scansToRefix, type FixDeps, type FixReport, type WorkspaceRunner } from "./jobs/fix";
 export { runAdvisoryFanout, type FanoutReport } from "./jobs/fanout";
 export { shapesFor, type AdvisoryShapes } from "./jobs/shapes";

@@ -131,6 +131,19 @@ describe("cloud scan", () => {
     expect(detailsUrl.endsWith(`/r/${repositoryId}`)).toBe(true);
   });
 
+  it("fails a repository too large to scan, says why on the check, and does not leave the scan running (I-01)", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    const report = await runScanJob({ db, github: t.githubClients, scanLimits: { maxSourceBytes: 10 } }, { scanId });
+    expect(report.status).toBe("failed");
+    const scan = await withService(db, (tx) => tx.selectFrom("scans").select(["status", "error", "finished_at"]).where("id", "=", scanId).executeTakeFirstOrThrow());
+    expect(scan.status).toBe("failed");
+    expect(scan.error).toMatch(/of TypeScript, JavaScript and Python source; SHAPI scans up to 0\.0 MB for now/);
+    expect(scan.finished_at).not.toBeNull();
+    const completed = t.github.calls.find((c) => c.method === "PATCH" && /\/check-runs\/\d+$/.test(c.path));
+    expect(JSON.stringify(completed?.body)).toContain("SHAPI scans up to");
+  }, 60_000);
+
   it("scans a commit with a read-only token, stores findings, and posts the SHAPI check", async () => {
     const t = setup();
     const sha = t.github.refs.get("main")!;

@@ -44,4 +44,10 @@ primary_region = "iad"
 [[vm]]
   size = "shared-cpu-1x"
   memory = "512mb"
-  processes = ["web", "worker"]
+  processes = ["web"]
+
+# Scans run on the worker, each in its own process with a 640 MB heap (DEFAULT_SCAN_LIMITS in jobs/scan.ts).
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"
+  processes = ["worker"]

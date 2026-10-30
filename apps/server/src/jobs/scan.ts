@@ -1,9 +1,11 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { AdvisorySchema, ApiLockSchema, createApiLock, matchAdvisories, type ApiLock, type Finding, type MatchResult } from "@shapi/core";
 import { withService, type Db, type Tx } from "@shapi/db";
-import { extractCallSites, loadPythonParser } from "@shapi/extractor";
+import { extractCallSites } from "@shapi/extractor";
 import { checkRunOutput, completeCheckRun, fetchRepoSnapshot, startCheckRun } from "@shapi/github-app";
 import type { SnapshotFile } from "@shapi/sandbox";
 import { repositoryCovered } from "../billing/plan";
@@ -11,6 +13,7 @@ import type { Notifier } from "../notify/slack";
 import type { GitHubClients } from "../github/clients";
 import { insertPendingScan } from "../github/events";
 import { repoPageUrl } from "../links";
+import { reportError } from "../observability";
 
 export interface ScanDeps {
   db: Db;
@@ -22,6 +25,8 @@ export interface ScanDeps {
   notify?: Notifier;
   /** The web app's public URL: each check run links to the repository's page there. */
   publicUrl?: string;
+  /** Overrides of DEFAULT_SCAN_LIMITS (tests). */
+  scanLimits?: Partial<ScanLimits>;
 }
 
 /** Either a scan queued by a push, or a repository to scan at its default branch head (first scan after install). */
@@ -47,16 +52,106 @@ export async function reviewedAdvisories(db: Db) {
 
 /** Static analysis of a snapshot: it reads the code and runs none of it, so it does not need a sandbox. */
 export function lockFromSnapshot(files: SnapshotFile[]): ApiLock {
-  const dir = mkdtempSync(path.join(os.tmpdir(), "shapi-scan-"));
+  const dir = writeSnapshot(files);
   try {
-    for (const f of files) {
-      const abs = path.join(dir, f.path);
-      mkdirSync(path.dirname(abs), { recursive: true });
-      writeFileSync(abs, f.content);
-    }
     return createApiLock(extractCallSites(dir), "shapi cloud");
   } finally {
     rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+function writeSnapshot(files: SnapshotFile[]): string {
+  const dir = mkdtempSync(path.join(os.tmpdir(), "shapi-scan-"));
+  try {
+    for (const f of files) {
+      const abs = path.join(dir, "repo", f.path);
+      mkdirSync(path.dirname(abs), { recursive: true });
+      writeFileSync(abs, f.content);
+    }
+  } catch (err) {
+    rmSync(dir, { recursive: true, force: true });
+    throw err;
+  }
+  return path.join(dir, "repo");
+}
+
+/** How much one scan may use (execution plan I-01). */
+export interface ScanLimits {
+  /** The scan process's V8 heap limit. */
+  heapMb: number;
+  timeoutMs: number;
+  /** TypeScript, JavaScript and Python source above this is not scanned: it would not fit in `heapMb`. */
+  maxSourceBytes: number;
+}
+
+/**
+ * Sized for a 1 GB worker. A scan needs roughly 150 bytes of heap per byte of source (APIBreak-Replay's
+ * Nori: 2.1 MB of source, 304 MB peak), so 640 MB of heap fits about 4 MB of source.
+ */
+export const DEFAULT_SCAN_LIMITS: ScanLimits = { heapMb: 640, timeoutMs: 10 * 60_000, maxSourceBytes: 4 * 1024 * 1024 };
+
+/** A repository SHAPI cannot scan within its limits. Reported to the user as is, and to Sentry. */
+export class ScanTooLargeError extends Error {
+  override name = "ScanTooLargeError";
+}
+
+const SOURCE_FILE = /\.(?:[cm]?[jt]sx?|py)$/i;
+const mb = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+
+/** The scan process's entry point: bin/scan-child.mjs, next to dist/ in the image and above src/ in the repository. */
+function scanChild(): string {
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 4; i++, dir = path.dirname(dir)) {
+    const candidate = path.join(dir, "bin", "scan-child.mjs");
+    if (existsSync(candidate)) return candidate;
+  }
+  throw new Error("bin/scan-child.mjs not found");
+}
+
+/**
+ * Scan a snapshot in its own process with a memory cap and a time limit, so a repository too large for memory
+ * fails alone (with ScanTooLargeError) instead of crashing the worker and every job it runs.
+ */
+export async function lockInProcess(files: SnapshotFile[], limits: Partial<ScanLimits> = {}): Promise<ApiLock> {
+  const { heapMb, timeoutMs, maxSourceBytes } = { ...DEFAULT_SCAN_LIMITS, ...limits };
+  const sourceBytes = files.filter((f) => SOURCE_FILE.test(f.path)).reduce((n, f) => n + Buffer.byteLength(f.content), 0);
+  if (sourceBytes > maxSourceBytes) {
+    throw new ScanTooLargeError(`this repository has ${mb(sourceBytes)} of TypeScript, JavaScript and Python source; SHAPI scans up to ${mb(maxSourceBytes)} for now`);
+  }
+  const dir = writeSnapshot(files);
+  const out = path.join(path.dirname(dir), "api.lock.json");
+  try {
+    const result = await new Promise<{ code: number | null; signal: NodeJS.Signals | null; stderr: string; timedOut: boolean }>((resolve, reject) => {
+      const child = spawn(process.execPath, [`--max-old-space-size=${heapMb}`, scanChild(), dir, out], { stdio: ["ignore", "ignore", "pipe"] });
+      let stderr = "";
+      let timedOut = false;
+      child.stderr.on("data", (d: Buffer) => {
+        stderr = (stderr + d.toString()).slice(-8000);
+      });
+      const timer = setTimeout(() => {
+        timedOut = true;
+        child.kill("SIGKILL");
+      }, timeoutMs);
+      child.on("error", (err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+      child.on("close", (code, signal) => {
+        clearTimeout(timer);
+        resolve({ code, signal, stderr, timedOut });
+      });
+    });
+    if (result.timedOut) throw new ScanTooLargeError(`the scan took longer than ${Math.round(timeoutMs / 60_000)} minutes`);
+    if (/heap out of memory|Allocation failed/i.test(result.stderr)) {
+      throw new ScanTooLargeError(`scanning this repository needed more than ${heapMb} MB of memory (${mb(sourceBytes)} of source)`);
+    }
+    if (result.code !== 0) {
+      const last = result.stderr.trim().split("\n").filter(Boolean).at(-1) ?? `exit ${result.code ?? result.signal}`;
+      throw new Error(`the scan process failed: ${last.slice(0, 300)}`);
+    }
+    return ApiLockSchema.parse(JSON.parse(readFileSync(out, "utf8")));
+  } finally {
+    rmSync(path.dirname(dir), { recursive: true, force: true });
   }
 }
 
@@ -167,8 +262,7 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
   try {
     const readOnly = await deps.github.readOnly(installation, scan.github_repo_id);
     const files = await fetchRepoSnapshot(readOnly, { owner, repo, ref: scan.sha });
-    await loadPythonParser();
-    const lock = lockFromSnapshot(files);
+    const lock = await lockInProcess(files, deps.scanLimits);
     const advisories = await reviewedAdvisories(deps.db);
     const match = matchAdvisories(lock, advisories.map((a) => a.advisory), { now: now() });
     const evaluated = Object.fromEntries(advisories.map((a) => [a.advisory.id, a.modified]));
@@ -195,6 +289,8 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob): Promise<ScanRepo
     return { scanId, repositoryId: scan.repository_id, status: "succeeded", callSites: lock.callSites.length, affected: match.affected.length, exposed: match.exposed.length, fix: match.affected.length > 0 };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    // Too large for SHAPI's limits: the user sees why, and Sentry tells the team.
+    if (err instanceof ScanTooLargeError) reportError(err);
     await withService(deps.db, (tx) => tx.updateTable("scans").set({ status: "failed", error: message.slice(0, 2000), finished_at: now() }).where("id", "=", scan.id).execute());
     if (checkRunId) {
       await completeCheckRun(octokit, { owner, repo, checkRunId }, {
