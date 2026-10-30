@@ -1,5 +1,5 @@
 import { SEVERITY_RANK, type Advisory, type EndpointPattern, type Trigger } from "./advisory";
-import type { ApiLock, LockedCallSite } from "./lockfile";
+import { pathUnresolved, type ApiLock, type LockedCallSite } from "./lockfile";
 
 export interface Finding {
   advisory: Advisory;
@@ -16,6 +16,15 @@ export interface UpcomingDeadline {
   callSites: number;
 }
 
+/** A call site of a known provider whose endpoint SHAPI cannot tell (execution plan A-03). */
+export interface UnresolvedCallSite {
+  callSite: LockedCallSite;
+  /** Why SHAPI cannot place it, in plain words. */
+  reason: string;
+  /** The provider's advisories it could reach, given its method and host. */
+  advisories: string[];
+}
+
 export interface MatchResult {
   /** The call site depends on exactly what changed. */
   affected: Finding[];
@@ -28,6 +37,11 @@ export interface MatchResult {
    * call of the endpoint whose request-body value the change turns on is unknown (a model passed in a variable).
    */
   possible: Finding[];
+  /**
+   * Call sites whose endpoint SHAPI cannot tell (no path, or a path built entirely at runtime) while their provider
+   * has advisories. They are listed once each, never matched by a guess: SHAPI says it cannot tell.
+   */
+  unresolved: UnresolvedCallSite[];
   /** Advisories for providers in this repo that take effect within the horizon. */
   upcoming: UpcomingDeadline[];
 }
@@ -47,9 +61,11 @@ export function matchAdvisories(lock: ApiLock, advisories: Advisory[], options: 
   const exposed: Finding[] = [];
   const possible: Finding[] = [];
   const hitsPerAdvisory = new Map<string, number>();
+  const unplaced = (site: LockedCallSite) => site.provider !== null && pathUnresolved(site.endpoint);
 
   for (const advisory of advisories) {
     for (const callSite of lock.callSites) {
+      if (unplaced(callSite)) continue;
       if (!endpointMatches(callSite, advisory)) {
         const why = mayMatchReason(callSite, advisory);
         if (why && triggerReasons(callSite, advisory.trigger).length > 0) possible.push({ advisory, callSite, reasons: [why] });
@@ -75,7 +91,25 @@ export function matchAdvisories(lock: ApiLock, advisories: Advisory[], options: 
     .filter((u) => present.has(u.advisory.provider) && u.daysUntil >= 0 && u.daysUntil <= horizon)
     .sort((a, b) => a.daysUntil - b.daysUntil || cmp(a.advisory.id, b.advisory.id));
 
-  return { affected: affected.sort(byFinding), exposed: exposed.sort(byFinding), possible: possible.sort(byFinding), upcoming };
+  const unresolved = lock.callSites.flatMap((callSite): UnresolvedCallSite[] => {
+    if (!unplaced(callSite)) return [];
+    const reachable = advisories
+      .filter((a) => a.provider === callSite.provider)
+      .filter((a) => a.endpoint.method === "*" || callSite.method === null || callSite.method === a.endpoint.method)
+      .filter((a) => !a.endpoint.hosts || callSite.host === null || a.endpoint.hosts.includes(callSite.host))
+      .map((a) => a.id)
+      .sort(cmp);
+    if (!reachable.length) return [];
+    const reason =
+      callSite.endpoint === null
+        ? callSite.operation
+          ? `SHAPI does not know which ${callSite.provider} endpoint ${callSite.operation} calls`
+          : `SHAPI cannot tell which ${callSite.provider} URL this calls`
+        : `builds the whole path at runtime (${describe(callSite)}), so SHAPI cannot tell which endpoint it calls`;
+    return [{ callSite, reason, advisories: reachable }];
+  });
+
+  return { affected: affected.sort(byFinding), exposed: exposed.sort(byFinding), possible: possible.sort(byFinding), unresolved, upcoming };
 }
 
 export function endpointMatches(site: LockedCallSite, advisory: Advisory): boolean {

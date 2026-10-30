@@ -140,6 +140,16 @@ describe("check runs", () => {
     expect(r.output.annotations).toEqual([]);
   });
 
+  it("lists call sites SHAPI cannot place under Could not tell, instead of counting them as clear (A-03)", () => {
+    const unplaced = { ...site("src/api.ts", 2), provider: "github" } as LockedCallSite;
+    const reason = "builds the whole path at runtime (POST /{path}), so SHAPI cannot tell which endpoint it calls";
+    const r = checkRunOutput({ affected: [], exposed: [], upcoming: [], unresolved: [{ callSite: unplaced, reason, advisories: [advisory.id] }] });
+    expect(r.output.summary).toContain("### Could not tell");
+    expect(r.output.summary).toContain("SHAPI cannot tell which endpoint this call site calls, so it does not count it as clear.");
+    expect(r.output.summary).toContain(`- \`src/api.ts:2\` (github): ${reason}`);
+    expect(r.output.summary).not.toContain("SHAPI checked every third-party API call site");
+  });
+
   it("reports affected call sites as neutral with warnings, or failure when the repo opts in", () => {
     const match = { affected: [finding("src/deploy.ts", 12)], exposed: [finding("src/other.ts", 3)], upcoming: [{ advisory, daysUntil: 5, callSites: 2 }] };
     const r = checkRunOutput(match);

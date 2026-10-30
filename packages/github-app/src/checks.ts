@@ -42,8 +42,12 @@ function annotation(f: Finding, level: CheckAnnotation["annotation_level"]): Che
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 /** Turn a scan's match result into a check run conclusion, summary and line annotations. */
-export function checkRunOutput(match: Pick<MatchResult, "affected" | "exposed" | "upcoming">, opts: { failOnAffected?: boolean } = {}): CheckRunResult {
+export function checkRunOutput(
+  match: Pick<MatchResult, "affected" | "exposed" | "upcoming"> & Partial<Pick<MatchResult, "unresolved">>,
+  opts: { failOnAffected?: boolean } = {},
+): CheckRunResult {
   const { affected, exposed, upcoming } = match;
+  const unresolved = match.unresolved ?? [];
   const advisories = new Set(affected.map((f) => f.advisory.id));
   const title = affected.length
     ? `${plural(affected.length, "call site")} affected by ${plural(advisories.size, "API change")}`
@@ -56,6 +60,14 @@ export function checkRunOutput(match: Pick<MatchResult, "affected" | "exposed" |
     lines.push("");
   }
   if (exposed.length) lines.push(`${plural(exposed.length, "more call site")} call a changed endpoint but do not depend on what changed.`, "");
+  if (unresolved.length) {
+    // Execution plan A-03: say what SHAPI cannot tell, rather than count it as clear.
+    const one = unresolved.length === 1;
+    lines.push("### Could not tell", "", `SHAPI cannot tell which endpoint ${one ? "this call site calls" : `these ${unresolved.length} call sites call`}, so it does not count ${one ? "it" : "them"} as clear. Check by hand:`, "");
+    for (const u of unresolved.slice(0, 20)) lines.push(`- \`${u.callSite.file}:${u.callSite.line}\` (${u.callSite.provider}): ${u.reason}`);
+    if (unresolved.length > 20) lines.push(`- and ${unresolved.length - 20} more`);
+    lines.push("");
+  }
   if (upcoming.length) {
     lines.push("### Upcoming deadlines", "");
     for (const u of upcoming) lines.push(`- ${u.advisory.title}: in ${plural(u.daysUntil, "day")} (${plural(u.callSites, "call site")})`);

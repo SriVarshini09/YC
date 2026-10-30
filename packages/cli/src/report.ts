@@ -60,6 +60,15 @@ export function renderText(o: ScanOutcome, color: boolean): string {
     out.push("");
   }
 
+  if (match.unresolved.length > 0) {
+    out.push(paint("bold", `Could not tell, check these by hand (${match.unresolved.length})`));
+    for (const u of match.unresolved) {
+      const reach = u.advisories.length === 1 ? u.advisories[0] : `${u.advisories.length} advisories`;
+      out.push(`  ${u.callSite.file}:${u.callSite.line}  ${u.callSite.provider}  ${paint("dim", `${u.reason}; could reach ${reach}`)}`);
+    }
+    out.push("");
+  }
+
   out.push(paint("bold", "Deadlines in the next 90 days"));
   if (match.upcoming.length === 0) out.push("  none for the providers in this repo");
   for (const u of match.upcoming) {

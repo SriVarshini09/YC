@@ -75,6 +75,7 @@ export function createServer(opts: ServerOptions = {}): McpServer {
           affected,
           exposed: o.match.exposed.map(findingView),
           possible: o.match.possible.map(findingView),
+          unresolvedCallSites: o.match.unresolved.map((u) => ({ provider: u.callSite.provider, file: u.callSite.file, line: u.callSite.line, reason: u.reason, advisories: u.advisories })),
           upcoming: o.match.upcoming.map((u) => ({ advisory: u.advisory.id, provider: u.advisory.provider, title: u.advisory.title, effectiveDate: u.advisory.effectiveDate, daysUntil: u.daysUntil, callSites: u.callSites })),
         });
       } catch (err) {
