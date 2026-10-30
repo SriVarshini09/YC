@@ -285,6 +285,11 @@ describe("repairCallSite: what an LLM change has to get past", () => {
       "TEST/Shapi/github-workflow-dispatch-204-to-200.test.ts",
       "test/shapi/github-workflow-dispatch-204-to-200.2.test.ts",
       "C:/Users/someone/evil.ts",
+      "src/deploy.test.ts",
+      "src/deploy.spec.js",
+      "test/billing.ts",
+      "src/__tests__/deploy.ts",
+      "e2e/deploy.mjs",
       "src",
     ]) {
       const { mem, result } = attempt(proposing([{ path: target, content: "export {};" }]));

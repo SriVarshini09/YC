@@ -63,6 +63,18 @@ export function suiteCounts(output: string): string | undefined {
 }
 
 /**
+ * How many tests ran, from a summary suiteCounts returned: Jest's "N total", otherwise the sum of the
+ * counts ("1 failed | 2 passed" is 3). Skipped tests count, so skipping one to pass still lowers nothing.
+ */
+export function testTotal(counts: string | undefined): number | undefined {
+  if (!counts) return undefined;
+  const total = /(\d+) total/.exec(counts);
+  if (total) return Number(total[1]);
+  const numbers = [...counts.matchAll(/(\d+) [a-z]+/g)].map((m) => Number(m[1]));
+  return numbers.length ? numbers.reduce((a, b) => a + b, 0) : undefined;
+}
+
+/**
  * The names of failing tests as the runner prints them: vitest's `×`/`FAIL` lines, Jest's `●` headings,
  * Mocha's numbered failures and node:test's `not ok`. Empty when the runner prints none of these.
  */
@@ -102,6 +114,12 @@ export async function checkSuite(before: SuiteRun | undefined, after: () => Prom
   }
   const afterCounts = run ? suiteCounts(run.output) : undefined;
   const base = { command: before.command, before: beforeCounts, after: afterCounts, runs };
+  // V-02: passing because fewer tests ran is not passing; a fix may not remove or skip tests.
+  const ranBefore = testTotal(beforeCounts);
+  const ranAfter = testTotal(afterCounts);
+  if (ranBefore !== undefined && ranAfter !== undefined && ranAfter < ranBefore) {
+    return { ...base, status: "failed", detail: `fewer tests ran after the change (${ranBefore} before, ${ranAfter} after)` };
+  }
   if (run!.passed) return { ...base, status: "passed", detail: runs > 1 ? `passed on rerun ${runs} of ${SUITE_ATTEMPTS} (a flaky test)` : "passed" };
   if (!before.passed && newFailures.length === 0) return { ...base, status: "passed", detail: "no new failing test; these already failed before the change" };
   const named = newFailures.length ? `: ${newFailures.slice(0, 5).join("; ")}${newFailures.length > 5 ? `; and ${newFailures.length - 5} more` : ""}` : "";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkSuite, failingTests, suiteCommand, suiteCounts, type SuiteRun } from "@shapi/repair";
+import { checkSuite, failingTests, suiteCommand, suiteCounts, testTotal, type SuiteRun } from "@shapi/repair";
 
 const run = (passed: boolean, output: string): SuiteRun => ({ passed, exitCode: passed ? 0 : 1, output, command: "npm test" });
 const vitestPass = " ✓ src/a.test.ts (3 tests) 4ms\n\n Test Files  1 passed (1)\n      Tests  3 passed (3)\n";
@@ -72,5 +72,21 @@ describe("checkSuite", () => {
       "the tests did not run before the change: Error: Cannot find module 'jest'",
     );
     expect(await checkSuite(run(false, " Tests  1 failed (1)\n"), after(run(false, ""))).then((r) => r.status)).toBe("not-run");
+  });
+});
+
+describe("V-02: a fix may not remove or skip tests", () => {
+  it("counts how many tests ran", () => {
+    expect(testTotal("1 failed | 2 passed")).toBe(3);
+    expect(testTotal("1 failed, 4 passed, 5 total")).toBe(5);
+    expect(testTotal("12 passing, 2 failing")).toBe(14);
+    expect(testTotal("3 passed")).toBe(3);
+    expect(testTotal(undefined)).toBeUndefined();
+  });
+
+  it("fails a change after which fewer tests run, even when they all pass", async () => {
+    const fewer = run(true, " Test Files  1 passed (1)\n      Tests  2 passed (2)\n");
+    const r = await checkSuite(run(true, vitestPass), async () => fewer);
+    expect(r).toMatchObject({ status: "failed", detail: "fewer tests ran after the change (3 before, 2 after)" });
   });
 });
