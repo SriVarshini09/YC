@@ -91,3 +91,4 @@ One line per task: task, summary file, PR, status.
 - PB-42 a repository too large to scan fails alone: its own memory-capped process, a size gate, a Sentry alert, and a 1 GB worker (I-01): [summary](PB-42-scan-isolation.md) · PR: open
 - PB-43 every job has a time limit, a hung scan shows failed on the next sweep, and a job that keeps failing lands in a dead-letter queue (I-02): [summary](PB-43-job-timeouts.md) · PR: open
 - PB-44 the advisory JSON Schema is published at shapi.dev/schema/advisory.json, and every advisory validates against it (S-01): [summary](PB-44-advisory-schema.md) · PR: open
+- PB-45 head-to-head with Okapi on its 14 public PRs, scan only: SHAPI has advisories for 3, finds 1, and the 2 misses are extractor gaps (P-04): [summary](PB-45-okapi-head-to-head.md) · PR: open

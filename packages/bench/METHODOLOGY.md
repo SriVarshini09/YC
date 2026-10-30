@@ -33,6 +33,7 @@ pnpm --filter @shapi/bench bench:run
 
 - **Output:** results go to `results/<shapi version>/<dataset hash>.json`, with the git commit they were produced at.
 - **Token:** set `GITHUB_TOKEN`, or sign in with `gh`. Archives are downloaded through GitHub's API, which limits unauthenticated use.
+- **Okapi head-to-head:** `pnpm --filter @shapi/bench bench:okapi` scans the base commit of every public Okapi PR and rewrites the table in [OKAPI.md](OKAPI.md) (execution plan P-04).
 
 ## Baseline (git main at 61f95b3+, dataset `37fa931e8278`, 2026-10-29)
 
