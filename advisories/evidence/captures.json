@@ -1,0 +1,993 @@
+{
+  "about": "The Wayback Machine's earliest capture (HTTP 200) of each advisory source. Matching the capture to the advisory's quote waits for provenance quotes (C-02).",
+  "generatedAt": "2026-10-30T09:05:52.732Z",
+  "summary": {
+    "verifiedAdvisories": 63,
+    "withACapture": 61,
+    "everySourceAccountedFor": 63,
+    "sources": 132,
+    "sourcesCaptured": 108
+  },
+  "advisories": {
+    "anthropic-api-version-2026-10-21-sampling-params-400": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://platform.claude.com/docs/en/api/migration-2026-10-21",
+          "firstCaptured": "2026-10-22T09:38:53Z",
+          "captureUrl": "https://web.archive.org/web/20261022093853/https://platform.claude.com/docs/en/api/migration-2026-10-21"
+        },
+        {
+          "url": "https://platform.claude.com/docs/en/api/versioning",
+          "firstCaptured": "2025-12-02T00:05:11Z",
+          "captureUrl": "https://web.archive.org/web/20251202000511/https://platform.claude.com/docs/en/api/versioning"
+        },
+        {
+          "url": "https://platform.claude.com/docs/en/release-notes/overview",
+          "firstCaptured": "2025-11-21T09:55:43Z",
+          "captureUrl": "https://web.archive.org/web/20251121095543/https://platform.claude.com/docs/en/release-notes/overview"
+        }
+      ]
+    },
+    "anthropic-claude-sonnet-4-5-retirement": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+          "firstCaptured": "2025-11-21T16:16:03Z",
+          "captureUrl": "https://web.archive.org/web/20251121161603/https://platform.claude.com/docs/en/about-claude/model-deprecations"
+        },
+        {
+          "url": "https://platform.claude.com/docs/en/release-notes/overview",
+          "firstCaptured": "2025-11-21T09:55:43Z",
+          "captureUrl": "https://web.archive.org/web/20251121095543/https://platform.claude.com/docs/en/release-notes/overview"
+        }
+      ]
+    },
+    "github-workflow-dispatch-204-to-200": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://stategraph.com/blog/github-broke-the-contract",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://github.blog/changelog/2026-02-19-workflow-dispatch-api-now-returns-run-ids",
+          "firstCaptured": "2026-02-20T00:46:10Z",
+          "captureUrl": "https://web.archive.org/web/20260220004610/https://github.blog/changelog/2026-02-19-workflow-dispatch-api-now-returns-run-ids/"
+        }
+      ]
+    },
+    "google-ads-api-v22-sunset": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://ads-developers.googleblog.com/2026/09/google-ads-api-v22-sunset-reminder.html",
+          "firstCaptured": "2026-09-09T11:35:30Z",
+          "captureUrl": "https://web.archive.org/web/20260909113530/https://ads-developers.googleblog.com/2026/09/google-ads-api-v22-sunset-reminder.html"
+        },
+        {
+          "url": "https://developers.google.com/google-ads/api/docs/sunset-dates",
+          "firstCaptured": "2020-06-25T13:26:14Z",
+          "captureUrl": "https://web.archive.org/web/20200625132614/https://developers.google.com/google-ads/api/docs/sunset-dates"
+        }
+      ]
+    },
+    "google-custom-search-json-api-shutdown": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.google.com/custom-search/v1/overview",
+          "firstCaptured": "2012-04-13T06:03:12Z",
+          "captureUrl": "https://web.archive.org/web/20120413060312/https://developers.google.com/custom-search/v1/overview"
+        },
+        {
+          "url": "https://developers.google.com/custom-search/v1/using_rest",
+          "firstCaptured": "2012-06-05T18:11:48Z",
+          "captureUrl": "https://web.archive.org/web/20120605181148/https://developers.google.com/custom-search/v1/using_rest"
+        }
+      ]
+    },
+    "google-gemini-2-0-flash-shutdown": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+          "firstCaptured": "2025-11-01T15:25:52Z",
+          "captureUrl": "https://web.archive.org/web/20251101152552/https://ai.google.dev/gemini-api/docs/deprecations"
+        },
+        {
+          "url": "https://ai.google.dev/api/generate-content",
+          "firstCaptured": "2024-07-21T10:01:45Z",
+          "captureUrl": "https://web.archive.org/web/20240721100145/https://ai.google.dev/api/generate-content#v1beta.Candidate"
+        }
+      ]
+    },
+    "google-gemini-2-0-flash-shutdown-sdk": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+          "firstCaptured": "2025-11-01T15:25:52Z",
+          "captureUrl": "https://web.archive.org/web/20251101152552/https://ai.google.dev/gemini-api/docs/deprecations"
+        },
+        {
+          "url": "https://ai.google.dev/api/generate-content",
+          "firstCaptured": "2024-07-21T10:01:45Z",
+          "captureUrl": "https://web.archive.org/web/20240721100145/https://ai.google.dev/api/generate-content#v1beta.Candidate"
+        }
+      ]
+    },
+    "google-gemini-2-5-flash-image-shutdown": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+          "firstCaptured": "2025-11-01T15:25:52Z",
+          "captureUrl": "https://web.archive.org/web/20251101152552/https://ai.google.dev/gemini-api/docs/deprecations"
+        },
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/image-generation",
+          "firstCaptured": "2025-03-17T16:21:57Z",
+          "captureUrl": "https://web.archive.org/web/20250317162157/https://ai.google.dev/gemini-api/docs/image-generation"
+        }
+      ]
+    },
+    "google-gemini-2-5-flash-image-shutdown-sdk": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+          "firstCaptured": "2025-11-01T15:25:52Z",
+          "captureUrl": "https://web.archive.org/web/20251101152552/https://ai.google.dev/gemini-api/docs/deprecations"
+        },
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/image-generation",
+          "firstCaptured": "2025-03-17T16:21:57Z",
+          "captureUrl": "https://web.archive.org/web/20250317162157/https://ai.google.dev/gemini-api/docs/image-generation"
+        }
+      ]
+    },
+    "google-gemini-2-5-preview-tts-shutdown": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+          "firstCaptured": "2025-11-01T15:25:52Z",
+          "captureUrl": "https://web.archive.org/web/20251101152552/https://ai.google.dev/gemini-api/docs/deprecations"
+        },
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/speech-generation",
+          "firstCaptured": "2025-05-21T17:30:23Z",
+          "captureUrl": "https://web.archive.org/web/20250521173023/https://ai.google.dev/gemini-api/docs/speech-generation"
+        }
+      ]
+    },
+    "google-gemini-2-5-preview-tts-shutdown-sdk": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+          "firstCaptured": "2025-11-01T15:25:52Z",
+          "captureUrl": "https://web.archive.org/web/20251101152552/https://ai.google.dev/gemini-api/docs/deprecations"
+        },
+        {
+          "url": "https://ai.google.dev/gemini-api/docs/speech-generation",
+          "firstCaptured": "2025-05-21T17:30:23Z",
+          "captureUrl": "https://web.archive.org/web/20250521173023/https://ai.google.dev/gemini-api/docs/speech-generation"
+        }
+      ]
+    },
+    "hubspot-contact-lists-v1-sunset": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026",
+          "firstCaptured": "2025-10-10T13:17:48Z",
+          "captureUrl": "https://web.archive.org/web/20251010131748/https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026"
+        },
+        {
+          "url": "https://developers.hubspot.com/docs/api-reference/legacy/crm/lists/v1-list-api-migration-guide",
+          "firstCaptured": "2026-06-17T13:30:35Z",
+          "captureUrl": "https://web.archive.org/web/20260617133035/https://developers.hubspot.com/docs/api-reference/legacy/crm/lists/v1-list-api-migration-guide"
+        },
+        {
+          "url": "https://developers.hubspot.com/docs/api-reference/latest/deprecated-apis",
+          "firstCaptured": "2026-09-26T05:46:02Z",
+          "captureUrl": "https://web.archive.org/web/20260926054602/https://developers.hubspot.com/docs/api-reference/latest/deprecated-apis"
+        }
+      ]
+    },
+    "hubspot-contacts-v1-list-memberships-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.hubspot.com/docs/api-reference/legacy/crm/lists/v1-list-api-migration-guide",
+          "firstCaptured": "2026-06-17T13:30:35Z",
+          "captureUrl": "https://web.archive.org/web/20260617133035/https://developers.hubspot.com/docs/api-reference/legacy/crm/lists/v1-list-api-migration-guide"
+        },
+        {
+          "url": "https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026",
+          "firstCaptured": "2025-10-10T13:17:48Z",
+          "captureUrl": "https://web.archive.org/web/20251010131748/https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026"
+        },
+        {
+          "url": "https://developers.hubspot.com/docs/api-reference/legacy/crm/objects/contacts/v1/get-contacts-v1-contactvidvid-profile.md",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        }
+      ]
+    },
+    "hubspot-marketing-emails-folderid-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration",
+          "firstCaptured": "2025-11-14T20:20:11Z",
+          "captureUrl": "https://web.archive.org/web/20251114202011/https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration"
+        },
+        {
+          "url": "https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/marketing-emails/get-marketing-v3-emails-",
+          "firstCaptured": "2026-02-11T12:15:23Z",
+          "captureUrl": "https://web.archive.org/web/20260211121523/https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/marketing-emails/get-marketing-v3-emails-"
+        }
+      ]
+    },
+    "hubspot-marketing-emails-v1-sunset": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://web.archive.org/web/20251114203334/https://developers.hubspot.com/changelog/marketing-email-api-v3-released-to-general-availability-and-upcoming-sunset-for-v1",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration",
+          "firstCaptured": "2025-11-14T20:20:11Z",
+          "captureUrl": "https://web.archive.org/web/20251114202011/https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration"
+        },
+        {
+          "url": "https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/guide",
+          "firstCaptured": "2025-11-14T21:00:00Z",
+          "captureUrl": "https://web.archive.org/web/20251114210000/https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/guide"
+        }
+      ]
+    },
+    "hubspot-pipelines-v1-sunset": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.hubspot.com/docs/api-reference/latest/crm/pipelines/guide",
+          "firstCaptured": "2026-04-10T17:01:56Z",
+          "captureUrl": "https://web.archive.org/web/20260410170156/https://developers.hubspot.com/docs/api-reference/latest/crm/pipelines/guide"
+        },
+        {
+          "url": "https://github.com/HubSpot/HubSpot-public-api-spec-collection/blob/main/PublicApiSpecs/CRM/Pipelines/Rollouts/145896/2026-09/pipelines.json",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        }
+      ]
+    },
+    "meta-graph-commerce-order-management-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0",
+          "firstCaptured": "2026-08-26T21:40:50Z",
+          "captureUrl": "https://web.archive.org/web/20260826214050/https://developers.facebook.com/docs/graph-api/changelog/version26.0/"
+        }
+      ]
+    },
+    "meta-graph-date-format-param-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0",
+          "firstCaptured": "2026-08-26T21:40:50Z",
+          "captureUrl": "https://web.archive.org/web/20260826214050/https://developers.facebook.com/docs/graph-api/changelog/version26.0/"
+        }
+      ]
+    },
+    "meta-graph-delivery-estimate-fields-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0",
+          "firstCaptured": "2026-08-26T21:40:50Z",
+          "captureUrl": "https://web.archive.org/web/20260826214050/https://developers.facebook.com/docs/graph-api/changelog/version26.0/"
+        }
+      ]
+    },
+    "meta-graph-instagram-oembed-fields-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/instagram-platform/changelog",
+          "firstCaptured": "2024-08-22T09:12:11Z",
+          "captureUrl": "https://web.archive.org/web/20240822091211/https://developers.facebook.com/docs/instagram-platform/changelog"
+        },
+        {
+          "url": "https://developers.facebook.com/docs/instagram-platform/oembed",
+          "firstCaptured": "2024-08-08T10:56:59Z",
+          "captureUrl": "https://web.archive.org/web/20240808105659/https://developers.facebook.com/docs/instagram-platform/oembed"
+        }
+      ]
+    },
+    "meta-graph-marketing-api-v24-sunset": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/",
+          "firstCaptured": "2024-03-03T15:44:04Z",
+          "captureUrl": "https://web.archive.org/web/20240303154404/https://developers.facebook.com/docs/marketing-api/marketing-api-changelog"
+        },
+        {
+          "url": "https://developers.facebook.com/documentation/ads-commerce/marketing-api/overview/versioning",
+          "firstCaptured": "2026-05-10T12:02:23Z",
+          "captureUrl": "https://web.archive.org/web/20260510120223/https://developers.facebook.com/documentation/ads-commerce/marketing-api/overview/versioning"
+        }
+      ]
+    },
+    "meta-graph-marketing-api-v25-sunset": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/",
+          "firstCaptured": "2024-03-03T15:44:04Z",
+          "captureUrl": "https://web.archive.org/web/20240303154404/https://developers.facebook.com/docs/marketing-api/marketing-api-changelog"
+        },
+        {
+          "url": "https://developers.facebook.com/documentation/ads-commerce/marketing-api/overview/versioning",
+          "firstCaptured": "2026-05-10T12:02:23Z",
+          "captureUrl": "https://web.archive.org/web/20260510120223/https://developers.facebook.com/documentation/ads-commerce/marketing-api/overview/versioning"
+        },
+        {
+          "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0",
+          "firstCaptured": "2026-08-26T21:40:50Z",
+          "captureUrl": "https://web.archive.org/web/20260826214050/https://developers.facebook.com/docs/graph-api/changelog/version26.0/"
+        }
+      ]
+    },
+    "meta-graph-page-insights-impressions-fans-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/blog/post/2025/08/15/page-insights-api-updates/",
+          "firstCaptured": "2025-08-19T00:06:08Z",
+          "captureUrl": "https://web.archive.org/web/20250819000608/https://developers.facebook.com/blog/post/2025/08/15/page-insights-api-updates/"
+        },
+        {
+          "url": "https://developers.facebook.com/docs/platforminsights/page/deprecated-metrics",
+          "firstCaptured": "2025-04-05T17:26:10Z",
+          "captureUrl": "https://web.archive.org/web/20250405172610/https://developers.facebook.com/docs/platforminsights/page/deprecated-metrics"
+        }
+      ]
+    },
+    "meta-graph-page-insights-reach-video-views-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/graph-api/reference/v22.0/insights",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://developers.facebook.com/blog/post/2026/02/18/introducing-graph-api-v25-and-marketing-api-v25/",
+          "firstCaptured": "2026-02-20T01:35:52Z",
+          "captureUrl": "https://web.archive.org/web/20260220013552/https://developers.facebook.com/blog/post/2026/02/18/introducing-graph-api-v25-and-marketing-api-v25/"
+        },
+        {
+          "url": "https://developers.facebook.com/docs/platforminsights/page/deprecated-metrics",
+          "firstCaptured": "2025-04-05T17:26:10Z",
+          "captureUrl": "https://web.archive.org/web/20250405172610/https://developers.facebook.com/docs/platforminsights/page/deprecated-metrics"
+        },
+        {
+          "url": "https://docs.supermetrics.com/docs/facebook-insights-field-changes-june-30-2026.md",
+          "firstCaptured": "2026-06-10T06:38:04Z",
+          "captureUrl": "https://web.archive.org/web/20260610063804/https://docs.supermetrics.com/docs/facebook-insights-field-changes-june-30-2026.md"
+        }
+      ]
+    },
+    "meta-graph-root-ids-lookup-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0",
+          "firstCaptured": "2026-08-26T21:40:50Z",
+          "captureUrl": "https://web.archive.org/web/20260826214050/https://developers.facebook.com/docs/graph-api/changelog/version26.0/"
+        }
+      ]
+    },
+    "meta-graph-v20-sunset": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/graph-api/changelog/versions",
+          "firstCaptured": "2020-11-24T07:14:33Z",
+          "captureUrl": "https://web.archive.org/web/20201124071433/https://developers.facebook.com/docs/graph-api/changelog/versions"
+        }
+      ]
+    },
+    "meta-graph-v21-sunset": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.facebook.com/docs/graph-api/changelog/versions",
+          "firstCaptured": "2020-11-24T07:14:33Z",
+          "captureUrl": "https://web.archive.org/web/20201124071433/https://developers.facebook.com/docs/graph-api/changelog/versions"
+        }
+      ]
+    },
+    "openai-assistants-api-shutdown": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations",
+          "firstCaptured": "2026-02-10T13:05:38Z",
+          "captureUrl": "https://web.archive.org/web/20260210130538/https://developers.openai.com/api/docs/deprecations"
+        },
+        {
+          "url": "https://developers.openai.com/api/docs/assistants/migration",
+          "firstCaptured": "2026-02-10T12:07:58Z",
+          "captureUrl": "https://web.archive.org/web/20260210120758/https://developers.openai.com/api/docs/assistants/migration"
+        }
+      ]
+    },
+    "openai-assistants-threads-api-shutdown": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations",
+          "firstCaptured": "2026-02-10T13:05:38Z",
+          "captureUrl": "https://web.archive.org/web/20260210130538/https://developers.openai.com/api/docs/deprecations"
+        },
+        {
+          "url": "https://developers.openai.com/api/docs/assistants/migration",
+          "firstCaptured": "2026-02-10T12:07:58Z",
+          "captureUrl": "https://web.archive.org/web/20260210120758/https://developers.openai.com/api/docs/assistants/migration"
+        }
+      ]
+    },
+    "openai-audio-translations-endpoint-shutdown": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations",
+          "firstCaptured": "2026-02-10T13:05:38Z",
+          "captureUrl": "https://web.archive.org/web/20260210130538/https://developers.openai.com/api/docs/deprecations"
+        },
+        {
+          "url": "https://developers.openai.com/api/reference/resources/audio",
+          "firstCaptured": "2026-02-13T22:05:18Z",
+          "captureUrl": "https://web.archive.org/web/20260213220518/https://developers.openai.com/api/reference/resources/audio"
+        }
+      ]
+    },
+    "openai-evals-api-shutdown": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations",
+          "firstCaptured": "2026-02-10T13:05:38Z",
+          "captureUrl": "https://web.archive.org/web/20260210130538/https://developers.openai.com/api/docs/deprecations"
+        },
+        {
+          "url": "https://developers.openai.com/api/reference/resources/evals",
+          "firstCaptured": "2026-02-28T09:38:45Z",
+          "captureUrl": "https://web.archive.org/web/20260228093845/https://developers.openai.com/api/reference/resources/evals"
+        }
+      ]
+    },
+    "openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations",
+          "firstCaptured": "2026-02-10T13:05:38Z",
+          "captureUrl": "https://web.archive.org/web/20260210130538/https://developers.openai.com/api/docs/deprecations"
+        }
+      ]
+    },
+    "openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations",
+          "firstCaptured": "2026-02-10T13:05:38Z",
+          "captureUrl": "https://web.archive.org/web/20260210130538/https://developers.openai.com/api/docs/deprecations"
+        }
+      ]
+    },
+    "openai-legacy-gpt-o-series-shutdown-2026-10-23": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations",
+          "firstCaptured": "2026-02-10T13:05:38Z",
+          "captureUrl": "https://web.archive.org/web/20260210130538/https://developers.openai.com/api/docs/deprecations"
+        }
+      ]
+    },
+    "openai-legacy-gpt-o-series-shutdown-2026-10-23-responses": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developers.openai.com/api/docs/deprecations",
+          "firstCaptured": "2026-02-10T13:05:38Z",
+          "captureUrl": "https://web.archive.org/web/20260210130538/https://developers.openai.com/api/docs/deprecations"
+        }
+      ]
+    },
+    "quickbooks-companyinfo-neoenabled-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://medium.com/intuitdev/upcoming-changes-to-apis-and-tools-that-may-impact-your-application-df4680ae3535",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/most-commonly-used/companyinfo",
+          "firstCaptured": "2025-10-06T20:01:52Z",
+          "captureUrl": "https://web.archive.org/web/20251006200152/https://developer.intuit.com/app/developer/qbo/docs/api/accounting/most-commonly-used/companyinfo"
+        }
+      ]
+    },
+    "quickbooks-minorversion-below-75-ignored": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://blogs.intuit.com/?p=34635",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://www.apideck.com/blog/ai-built-accounting-integrations-maintenance",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://docs.codat.io/updates/250401-qbo-minor-versions-update",
+          "firstCaptured": "2025-05-22T16:54:29Z",
+          "captureUrl": "https://web.archive.org/web/20250522165429/https://docs.codat.io/updates/250401-qbo-minor-versions-update"
+        }
+      ]
+    },
+    "quickbooks-refresh-token-five-year-hard-expiry": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://medium.com/intuitdev/important-changes-to-refresh-token-policy-8443779d40db",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/oauth-2.0",
+          "firstCaptured": "2019-07-20T19:47:59Z",
+          "captureUrl": "https://web.archive.org/web/20190720194759/https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/oauth-2.0"
+        },
+        {
+          "url": "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/faq",
+          "firstCaptured": "2019-09-19T11:10:15Z",
+          "captureUrl": "https://web.archive.org/web/20190919111015/https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/faq"
+        },
+        {
+          "url": "https://developer.intuit.com/app/developer/qbo/docs/release-notes/general-release-notes",
+          "firstCaptured": "2025-11-22T05:56:29Z",
+          "captureUrl": "https://web.archive.org/web/20251122055629/https://developer.intuit.com/app/developer/qbo/docs/release-notes/general-release-notes"
+        }
+      ]
+    },
+    "reddit-logged-out-json-403": {
+      "status": "unverified",
+      "sources": [
+        {
+          "url": "https://www.reddit.com/r/modnews/comments/1tq9vxo/protecting_communities_from_scrapers_and_platform/",
+          "firstCaptured": "2026-05-29T08:50:42Z",
+          "captureUrl": "https://web.archive.org/web/20260529085042/https://www.reddit.com/r/modnews/comments/1tq9vxo/protecting_communities_from_scrapers_and_platform/"
+        },
+        {
+          "url": "https://web.archive.org/web/20260529180019/https://old.reddit.com/r/modnews/comments/1tq9vxo/protecting_communities_from_scrapers_and_platform/",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://dev.to/tonywangca/why-reddit-blocked-unauthenticated-json-in-2026-and-how-to-still-get-reddit-data-58b9",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://bigideasdb.com/reddit-json-403-forbidden",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        }
+      ]
+    },
+    "salesforce-soap-login-broad-ip-range-token-required": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://help.salesforce.com/s/articleView?id=005132110&type=1",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        }
+      ]
+    },
+    "salesforce-soap-login-disabled-when-unused": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://help.salesforce.com/s/articleView?id=005132110&type=1",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        }
+      ]
+    },
+    "salesforce-soap-login-use-any-api-auth-required": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://help.salesforce.com/s/articleView?id=005132110&type=1",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://developer.salesforce.com/docs/platform/api/guide/api-eol-soap.html",
+          "firstCaptured": "2026-10-21T01:30:47Z",
+          "captureUrl": "https://web.archive.org/web/20261021013047/https://developer.salesforce.com/docs/platform/api/guide/api-eol-soap.html"
+        }
+      ]
+    },
+    "shopify-admin-api-2026-01-unsupported": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://shopify.dev/docs/api/usage/versioning",
+          "firstCaptured": "2023-02-20T05:42:20Z",
+          "captureUrl": "https://web.archive.org/web/20230220054220/https://shopify.dev/docs/api/usage/versioning"
+        }
+      ]
+    },
+    "shopify-admin-api-2026-04-unsupported": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://shopify.dev/docs/api/usage/versioning",
+          "firstCaptured": "2023-02-20T05:42:20Z",
+          "captureUrl": "https://web.archive.org/web/20230220054220/https://shopify.dev/docs/api/usage/versioning"
+        }
+      ]
+    },
+    "shopify-global-catalog-rest-api-shutdown": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://shopify.dev/changelog/posts/global-catalog-rest-api-stops-serving-traffic-on-november-2-2026",
+          "firstCaptured": "2026-10-11T21:17:47Z",
+          "captureUrl": "https://web.archive.org/web/20261011211747/https://shopify.dev/changelog/posts/global-catalog-rest-api-stops-serving-traffic-on-november-2-2026"
+        }
+      ]
+    },
+    "shopify-non-expiring-offline-tokens-rejected": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://shopify.dev/changelog/posts/expiring-offline-access-tokens-required-for-all-public-apps-as-of-january-1-2027",
+          "firstCaptured": "2026-10-01T18:56:30Z",
+          "captureUrl": "https://web.archive.org/web/20261001185630/https://shopify.dev/changelog/posts/expiring-offline-access-tokens-required-for-all-public-apps-as-of-january-1-2027"
+        },
+        {
+          "url": "https://shopify.dev/docs/apps/build/authentication-authorization/migrate-to-expiring-offline-access-tokens",
+          "firstCaptured": "2026-10-01T18:56:04Z",
+          "captureUrl": "https://web.archive.org/web/20261001185604/https://shopify.dev/docs/apps/build/authentication-authorization/migrate-to-expiring-offline-access-tokens"
+        }
+      ]
+    },
+    "shopify-script-tags-stop-running": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://shopify.dev/changelog/online-store-script-tags-deprecation",
+          "firstCaptured": "2026-08-31T21:05:18Z",
+          "captureUrl": "https://web.archive.org/web/20260831210518/https://shopify.dev/changelog/online-store-script-tags-deprecation"
+        },
+        {
+          "url": "https://shopify.dev/docs/api/admin-rest/latest/resources/scripttag",
+          "firstCaptured": "2025-08-19T18:44:39Z",
+          "captureUrl": "https://web.archive.org/web/20250819184439/https://shopify.dev/docs/api/admin-rest/latest/resources/scripttag"
+        }
+      ]
+    },
+    "slack-files-upload-retired": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://docs.slack.dev/reference/methods/files.upload",
+          "firstCaptured": "2025-04-22T00:45:21Z",
+          "captureUrl": "https://web.archive.org/web/20250422004521/https://docs.slack.dev/reference/methods/files.upload/"
+        },
+        {
+          "url": "https://docs.slack.dev/changelog/2025/03/17/files-upload-extension",
+          "firstCaptured": "2025-03-29T17:49:09Z",
+          "captureUrl": "https://web.archive.org/web/20250329174909/https://docs.slack.dev/changelog/2025/03/17/files-upload-extension/"
+        },
+        {
+          "url": "https://docs.slack.dev/changelog/2024-04-a-better-way-to-upload-files-is-here-to-stay",
+          "firstCaptured": "2025-04-21T22:58:25Z",
+          "captureUrl": "https://web.archive.org/web/20250421225825/https://docs.slack.dev/changelog/2024-04-a-better-way-to-upload-files-is-here-to-stay/"
+        }
+      ]
+    },
+    "stripe-checkout-session-ui-mode-values-renamed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/updates-available-checkout-session-ui-modes",
+          "firstCaptured": "2026-04-21T00:26:14Z",
+          "captureUrl": "https://web.archive.org/web/20260421002614/https://docs.stripe.com/changelog/dahlia/2026-03-25/updates-available-checkout-session-ui-modes"
+        },
+        {
+          "url": "https://docs.stripe.com/api/checkout/sessions/create",
+          "firstCaptured": "2024-02-19T11:11:28Z",
+          "captureUrl": "https://web.archive.org/web/20240219111128/https://docs.stripe.com/api/checkout/sessions/create"
+        }
+      ]
+    },
+    "twilio-conference-list-default-in-progress": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://www.twilio.com/en-us/changelog/conference-list-endpoint-july-2026",
+          "firstCaptured": "2026-10-12T19:16:01Z",
+          "captureUrl": "https://web.archive.org/web/20261012191601/https://www.twilio.com/en-us/changelog/conference-list-endpoint-july-2026"
+        },
+        {
+          "url": "https://www.twilio.com/en-us/changelog/conference-list-endpoint-rollout-extended",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        }
+      ]
+    },
+    "twilio-notify-end-of-life": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://help.twilio.com/articles/9198083260571-How-to-transition-off-Notify",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://www.twilio.com/en-us/changelog/notify-api-eol-notice",
+          "firstCaptured": "2024-02-25T01:45:45Z",
+          "captureUrl": "https://web.archive.org/web/20240225014545/https://www.twilio.com/en-us/changelog/notify-api-eol-notice"
+        },
+        {
+          "url": "https://www.twilio.com/en-us/changelog/notify-api-end-of-life-further-extension-notice",
+          "firstCaptured": "2024-07-07T21:33:26Z",
+          "captureUrl": "https://web.archive.org/web/20240707213326/https://www.twilio.com/en-us/changelog/notify-api-end-of-life-further-extension-notice"
+        },
+        {
+          "url": "https://www.twilio.com/docs/notify/api/notification-resource",
+          "firstCaptured": "2019-07-16T18:09:49Z",
+          "captureUrl": "https://web.archive.org/web/20190716180949/https://www.twilio.com/docs/notify/api/notification-resource"
+        }
+      ]
+    },
+    "twilio-rcs-undelivered-error-code-30046": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://www.twilio.com/en-us/changelog/rcs-error-code-changing",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://www.twilio.com/docs/messaging/api/message-resource",
+          "firstCaptured": "2023-12-02T11:04:48Z",
+          "captureUrl": "https://web.archive.org/web/20231202110448/https://www.twilio.com/docs/messaging/api/message-resource"
+        }
+      ]
+    },
+    "twilio-voice-insights-conference-participant-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://www.twilio.com/en-us/changelog/voice-insights-removal-conference-participant-field",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://www.twilio.com/docs/voice/voice-insights/api/call/details-call-summary",
+          "firstCaptured": "2023-12-03T17:54:52Z",
+          "captureUrl": "https://web.archive.org/web/20231203175452/https://www.twilio.com/docs/voice/voice-insights/api/call/details-call-summary"
+        },
+        {
+          "url": "https://www.twilio.com/docs/voice/voice-insights/api/call/call-summary-resource",
+          "firstCaptured": "2023-09-22T18:25:44Z",
+          "captureUrl": "https://web.archive.org/web/20230922182544/https://www.twilio.com/docs/voice/voice-insights/api/call/call-summary-resource"
+        }
+      ]
+    },
+    "x-activity-api-pascalcase-event-types-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://docs.x.com/changelog",
+          "firstCaptured": "2025-02-14T18:37:19Z",
+          "captureUrl": "https://web.archive.org/web/20250214183719/https://docs.x.com/changelog"
+        },
+        {
+          "url": "https://docs.x.com/x-api/activity/introduction",
+          "firstCaptured": "2025-10-19T07:07:01Z",
+          "captureUrl": "https://web.archive.org/web/20251019070701/https://docs.x.com/x-api/activity/introduction"
+        }
+      ]
+    },
+    "x-self-serve-follow-writes-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://docs.x.com/changelog",
+          "firstCaptured": "2025-02-14T18:37:19Z",
+          "captureUrl": "https://web.archive.org/web/20250214183719/https://docs.x.com/changelog"
+        },
+        {
+          "url": "https://opentweet.io/how-to/fix-x-api-like-follow-endpoint-removed",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        }
+      ]
+    },
+    "x-self-serve-like-writes-removed": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://docs.x.com/changelog",
+          "firstCaptured": "2025-02-14T18:37:19Z",
+          "captureUrl": "https://web.archive.org/web/20250214183719/https://docs.x.com/changelog"
+        },
+        {
+          "url": "https://opentweet.io/how-to/fix-x-api-like-follow-endpoint-removed",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        }
+      ]
+    },
+    "xero-accounting-transactions-scope-split": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://devblog.xero.com/upcoming-changes-to-xero-accounting-api-scopes-705c5a9621a0",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://www.apideck.com/blog/xero-scopes",
+          "firstCaptured": "2026-04-15T20:21:18Z",
+          "captureUrl": "https://web.archive.org/web/20260415202118/https://www.apideck.com/blog/xero-scopes"
+        }
+      ]
+    },
+    "xero-allocations-contact-mismatch-rejected": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developer.xero.com/changelog",
+          "firstCaptured": "2024-10-06T06:44:25Z",
+          "captureUrl": "https://web.archive.org/web/20241006064425/https://developer.xero.com/changelog"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml",
+          "firstCaptured": "2020-10-23T18:56:00Z",
+          "captureUrl": "https://web.archive.org/web/20201023185600/https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml"
+        }
+      ]
+    },
+    "xero-au-payroll-isqualifyingearnings-required": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developer.xero.com/changelog",
+          "firstCaptured": "2024-10-06T06:44:25Z",
+          "captureUrl": "https://web.archive.org/web/20241006064425/https://developer.xero.com/changelog"
+        },
+        {
+          "url": "https://developer.xero.com/documentation/api/payrollau/payitems",
+          "firstCaptured": "2022-07-05T16:36:00Z",
+          "captureUrl": "https://web.archive.org/web/20220705163600/https://developer.xero.com/documentation/api/payrollau/payitems"
+        },
+        {
+          "url": "https://developer.xero.com/documentation/api/payrollau/earningsrates",
+          "firstCaptured": "2026-07-11T08:25:00Z",
+          "captureUrl": "https://web.archive.org/web/20260711082500/https://developer.xero.com/documentation/api/payrollau/earningsrates"
+        }
+      ]
+    },
+    "xero-au-payroll-isqualifyingearnings-required-earningsrates": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developer.xero.com/changelog",
+          "firstCaptured": "2024-10-06T06:44:25Z",
+          "captureUrl": "https://web.archive.org/web/20241006064425/https://developer.xero.com/changelog"
+        },
+        {
+          "url": "https://developer.xero.com/documentation/api/payrollau/payitems",
+          "firstCaptured": "2022-07-05T16:36:00Z",
+          "captureUrl": "https://web.archive.org/web/20220705163600/https://developer.xero.com/documentation/api/payrollau/payitems"
+        },
+        {
+          "url": "https://developer.xero.com/documentation/api/payrollau/earningsrates",
+          "firstCaptured": "2026-07-11T08:25:00Z",
+          "captureUrl": "https://web.archive.org/web/20260711082500/https://developer.xero.com/documentation/api/payrollau/earningsrates"
+        }
+      ]
+    },
+    "xero-finance-accounting-activities-decommissioned": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developer.xero.com/changelog",
+          "firstCaptured": "2024-10-06T06:44:25Z",
+          "captureUrl": "https://web.archive.org/web/20241006064425/https://developer.xero.com/changelog"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/2.29.1/xero-finance.yaml",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero-finance.yaml",
+          "firstCaptured": null,
+          "note": "no capture in the Wayback Machine"
+        }
+      ]
+    },
+    "xero-invoices-email-daily-limit-429": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developer.xero.com/changelog",
+          "firstCaptured": "2024-10-06T06:44:25Z",
+          "captureUrl": "https://web.archive.org/web/20241006064425/https://developer.xero.com/changelog"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml",
+          "firstCaptured": "2020-10-23T18:56:00Z",
+          "captureUrl": "https://web.archive.org/web/20201023185600/https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml"
+        }
+      ]
+    },
+    "xero-nz-payroll-employee-tax-kiwisaverstatus-required": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developer.xero.com/changelog",
+          "firstCaptured": "2024-10-06T06:44:25Z",
+          "captureUrl": "https://web.archive.org/web/20241006064425/https://developer.xero.com/changelog"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero-payroll-nz.yaml",
+          "firstCaptured": "2020-10-23T18:55:59Z",
+          "captureUrl": "https://web.archive.org/web/20201023185559/https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero-payroll-nz.yaml"
+        }
+      ]
+    },
+    "xero-organisation-class-ultra-enum": {
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://developer.xero.com/changelog",
+          "firstCaptured": "2024-10-06T06:44:25Z",
+          "captureUrl": "https://web.archive.org/web/20241006064425/https://developer.xero.com/changelog"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml",
+          "firstCaptured": "2020-10-23T18:56:00Z",
+          "captureUrl": "https://web.archive.org/web/20201023185600/https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml"
+        }
+      ]
+    }
+  }
+}

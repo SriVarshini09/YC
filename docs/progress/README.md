@@ -110,3 +110,4 @@ One line per task: task, summary file, PR, status.
 - PB-61 spec-history replay for GitHub: 20 of 26 breaking changes of 2026-03-10 found in the spec diff, plus what GitHub does not list (P-09): [summary](PB-61-github-spec-replay.md) · PR: open
 - PB-62 spec-history replay for Twilio (5 of 7 showable breaking lines found) and OpenAI (model deprecations invisible in the spec: 0 of 25), with a summary across four providers (P-10): [summary](PB-62-twilio-openai-spec-replay.md) · PR: open
 - PB-63 models.dev ingest: every model models.dev marks deprecated on a known host becomes an unverified version-sunset draft; 14 on the first run (C-04): [summary](PB-63-models-dev-drafts.md) · PR: open
+- PB-65 the Wayback Machine's first capture of every advisory source: 61 of 63 verified advisories have one, all 63 have every source accounted for (P-13): [summary](PB-65-wayback-captures.md) · PR: open

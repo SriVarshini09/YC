@@ -24,7 +24,8 @@
     "bench:spec-replay": "node ../../scripts/run-ts.mjs scripts/spec-replay.ts",
     "bench:spec-replay:github": "node ../../scripts/run-ts.mjs scripts/spec-replay-github.ts",
     "bench:spec-replay:twilio": "node ../../scripts/run-ts.mjs scripts/spec-replay-twilio.ts",
-    "bench:spec-replay:openai": "node ../../scripts/run-ts.mjs scripts/spec-replay-openai.ts"
+    "bench:spec-replay:openai": "node ../../scripts/run-ts.mjs scripts/spec-replay-openai.ts",
+    "bench:wayback": "node ../../scripts/run-ts.mjs scripts/wayback.ts"
   },
   "dependencies": {
     "@shapi/core": "workspace:*",
