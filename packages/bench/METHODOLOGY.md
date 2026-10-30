@@ -35,6 +35,24 @@ pnpm --filter @shapi/bench bench:run
 - **Token:** set `GITHUB_TOKEN`, or sign in with `gh`. Archives are downloaded through GitHub's API, which limits unauthenticated use.
 - **Okapi head-to-head:** `pnpm --filter @shapi/bench bench:okapi` scans the base commit of every public Okapi PR and rewrites the table in [OKAPI.md](OKAPI.md) (execution plan P-04).
 
+## Regression gate
+
+The benchmark is also the matcher's regression suite (execution plan P-05). The `bench` job in CI runs `bench:run -- --cache .cache --check` on every pull request and push to main. It compares each in-scope instance with [baseline.json](baseline.json), one by one, and fails when:
+
+- **a catch is lost:** an instance `affected` at its base commit in the baseline is not `affected` now;
+- **a new false positive appears:** an instance not `affected` at its fix commit in the baseline is `affected` now;
+- **an instance cannot be scanned** for a reason other than its repository or commit being gone. Run it again.
+
+Comparing one by one means a lost catch cannot hide behind a new one, which a rate alone would allow.
+
+Other cases:
+
+- **Gone:** a repository or commit that returns 404 is reported, not failed. P-07 archives the repositories.
+- **Improvements:** they pass, and the report asks for `--update-baseline`. Commit the new `baseline.json` with the change that earned it.
+- **A changed dataset:** this fails until the baseline is rebuilt for it.
+
+Archives are cached in `packages/bench/.cache`, because a commit's archive never changes. Removing #93's matcher fix makes the gate fail: it loses `vincentng295/gemini_fbchat` and recall drops from 5 / 14 to 4 / 14.
+
 ## Baseline (git main at 61f95b3+, dataset `37fa931e8278`, 2026-10-29)
 
 | Metric | k / n | Rate | 95% interval |

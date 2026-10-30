@@ -21,3 +21,6 @@ packages/cli/npm/
 brand/package-lock.json
 # VitePress dev server cache (site/)
 site/.vitepress/cache/
+
+# Benchmark archives (bench:run --cache): downloaded commits, never committed.
+packages/bench/.cache/

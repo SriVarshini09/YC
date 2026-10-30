@@ -33,6 +33,29 @@ jobs:
       - name: No action pinned to a branch
         run: "! grep -rnE 'uses: *[^ ]+@(master|main)( |$)' .github/workflows"
 
+  bench:
+    # APIBreak-Replay as the matcher's regression suite (execution plan P-05): scan every in-scope instance at
+    # its base and fix commits and fail when SHAPI loses a catch or flags a fix commit it accepted before
+    # (packages/bench/baseline.json). Archives are cached: a commit's archive never changes.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: packages/bench/.cache
+          key: bench-archives-${{ hashFiles('packages/bench/datasets/apibreak-v0.json') }}
+      # Read-only: the token only downloads public archives through GitHub's API (60 an hour without one).
+      - run: pnpm --filter @shapi/bench bench:run -- --cache .cache --check
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
   npm-package:
     # Build the publishable shapi-cli package, install it into an empty folder and run scan and fix, on the
     # oldest Node it supports and the current LTS.
