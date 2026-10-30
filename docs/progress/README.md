@@ -88,3 +88,4 @@ One line per task: task, summary file, PR, status.
 - PB-39 a `{repo}` path parameter holding owner/name matches GitHub advisories (benchmark recall 4/14 to 5/14): [summary](PB-39-repo-fullname-paths.md) · PR: open
 - PB-40 a fix may not edit, remove or skip the repository's tests (V-02): [summary](PB-40-test-guard.md) · PR: open
 - PB-41 from GitHub to the dashboard in one click: Setup URL, and dashboard links on checks, PRs and the Dashboard issue (U-01, U-02): [summary](PB-41-dashboard-links.md) · PR: open
+- PB-42 a repository too large to scan fails alone: its own memory-capped process, a size gate, a Sentry alert, and a 1 GB worker (I-01): [summary](PB-42-scan-isolation.md) · PR: open
