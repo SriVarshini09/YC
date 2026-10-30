@@ -111,6 +111,8 @@ describe("runOnce", () => {
     expect(third.confirmed).toBeUndefined();
     expect(third.draft).toBeUndefined();
     store.close();
+  });
+
   it("records the Sunset and Deprecation dates an endpoint announces, and flags the new header as a sunset signal (CN-05)", async () => {
     const store = ShapeStore.open(":memory:");
     let tick = 0;
