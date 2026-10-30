@@ -10,6 +10,11 @@ export const RecordingSchema = z.object({
   endpoint: z.string().startsWith("/"),
   note: z.string().optional(),
   sources: z.array(z.url()).default([]),
+  /**
+   * How long the recording can be trusted without checking it against the live API, in days (`90d`). Past that, its
+   * latest response is compared with the latest canary observation of the endpoint (A-02).
+   */
+  expiresIn: z.string().regex(/^[1-9]\d*d$/).default("90d"),
   observations: z
     .array(
       z.object({
@@ -58,4 +63,37 @@ export function replay(recording: Recording, store: ShapeStore, secret: string):
   const after = store.latest(provider, method, endpoint, "replay")!;
   const before = store.previousDistinct(provider, method, endpoint, "replay");
   return { recording, observations, witnesses, after, before, ...(before ? { diff: diffShapes(before.shape, after.shape) } : {}) };
+}
+
+/**
+ * A recording past its `expiresIn` (execution plan A-02), checked the way Hoverfly checks a simulation against the real
+ * service:
+ * - `fresh`: within its expiry;
+ * - `revalidated`: expired, and the live API's latest canary shape still matches the recording's latest response;
+ * - `stale`: expired, and the live API answers with a different shape now;
+ * - `unchecked`: expired, and no canary observes the endpoint, so nothing can confirm it.
+ */
+export type FixtureState = "fresh" | "revalidated" | "stale" | "unchecked";
+
+export interface FixtureStatus {
+  provider: string;
+  method: string;
+  endpoint: string;
+  /** The recording's latest response. */
+  recordedAt: string;
+  expiresAt: string;
+  state: FixtureState;
+  detail: string;
+}
+
+/** `recordedHash`: the shape hash of the recording's latest response (`replay().after.shapeHash`), with the canary's secret. */
+export function fixtureStatus(recording: Recording, recordedHash: string, live: { observedAt: string; shapeHash: string } | undefined, now: Date): FixtureStatus {
+  const recordedAt = recording.observations.map((o) => o.observedAt).sort().at(-1)!;
+  const expiresAt = new Date(Date.parse(recordedAt) + Number.parseInt(recording.expiresIn, 10) * 86_400_000).toISOString();
+  const base = { provider: recording.provider, method: recording.method, endpoint: recording.endpoint, recordedAt, expiresAt };
+  if (now.toISOString() <= expiresAt) return { ...base, state: "fresh", detail: `recorded ${recordedAt.slice(0, 10)}, trusted until ${expiresAt.slice(0, 10)}` };
+  if (!live || live.observedAt <= recordedAt) return { ...base, state: "unchecked", detail: "expired, and no canary has observed the endpoint since" };
+  return live.shapeHash === recordedHash
+    ? { ...base, state: "revalidated", detail: `the canary saw the same shape on ${live.observedAt.slice(0, 10)}` }
+    : { ...base, state: "stale", detail: `the canary saw a different shape on ${live.observedAt.slice(0, 10)}: contract tests built from this recording may no longer match the API` };
 }

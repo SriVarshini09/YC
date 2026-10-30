@@ -1,4 +1,5 @@
-import type { Advisory, LockedCallSite } from "@shapi/core";
+import type { FixtureStatus } from "@shapi/canary";
+import { pathMatches, type Advisory, type LockedCallSite } from "@shapi/core";
 import { DEFAULT_PR_LIMITS, STOP_LABEL } from "@shapi/github-app";
 import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
 import { DOCS_URL, EMPTY, ICONS, MARK, html, initials, isoDay, navFor, plural, shortSha, timeAgo, type Html, type NavKey, type Shell, type Theme } from "./html";
@@ -297,7 +298,13 @@ function prTable(data: AccountData, prs: PrRow[], opts: { repo: boolean }): Html
 
 /* ---------- API changes ---------- */
 
-export function advisoriesPage(data: AccountData, filter: { provider?: string; advisory?: string }): Html {
+const FIXTURE_TAGS: Record<FixtureStatus["state"], [string, string]> = { fresh: ["fresh", "ok"], revalidated: ["revalidated", "ok"], stale: ["stale", "bad"], unchecked: ["unchecked", "warn"] };
+
+/** The recordings a contract test for this advisory would be built from (same provider, method and endpoint). */
+const fixturesFor = (a: Advisory, fixtures: FixtureStatus[]) =>
+  fixtures.filter((f) => f.provider === a.provider && pathMatches(f.endpoint, a.endpoint) && (a.endpoint.method === "*" || f.method === a.endpoint.method));
+
+export function advisoriesPage(data: AccountData, filter: { provider?: string; advisory?: string }, fixtures: (FixtureStatus & { file: string })[] = []): Html {
   const b = accountHref(data);
   const inCode = providersOf(data);
   const present = new Set(inCode.map((p) => p.id));
@@ -334,10 +341,19 @@ ${filter.advisory ? html`<div class="filters"><a class="on" href="${b}/advisorie
 <td>${severityTag(a.severity)}</td>
 <td>${dueTag(daysUntil(a.effectiveDate, data.now))}<span class="sub">${isoDay(a.effectiveDate)}</span></td>
 <td>${yourCode(a)}</td>
-<td>${hasRecipe(a) ? tag("automatic", "ok") : tag("by hand", "")}</td>
+<td>${hasRecipe(a) ? tag("automatic", "ok") : tag("by hand", "")}${fixturesFor(a, fixtures).some((f) => f.state === "stale") ? html` ${tag("stub stale", "bad", "The live API no longer matches the recorded responses its contract test is built from")}` : EMPTY}</td>
 </tr>`;
     })}</tbody></table>${rows.length ? EMPTY : empty("No API changes match.")}</div>`,
-  )}</div>`;
+  )}</div>
+${fixtures.length ? section("Recorded responses", fixturesCard(fixtures)) : EMPTY}`;
+}
+
+/** The recordings contract tests are built from, with whether each still matches the live API (A-02). */
+function fixturesCard(fixtures: (FixtureStatus & { file: string })[]): Html {
+  return html`<div class="card tight"><table><thead><tr><th>Endpoint</th><th>Recorded</th><th>Status</th></tr></thead><tbody>${fixtures.map((f) => {
+    const [label, kind] = FIXTURE_TAGS[f.state];
+    return html`<tr class="${f.state === "stale" ? "affected" : ""}"><td><b>${providerName(f.provider)}</b><span class="sub mono">${f.method} ${f.endpoint}</span></td><td>${isoDay(f.recordedAt)}<span class="sub">${f.file}</span></td><td>${tag(label, kind)}<span class="sub">${f.detail}</span></td></tr>`;
+  })}</tbody></table></div>`;
 }
 
 /* ---------- one finding ---------- */
