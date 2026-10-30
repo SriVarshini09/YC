@@ -70,3 +70,57 @@ export function stripeCoverage(input: {
   }
   return { rows, gaps: rows.filter((r) => !r.advisories.length && !r.exempt) };
 }
+
+/* ---------- Shopify (C-06) ---------- */
+
+export interface ShopifyFeedEntry {
+  title: string;
+  url: string;
+  date: string;
+  categories: string[];
+}
+
+const xmlText = (s: string) =>
+  s
+    .replace(/<!\[CDATA\[|\]\]>/g, "")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&")
+    .trim();
+
+/** The items of shopify.dev's changelog RSS feed: title, link, day and categories. */
+export function parseShopifyFeed(xml: string): ShopifyFeedEntry[] {
+  return xml
+    .split("<item>")
+    .slice(1)
+    .map((item) => ({
+      title: xmlText(/<title>([\s\S]*?)<\/title>/.exec(item)?.[1] ?? ""),
+      url: xmlText(/<link>([\s\S]*?)<\/link>/.exec(item)?.[1] ?? ""),
+      date: new Date(/<pubDate>([^<]*)<\/pubDate>/.exec(item)?.[1] ?? "").toISOString().slice(0, 10),
+      categories: [...item.matchAll(/<category>([\s\S]*?)<\/category>/g)].map((m) => xmlText(m[1]!)),
+    }));
+}
+
+/** The Admin API surfaces C-06 covers. */
+const ADMIN_APIS = ["GraphQL Admin API", "Admin REST API"];
+
+/**
+ * Every Shopify changelog entry tagged "Breaking API Change" since `since` that touches the Admin GraphQL or REST API
+ * needs a Shopify advisory citing it (in its sources or published notice), or an exemption with a reason.
+ */
+export function shopifyCoverage(input: { entries: ShopifyFeedEntry[]; since: string; advisories: Advisory[]; exemptions: Record<string, string> }): { rows: CoverageRow[]; gaps: CoverageRow[] } {
+  // shopify.dev serves each post at /changelog/<slug> and /changelog/posts/<slug>.
+  const shopifyPage = (u: string) => pageUrl(u).replace("/changelog/posts/", "/changelog/");
+  const cites = (a: Advisory) => [...a.sources, a.publishedNotice?.url ?? ""].map(shopifyPage);
+  const rows = input.entries
+    .filter((e) => e.categories.includes("Breaking API Change") && e.date >= input.since && e.categories.some((c) => ADMIN_APIS.includes(c)))
+    .map((e): CoverageRow => {
+      const url = shopifyPage(e.url);
+      const advisories = input.advisories.filter((a) => a.provider === "shopify" && cites(a).includes(url)).map((a) => a.id);
+      const exempt = advisories.length ? undefined : input.exemptions[url];
+      return { release: e.date, title: e.title, url, methods: e.categories.filter((c) => ADMIN_APIS.includes(c)), advisories, ...(exempt ? { exempt } : {}) };
+    });
+  return { rows, gaps: rows.filter((r) => !r.advisories.length && !r.exempt) };
+}

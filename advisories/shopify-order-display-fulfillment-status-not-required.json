@@ -1,0 +1,30 @@
+{
+  "id": "shopify-order-display-fulfillment-status-not-required",
+  "provider": "shopify",
+  "title": "Shopify OrderDisplayFulfillmentStatus can return FULFILLMENT_NOT_REQUIRED as of 2026-10",
+  "summary": "As of Admin API version 2026-10, Order.displayFulfillmentStatus can return FULFILLMENT_NOT_REQUIRED for orders with nothing left to fulfill (cancelled or refunded before fulfillment), which returned UNFULFILLED before.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "enum-added",
+  "trigger": {
+    "graphql": [
+      {
+        "field": "displayFulfillmentStatus"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-07-03",
+    "url": "https://shopify.dev/changelog/orderdisplayfulfillmentstatus-now-returns-fulfillmentnotrequired"
+  },
+  "effectiveDate": "2026-10-01",
+  "severity": "medium",
+  "migrationNote": "Handle FULFILLMENT_NOT_REQUIRED wherever the code maps or filters displayFulfillmentStatus, and stop treating these orders as UNFULFILLED.",
+  "sources": [
+    "https://shopify.dev/changelog/orderdisplayfulfillmentstatus-now-returns-fulfillmentnotrequired"
+  ],
+  "status": "unverified"
+}

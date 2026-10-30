@@ -1,0 +1,242 @@
+{
+  "since": "2026-01-01",
+  "rows": [
+    {
+      "release": "2026-10-28",
+      "title": "Managed mode for Shopify Tax",
+      "url": "https://shopify.dev/changelog/managed-mode-for-shopify-tax-is-released",
+      "methods": [
+        "Admin REST API",
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-tax-managed-mode-write-validation"
+      ]
+    },
+    {
+      "release": "2026-10-01",
+      "title": "`metafieldInteger` collection condition removed in API version 2027-01",
+      "url": "https://shopify.dev/changelog/metafieldinteger-collection-condition-removed-in-api-version-2027-01",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-collection-metafield-integer-condition-removed"
+      ]
+    },
+    {
+      "release": "2026-10-01",
+      "title": "Tax webhook summary and calculation requests now use Global IDs",
+      "url": "https://shopify.dev/changelog/tax-webhook-summary-and-calculation-requests-now-use-global-ids",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [],
+      "exempt": "The change is in what Shopify sends to tax apps (calculation requests and tax summary webhook payloads), not in a call the app makes, and SHAPI matches the calls an app makes."
+    },
+    {
+      "release": "2026-10-01",
+      "title": "Updated function syntax on the segment query language",
+      "url": "https://shopify.dev/changelog/updated-function-syntax-on-the-segment-query-language",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-segment-query-function-syntax"
+      ]
+    },
+    {
+      "release": "2026-09-22",
+      "title": "Removing marketCurrencySettingsUpdate mutation",
+      "url": "https://shopify.dev/changelog/removing-marketcurrencysettingsupdate-mutation",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-market-currency-settings-update-removed"
+      ]
+    },
+    {
+      "release": "2026-09-18",
+      "title": "The `automaticDiscounts` query is removed in API version 2027-01",
+      "url": "https://shopify.dev/changelog/automaticdiscounts-query-is-removed-in-api-version-2027-01",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-automatic-discounts-query-removed"
+      ]
+    },
+    {
+      "release": "2026-07-30",
+      "title": "Updating an order's shipping address recalculates taxes as of API version 2026-10",
+      "url": "https://shopify.dev/changelog/updating-an-orders-shipping-address-returns-accurate-financial-data",
+      "methods": [
+        "GraphQL Admin API",
+        "Admin REST API"
+      ],
+      "advisories": [
+        "shopify-order-update-shipping-address-recalculates-taxes",
+        "shopify-rest-order-update-shipping-address-recalculates-taxes"
+      ]
+    },
+    {
+      "release": "2026-07-24",
+      "title": "Invalid metafield queries now return errors in the GraphQL Admin API",
+      "url": "https://shopify.dev/changelog/invalid-metafield-queries-now-return-errors-in-the-graphql-admin-api",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [],
+      "exempt": "Whether a query breaks depends on the metafield filter inside a search string and on how the store's metafield definitions are configured, neither of which a scan of the code can see."
+    },
+    {
+      "release": "2026-07-03",
+      "title": "OrderDisplayFulfillmentStatus now returns FULFILLMENT_NOT_REQUIRED for orders with no items to fulfill",
+      "url": "https://shopify.dev/changelog/orderdisplayfulfillmentstatus-now-returns-fulfillmentnotrequired",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-order-display-fulfillment-status-not-required"
+      ]
+    },
+    {
+      "release": "2026-06-26",
+      "title": "Carrier services will no longer be automatically added to the default shipping profile",
+      "url": "https://shopify.dev/changelog/carrier-services-will-no-longer-be-automatically-added-to-the-default-shipping-profile",
+      "methods": [
+        "GraphQL Admin API",
+        "Admin REST API"
+      ],
+      "advisories": [
+        "shopify-carrier-service-not-added-to-default-profile",
+        "shopify-rest-carrier-service-not-added-to-default-profile"
+      ]
+    },
+    {
+      "release": "2026-06-23",
+      "title": "`DraftOrderDiscountNotAppliedWarning.priceRule` removed in GraphQL Admin API 2026-10",
+      "url": "https://shopify.dev/changelog/remove-pricerule-from-draft-order-discount-warning",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-draft-order-warning-price-rule-removed"
+      ]
+    },
+    {
+      "release": "2026-06-19",
+      "title": "Removal of ITEM_NOT_STOCKED_AT_LOCATION error",
+      "url": "https://shopify.dev/changelog/removal-of-itemnotstockedatlocation-error",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [],
+      "exempt": "Removes an error code that can no longer occur; code that handles ITEM_NOT_STOCKED_AT_LOCATION keeps working, it just never runs."
+    },
+    {
+      "release": "2026-05-20",
+      "title": "Expiring offline access tokens required for all public apps as of January 1, 2027",
+      "url": "https://shopify.dev/changelog/expiring-offline-access-tokens-required-for-all-public-apps-as-of-january-1-2027",
+      "methods": [
+        "GraphQL Admin API",
+        "Admin REST API"
+      ],
+      "advisories": [
+        "shopify-non-expiring-offline-tokens-rejected"
+      ]
+    },
+    {
+      "release": "2026-05-20",
+      "title": "Removing deprecated PRIVATE and PUBLIC_READ enums on metaobject definitions",
+      "url": "https://shopify.dev/changelog/removing-deprecated-private-and-publicread-enums-on-metaobject-definitions",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-metaobject-admin-access-private-public-read-removed"
+      ]
+    },
+    {
+      "release": "2026-04-24",
+      "title": "`totalUnsettledSet` calculation fixed for pending captures",
+      "url": "https://shopify.dev/changelog/totalunsettledset-calculation-fixed-for-pending-captures",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-order-transaction-total-unsettled-fixed"
+      ]
+    },
+    {
+      "release": "2026-04-17",
+      "title": "`inventoryActivate` now preserves `available` quantity",
+      "url": "https://shopify.dev/changelog/inventoryactivate-now-preserves-available-quantity",
+      "methods": [
+        "GraphQL Admin API",
+        "Admin REST API"
+      ],
+      "advisories": [
+        "shopify-inventory-activate-preserves-quantities",
+        "shopify-rest-inventory-connect-preserves-quantities"
+      ]
+    },
+    {
+      "release": "2026-04-01",
+      "title": "Payment method identifier now required for customerPaymentMethodRemoteCreate",
+      "url": "https://shopify.dev/changelog/payment-method-identifier-now-required-for-customerpaymentmethodremotecreate",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-customer-payment-method-remote-create-identifier-required"
+      ]
+    },
+    {
+      "release": "2026-03-23",
+      "title": "Removal of pre_tax_price from the Order REST Admin API",
+      "url": "https://shopify.dev/changelog/removal-of-pretaxprice-from-the-order-rest-admin-api",
+      "methods": [
+        "Admin REST API"
+      ],
+      "advisories": [
+        "shopify-rest-order-line-item-pre-tax-price-removed"
+      ]
+    },
+    {
+      "release": "2026-03-09",
+      "title": "`inventorySetScheduledChanges` mutation is being removed with no replacement",
+      "url": "https://shopify.dev/changelog/inventorysetscheduledchanges-mutation-is-being-removed-with-no-replacement",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-inventory-set-scheduled-changes-removed"
+      ]
+    },
+    {
+      "release": "2026-02-24",
+      "title": "New APIs to read and write shipping options in delivery profile",
+      "url": "https://shopify.dev/changelog/new-apis-to-read-and-write-shipping-options-in-delivery-profile",
+      "methods": [
+        "GraphQL Admin API"
+      ],
+      "advisories": [
+        "shopify-delivery-method-definition-rate-groups"
+      ]
+    },
+    {
+      "release": "2026-02-19",
+      "title": "JSON metafield values limited to 128KB",
+      "url": "https://shopify.dev/changelog/reduced-metafield-value-sizes",
+      "methods": [
+        "GraphQL Admin API",
+        "Admin REST API"
+      ],
+      "advisories": [],
+      "exempt": "The limit applies to the size of a JSON metafield value written at runtime, which a scan of the code can't know; existing apps keep the 2 MB limit."
+    }
+  ],
+  "gaps": 0
+}

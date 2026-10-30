@@ -1,0 +1,31 @@
+{
+  "id": "shopify-inventory-set-scheduled-changes-removed",
+  "provider": "shopify",
+  "title": "Shopify removes the inventorySetScheduledChanges mutation in API version 2026-07",
+  "summary": "As of Admin API version 2026-07, the inventorySetScheduledChanges mutation is removed with no replacement.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "graphql": [
+      {
+        "field": "inventorySetScheduledChanges",
+        "operation": "mutation"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-03-09",
+    "url": "https://shopify.dev/changelog/inventorysetscheduledchanges-mutation-is-being-removed-with-no-replacement"
+  },
+  "effectiveDate": "2026-07-01",
+  "severity": "high",
+  "migrationNote": "Remove calls to inventorySetScheduledChanges. Use inventoryAdjustQuantities for immediate adjustments, or schedule changes in your own app.",
+  "sources": [
+    "https://shopify.dev/changelog/inventorysetscheduledchanges-mutation-is-being-removed-with-no-replacement"
+  ],
+  "status": "unverified"
+}

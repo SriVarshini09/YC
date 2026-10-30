@@ -1,0 +1,31 @@
+{
+  "id": "shopify-rest-order-line-item-pre-tax-price-removed",
+  "provider": "shopify",
+  "title": "Shopify removes pre_tax_price from REST order line items",
+  "summary": "The pre_tax_price and pre_tax_price_set fields on order line items in the REST Admin API are removed. They were only populated for stores using the Avalara AvaTax 1.0 integration, deprecated in April 2025.",
+  "endpoint": {
+    "method": "GET",
+    "path": "/admin/api/{version}/orders**"
+  },
+  "changeClass": "field-rename",
+  "trigger": {
+    "fields": [
+      "order.line_items[].pre_tax_price",
+      "order.line_items[].pre_tax_price_set",
+      "orders[].line_items[].pre_tax_price",
+      "orders[].line_items[].pre_tax_price_set"
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-03-23",
+    "url": "https://shopify.dev/changelog/removal-of-pretaxprice-from-the-order-rest-admin-api"
+  },
+  "effectiveDate": "2026-03-23",
+  "severity": "medium",
+  "migrationNote": "Read order line item pricing from the GraphQL Admin API instead of pre_tax_price.",
+  "sources": [
+    "https://shopify.dev/changelog/removal-of-pretaxprice-from-the-order-rest-admin-api"
+  ],
+  "status": "unverified"
+}

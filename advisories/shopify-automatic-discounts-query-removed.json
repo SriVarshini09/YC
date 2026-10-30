@@ -1,0 +1,31 @@
+{
+  "id": "shopify-automatic-discounts-query-removed",
+  "provider": "shopify",
+  "title": "Shopify removes the automaticDiscounts query in API version 2027-01",
+  "summary": "As of Admin API version 2027-01, the deprecated automaticDiscounts query no longer exists on QueryRoot, and requests that include it return a validation error. DiscountAutomaticConnection and DiscountAutomaticEdge are removed too.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "graphql": [
+      {
+        "field": "automaticDiscounts",
+        "operation": "query"
+      }
+    ]
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-09-18",
+    "url": "https://shopify.dev/changelog/automaticdiscounts-query-is-removed-in-api-version-2027-01"
+  },
+  "effectiveDate": "2027-01-01",
+  "severity": "high",
+  "migrationNote": "Query discountNodes with query: \"method:automatic\" and read each discount from the discount field. Don't move to automaticDiscountNodes, which is also deprecated.",
+  "sources": [
+    "https://shopify.dev/changelog/automaticdiscounts-query-is-removed-in-api-version-2027-01"
+  ],
+  "status": "unverified"
+}

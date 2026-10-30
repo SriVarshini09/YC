@@ -63,6 +63,9 @@ export function matchAdvisories(lock: ApiLock, advisories: Advisory[], options: 
   const possible: Finding[] = [];
   const hitsPerAdvisory = new Map<string, number>();
   const unplaced = (site: LockedCallSite) => site.provider !== null && pathUnresolved(site.endpoint);
+  // GraphQL calls whose document SHAPI cannot read, with the GraphQL advisories that could reach them: listed once
+  // each under "Could not tell" rather than as one possible finding per advisory.
+  const unreadGraphql = new Map<LockedCallSite, string[]>();
 
   for (const advisory of advisories) {
     for (const callSite of lock.callSites) {
@@ -74,6 +77,10 @@ export function matchAdvisories(lock: ApiLock, advisories: Advisory[], options: 
       }
       hitsPerAdvisory.set(advisory.id, (hitsPerAdvisory.get(advisory.id) ?? 0) + 1);
       const reasons = triggerReasons(callSite, advisory.trigger);
+      if (!reasons.length && advisory.trigger.graphql?.length && !readableGraphql(callSite)) {
+        unreadGraphql.set(callSite, [...(unreadGraphql.get(callSite) ?? []), advisory.id]);
+        continue;
+      }
       const unknown = reasons.length ? undefined : unknownValueReason(callSite, advisory);
       if (reasons.length > 0) affected.push({ advisory, callSite, reasons });
       else if (unknown) possible.push({ advisory, callSite, reasons: [unknown] });
@@ -109,6 +116,9 @@ export function matchAdvisories(lock: ApiLock, advisories: Advisory[], options: 
         : `builds the whole path at runtime (${describe(callSite)}), so SHAPI cannot tell which endpoint it calls`;
     return [{ callSite, reason, advisories: reachable }];
   });
+  for (const [callSite, ids] of unreadGraphql) {
+    unresolved.push({ callSite, reason: `SHAPI cannot read the GraphQL document this call sends (it is passed in or built at runtime), so it cannot tell which fields it uses`, advisories: [...ids].sort(cmp) });
+  }
 
   return { affected: affected.sort(byFinding), exposed: exposed.sort(byFinding), possible: possible.sort(byFinding), unresolved, upcoming };
 }
@@ -154,10 +164,6 @@ function mayMatchReason(site: LockedCallSite, advisory: Advisory): string | unde
  * all where the pattern's `{?}` segment says the path carries that value at runtime (a REST Gemini call).
  */
 function unknownValueReason(site: LockedCallSite, advisory: Advisory): string | undefined {
-  const graphql = advisory.trigger.graphql ?? [];
-  if (graphql.length && !readableGraphql(site)) {
-    return `calls ${describe(site)}, but SHAPI cannot read its GraphQL document (affected if it selects ${graphql.map((g) => g.field).join(" or ")})`;
-  }
   for (const b of advisory.trigger.body ?? []) {
     if (!b.values) continue;
     const set = (site.surface.body ?? []).find((x) => x.name === b.field);
@@ -286,6 +292,7 @@ function triggerReasons(site: LockedCallSite, trigger: Trigger): string[] {
     // The matched fields themselves, not everything selected under them.
     const hit = graphqlPathsFor(selections, g.field).filter((p, _, all) => !all.some((q) => q !== p && p.startsWith(`${q}.`)));
     if (hit.length) reasons.push(`selects ${hit.slice(0, 3).join(", ")}${hit.length > 3 ? ` and ${hit.length - 3} more` : ""} in its GraphQL ${g.operation ?? "document"}`);
+    else if (selections.names.includes(g.field)) reasons.push(`uses ${g.field} in its GraphQL ${g.operation ?? "document"}`);
   }
   if (trigger.any) reasons.push(`calls ${describe(site)}`);
   return reasons;

@@ -1,0 +1,26 @@
+{
+  "id": "shopify-rest-inventory-connect-preserves-quantities",
+  "provider": "shopify",
+  "title": "Shopify's REST inventory_levels/connect keeps existing quantities instead of resetting them, as of 2026-04",
+  "summary": "As of Admin API version 2026-04, POST inventory_levels/connect.json keeps an inventory level's earlier quantities instead of resetting them to zero.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/admin/api/{version}/inventory_levels/connect.json"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "any": true
+  },
+  "firstObserved": null,
+  "publishedNotice": {
+    "date": "2026-04-17",
+    "url": "https://shopify.dev/changelog/inventoryactivate-now-preserves-available-quantity"
+  },
+  "effectiveDate": "2026-04-01",
+  "severity": "medium",
+  "migrationNote": "Set the available quantity explicitly after connecting a location if your app relied on it starting at zero.",
+  "sources": [
+    "https://shopify.dev/changelog/inventoryactivate-now-preserves-available-quantity"
+  ],
+  "status": "unverified"
+}

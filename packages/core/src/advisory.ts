@@ -66,8 +66,9 @@ export const TriggerSchema = z
     body: z.array(z.object({ field: z.string().min(1), values: z.array(z.string()).min(1).optional() })).optional(),
     /**
      * For a GraphQL endpoint: affected when the request's GraphQL document selects this field. `field` is a root
-     * field (`automaticDiscounts`), a dotted path from the root, or a field name matched at any depth (`priceRule`);
-     * `operation` limits it to queries or mutations. A document SHAPI cannot read makes the call possibly affected.
+     * field (`automaticDiscounts`), a dotted path from the root, or a field name matched at any depth (`priceRule`).
+     * It also matches an argument key, an enum value written in arguments, or a type condition (`metafieldInteger`);
+     * `operation` limits it to queries or mutations. A call whose document SHAPI cannot read is listed under "Could not tell".
      */
     graphql: z.array(z.object({ field: z.string().min(1), operation: z.enum(["query", "mutation", "subscription"]).optional() })).optional(),
     /** Every call to the endpoint is affected (sunsets, auth and scope changes). */
