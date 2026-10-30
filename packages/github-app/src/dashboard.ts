@@ -18,6 +18,10 @@ export interface DashboardInput {
   paused: boolean;
   /** Paused from the SHAPI web app (separate from this issue's checkbox). */
   pausedFromWeb?: boolean;
+  /** SHAPI paused itself because its last PRs were closed without merging (U-05): when, and which PRs. */
+  autoPaused?: { at: string; prs: number[] };
+  /** For grouping open PRs by when their change takes effect. */
+  now?: Date;
   limits: PrLimits;
   /** The repository's page in the SHAPI web app. */
   dashboardUrl?: string;
@@ -41,16 +45,32 @@ export function renderDashboard(d: DashboardInput): string {
     `- [${d.paused ? "x" : " "}] <!-- shapi:pause --> Pause SHAPI on this repository`,
     "",
   ];
+  if (d.autoPaused && d.paused) {
+    const prs = d.autoPaused.prs.map((n) => `#${n}`).join(", ");
+    lines.push(`SHAPI paused itself on ${d.autoPaused.at.slice(0, 10)}: its last ${d.autoPaused.prs.length} fix PRs (${prs}) were closed without merging, so it stopped opening new ones. Untick the box above to resume.`, "");
+  }
   if (d.pausedFromWeb) lines.push("SHAPI is also paused on this repository from the SHAPI web app; resume it there.", "");
   const section = (title: string, rows: string[], empty?: string) => {
     if (!rows.length && !empty) return;
     lines.push(`## ${title}`, "", ...(rows.length ? rows : [empty!]), "");
   };
-  section(
-    "Open fix PRs",
-    d.open.map((o) => `- ${o.advisory.title}${pr(o.number, o.url)}${o.stopped ? ` (not updated: \`${STOP_LABEL}\` or edited by someone)` : ""}`),
-    "None.",
-  );
+  // Open PRs grouped by when their change takes effect, the most urgent first (U-05).
+  const today = (d.now ?? new Date()).toISOString().slice(0, 10);
+  const daysTo = (date: string) => Math.round((Date.parse(date) - Date.parse(today)) / 86_400_000);
+  const openRow = (o: DashboardInput["open"][number]) => {
+    const days = daysTo(o.advisory.effectiveDate);
+    const when = days < 0 ? `took effect ${o.advisory.effectiveDate}` : days === 0 ? "takes effect today" : `takes effect ${o.advisory.effectiveDate}, in ${plural(days, "day")}`;
+    return `- ${o.advisory.title}${pr(o.number, o.url)} (${when})${o.stopped ? ` (not updated: \`${STOP_LABEL}\` or edited by someone)` : ""}`;
+  };
+  const open = [...d.open].sort((a, b) => a.advisory.effectiveDate.localeCompare(b.advisory.effectiveDate) || a.number - b.number);
+  const groups: [string, typeof open][] = [
+    ["Already in effect", open.filter((o) => daysTo(o.advisory.effectiveDate) <= 0)],
+    ["In the next 30 days", open.filter((o) => daysTo(o.advisory.effectiveDate) > 0 && daysTo(o.advisory.effectiveDate) <= 30)],
+    ["Later", open.filter((o) => daysTo(o.advisory.effectiveDate) > 30)],
+  ];
+  lines.push("## Open fix PRs", "");
+  if (!open.length) lines.push("None.", "");
+  for (const [title, rows] of groups) if (rows.length) lines.push(`### ${title}`, "", ...rows.map(openRow), "");
   section(
     "Waiting",
     d.waiting.map((w) => `- [ ] <!-- shapi:create:${w.advisory.id} --> ${w.advisory.title} (${w.reason}). Tick to open it now.`),
