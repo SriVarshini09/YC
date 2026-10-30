@@ -84,3 +84,4 @@ One line per task: task, summary file, PR, status.
 - PB-35 scans skip SHAPI's own contract tests, so a merged fix stays fixed: [summary](PB-35-skip-generated-tests.md) · PR: [#88](https://github.com/SriVarshini09/YC/pull/88) · merged
 - PB-36 scans use 40% less memory: no token nodes, so a 2 MB repository fits the worker: [summary](PB-36-scan-memory.md) · PR: [#90](https://github.com/SriVarshini09/YC/pull/90) · merged
 - PB-37 APIBreak-Replay v0: replays 14 real API breakages; baseline flag recall 4/14: [summary](PB-37-apibreak-replay-v0.md) · PR: [#91](https://github.com/SriVarshini09/YC/pull/91) · open
+- PB-39 a `{repo}` path parameter holding owner/name matches GitHub advisories (benchmark recall 4/14 to 5/14): [summary](PB-39-repo-fullname-paths.md) · PR: open

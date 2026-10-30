@@ -161,11 +161,25 @@ function segmentsMayMatch(site: string[], pattern: string[]): boolean {
  * unknown value, so it matches a pattern parameter or wildcard but not a literal.
  * Pattern `{?}` matches only a call-site parameter: in `/*\/models/{?}:*` the model is
  * passed at runtime (as the Gemini SDK does), which a path naming the model is not.
+ * Right after `/repos/`, a call-site parameter named for a repository's full name (`{repo}`, `{full_name}`)
+ * may hold `owner/name` and so fill two segments: `/repos/{repo}/pulls` matches `/repos/{owner}/{repo}/pulls`.
  */
 export function pathMatches(endpoint: string, pattern: Pick<EndpointPattern, "path">): boolean {
+  if (matchesPath(endpoint, pattern.path)) return true;
+  const widened = endpoint.replace(FULL_NAME_PARAM, "/repos/{owner}/{$1}");
+  return widened !== endpoint && matchesPath(widened, pattern.path);
+}
+
+/**
+ * Names code gives a variable holding `owner/name`: GitHub's `full_name`, Actions' `github.repository`, a
+ * "slug". Found in a real fix: `f"{api_base}/actions/..."` with `api_base = f".../repos/{repo}"` (APIBreak-Replay).
+ */
+const FULL_NAME_PARAM = /\/repos\/\{((?:github[_.])?repo(?:sitory)?(?:[_-]?(?:full[_-]?name|slug|nwo|path))?|full[_-]?name|slug|nwo|owner[_-]?repo)\}(?=\/|$)/gi;
+
+function matchesPath(endpoint: string, patternPath: string): boolean {
   const sample = endpoint.replace(/\{[^}]*\}/g, "\u0000");
   let re = "";
-  const src = pattern.path;
+  const src = patternPath;
   for (let i = 0; i < src.length; ) {
     if (src.startsWith("{?}", i)) {
       re += "\u0000";
