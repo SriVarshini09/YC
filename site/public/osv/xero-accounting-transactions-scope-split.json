@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-xero-accounting-transactions-scope-split",
+  "modified": "2027-09-13T00:00:00Z",
+  "published": "2027-09-13T00:00:00Z",
+  "summary": "Broad accounting.transactions scope replaced by granular scopes",
+  "details": "Xero split accounting.transactions into granular scopes (invoices, payments, bank transactions, manual journals, classic expenses, each with a .read variant). Apps created after 2026-03-02 must request granular scopes; existing apps keep the broad scopes until September 2027, and each connected user must re-authorize to receive the new ones.\n\nRequest the granular scopes in the authorization URL and have each connection re-authorize before the cutoff.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "xero",
+        "endpoint": {
+          "method": "*",
+          "path": "/api.xro/2.0/**"
+        },
+        "change_class": "scope-change",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2027-09-13"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://devblog.xero.com/upcoming-changes-to-xero-accounting-api-scopes-705c5a9621a0"
+    },
+    {
+      "type": "WEB",
+      "url": "https://www.apideck.com/blog/xero-scopes"
+    }
+  ],
+  "database_specific": {
+    "severity": "medium",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/xero-accounting-transactions-scope-split.json"
+  }
+}

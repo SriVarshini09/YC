@@ -6,6 +6,7 @@ import {
   SEVERITIES,
   SEVERITY_RANK,
   apiLockToCycloneDx,
+  matchToOpenVex,
   createApiLock,
   lintFiles,
   loadAdvisories,
@@ -35,6 +36,8 @@ export interface ScanOptions {
   color?: boolean;
   /** Also write the api.lock as a CycloneDX 1.7 SaaSBOM (S-02). */
   sbom?: string;
+  /** Also write the verdicts as an OpenVEX 0.2.0 document (S-03). */
+  vex?: string;
 }
 
 export interface ScanOutcome {
@@ -74,19 +77,16 @@ export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome
     const extracted = extractCallSites(dir);
     const lock = createApiLock(extracted, `shapi ${VERSION}`);
     if (opts.out) writeApiLock(opts.out, lock);
-    if (opts.sbom) {
-      // The commit, when the directory is a git checkout: it becomes the SBOM's version.
-      let sha: string | undefined;
-      try {
-        sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
-      } catch {
-        sha = undefined;
-      }
-      const name = opts.repo ? label.replace(/^https?:\/\/[^/]+\//, "").replace(/\.git$/, "") : path.basename(dir);
-      writeFileSync(opts.sbom, `${JSON.stringify(apiLockToCycloneDx(lock, { name, sha, toolVersion: VERSION }), null, 2)}\n`);
-    }
+    // The commit, when the directory is a git checkout: the SBOM's version, and the VEX document's call-site links.
+    const sha = opts.sbom || opts.vex ? headSha(dir) : undefined;
+    const name = opts.repo ? label.replace(/^https?:\/\/[^/]+\//, "").replace(/\.git$/, "") : path.basename(dir);
+    if (opts.sbom) writeFileSync(opts.sbom, `${JSON.stringify(apiLockToCycloneDx(lock, { name, sha, toolVersion: VERSION }), null, 2)}\n`);
     const advisories = loadAdvisories(opts.advisories ?? DEFAULT_ADVISORIES);
     const match = matchAdvisories(lock, advisories, { now });
+    if (opts.vex) {
+      const vex = matchToOpenVex(match, advisories, { repo: name, sha, timestamp: now.toISOString().replace(/\.\d{3}Z$/, "Z"), toolVersion: VERSION });
+      writeFileSync(opts.vex, `${JSON.stringify(vex, null, 2)}\n`);
+    }
     const lint = deprecatedNames(dir, advisories, match);
     const failing = failOn === "none" ? [] : match.affected.filter((f) => SEVERITY_RANK[f.advisory.severity] <= SEVERITY_RANK[failOn]);
     const quote = (s: string) => (/\s/.test(s) ? JSON.stringify(s) : s);
@@ -103,6 +103,14 @@ export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome
     };
   } finally {
     if (cleanup) rmSync(cleanup, { recursive: true, force: true });
+  }
+}
+
+function headSha(dir: string): string | undefined {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  } catch {
+    return undefined;
   }
 }
 

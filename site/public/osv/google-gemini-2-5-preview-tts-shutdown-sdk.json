@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-google-gemini-2-5-preview-tts-shutdown-sdk",
+  "modified": "2026-11-17T00:00:00Z",
+  "published": "2026-11-17T00:00:00Z",
+  "summary": "Gemini 2.5 preview TTS models shut down on 2026-11-17 (model in the request body)",
+  "details": "Google shuts down gemini-2.5-flash-preview-tts and gemini-2.5-pro-preview-tts on 2026-11-17. After that the models are turned off and speech-generation calls that name them fail. This advisory covers calls that pass the model as a parameter, as the @google/genai SDK does (ai.models.generateContent({ model })); google-gemini-2-5-preview-tts-shutdown covers calls that name the model in the path.\n\nSwitch to gemini-3.8-flash-tts or gemini-3.8-flash-lite-tts before 2026-11-17; the current speech-generation docs send the model in the body of POST /v1beta/interactions. Re-check voice names and how you decode the returned audio.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "google-gemini",
+        "endpoint": {
+          "method": "POST",
+          "path": "/*/models/{?}:*"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "body": [
+            {
+              "field": "model",
+              "values": [
+                "gemini-2.5-flash-preview-tts",
+                "gemini-2.5-pro-preview-tts",
+                "models/gemini-2.5-flash-preview-tts",
+                "models/gemini-2.5-pro-preview-tts"
+              ]
+            }
+          ]
+        },
+        "effective_date": "2026-11-17"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations"
+    },
+    {
+      "type": "WEB",
+      "url": "https://ai.google.dev/gemini-api/docs/speech-generation"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/google-gemini-2-5-preview-tts-shutdown-sdk.json"
+  }
+}

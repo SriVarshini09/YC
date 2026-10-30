@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-anthropic-api-version-2026-10-21-sampling-params-400",
+  "modified": "2026-10-21T00:00:00Z",
+  "published": "2026-10-21T00:00:00Z",
+  "summary": "anthropic-version 2026-10-21 rejects temperature, top_p and top_k with 400",
+  "details": "API version 2026-10-21 (released 2026-10-21 and sent by default by the new major SDK versions) removes temperature, top_p and top_k from the Messages API: any request that sends one of them returns 400, even at the default value. The same version also returns 400 for document blocks in assistant messages and for citations on user text blocks. Requests that stay on 2023-06-01 are unchanged.\n\nBefore sending anthropic-version: 2026-10-21 or upgrading to the new SDK majors (Python 2.0.0, TypeScript 1.0.0, Go 2.0.0, Java 3.0.0, Ruby 2.0.0, PHP 1.0.0, C# 13.0.0), remove temperature, top_p and top_k from Messages, token-counting and batch requests, move document blocks into user messages, and drop citations from user text blocks. If a request depends on a non-default temperature, keep that request on 2023-06-01.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "anthropic",
+        "endpoint": {
+          "method": "POST",
+          "path": "/v1/messages"
+        },
+        "change_class": "status-code",
+        "trigger": {
+          "headers": [
+            {
+              "name": "anthropic-version",
+              "values": [
+                "2026-10-21"
+              ]
+            }
+          ]
+        },
+        "effective_date": "2026-10-21"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://platform.claude.com/docs/en/release-notes/overview"
+    },
+    {
+      "type": "WEB",
+      "url": "https://platform.claude.com/docs/en/api/migration-2026-10-21"
+    },
+    {
+      "type": "WEB",
+      "url": "https://platform.claude.com/docs/en/api/versioning"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/anthropic-api-version-2026-10-21-sampling-params-400.json"
+  }
+}

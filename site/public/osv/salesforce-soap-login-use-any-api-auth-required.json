@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-salesforce-soap-login-use-any-api-auth-required",
+  "modified": "2026-12-01T00:00:00Z",
+  "published": "2025-08-25T00:00:00Z",
+  "summary": "SOAP login() requires the Use Any API Auth permission from 2026-12-01",
+  "details": "Salesforce enforces a new control on SOAP API login() in all orgs on 2026-12-01: login() succeeds only for users with the Use Any API Auth user permission, and otherwise is rejected with INSUFFICIENT_ACCESS. It is already the default in new orgs. It applies to login() on the Enterprise (/services/Soap/c/{v}) and Partner (/services/Soap/u/{v}) endpoints in API 31.0-64.0; login() is already unavailable in 65.0 and later.\n\nAssign the Use Any API Auth permission (permission set or profile) to every integration user that still calls SOAP login(), and test with the 'Assign Use Any API Auth Permission for SOAP login()' release update. Plan the real fix at the same time: authenticate through an External Client App with OAuth 2.0 (JWT bearer or client credentials for server-to-server, web server flow for user-driven apps), because login() is retired in Summer '27.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "salesforce",
+        "endpoint": {
+          "method": "POST",
+          "path": "/services/Soap/*/*",
+          "hosts": [
+            "login.salesforce.com",
+            "test.salesforce.com"
+          ]
+        },
+        "change_class": "auth",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-12-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://help.salesforce.com/s/articleView?id=005132110&type=1"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developer.salesforce.com/docs/platform/api/guide/api-eol-soap.html"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/salesforce-soap-login-use-any-api-auth-required.json"
+  }
+}

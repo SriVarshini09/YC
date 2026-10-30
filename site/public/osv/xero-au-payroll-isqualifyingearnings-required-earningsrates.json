@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-xero-au-payroll-isqualifyingearnings-required-earningsrates",
+  "modified": "2026-09-10T00:00:00Z",
+  "published": "2026-09-10T00:00:00Z",
+  "summary": "AU Payroll pay item and earnings rate writes require IsQualifyingEarnings (v2 earningsRates)",
+  "details": "Since 2026-09-10, AU Payroll create and update requests for Earnings Rates and Pay Items must include IsQualifyingEarnings. Requests without it return a 400 validation error, and when it is true the matching super flag must agree. This advisory covers the v2 endpoint POST /payroll.xro/2.0/earningsRates; xero-au-payroll-isqualifyingearnings-required covers POST /payroll.xro/1.0/PayItems.\n\nAdd IsQualifyingEarnings to every earnings rate sent to POST /payroll.xro/1.0/PayItems, and isQualifyingEarnings to POST /payroll.xro/2.0/earningsRates. Keep it consistent with the super flags: when it is true, Pay Items need IsExemptFromSuper false and Earnings Rates need IsSubjectToSuper true. For rates you read and write back, keep the value Xero returned.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "xero",
+        "endpoint": {
+          "method": "POST",
+          "path": "/payroll.xro/2.0/earningsRates"
+        },
+        "change_class": "required-field",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-09-10"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://developer.xero.com/changelog"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developer.xero.com/documentation/api/payrollau/payitems"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developer.xero.com/documentation/api/payrollau/earningsrates"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/xero-au-payroll-isqualifyingearnings-required-earningsrates.json"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-segment-query-function-syntax",
+  "modified": "2026-10-01T00:00:00Z",
+  "published": "2026-10-01T00:00:00Z",
+  "summary": "Shopify segment query functions use MATCHES instead of = true as of API version 2026-10",
+  "details": "As of Admin API version 2026-10, functions in the customer segment query language use MATCHES / NOT MATCHES instead of = true / = false (shopify_email.opened MATCHES ()), function parameters take their own operators, and the named dates 12_months_ago, 90_days_ago, 30_days_ago and 7_days_ago are deprecated.\n\nRewrite segment queries for 2026-10: replace function() = true with function MATCHES () and = false with NOT MATCHES (), move parameters inside the parentheses (products_purchased MATCHES (quantity = 5)), and replace named dates with offsets such as -12m.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "POST",
+          "path": "/admin/api/{version}/graphql.json"
+        },
+        "change_class": "required-field",
+        "trigger": {
+          "graphql": [
+            {
+              "field": "segmentCreate",
+              "operation": "mutation"
+            },
+            {
+              "field": "segmentUpdate",
+              "operation": "mutation"
+            },
+            {
+              "field": "customerSegmentMembers"
+            },
+            {
+              "field": "customerSegmentMembersQueryCreate",
+              "operation": "mutation"
+            }
+          ]
+        },
+        "effective_date": "2026-10-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/updated-function-syntax-on-the-segment-query-language"
+    }
+  ],
+  "database_specific": {
+    "severity": "medium",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-segment-query-function-syntax.json"
+  }
+}

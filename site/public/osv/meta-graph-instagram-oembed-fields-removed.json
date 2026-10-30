@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-meta-graph-instagram-oembed-fields-removed",
+  "modified": "2025-11-03T00:00:00Z",
+  "published": "2025-04-08T00:00:00Z",
+  "summary": "oEmbed responses no longer return author and thumbnail fields",
+  "details": "Since 2025-11-03, on all API versions, Instagram post oEmbed responses (GET /{version}/instagram_oembed) no longer include author_name, author_url, thumbnail_url, thumbnail_width or thumbnail_height. The same fields were removed from Facebook post and video oEmbed (oembed_post, oembed_video), and the Facebook page oEmbed endpoint was deprecated.\n\nStop reading author and thumbnail fields from oEmbed and render the returned html instead. If you need a thumbnail or author, read them from the Instagram Graph API media object for media your app can access, and treat the oEmbed fields as absent.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "meta-graph",
+        "endpoint": {
+          "method": "GET",
+          "path": "/**/instagram_oembed"
+        },
+        "change_class": "field-rename",
+        "trigger": {
+          "fields": [
+            "author_name",
+            "author_url",
+            "thumbnail_url",
+            "thumbnail_width",
+            "thumbnail_height"
+          ]
+        },
+        "effective_date": "2025-11-03"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://developers.facebook.com/docs/instagram-platform/changelog"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developers.facebook.com/docs/instagram-platform/oembed"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/meta-graph-instagram-oembed-fields-removed.json"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-draft-order-warning-price-rule-removed",
+  "modified": "2026-10-01T00:00:00Z",
+  "published": "2026-06-23T00:00:00Z",
+  "summary": "Shopify removes priceRule from DraftOrderDiscountNotAppliedWarning in API version 2026-10",
+  "details": "As of Admin API version 2026-10, the deprecated priceRule field on DraftOrderDiscountNotAppliedWarning (returned by draftOrderCalculate, draftOrderCreate and draftOrderUpdate) is removed, and with it the PriceRule object from the public schema.\n\nSelect discountTitle instead of priceRule { title } and discountCode instead of priceRule { discountCodes { nodes { code } } } on DraftOrderDiscountNotAppliedWarning.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "POST",
+          "path": "/admin/api/{version}/graphql.json"
+        },
+        "change_class": "field-rename",
+        "trigger": {
+          "graphql": [
+            {
+              "field": "priceRule"
+            },
+            {
+              "field": "PriceRule"
+            }
+          ]
+        },
+        "effective_date": "2026-10-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/remove-pricerule-from-draft-order-discount-warning"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-draft-order-warning-price-rule-removed.json"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-order-transaction-total-unsettled-fixed",
+  "modified": "2026-04-24T00:00:00Z",
+  "published": "2026-04-24T00:00:00Z",
+  "summary": "Shopify fixes OrderTransaction.totalUnsettledSet for pending captures",
+  "details": "OrderTransaction.totalUnsettledSet no longer double-counts a pending capture: for a $100 authorization with a $50 pending capture it returns $100, not $150. The fix applies to all API versions at once and only affects multi-capture orders.\n\nCheck any logic that compensated for the inflated totalUnsettledSet on multi-capture orders; the field now returns the amount still capturable.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "POST",
+          "path": "/admin/api/{version}/graphql.json"
+        },
+        "change_class": "field-rename",
+        "trigger": {
+          "graphql": [
+            {
+              "field": "totalUnsettledSet"
+            }
+          ]
+        },
+        "effective_date": "2026-04-24"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/totalunsettledset-calculation-fixed-for-pending-captures"
+    }
+  ],
+  "database_specific": {
+    "severity": "low",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-order-transaction-total-unsettled-fixed.json"
+  }
+}
