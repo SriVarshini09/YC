@@ -4,4 +4,5 @@ export { baselineFrom, checkAgainstBaseline, gateReport, type Baseline, type Gat
 export { okapiRow, okapiTable, removedLines, type OkapiPr, type OkapiRow, type OkapiVerdict } from "./okapi";
 export { scanCommit, scanRepo, withRepoAt } from "./scan";
 export { mirrorUrl, swhHasCommit, swhTarball, type SwhOptions } from "./swh";
-export { changeMatchesRow, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseReleasePage, previewOnly, resourceKey, scoreRelease, type ChangelogEntry, type ChangelogRow, type ReleaseScore, type SpecChange, type SpecChangeKind } from "./spec-replay";
+export { changeMatchesGithubEntry, parseGithubBreakingChanges, scoreGithubReplay, type GithubBreakingEntry, type GithubReplayScore } from "./spec-replay-github";
+export { changeMatchesRow, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseReleasePage, previewOnly, resourceKey, scoreRelease, type ChangelogEntry, type ChangelogRow, type DiffOptions, type ReleaseScore, type SpecChange, type SpecChangeKind } from "./spec-replay";

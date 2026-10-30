@@ -3,19 +3,29 @@ import type { Advisory, ChangeClass } from "@shapi/core";
 /**
  * Spec-history replay (execution plan P-08): diff a provider's published OpenAPI spec across a breaking release and
  * turn what a client could trip over into unverified advisory drafts, then score those against the provider's own
- * changelog. Written for Stripe's spec (form-encoded request bodies, response objects as component schemas).
+ * changelog. Written for Stripe's spec (form-encoded request bodies, response objects as component schemas), and used
+ * for GitHub's too (P-09): JSON bodies, shared parameters under components.parameters, array responses.
  */
 
 type Json = Record<string, unknown>;
 interface OpenApi {
   info: { version: string };
   paths: Record<string, Record<string, Json>>;
-  components: { schemas: Record<string, Json> };
+  components: { schemas: Record<string, Json>; parameters?: Record<string, Json> };
+}
+
+export interface DiffOptions {
+  /**
+   * Also report a status code an operation newly answers (`response-status-added`). GitHub counts a new error status
+   * as breaking (403 becoming 451); Stripe doesn't, so it is off by default.
+   */
+  statusAdded?: boolean;
 }
 
 export type SpecChangeKind =
   | "operation-removed"
   | "response-status-removed"
+  | "response-status-added"
   | "parameter-removed"
   | "parameter-required"
   | "property-removed"
@@ -41,7 +51,7 @@ export interface SpecChange {
 const METHODS = ["get", "post", "put", "patch", "delete"];
 
 /** Everything a client could trip over between two versions of a spec. */
-export function diffSpecs(before: OpenApi, after: OpenApi): SpecChange[] {
+export function diffSpecs(before: OpenApi, after: OpenApi, opts: DiffOptions = {}): SpecChange[] {
   const out: SpecChange[] = [];
   for (const [path, item] of Object.entries(before.paths)) {
     for (const method of METHODS) {
@@ -55,6 +65,11 @@ export function diffSpecs(before: OpenApi, after: OpenApi): SpecChange[] {
       }
       for (const status of Object.keys((old.responses as Json) ?? {})) {
         if (/^2/.test(status) && !((now.responses as Json) ?? {})[status]) out.push({ kind: "response-status-removed", changeClass: "status-code", operation, field: status, detail: `${operation} no longer answers ${status}` });
+      }
+      if (opts.statusAdded) {
+        for (const status of Object.keys((now.responses as Json) ?? {})) {
+          if (status !== "default" && !((old.responses as Json) ?? {})[status]) out.push({ kind: "response-status-added", changeClass: "status-code", operation, field: status, detail: `${operation} can now answer ${status}` });
+        }
       }
       const [oldParams, newParams] = [requestParams(old, before), requestParams(now, after)];
       for (const [name, p] of oldParams) {
@@ -136,8 +151,12 @@ function resolve(s: Json | undefined, spec: OpenApi): Json | undefined {
 
 function removedEnum(o: Json | undefined, n: Json | undefined, a: OpenApi, b: OpenApi): string[] {
   const [ro, rn] = [resolve(o, a), resolve(n, b)];
-  const ev = (s: Json | undefined) => (Array.isArray(s?.enum) ? (s!.enum as unknown[]).map(String) : undefined);
-  const [eo, en] = [ev(ro), ev(rn)];
+  // The enum of the value, or of an array's items (`languages: ["python", …]`).
+  const ev = (s: Json | undefined, spec: OpenApi): string[] | undefined => {
+    if (Array.isArray(s?.enum)) return (s!.enum as unknown[]).map(String);
+    return s?.type === "array" && s.items ? ev(resolve(s.items as Json, spec), spec) : undefined;
+  };
+  const [eo, en] = [ev(ro, a), ev(rn, b)];
   if (!eo || !en) return [];
   return eo.filter((v) => !en.includes(v));
 }
@@ -148,7 +167,11 @@ function removedEnum(o: Json | undefined, n: Json | undefined, a: OpenApi, b: Op
  */
 function requestParams(op: Json, spec: OpenApi): Map<string, { required: boolean; schema?: Json }> {
   const out = new Map<string, { required: boolean; schema?: Json }>();
-  for (const p of (op.parameters as Json[]) ?? []) out.set(String(p.name), { required: p.required === true, schema: p.schema as Json });
+  for (const raw of (op.parameters as Json[]) ?? []) {
+    // GitHub shares parameters: `{ $ref: "#/components/parameters/owner" }`.
+    const p = typeof raw.$ref === "string" ? spec.components.parameters?.[raw.$ref.split("/").pop()!] : raw;
+    if (p?.name) out.set(String(p.name), { required: p.required === true, schema: p.schema as Json });
+  }
   const content = ((op.requestBody as Json)?.content as Record<string, Json>) ?? {};
   const walk = (s: Json | undefined, prefix: string, depth: number) => {
     if (!s || depth > 4) return;
@@ -177,6 +200,7 @@ export function operationsReturning(spec: OpenApi): Map<string, string[]> {
         const add = (s: Json | undefined) => typeof s?.$ref === "string" && refs.add(s.$ref.split("/").pop()!);
         add(schema);
         add(((schema.properties as Record<string, Json>)?.data as Json)?.items as Json);
+        add(schema.items as Json);
         for (const alt of (schema.anyOf as Json[]) ?? []) add(alt);
         for (const r of refs) out.set(r, [...(out.get(r) ?? []), `${method.toUpperCase()} ${path}`]);
       }
@@ -396,17 +420,21 @@ export function scoreRelease(input: {
 /* ---------- drafts ---------- */
 
 /** An unverified advisory draft for a spec change (dashboard-only; never opens a PR until verified, C-03). */
-export function draftAdvisory(c: SpecChange, ctx: { provider: string; version: string; returning: Map<string, string[]>; sources: string[] }): Advisory {
+export function draftAdvisory(c: SpecChange, ctx: { provider: string; providerName?: string; version: string; returning: Map<string, string[]>; sources: string[] }): Advisory {
+  const name = ctx.providerName ?? ctx.provider;
   const ops = c.operation ? [c.operation] : (ctx.returning.get(c.schema ?? "") ?? []);
   const paths = ops.map((o) => o.split(" ")[1]!);
   const method = (c.operation?.split(" ")[0] ?? "*") as Advisory["endpoint"]["method"];
   const common = commonPrefix(paths);
-  const path = paths.length === 1 ? paths[0]! : common && common !== "/" ? `${common.replace(/\/$/, "")}/**` : "/v1/**";
+  const path = paths.length === 1 ? paths[0]! : common && common !== "/" ? `${common.replace(/\/$/, "")}/**` : "/**";
   const trigger: Advisory["trigger"] =
     c.kind === "operation-removed"
       ? { any: true }
       : c.kind === "response-status-removed"
         ? { statusCodes: [Number(c.field)] }
+        : c.kind === "response-status-added"
+          ? // A new status (403 becoming 451) can reach every call: a person narrows the draft when verifying it.
+            { any: true }
         : c.kind === "enum-value-removed" && c.schema
           ? { enums: [{ field: c.field!, values: c.values }] }
           : c.kind === "enum-value-added"
@@ -422,7 +450,7 @@ export function draftAdvisory(c: SpecChange, ctx: { provider: string; version: s
     id: slug,
     provider: ctx.provider,
     title: `${c.detail} in ${ctx.version}`,
-    summary: `Spec-history replay found this change between Stripe's published specs for the previous version and ${ctx.version}: ${c.detail}. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.`,
+    summary: `Spec-history replay found this change between ${name}'s published specs for the previous version and ${ctx.version}: ${c.detail}. Unverified: drafted from the spec alone, not yet checked against ${name}'s changelog or a live response.`,
     endpoint: { method, path },
     changeClass: c.changeClass,
     trigger,

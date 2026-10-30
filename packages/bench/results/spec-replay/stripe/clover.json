@@ -10,11 +10,12 @@
       "sha": "7861d4985575906da4c2c8eafd8572e3bf0a3adf",
       "version": "2025-09-30.clover"
     },
-    "candidates": 15,
+    "candidates": 20,
     "candidatesByKind": {
+      "enum-value-removed": 3,
       "parameter-removed": 6,
       "parameter-required": 1,
-      "enum-value-added": 4,
+      "enum-value-added": 6,
       "property-removed": 3,
       "property-type-changed": 1
     },
@@ -26,8 +27,8 @@
     "previewOnly": 2,
     "breakingMissed": 4,
     "candidatesMatchingBreaking": 5,
-    "candidatesMatchingNonBreaking": 2,
-    "nonBreakingEntriesMatched": 2,
+    "candidatesMatchingNonBreaking": 4,
+    "nonBreakingEntriesMatched": 3,
     "missed": [
       {
         "title": "Removes iterations parameter for subscription schedules",
@@ -97,6 +98,28 @@
     ]
   },
   "changes": [
+    {
+      "kind": "enum-value-removed",
+      "changeClass": "enum-added",
+      "operation": "POST /v1/accounts",
+      "field": "settings.payouts.schedule.weekly_payout_days",
+      "values": [
+        "saturday",
+        "sunday"
+      ],
+      "detail": "POST /v1/accounts no longer accepts settings.payouts.schedule.weekly_payout_days = saturday, sunday"
+    },
+    {
+      "kind": "enum-value-removed",
+      "changeClass": "enum-added",
+      "operation": "POST /v1/accounts/{account}",
+      "field": "settings.payouts.schedule.weekly_payout_days",
+      "values": [
+        "saturday",
+        "sunday"
+      ],
+      "detail": "POST /v1/accounts/{account} no longer accepts settings.payouts.schedule.weekly_payout_days = saturday, sunday"
+    },
     {
       "kind": "parameter-removed",
       "changeClass": "required-field",
@@ -185,6 +208,27 @@
     {
       "kind": "enum-value-added",
       "changeClass": "enum-added",
+      "schema": "payment_intent",
+      "field": "excluded_payment_method_types",
+      "values": [
+        "mb_way",
+        "paypay"
+      ],
+      "detail": "payment_intent.excluded_payment_method_types can now return mb_way, paypay"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payment_link",
+      "field": "payment_method_types",
+      "values": [
+        "paypay"
+      ],
+      "detail": "payment_link.payment_method_types can now return paypay"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
       "schema": "payment_method",
       "field": "type",
       "values": [
@@ -217,9 +261,76 @@
       "schema": "tax_product_registrations_resource_country_options",
       "field": "th",
       "detail": "tax_product_registrations_resource_country_options.th changed from ref:tax_product_registrations_resource_country_options_simplified to ref:tax_product_registrations_resource_country_options_thailand"
+    },
+    {
+      "kind": "enum-value-removed",
+      "changeClass": "enum-added",
+      "schema": "transfer_schedule",
+      "field": "weekly_payout_days",
+      "values": [
+        "saturday",
+        "sunday"
+      ],
+      "detail": "transfer_schedule.weekly_payout_days no longer returns saturday, sunday"
     }
   ],
   "drafts": [
+    {
+      "id": "stripe-clover-enum-value-removed-post-v1-accounts-settings-payouts-schedule-weekly-payout-days",
+      "provider": "stripe",
+      "title": "POST /v1/accounts no longer accepts settings.payouts.schedule.weekly_payout_days = saturday, sunday in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: POST /v1/accounts no longer accepts settings.payouts.schedule.weekly_payout_days = saturday, sunday. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/accounts"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "body": [
+          {
+            "field": "settings.payouts.schedule.weekly_payout_days"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads settings.payouts.schedule.weekly_payout_days before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-enum-value-removed-post-v1-accounts-account-settings-payouts-schedule-weekly-payout-days",
+      "provider": "stripe",
+      "title": "POST /v1/accounts/{account} no longer accepts settings.payouts.schedule.weekly_payout_days = saturday, sunday in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: POST /v1/accounts/{account} no longer accepts settings.payouts.schedule.weekly_payout_days = saturday, sunday. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/accounts/{account}"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "body": [
+          {
+            "field": "settings.payouts.schedule.weekly_payout_days"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads settings.payouts.schedule.weekly_payout_days before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
     {
       "id": "stripe-clover-parameter-removed-post-v1-invoices-create-preview-schedule-details-phases-iterations",
       "provider": "stripe",
@@ -423,7 +534,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: account_requirements_error.code can now return external_request, unsupported_business_type. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -451,7 +562,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: confirmation_tokens_resource_payment_method_preview.type can now return mb_way, paypay. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -518,6 +629,62 @@
       "effectiveDate": "2025-09-30",
       "severity": "medium",
       "migrationNote": "Check the code that reads coupon before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-enum-value-added-payment-intent-excluded-payment-method-types",
+      "provider": "stripe",
+      "title": "payment_intent.excluded_payment_method_types can now return mb_way, paypay in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: payment_intent.excluded_payment_method_types can now return mb_way, paypay. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/payment_intents/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "excluded_payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads excluded_payment_method_types before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-enum-value-added-payment-link-payment-method-types",
+      "provider": "stripe",
+      "title": "payment_link.payment_method_types can now return paypay in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: payment_link.payment_method_types can now return paypay. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/payment_links/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads payment_method_types before moving to 2025-09-30.clover.",
       "sources": [
         "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
         "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
@@ -613,7 +780,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: tax_product_registrations_resource_country_options.th changed from ref:tax_product_registrations_resource_country_options_simplified to ref:tax_product_registrations_resource_country_options_thailand. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -626,6 +793,38 @@
       "effectiveDate": "2025-09-30",
       "severity": "medium",
       "migrationNote": "Check the code that reads th before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-enum-value-removed-transfer-schedule-weekly-payout-days",
+      "provider": "stripe",
+      "title": "transfer_schedule.weekly_payout_days no longer returns saturday, sunday in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: transfer_schedule.weekly_payout_days no longer returns saturday, sunday. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "weekly_payout_days",
+            "values": [
+              "saturday",
+              "sunday"
+            ]
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads weekly_payout_days before moving to 2025-09-30.clover.",
       "sources": [
         "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
         "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AdvisorySchema } from "@shapi/core";
-import { changeMatchesRow, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseReleasePage, previewOnly, resourceKey, scoreRelease, type ChangelogEntry } from "@shapi/bench";
+import { changeMatchesGithubEntry, changeMatchesRow, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseGithubBreakingChanges, parseReleasePage, previewOnly, resourceKey, scoreGithubReplay, scoreRelease, type ChangelogEntry } from "@shapi/bench";
 
 // Execution plan P-08: spec-history replay. Two tiny versions of a Stripe-shaped spec.
 const form = (props: Record<string, unknown>, required: string[] = []) => ({ content: { "application/x-www-form-urlencoded": { schema: { type: "object", properties: props, required } } } });
@@ -145,5 +145,98 @@ describe("spec-history replay (P-08)", () => {
     expect(previewOnly("[x](/api/reserve/plans?api-version=2026-09-30.preview#a) [y](/api/b?api-version=2026-09-30.preview)")).toBe(true);
     expect(previewOnly("[x](/api/a?api-version=2026-09-30.preview) [y](/api/b?api-version=2026-09-30.endive)")).toBe(false);
     expect(previewOnly("A behavior change.")).toBe(false);
+  });
+});
+
+describe("spec-history replay for GitHub (P-09)", () => {
+  const page = [
+    "# Breaking changes",
+    "",
+    "## Version 2026-03-10",
+    "",
+    "* **Remove deprecated `rate` property from rate limit endpoint**",
+    "  The `rate` property has been deprecated since 2021.",
+    "",
+    "  <details>",
+    "  <summary><strong>Affected endpoints</strong></summary>",
+    "",
+    "  * `GET /rate_limit`",
+    "",
+    "  </details>",
+    "",
+    "* **Remove deprecated singular \"assignee\" field from Issue and Pull Request endpoints**",
+    "",
+    "  * `POST /repos/{owner}/{repo}/issues`",
+    "",
+    "* **Change accept repository invitation response from `403` to `451` when blocked by",
+    "  trade controls**",
+    "",
+    "  * `PATCH /user/repository_invitations/{invitation_id}`",
+    "",
+    "* **Deprecate support for the `beta` media type**",
+    "",
+    "## Version 2022-11-28",
+    "",
+    "* **Not this one**",
+  ].join("\n");
+
+  it("reads one version's entries: wrapped titles, affected endpoints, and the names a title quotes", () => {
+    expect(parseGithubBreakingChanges(page, "2026-03-10")).toEqual([
+      { title: "Remove deprecated `rate` property from rate limit endpoint", endpoints: ["GET /rate_limit"], names: ["rate"] },
+      { title: 'Remove deprecated singular "assignee" field from Issue and Pull Request endpoints', endpoints: ["POST /repos/{owner}/{repo}/issues"], names: ["assignee"] },
+      { title: "Change accept repository invitation response from `403` to `451` when blocked by trade controls", endpoints: ["PATCH /user/repository_invitations/{invitation_id}"], names: ["403", "451"] },
+      { title: "Deprecate support for the `beta` media type", endpoints: [], names: ["beta"] },
+    ]);
+  });
+
+  const json = (schema: unknown) => ({ content: { "application/json": { schema } } });
+  const v1 = {
+    info: { version: "2022-11-28" },
+    paths: {
+      "/rate_limit": { get: { responses: { "200": json({ $ref: "#/components/schemas/rate-limit-overview" }) } } },
+      "/repos/{owner}/{repo}/issues": { post: { parameters: [{ $ref: "#/components/parameters/owner" }], requestBody: json({ type: "object", properties: { title: { type: "string" }, assignee: { type: "string" } } }), responses: { "201": json({}) } } },
+      "/user/repository_invitations/{invitation_id}": { patch: { responses: { "204": {}, "403": {} } } },
+      "/repos/{owner}/{repo}/code-scanning/default-setup": { get: { responses: { "200": json({ type: "array", items: { $ref: "#/components/schemas/default-setup" } }) } } },
+    },
+    components: {
+      parameters: { owner: { name: "owner", in: "path", required: true, schema: { type: "string" } } },
+      schemas: {
+        "rate-limit-overview": { type: "object", properties: { rate: { type: "object" }, resources: { type: "object" } } },
+        "default-setup": { type: "object", properties: { languages: { type: "array", items: { type: "string", enum: ["python", "javascript", "javascript-typescript"] } } } },
+      },
+    },
+  };
+  const v2 = structuredClone(v1);
+  delete (v2.components.schemas["rate-limit-overview"].properties as Record<string, unknown>).rate;
+  v2.paths["/repos/{owner}/{repo}/issues"].post.requestBody = json({ type: "object", properties: { title: { type: "string" } } });
+  (v2.paths["/user/repository_invitations/{invitation_id}"].patch.responses as Record<string, unknown>)["451"] = {};
+  v2.components.schemas["default-setup"].properties.languages.items.enum = ["python", "javascript-typescript"];
+
+  it("diffs JSON bodies, shared parameters, array responses and enums on array items; new statuses only when asked", () => {
+    const show = (opts?: { statusAdded?: boolean }) => diffSpecs(v1 as never, v2 as never, opts).map((c) => `${c.kind} ${c.operation ?? c.schema} ${c.field ?? ""} ${c.values?.join(",") ?? ""}`.trim());
+    expect(show()).toEqual([
+      "parameter-removed POST /repos/{owner}/{repo}/issues assignee",
+      "property-removed rate-limit-overview rate",
+      "enum-value-removed default-setup languages javascript",
+    ]);
+    expect(show({ statusAdded: true })).toContain("response-status-added PATCH /user/repository_invitations/{invitation_id} 451");
+    // A shared parameter is read through its $ref: it is there in both versions, so it is not reported.
+    expect(show().some((c) => c.endsWith(" owner"))).toBe(false);
+    expect(operationsReturning(v1 as never).get("default-setup")).toEqual(["GET /repos/{owner}/{repo}/code-scanning/default-setup"]);
+  });
+
+  it("scores entries found, behavior-only and missed, and the changes no entry lists", () => {
+    const changes = diffSpecs(v1 as never, v2 as never, { statusAdded: true });
+    const entries = parseGithubBreakingChanges(page, "2026-03-10");
+    const returning = operationsReturning(v1 as never);
+    expect(changeMatchesGithubEntry(changes.find((c) => c.field === "rate")!, entries[0]!, returning)).toBe(true);
+    expect(changeMatchesGithubEntry(changes.find((c) => c.field === "rate")!, entries[1]!, returning)).toBe(false);
+    const score = scoreGithubReplay({ version: "2026-03-10", previous: "2022-11-28", commit: "abc", changes, entries, returning, supportedVersions: ["2026-03-10", "2022-11-28"] });
+    expect(score).toMatchObject({ breakingEntries: 4, found: 3, behaviorOnly: 1, candidates: 4, candidatesMatching: 3, candidatesUnlisted: 1 });
+    expect(score.missed).toEqual([{ title: "Deprecate support for the `beta` media type", reason: "a behavior change: no field, value or status code in the spec shows it" }]);
+    // Drafts for GitHub changes validate too, with GitHub's name in them.
+    const drafts = changes.map((c) => AdvisorySchema.parse(draftAdvisory(c, { provider: "github", providerName: "GitHub", version: "2026-03-10", returning, sources: ["https://docs.github.com"] })));
+    expect(drafts.every((d) => d.summary.includes("GitHub's published specs") && d.status === "unverified")).toBe(true);
+    expect(drafts.find((d) => d.trigger.any)?.endpoint).toEqual({ method: "PATCH", path: "/user/repository_invitations/{invitation_id}" });
   });
 });

@@ -97,7 +97,7 @@ for (const r of RELEASES) {
 
   const returning = operationsReturning(before);
   const sources = [`https://github.com/${REPO}/blob/${a.sha}/${SPEC}`, `https://github.com/${REPO}/blob/${b.sha}/${SPEC}`];
-  const drafts = changes.map((c) => AdvisorySchema.parse(draftAdvisory(c, { provider: "stripe", version: r.version, returning, sources })));
+  const drafts = changes.map((c) => AdvisorySchema.parse(draftAdvisory(c, { provider: "stripe", providerName: "Stripe", version: r.version, returning, sources })));
   writeFileSync(path.join(outDir, `${r.release}.json`), `${JSON.stringify({ score, changes, drafts }, null, 2)}\n`);
   console.log(`${r.release}: ${changes.length} candidates; breaking rows ${score.breakingFound}/${score.breakingEntries} found, ${score.behaviorOnly} behavior-only`);
 }
