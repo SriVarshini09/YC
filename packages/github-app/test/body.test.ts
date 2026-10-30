@@ -59,6 +59,8 @@ describe("the PR description (D-01)", () => {
     // The parts D-01 asks for, in order.
     const order = ["**GitHub: ", "| Call | Before | After | Where |", "Size: +1 −1 in 1 file · Tier: Review · Confidence: high", "**Checked:** ✅ contract test", "**Could change:**", "What GitHub announced", "Not changed (1)", "Was this pull request useful? [👍 Yes]"];
     expect(order.map((s) => body.indexOf(s)).every((i, n, all) => i >= 0 && (n === 0 || i > all[n - 1]!))).toBe(true);
+    // U-04: a fix whose cell earned AUTO says so.
+    expect(renderPrBody({ advisory, repair, shapeSource: "s", tier: "AUTO" })).toContain("· Tier: Auto ·");
   });
 });
 

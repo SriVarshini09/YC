@@ -1,4 +1,4 @@
-import { getProvider, type Advisory } from "@shapi/core";
+import { getProvider, type Advisory, type Tier } from "@shapi/core";
 import { changedRanges, codeSpan, testCounts, type AdvisoryRepair, type FileChange, type SuiteCheck, type TestRun, type ScopeCheck, type TypeCheck, type UndoCheck } from "@shapi/repair";
 
 export { codeSpan };
@@ -19,6 +19,8 @@ export interface PrBodyInput {
   notChanged?: { file: string; line: number; method: string | null; endpoint: string | null; reason: string }[];
   /** Signed links for the 👍/👎 feedback buttons (D-01); none without the web app. */
   feedback?: { up: string; down: string };
+  /** The fix's tier (U-04): REVIEW unless its cell earned AUTO. */
+  tier?: Tier;
 }
 
 export function prTitle(advisory: Advisory): string {
@@ -62,7 +64,7 @@ export function renderPrBody(input: PrBodyInput): string {
     "|---|---|---|---|",
     ...repair.sites.map(row),
     "",
-    `\`${sizeOf(source)} · Tier: Review · Confidence: ${confidence(repair, fixed)}\``,
+    `\`${sizeOf(source)} · Tier: ${input.tier === "AUTO" ? "Auto" : "Review"} · Confidence: ${confidence(repair, fixed)}\``,
     "",
     checkedLine(repair, fixed),
     "",

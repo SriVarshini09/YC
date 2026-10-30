@@ -46,4 +46,6 @@ When an advisory has several call sites, every site's test runs again on the com
 - A description: what the provider changed, the affected call site, the recipe or model used (with Claude's explanation of its change; it and any code, file path or test output from your repository are shown as plain text), the test run before and after, the type-check result, and the evidence behind the advisory (sources, when it was first observed).
 - A commit marked with `SHAPI-Branch` and `SHAPI-Tree` trailers, built on the commit SHAPI scanned. Pushes to your default branch since then are merged by GitHub as usual, or show as a conflict; the PR never reverts them.
 
+A fix PR opens as a draft unless its recipe, provider and kind of change have earned the AUTO tier on the benchmark; see [Fix tiers](./fix-tiers).
+
 SHAPI never overwrites a branch someone else pushed to (an amended commit counts), and never reopens a PR you closed without merging. Add the `shapi:stop` label to a PR to stop updates to it.
