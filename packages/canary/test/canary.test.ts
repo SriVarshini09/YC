@@ -107,6 +107,26 @@ describe("runOnce", () => {
     store.close();
   });
 
+  it("emits a value-free shape witness per probe, with the same shape_id while the shape holds (A-01)", async () => {
+    const store = ShapeStore.open(":memory:");
+    let tick = 0;
+    const now = () => new Date(Date.UTC(2025, 11, 18 + tick++));
+    const before = fakeFetch(githubRoutes(() => new Response(null, { status: 204 })));
+    const first = await runOnce({ store, env: dispatchEnv, fetch: before.fn, now, workers: [githubWorker] });
+    const again = await runOnce({ store, env: dispatchEnv, fetch: before.fn, now, workers: [githubWorker] });
+    const after = fakeFetch(githubRoutes(() => json(200, { workflow_run_id: 123, run_url: "https://api.github.com/r/1", html_url: "https://github.com/r/1" })));
+    const changed = await runOnce({ store, env: dispatchEnv, fetch: after.fn, now, workers: [githubWorker] });
+    const dispatch = (r: typeof first) => r.results.find((p) => p.id === "github:workflow-dispatch")!.witness!;
+    expect(dispatch(first)).toMatchObject({ source: "canary", provider: "github", method: "POST", status: 204, body: { kind: "empty" } });
+    expect(first.results.every((r) => r.witness?.shapeId)).toBe(true);
+    expect(dispatch(again).shapeId).toBe(dispatch(first).shapeId);
+    expect(dispatch(again).observedAt).not.toBe(dispatch(first).observedAt);
+    expect(dispatch(changed).shapeId).not.toBe(dispatch(first).shapeId);
+    expect(dispatch(changed).body.fields).toEqual({ $: "object", "$.html_url": "string:url", "$.run_url": "string:url", "$.workflow_run_id": "integer" });
+    expect(JSON.stringify(dispatch(changed))).not.toContain("api.github.com/r/1");
+    store.close();
+  });
+
   it("does not report a change when the same endpoint is called first anonymously, then with a token", async () => {
     const store = ShapeStore.open(":memory:");
     const repoBody = (signedIn: boolean) => ({

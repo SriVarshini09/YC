@@ -1,5 +1,5 @@
 import type { Advisory } from "@shapi/core";
-import { diffShapes, inferShape, providerSalt, type ShapeDiff, type ShapeRepository } from "@shapi/shapes";
+import { diffShapes, inferShape, providerSalt, toWitness, type ShapeDiff, type ShapeRepository, type Witness } from "@shapi/shapes";
 import { draftAdvisory } from "./draft";
 import { probeSource, type Env, type Probe, type Worker } from "./probe";
 import { githubWorker } from "./workers/github";
@@ -21,6 +21,8 @@ export interface ProbeResult {
   endpoint: string;
   status?: number;
   shapeHash?: string;
+  /** The response as a shape witness (A-01): value-free, every key recorded (SHAPI's own test accounts). */
+  witness?: Witness;
   /** The shape differs from the previous observation of this endpoint. */
   changed: boolean;
   /** Hash of the previous observation, when there was one. */
@@ -101,12 +103,17 @@ async function runProbe(
     if (refused) return { ...base, status: res.status, error: refused, ms: Math.round(performance.now() - started) };
     const shape = inferShape({ status: res.status, headers: res.headers, body }, { salt: providerSalt(probe.provider, secret) });
     const source = probeSource(probe);
+    const observedAt = now().toISOString();
+    const witness = toWitness(
+      { status: res.status, headers: res.headers, body },
+      { provider: probe.provider, method: probe.method, pathTemplate: probe.endpoint, source: "canary", observedAt, allow: { keys: "*" } },
+    );
     const previous = await store.latest(probe.provider, probe.method, probe.endpoint, source);
     const stored = await store.record({
       provider: probe.provider,
       method: probe.method,
       endpoint: probe.endpoint,
-      observedAt: now().toISOString(),
+      observedAt,
       source,
       shape,
     });
@@ -117,6 +124,7 @@ async function runProbe(
       ...base,
       status: res.status,
       shapeHash: stored.shapeHash,
+      witness,
       changed,
       previousHash: previous?.shapeHash,
       ...(diff ? { diff } : {}),

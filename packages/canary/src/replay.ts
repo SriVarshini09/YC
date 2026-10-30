@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { HTTP_METHODS } from "@shapi/core";
-import { ShapeStore, diffShapes, inferShape, providerSalt, type ShapeDiff, type StoredObservation } from "@shapi/shapes";
+import { ShapeStore, diffShapes, inferShape, providerSalt, toWitness, type ShapeDiff, type StoredObservation, type Witness } from "@shapi/shapes";
 import { z } from "zod";
 
 /** A recorded sequence of responses from one endpoint, replayed through the canary pipeline. */
@@ -26,6 +26,8 @@ export type Recording = z.infer<typeof RecordingSchema>;
 export interface ReplayResult {
   recording: Recording;
   observations: StoredObservation[];
+  /** Each recorded response as a shape witness (A-01), source "replay". */
+  witnesses: Witness[];
   /** Latest observation and the last one with a different shape; undefined if the shape never changed. */
   before?: StoredObservation;
   after: StoredObservation;
@@ -50,7 +52,10 @@ export function replay(recording: Recording, store: ShapeStore, secret: string):
       shape: inferShape({ status: o.status, headers: o.headers, body: o.body }, { salt }),
     }),
   );
+  const witnesses = recording.observations.map((o) =>
+    toWitness({ status: o.status, headers: o.headers, body: o.body }, { provider, method, pathTemplate: endpoint, source: "replay", observedAt: o.observedAt, allow: { keys: "*" } }),
+  );
   const after = store.latest(provider, method, endpoint, "replay")!;
   const before = store.previousDistinct(provider, method, endpoint, "replay");
-  return { recording, observations, after, before, ...(before ? { diff: diffShapes(before.shape, after.shape) } : {}) };
+  return { recording, observations, witnesses, after, before, ...(before ? { diff: diffShapes(before.shape, after.shape) } : {}) };
 }
