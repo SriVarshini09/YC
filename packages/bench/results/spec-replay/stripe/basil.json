@@ -10,13 +10,13 @@
       "sha": "9fa5188b0933d46d2ac3c601d2d9c50904fb54de",
       "version": "2025-03-31.basil"
     },
-    "candidates": 142,
+    "candidates": 145,
     "candidatesByKind": {
       "enum-value-removed": 2,
       "parameter-removed": 52,
       "operation-removed": 4,
       "parameter-required": 1,
-      "enum-value-added": 10,
+      "enum-value-added": 13,
       "property-removed": 51,
       "schema-removed": 11,
       "property-type-changed": 11
@@ -29,8 +29,8 @@
     "previewOnly": 0,
     "breakingMissed": 3,
     "candidatesMatchingBreaking": 83,
-    "candidatesMatchingNonBreaking": 2,
-    "nonBreakingEntriesMatched": 3,
+    "candidatesMatchingNonBreaking": 4,
+    "nonBreakingEntriesMatched": 4,
     "missed": [
       {
         "title": "Checkout Sessions have lower latency and new update semantics",
@@ -762,6 +762,17 @@
       "detail": "invoiceitem.unit_amount_decimal is gone"
     },
     {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "invoices_payment_settings",
+      "field": "payment_method_types",
+      "values": [
+        "klarna",
+        "nz_bank_account"
+      ],
+      "detail": "invoices_payment_settings.payment_method_types can now return klarna, nz_bank_account"
+    },
+    {
       "kind": "schema-removed",
       "changeClass": "field-rename",
       "schema": "invoices_resource_line_items_credited_items",
@@ -911,6 +922,17 @@
     {
       "kind": "enum-value-added",
       "changeClass": "enum-added",
+      "schema": "payment_link",
+      "field": "payment_method_types",
+      "values": [
+        "billie",
+        "satispay"
+      ],
+      "detail": "payment_link.payment_method_types can now return billie, satispay"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
       "schema": "payment_method",
       "field": "type",
       "values": [
@@ -1044,6 +1066,17 @@
       "schema": "subscription_schedules_resource_default_settings",
       "field": "billing_thresholds",
       "detail": "subscription_schedules_resource_default_settings.billing_thresholds is gone"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "subscriptions_resource_payment_settings",
+      "field": "payment_method_types",
+      "values": [
+        "klarna",
+        "nz_bank_account"
+      ],
+      "detail": "subscriptions_resource_payment_settings.payment_method_types can now return klarna, nz_bank_account"
     },
     {
       "kind": "property-type-changed",
@@ -2730,7 +2763,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: account_requirements_error.code can now return information_missing, invalid_signator, verification_failed_authorizer_authority, verification_rejected_ownership_exemption_reason. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -2758,7 +2791,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: billing_meter_resource_aggregation_settings.formula can now return last. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -2866,7 +2899,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: confirmation_tokens_resource_payment_method_preview.type can now return billie, nz_bank_account, satispay. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -3055,7 +3088,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: the credit_note_tax_amount object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -3471,7 +3504,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: the invoice_tax_amount object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -3495,7 +3528,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: the invoice_transfer_data object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -3643,13 +3676,41 @@
       "status": "unverified"
     },
     {
+      "id": "stripe-basil-enum-value-added-invoices-payment-settings-payment-method-types",
+      "provider": "stripe",
+      "title": "invoices_payment_settings.payment_method_types can now return klarna, nz_bank_account in 2025-03-31.basil",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: invoices_payment_settings.payment_method_types can now return klarna, nz_bank_account. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-03-31",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads payment_method_types before moving to 2025-03-31.basil.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/9fa5188b0933d46d2ac3c601d2d9c50904fb54de/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/5a411d0d1e527229cdb4d6633197ab8009899ce6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
       "id": "stripe-basil-schema-removed-invoices-resource-line-items-credited-items",
       "provider": "stripe",
       "title": "the invoices_resource_line_items_credited_items object is gone in 2025-03-31.basil",
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: the invoices_resource_line_items_credited_items object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -3673,7 +3734,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: the invoices_resource_line_items_proration_details object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -3829,7 +3890,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: issuing_authorization_request.reason can now return network_fallback. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -4165,6 +4226,34 @@
       "status": "unverified"
     },
     {
+      "id": "stripe-basil-enum-value-added-payment-link-payment-method-types",
+      "provider": "stripe",
+      "title": "payment_link.payment_method_types can now return billie, satispay in 2025-03-31.basil",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: payment_link.payment_method_types can now return billie, satispay. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/payment_links/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-03-31",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads payment_method_types before moving to 2025-03-31.basil.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/9fa5188b0933d46d2ac3c601d2d9c50904fb54de/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/5a411d0d1e527229cdb4d6633197ab8009899ce6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
       "id": "stripe-basil-enum-value-added-payment-method-type",
       "provider": "stripe",
       "title": "payment_method.type can now return billie, nz_bank_account, satispay in 2025-03-31.basil",
@@ -4199,7 +4288,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: payment_pages_checkout_session_collected_information.shipping_details changed from ref:shipping|null to ref:payment_pages_checkout_session_checkout_address_details|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4225,7 +4314,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: the period object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4275,7 +4364,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: recurring.aggregate_usage is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4459,7 +4548,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: the subscription_billing_thresholds object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4483,7 +4572,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: the subscription_details_data object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4533,7 +4622,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: the subscription_item_billing_thresholds object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4557,7 +4646,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: subscription_schedule_configuration_item.billing_thresholds is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4583,7 +4672,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: subscription_schedule_phase_configuration.billing_thresholds is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4609,7 +4698,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: subscription_schedule_phase_configuration.coupon is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4635,7 +4724,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: subscription_schedules_resource_default_settings.billing_thresholds is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4655,13 +4744,41 @@
       "status": "unverified"
     },
     {
+      "id": "stripe-basil-enum-value-added-subscriptions-resource-payment-settings-payment-method-types",
+      "provider": "stripe",
+      "title": "subscriptions_resource_payment_settings.payment_method_types can now return klarna, nz_bank_account in 2025-03-31.basil",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: subscriptions_resource_payment_settings.payment_method_types can now return klarna, nz_bank_account. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-03-31",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads payment_method_types before moving to 2025-03-31.basil.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/9fa5188b0933d46d2ac3c601d2d9c50904fb54de/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/5a411d0d1e527229cdb4d6633197ab8009899ce6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
       "id": "stripe-basil-property-type-changed-tax-product-registrations-resource-country-options-ae",
       "provider": "stripe",
       "title": "tax_product_registrations_resource_country_options.ae changed from ref:tax_product_registrations_resource_country_options_default to ref:tax_product_registrations_resource_country_options_default_inbound_goods in 2025-03-31.basil",
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: tax_product_registrations_resource_country_options.ae changed from ref:tax_product_registrations_resource_country_options_default to ref:tax_product_registrations_resource_country_options_default_inbound_goods. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4687,7 +4804,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: tax_product_registrations_resource_country_options.au changed from ref:tax_product_registrations_resource_country_options_default to ref:tax_product_registrations_resource_country_options_default_inbound_goods. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4713,7 +4830,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: tax_product_registrations_resource_country_options.ch changed from ref:tax_product_registrations_resource_country_options_default to ref:tax_product_registrations_resource_country_options_default_inbound_goods. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4739,7 +4856,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: tax_product_registrations_resource_country_options.gb changed from ref:tax_product_registrations_resource_country_options_default to ref:tax_product_registrations_resource_country_options_default_inbound_goods. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4765,7 +4882,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: tax_product_registrations_resource_country_options.jp changed from ref:tax_product_registrations_resource_country_options_default to ref:tax_product_registrations_resource_country_options_default_inbound_goods. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4791,7 +4908,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: tax_product_registrations_resource_country_options.no changed from ref:tax_product_registrations_resource_country_options_default to ref:tax_product_registrations_resource_country_options_default_inbound_goods. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4817,7 +4934,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: tax_product_registrations_resource_country_options.nz changed from ref:tax_product_registrations_resource_country_options_default to ref:tax_product_registrations_resource_country_options_default_inbound_goods. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -4843,7 +4960,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-03-31.basil: tax_product_registrations_resource_country_options.sg changed from ref:tax_product_registrations_resource_country_options_default to ref:tax_product_registrations_resource_country_options_default_inbound_goods. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {

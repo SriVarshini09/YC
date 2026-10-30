@@ -10,10 +10,10 @@
       "sha": "c8faccbde66b784ea916d3c28f5790d7a9c9aee2",
       "version": "2026-09-30.endive"
     },
-    "candidates": 58,
+    "candidates": 66,
     "candidatesByKind": {
       "parameter-removed": 36,
-      "enum-value-added": 16,
+      "enum-value-added": 24,
       "property-removed": 2,
       "property-type-changed": 3,
       "schema-removed": 1
@@ -26,8 +26,8 @@
     "previewOnly": 8,
     "breakingMissed": 10,
     "candidatesMatchingBreaking": 10,
-    "candidatesMatchingNonBreaking": 8,
-    "nonBreakingEntriesMatched": 6,
+    "candidatesMatchingNonBreaking": 14,
+    "nonBreakingEntriesMatched": 9,
     "missed": [
       {
         "title": "Unifies the billing cycle anchor format across Subscriptions and Invoices",
@@ -520,12 +520,55 @@
     {
       "kind": "enum-value-added",
       "changeClass": "enum-added",
+      "schema": "invoices_payment_settings",
+      "field": "payment_method_types",
+      "values": [
+        "blik"
+      ],
+      "detail": "invoices_payment_settings.payment_method_types can now return blik"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payment_intent",
+      "field": "allowed_payment_method_types",
+      "values": [
+        "card_present",
+        "interac_present"
+      ],
+      "detail": "payment_intent.allowed_payment_method_types can now return card_present, interac_present"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payment_intent",
+      "field": "excluded_payment_method_types",
+      "values": [
+        "paypay",
+        "sequra"
+      ],
+      "detail": "payment_intent.excluded_payment_method_types can now return paypay, sequra"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
       "schema": "payment_intent_payment_method_options_blik",
       "field": "setup_future_usage",
       "values": [
         "off_session"
       ],
       "detail": "payment_intent_payment_method_options_blik.setup_future_usage can now return off_session"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payment_link",
+      "field": "payment_method_types",
+      "values": [
+        "paypay",
+        "sequra"
+      ],
+      "detail": "payment_link.payment_method_types can now return paypay, sequra"
     },
     {
       "kind": "enum-value-added",
@@ -555,6 +598,38 @@
         "2.3.1"
       ],
       "detail": "payments_primitives_payment_records_resource_payment_method_card_details_resource_three_d_secure.version can now return 2.3.0, 2.3.1"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "setup_intent",
+      "field": "allowed_payment_method_types",
+      "values": [
+        "card_present",
+        "interac_present"
+      ],
+      "detail": "setup_intent.allowed_payment_method_types can now return card_present, interac_present"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "setup_intent",
+      "field": "excluded_payment_method_types",
+      "values": [
+        "paypay",
+        "sequra"
+      ],
+      "detail": "setup_intent.excluded_payment_method_types can now return paypay, sequra"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "subscriptions_resource_payment_settings",
+      "field": "payment_method_types",
+      "values": [
+        "blik"
+      ],
+      "detail": "subscriptions_resource_payment_settings.payment_method_types can now return blik"
     },
     {
       "kind": "property-type-changed",
@@ -663,6 +738,16 @@
         "rtp"
       ],
       "detail": "treasury.received_credit.network can now return rtp"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "treasury_financial_accounts_resource_financial_address",
+      "field": "supported_networks",
+      "values": [
+        "rtp"
+      ],
+      "detail": "treasury_financial_accounts_resource_financial_address.supported_networks can now return rtp"
     }
   ],
   "drafts": [
@@ -1681,7 +1766,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: account_requirements_error.code can now return invalid_address_cmra_address, invalid_address_registered_agent_address. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -1737,7 +1822,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: bank_connections_resource_account_number_details.status can now return expired, pending. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -1765,7 +1850,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: bank_connections_resource_link_account_session_filters.countries is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -1819,7 +1904,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: checkout_bancontact_payment_method_options.setup_future_usage can now return off_session. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -1847,7 +1932,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: confirmation_tokens_resource_payment_method_preview.type can now return paypay, sequra. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -1875,7 +1960,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: insights_resources_payment_evaluation_outcome.type can now return rerouted. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -1903,7 +1988,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: insights_resources_payment_evaluation_signal_v2.score changed from number to number|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -1923,13 +2008,97 @@
       "status": "unverified"
     },
     {
+      "id": "stripe-endive-enum-value-added-invoices-payment-settings-payment-method-types",
+      "provider": "stripe",
+      "title": "invoices_payment_settings.payment_method_types can now return blik in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: invoices_payment_settings.payment_method_types can now return blik. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-payment-intent-allowed-payment-method-types",
+      "provider": "stripe",
+      "title": "payment_intent.allowed_payment_method_types can now return card_present, interac_present in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payment_intent.allowed_payment_method_types can now return card_present, interac_present. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/payment_intents/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "allowed_payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads allowed_payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-payment-intent-excluded-payment-method-types",
+      "provider": "stripe",
+      "title": "payment_intent.excluded_payment_method_types can now return paypay, sequra in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payment_intent.excluded_payment_method_types can now return paypay, sequra. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/payment_intents/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "excluded_payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads excluded_payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
       "id": "stripe-endive-enum-value-added-payment-intent-payment-method-options-blik-setup-future-usage",
       "provider": "stripe",
       "title": "payment_intent_payment_method_options_blik.setup_future_usage can now return off_session in 2026-09-30.endive",
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payment_intent_payment_method_options_blik.setup_future_usage can now return off_session. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -1944,6 +2113,34 @@
       "effectiveDate": "2026-09-30",
       "severity": "medium",
       "migrationNote": "Check the code that reads setup_future_usage before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-payment-link-payment-method-types",
+      "provider": "stripe",
+      "title": "payment_link.payment_method_types can now return paypay, sequra in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payment_link.payment_method_types can now return paypay, sequra. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/payment_links/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads payment_method_types before moving to 2026-09-30.endive.",
       "sources": [
         "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
         "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
@@ -1985,7 +2182,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payment_method_details_card.mandate changed from string|null to ref:mandate|string|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -2011,7 +2208,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payments_primitives_payment_records_resource_payment_method_card_details_resource_three_d_secure.version can now return 2.3.0, 2.3.1. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -2033,13 +2230,97 @@
       "status": "unverified"
     },
     {
+      "id": "stripe-endive-enum-value-added-setup-intent-allowed-payment-method-types",
+      "provider": "stripe",
+      "title": "setup_intent.allowed_payment_method_types can now return card_present, interac_present in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: setup_intent.allowed_payment_method_types can now return card_present, interac_present. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/setup_intents/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "allowed_payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads allowed_payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-setup-intent-excluded-payment-method-types",
+      "provider": "stripe",
+      "title": "setup_intent.excluded_payment_method_types can now return paypay, sequra in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: setup_intent.excluded_payment_method_types can now return paypay, sequra. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/setup_intents/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "excluded_payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads excluded_payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-subscriptions-resource-payment-settings-payment-method-types",
+      "provider": "stripe",
+      "title": "subscriptions_resource_payment_settings.payment_method_types can now return blik in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: subscriptions_resource_payment_settings.payment_method_types can now return blik. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
       "id": "stripe-endive-property-type-changed-tax-product-registrations-resource-country-options-es",
       "provider": "stripe",
       "title": "tax_product_registrations_resource_country_options.es changed from ref:tax_product_registrations_resource_country_options_europe to ref:tax_product_registrations_resource_country_options_spain in 2026-09-30.endive",
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_registrations_resource_country_options.es changed from ref:tax_product_registrations_resource_country_options_europe to ref:tax_product_registrations_resource_country_options_spain. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -2065,7 +2346,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_registrations_resource_country_options_europe.igic is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -2091,7 +2372,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: the tax_product_registrations_resource_country_options_igic object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "field-rename",
       "trigger": {
@@ -2115,7 +2396,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_registrations_resource_country_options_united_states.type can now return admissions_tax, attendance_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, resort_tax, tourism_tax. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -2143,7 +2424,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_resource_line_item_tax_breakdown.sourcing can now return performance. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -2171,7 +2452,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_resource_line_item_tax_rate_details.tax_type can now return admissions_tax, attendance_tax, digital_excise_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, recycling_fee, resort_tax, tourism_tax, utility_users_tax. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -2199,7 +2480,7 @@
       "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_resource_tax_rate_details.tax_type can now return admissions_tax, attendance_tax, digital_excise_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, recycling_fee, resort_tax, tourism_tax, utility_users_tax. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
       "endpoint": {
         "method": "*",
-        "path": "/v1/**"
+        "path": "/**"
       },
       "changeClass": "enum-added",
       "trigger": {
@@ -2270,6 +2551,34 @@
       "effectiveDate": "2026-09-30",
       "severity": "medium",
       "migrationNote": "Check the code that reads network before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-treasury-financial-accounts-resource-financial-address-supported-networks",
+      "provider": "stripe",
+      "title": "treasury_financial_accounts_resource_financial_address.supported_networks can now return rtp in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: treasury_financial_accounts_resource_financial_address.supported_networks can now return rtp. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "supported_networks"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads supported_networks before moving to 2026-09-30.endive.",
       "sources": [
         "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
         "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
