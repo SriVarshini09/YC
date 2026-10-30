@@ -22,6 +22,7 @@ import {
   withCallBudget,
   type FixRequest,
   type LlmFixer,
+  type SuiteRun,
   type TestRun,
   type Workspace,
 } from "@shapi/repair";
@@ -517,4 +518,52 @@ describe("LLM spend", () => {
     expect(proposal).toEqual({ status: "declined", reason: "src/huge.ts is too large to send to the model (200 kB, limit 200 kB)" });
     expect(called).toBe(false);
   });
+});
+
+describe("repairAdvisory and the repository's own tests (V-01)", () => {
+  const pass: SuiteRun = { passed: true, exitCode: 0, output: " Test Files  1 passed (1)\n      Tests  4 passed (4)\n", command: "npm test" };
+  const fail: SuiteRun = { passed: false, exitCode: 1, output: " × billing > charges 3ms\n Test Files  1 failed (1)\n      Tests  1 failed | 3 passed (4)\n", command: "npm test" };
+
+  /** The demo repo in a local workspace whose test command answers `runs` in order; records what the runner saw. */
+  function withSuite(name: string, runs: SuiteRun[]) {
+    const { dir, callSite } = demoRepo(name);
+    const local = localWorkspace(dir);
+    sandboxes.push(local.location);
+    const seen: { contractTestPresent: boolean }[] = [];
+    let i = 0;
+    const testFile = `test/shapi/${advisory.id}.test.ts`;
+    const ws: Workspace = {
+      ...local,
+      async runSuite() {
+        seen.push({ contractTestPresent: (await local.read(testFile)) !== undefined });
+        return runs[Math.min(i++, runs.length - 1)];
+      },
+    };
+    return { ws, callSite, seen, testFile, local };
+  }
+
+  it("keeps a fix when the repository's tests pass before and after, with SHAPI's test set aside while they run", async () => {
+    const { ws, callSite, seen, testFile, local } = withSuite("suite-pass", [pass, pass]);
+    const repair = await repairAdvisory({ workspace: ws, advisory, callSites: [callSite], ...shapes, recipes: RECIPES });
+    expect(repair.status).toBe("fixed");
+    expect(repair.suite).toMatchObject({ status: "passed", command: "npm test", before: "4 passed", after: "4 passed", runs: 1 });
+    expect(seen).toEqual([{ contractTestPresent: false }, { contractTestPresent: false }]);
+    expect(await local.read(testFile)).toBeDefined();
+  }, 60_000);
+
+  it("rejects every fix when a test that passed before fails after it", async () => {
+    const { ws, callSite } = withSuite("suite-fail", [pass, fail]);
+    const repair = await repairAdvisory({ workspace: ws, advisory, callSites: [callSite], ...shapes, recipes: RECIPES });
+    expect(repair.status).toBe("none");
+    expect(repair.changes).toEqual([]);
+    expect(repair.suite).toMatchObject({ status: "failed", runs: 3 });
+    expect(repair.sites[0]!.result).toMatchObject({ status: "rejected", reason: "the repository's own tests fail after the change: tests that passed before the change fail after it: billing > charges" });
+  }, 60_000);
+
+  it("says the tests were not run when the repository has no test command", async () => {
+    const { ws, callSite } = withSuite("suite-none", []);
+    const repair = await repairAdvisory({ workspace: { ...ws, runSuite: async () => undefined }, advisory, callSites: [callSite], ...shapes, recipes: RECIPES });
+    expect(repair.status).toBe("fixed");
+    expect(repair.suite).toMatchObject({ status: "not-run", detail: "the repository has no test command (no test script in package.json)" });
+  }, 60_000);
 });

@@ -1,5 +1,5 @@
 import type { Advisory } from "@shapi/core";
-import { codeSpan, testCounts, type AdvisoryRepair, type TestRun, type TypeCheck } from "@shapi/repair";
+import { codeSpan, testCounts, type AdvisoryRepair, type SuiteCheck, type TestRun, type TypeCheck } from "@shapi/repair";
 
 export { codeSpan };
 
@@ -59,6 +59,8 @@ export function renderPrBody({ advisory, repair, shapeSource }: PrBodyInput): st
         `| \`${s.result.test?.file}\` | ${cell(summary(s.result.baseline))} | ${cell(summary(s.result.attempts.find((a) => a.outcome === "passed")?.run))} | ${cell(typeSummary(s.result.typecheck))} |`,
     ),
     "",
+    suiteLine(repair.suite),
+    "",
     "### Evidence",
     "| | |",
     "|---|---|",
@@ -88,6 +90,19 @@ export function cell(text: string): string {
 function typeSummary(check: TypeCheck | undefined): string {
   if (!check) return "not run";
   return `${check.status === "passed" ? "pass" : check.status === "failed" ? "fail" : "skipped"}: ${codeSpan(check.detail, 300)}`;
+}
+
+/**
+ * The repository's own tests before and after the change. Only the runner's counts and SHAPI's own words
+ * appear: the names of failing tests come from output the repository's code prints to, so they stay out.
+ */
+export function suiteLine(suite: SuiteCheck | undefined): string {
+  if (!suite || suite.status === "not-run") return `**Your tests:** ⚪ not run: ${suite?.detail ?? "not checked"}.`;
+  const parts = [...(suite.before ? [`before: ${codeSpan(suite.before)}`] : []), ...(suite.after ? [`after: ${codeSpan(suite.after)}`] : [])];
+  const counts = parts.length ? ` (${parts.join("; ")})` : "";
+  const command = suite.command ? ` ${codeSpan(suite.command)}` : "";
+  const flaky = (suite.runs ?? 1) > 1 ? `, after ${suite.runs} runs (a flaky test)` : "";
+  return `**Your tests:** ✅${command} passes with this change${flaky}${counts}.`;
 }
 
 /** The verdict and vitest's counts; nothing else from the output, which the repository's code prints to. */
