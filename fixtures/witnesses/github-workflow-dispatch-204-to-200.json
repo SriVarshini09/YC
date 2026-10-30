@@ -1,0 +1,77 @@
+[
+  {
+    "schema": "https://shapi.dev/schema/witness-v1.json",
+    "provider": "github",
+    "apiVersion": "2022-11-28",
+    "method": "POST",
+    "pathTemplate": "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+    "status": 204,
+    "headerNames": [
+      "x-github-api-version-selected",
+      "x-github-media-type"
+    ],
+    "deprecation": null,
+    "sunset": null,
+    "body": {
+      "kind": "empty",
+      "fields": {}
+    },
+    "mapCollapsed": [],
+    "dropped": 0,
+    "observedAt": "2025-12-18T09:00:00Z",
+    "source": "replay",
+    "shapeId": "9bd9a73990beff258042a72c6a80a52cf2e10d076cc371d6437b2cec41824180"
+  },
+  {
+    "schema": "https://shapi.dev/schema/witness-v1.json",
+    "provider": "github",
+    "apiVersion": "2022-11-28",
+    "method": "POST",
+    "pathTemplate": "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+    "status": 204,
+    "headerNames": [
+      "x-github-api-version-selected",
+      "x-github-media-type"
+    ],
+    "deprecation": null,
+    "sunset": null,
+    "body": {
+      "kind": "empty",
+      "fields": {}
+    },
+    "mapCollapsed": [],
+    "dropped": 0,
+    "observedAt": "2025-12-18T21:00:00Z",
+    "source": "replay",
+    "shapeId": "9bd9a73990beff258042a72c6a80a52cf2e10d076cc371d6437b2cec41824180"
+  },
+  {
+    "schema": "https://shapi.dev/schema/witness-v1.json",
+    "provider": "github",
+    "apiVersion": "2022-11-28",
+    "method": "POST",
+    "pathTemplate": "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+    "status": 200,
+    "headerNames": [
+      "content-type",
+      "x-github-api-version-selected",
+      "x-github-media-type"
+    ],
+    "deprecation": null,
+    "sunset": null,
+    "body": {
+      "kind": "json",
+      "fields": {
+        "$": "object",
+        "$.html_url": "string:url",
+        "$.run_url": "string:url",
+        "$.workflow_run_id": "integer"
+      }
+    },
+    "mapCollapsed": [],
+    "dropped": 0,
+    "observedAt": "2025-12-19T09:00:00Z",
+    "source": "replay",
+    "shapeId": "2e7b1eb406673af6cedcf80aa3e811041e1c0b51b374478b3efaf94b765e0e5c"
+  }
+]
