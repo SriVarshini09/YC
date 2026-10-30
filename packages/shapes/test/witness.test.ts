@@ -100,6 +100,18 @@ describe("shape witness (A-01)", () => {
     expect(w).toMatchObject({ deprecation: "2025-01-01T00:00:00.000Z", sunset: "2027-01-21T00:00:00.000Z", apiVersion: "65", body: { kind: "empty", fields: {} } });
   });
 
+  it("records Shopify's deprecation reason and a rel=deprecation or rel=sunset link, and leaves them out when absent (CN-05)", () => {
+    const shopify = toWitness(
+      { status: 200, headers: { "content-type": "application/json", "x-shopify-api-version": "2025-01", "x-shopify-api-deprecated-reason": "https://shopify.dev/changelog/x", link: '<https://example.com/next>; rel="next", <https://shopify.dev/docs/deprecated>; rel="deprecation"; type="text/html"' }, body: "{}" },
+      { ...ctx, provider: "shopify" },
+    );
+    expect(shopify).toMatchObject({ apiVersion: "2025-01", deprecationReason: "https://shopify.dev/changelog/x", deprecationLink: "https://shopify.dev/docs/deprecated" });
+    const plain = toWitness({ status: 200, headers: { "content-type": "application/json" }, body: "{}" }, ctx);
+    expect(plain).not.toHaveProperty("deprecationReason");
+    expect(plain).not.toHaveProperty("deprecationLink");
+    expect(WitnessSchema.parse(shopify)).toEqual(shopify);
+  });
+
   it("is published as JSON Schema at its $id (UPDATE_SCHEMA=1 rewrites it)", () => {
     const file = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "site", "public", "schema", "witness-v1.json");
     const generated = JSON.stringify(witnessJsonSchema(), null, 2) + "\n";

@@ -78,6 +78,23 @@ describe("workers", () => {
 describe("runOnce", () => {
   const dispatchEnv: Env = { ...env, SHAPI_GITHUB_TOKEN: "t", SHAPI_CANARY_REPO: "shapi-dev/canary", SHAPI_CANARY_WORKFLOW: "canary.yml" };
 
+  it("records the Sunset and Deprecation dates an endpoint announces, and flags the new header as a sunset signal (CN-05)", async () => {
+    const store = ShapeStore.open(":memory:");
+    let tick = 0;
+    const now = () => new Date(Date.UTC(2026, 9, 1 + tick++));
+    const quiet = fakeFetch(githubRoutes(() => new Response(null, { status: 204 })));
+    await runOnce({ store, env: {}, fetch: quiet.fn, now, workers: [githubWorker] });
+    const announcing = fakeFetch({
+      ...githubRoutes(() => new Response(null, { status: 204 })),
+      "GET /repos/octocat/Hello-World": () => json(200, { id: 1296269, full_name: "octocat/Hello-World", private: false }, { sunset: "Sun, 31 Jan 2027 23:59:59 GMT", deprecation: "@1782864000", link: '<https://docs.github.com/rest/deprecations>; rel="sunset"' }),
+    });
+    const run = await runOnce({ store, env: {}, fetch: announcing.fn, now, workers: [githubWorker] });
+    const repo = run.results.find((r) => r.id === "github:get-repo")!;
+    expect(repo.witness).toMatchObject({ sunset: "2027-01-31T23:59:59.000Z", deprecation: "2026-07-01T00:00:00.000Z", deprecationLink: "https://docs.github.com/rest/deprecations" });
+    expect(repo.changed).toBe(true);
+    expect(repo.diff?.changes.filter((c) => c.changeClass === "version-sunset").map((c) => c.path).sort()).toEqual(["deprecation", "sunset"]);
+  });
+
   it("stores a shape per probe and flags the probe whose shape changed between runs", async () => {
     const store = ShapeStore.open(":memory:");
     let tick = 0;
