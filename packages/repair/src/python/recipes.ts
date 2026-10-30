@@ -4,8 +4,9 @@ import { applyEdits, codeSpan, swap, type Edit, type RecipeOutcome } from "../re
 
 /**
  * SHAPI's two deterministic recipes for Python call sites (execution plan U-03), on tree-sitter's syntax tree:
- * - `apply-fix`: the new path, query value or header in what the call sends: its URL (a string, an f-string, a
- *   concatenation, or a name assigned one in the same function or module) and its `params=` and `headers=` dicts.
+ * - `apply-fix`: the new path, query value, header or body field in what the call sends: its URL (a string, an f-string, a
+ *   concatenation, or a name assigned one in the same function or module), its `params=` and `headers=` dicts, and
+ *   body fields in its keyword arguments or `json=` dict.
  *   Renamed response fields and enum values are not rewritten in Python yet.
  * - `status-code-accept-set`: `resp.status_code != 204` becomes `resp.status_code not in (200, 204)`, and a tuple,
  *   list or set of codes compared with `in` gains the new ones.
@@ -141,6 +142,58 @@ function applyFixEdits(target: PyNode, advisory: Advisory, where: Where): Edit[]
       // An f-string or a value built at runtime is left alone.
       if (value.namedChildren.some((c) => c?.type === "interpolation")) continue;
       edits.push({ start: value.startIndex, end: value.endIndex, text, note: `${where(value)} ${fix.header.name}: ${swap(value.text, text)}` });
+    }
+  }
+  if (fix.body && call) edits.push(...bodyEdits(call, fix.body, where));
+  return edits;
+}
+
+/**
+ * C-07: the request body fields a fix changes, as an SDK's keyword arguments (`create(model="gpt-4")`) or the keys
+ * of a `json=` or `data=` dict: a value, a name, or the field itself.
+ */
+function bodyEdits(call: PyNode, changes: NonNullable<Fix["body"]>, where: Where): Edit[] {
+  const args = call.childForFieldName("arguments")?.namedChildren.filter((a): a is PyNode => a !== null) ?? [];
+  // Each body field: the node to rename, its value, and the whole entry with its siblings, to remove it.
+  const fields: { name: string; key: PyNode; value: PyNode; entry: PyNode; siblings: PyNode[] }[] = [];
+  for (const a of args) {
+    if (a.type !== "keyword_argument") continue;
+    const name = a.childForFieldName("name");
+    const value = a.childForFieldName("value");
+    if (name && value) fields.push({ name: name.text, key: name, value, entry: a, siblings: args });
+  }
+  for (const d of [dict(argument(call, "json")), dict(argument(call, "data"))]) {
+    const pairs = (d?.namedChildren ?? []).filter((p): p is PyNode => p?.type === "pair");
+    for (const p of pairs) {
+      const key = p.childForFieldName("key");
+      const value = p.childForFieldName("value");
+      if (key?.type === "string" && value) fields.push({ name: unquote(key), key, value, entry: p, siblings: pairs });
+    }
+  }
+  const edits: Edit[] = [];
+  for (const change of changes) {
+    for (const f of fields.filter((x) => x.name === change.field)) {
+      if (change.remove) {
+        // The entry and the comma after it (or before it, for the last one).
+        const i = f.siblings.indexOf(f.entry);
+        const next = f.siblings[i + 1];
+        const start = next ? f.entry.startIndex : (f.siblings[i - 1]?.endIndex ?? f.entry.startIndex);
+        const end = next ? next.startIndex : f.entry.endIndex;
+        edits.push({ start, end, text: "", note: `${where(f.entry)} stop sending ${codeSpan(f.entry.text)}` });
+        continue;
+      }
+      const current = f.value.type === "string" && !f.value.namedChildren.some((c) => c?.type === "interpolation") ? unquote(f.value) : undefined;
+      const to = change.values?.find((v) => v.from === current)?.to;
+      if (to !== undefined) {
+        const quote = f.value.text.endsWith("'") ? "'" : '"';
+        const text = `${quote}${to}${quote}`;
+        edits.push({ start: f.value.startIndex, end: f.value.endIndex, text, note: `${where(f.value)} ${change.field}: ${swap(f.value.text, text)}` });
+      }
+      if (change.rename) {
+        const quote = f.key.text.endsWith("'") ? "'" : '"';
+        const text = f.key.type === "string" ? `${quote}${change.rename}${quote}` : change.rename;
+        edits.push({ start: f.key.startIndex, end: f.key.endIndex, text, note: `${where(f.key)} ${swap(f.key.text, text)}` });
+      }
     }
   }
   return edits;
