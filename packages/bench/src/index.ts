@@ -4,3 +4,4 @@ export { baselineFrom, checkAgainstBaseline, gateReport, type Baseline, type Gat
 export { okapiRow, okapiTable, removedLines, type OkapiPr, type OkapiRow, type OkapiVerdict } from "./okapi";
 export { scanCommit, scanRepo } from "./scan";
 export { mirrorUrl, swhHasCommit, swhTarball, type SwhOptions } from "./swh";
+export { changeMatchesRow, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseReleasePage, previewOnly, resourceKey, scoreRelease, type ChangelogEntry, type ChangelogRow, type ReleaseScore, type SpecChange, type SpecChangeKind } from "./spec-replay";
