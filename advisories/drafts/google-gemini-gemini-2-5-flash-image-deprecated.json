@@ -1,0 +1,32 @@
+{
+  "id": "google-gemini-gemini-2-5-flash-image-deprecated",
+  "provider": "google-gemini",
+  "title": "Google Gemini API deprecated gemini-2.5-flash-image",
+  "summary": "models.dev lists Nano Banana (`gemini-2.5-flash-image`) as deprecated on Google. Calls that send this model will fail once Google Gemini API removes it. Unverified: drafted from models.dev, not yet checked against Google Gemini API's deprecation notice.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/*/models/{?}:*"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "body": [
+      {
+        "field": "model",
+        "values": [
+          "gemini-2.5-flash-image",
+          "models/gemini-2.5-flash-image"
+        ]
+      }
+    ]
+  },
+  "firstObserved": "2026-10-30",
+  "publishedNotice": null,
+  "effectiveDate": "2026-10-30",
+  "severity": "medium",
+  "migrationNote": "Move off gemini-2.5-flash-image before Google Gemini API removes it. Check Google Gemini API's deprecation notice for the shutdown date and the recommended replacement.",
+  "sources": [
+    "https://models.dev/api.json",
+    "https://ai.google.dev/gemini-api/docs/models"
+  ],
+  "status": "unverified"
+}

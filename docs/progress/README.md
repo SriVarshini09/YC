@@ -109,4 +109,5 @@ One line per task: task, summary file, PR, status.
 - PB-60 the promotion rule in code: verified needs provenance plus a witness or a second source; unverified advisories never open PRs (C-03): [summary](PB-60-promotion-rule.md) · PR: open
 - PB-61 spec-history replay for GitHub: 20 of 26 breaking changes of 2026-03-10 found in the spec diff, plus what GitHub does not list (P-09): [summary](PB-61-github-spec-replay.md) · PR: open
 - PB-62 spec-history replay for Twilio (5 of 7 showable breaking lines found) and OpenAI (model deprecations invisible in the spec: 0 of 25), with a summary across four providers (P-10): [summary](PB-62-twilio-openai-spec-replay.md) · PR: open
+- PB-63 models.dev ingest: every model models.dev marks deprecated on a known host becomes an unverified version-sunset draft; 14 on the first run (C-04): [summary](PB-63-models-dev-drafts.md) · PR: open
 - PB-64 recordings expire (expiresIn, 90 days by default) and are re-checked against the latest canary shape; stale ones are flagged on the API changes page (A-02): [summary](PB-64-recording-expiry.md) · PR: open
