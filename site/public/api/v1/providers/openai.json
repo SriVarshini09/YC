@@ -1,0 +1,135 @@
+{
+  "provider": "openai",
+  "name": "OpenAI",
+  "count": 8,
+  "advisories": [
+    {
+      "id": "openai-assistants-api-shutdown",
+      "title": "Assistants API removed on 2026-08-26",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/assistants/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-08-26",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/openai-assistants-api-shutdown",
+      "markdown": "https://shapi.dev/advisories/openai-assistants-api-shutdown.md",
+      "osv": "https://shapi.dev/osv/openai-assistants-api-shutdown.json"
+    },
+    {
+      "id": "openai-assistants-threads-api-shutdown",
+      "title": "Assistants API threads, messages and runs removed on 2026-08-26",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/threads/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-08-26",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/openai-assistants-threads-api-shutdown",
+      "markdown": "https://shapi.dev/advisories/openai-assistants-threads-api-shutdown.md",
+      "osv": "https://shapi.dev/osv/openai-assistants-threads-api-shutdown.json"
+    },
+    {
+      "id": "openai-legacy-gpt-o-series-shutdown-2026-10-23",
+      "title": "gpt-3.5-turbo, gpt-4, gpt-4-turbo, o1, o3-mini and o4-mini shut down on 2026-10-23",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/chat/completions"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-23",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/openai-legacy-gpt-o-series-shutdown-2026-10-23",
+      "markdown": "https://shapi.dev/advisories/openai-legacy-gpt-o-series-shutdown-2026-10-23.md",
+      "osv": "https://shapi.dev/osv/openai-legacy-gpt-o-series-shutdown-2026-10-23.json"
+    },
+    {
+      "id": "openai-legacy-gpt-o-series-shutdown-2026-10-23-responses",
+      "title": "gpt-3.5-turbo, gpt-4, gpt-4-turbo, o1, o3-mini and o4-mini shut down on 2026-10-23 (Responses API)",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/responses"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-23",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/openai-legacy-gpt-o-series-shutdown-2026-10-23-responses",
+      "markdown": "https://shapi.dev/advisories/openai-legacy-gpt-o-series-shutdown-2026-10-23-responses.md",
+      "osv": "https://shapi.dev/osv/openai-legacy-gpt-o-series-shutdown-2026-10-23-responses.json"
+    },
+    {
+      "id": "openai-evals-api-shutdown",
+      "title": "Evals API shuts down on 2026-11-30",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/evals/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-11-30",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/openai-evals-api-shutdown",
+      "markdown": "https://shapi.dev/advisories/openai-evals-api-shutdown.md",
+      "osv": "https://shapi.dev/osv/openai-evals-api-shutdown.json"
+    },
+    {
+      "id": "openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14",
+      "title": "gpt-4o, gpt-4o-mini, gpt-4.1 and gpt-4.1-mini snapshots shut down on 2027-01-14",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/chat/completions"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-01-14",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14",
+      "markdown": "https://shapi.dev/advisories/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14.md",
+      "osv": "https://shapi.dev/osv/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14.json"
+    },
+    {
+      "id": "openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses",
+      "title": "gpt-4o, gpt-4o-mini, gpt-4.1 and gpt-4.1-mini snapshots shut down on 2027-01-14 (Responses API)",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/responses"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-01-14",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses",
+      "markdown": "https://shapi.dev/advisories/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses.md",
+      "osv": "https://shapi.dev/osv/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses.json"
+    },
+    {
+      "id": "openai-audio-translations-endpoint-shutdown",
+      "title": "/v1/audio/translations shuts down on 2027-02-26",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/audio/translations"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-02-26",
+      "severity": "high",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/openai-audio-translations-endpoint-shutdown",
+      "markdown": "https://shapi.dev/advisories/openai-audio-translations-endpoint-shutdown.md",
+      "osv": "https://shapi.dev/osv/openai-audio-translations-endpoint-shutdown.json"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "provider": "hubspot",
+  "name": "HubSpot",
+  "count": 5,
+  "advisories": [
+    {
+      "id": "hubspot-marketing-emails-v1-sunset",
+      "title": "Marketing Email API v1 sunset on 2025-11-01",
+      "endpoint": {
+        "method": "*",
+        "path": "/marketing-emails/v1/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2025-11-01",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/hubspot-marketing-emails-v1-sunset",
+      "markdown": "https://shapi.dev/advisories/hubspot-marketing-emails-v1-sunset.md",
+      "osv": "https://shapi.dev/osv/hubspot-marketing-emails-v1-sunset.json"
+    },
+    {
+      "id": "hubspot-marketing-emails-folderid-removed",
+      "title": "Marketing Email v3 stopped returning folderId on 2026-01-28",
+      "endpoint": {
+        "method": "GET",
+        "path": "/marketing/v3/emails/**"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2026-01-28",
+      "severity": "high",
+      "status": "verified",
+      "fix": "apply-fix",
+      "url": "https://shapi.dev/advisories/hubspot-marketing-emails-folderid-removed",
+      "markdown": "https://shapi.dev/advisories/hubspot-marketing-emails-folderid-removed.md",
+      "osv": "https://shapi.dev/osv/hubspot-marketing-emails-folderid-removed.json"
+    },
+    {
+      "id": "hubspot-contact-lists-v1-sunset",
+      "title": "Contact Lists API v1 retired on 2026-04-30; endpoints return 404",
+      "endpoint": {
+        "method": "*",
+        "path": "/contacts/v1/lists/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-04-30",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/hubspot-contact-lists-v1-sunset",
+      "markdown": "https://shapi.dev/advisories/hubspot-contact-lists-v1-sunset.md",
+      "osv": "https://shapi.dev/osv/hubspot-contact-lists-v1-sunset.json"
+    },
+    {
+      "id": "hubspot-contacts-v1-list-memberships-removed",
+      "title": "v1 contact read endpoints stopped returning list memberships on 2026-04-30",
+      "endpoint": {
+        "method": "GET",
+        "path": "/contacts/v1/contact/**"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2026-04-30",
+      "severity": "high",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/hubspot-contacts-v1-list-memberships-removed",
+      "markdown": "https://shapi.dev/advisories/hubspot-contacts-v1-list-memberships-removed.md",
+      "osv": "https://shapi.dev/osv/hubspot-contacts-v1-list-memberships-removed.json"
+    },
+    {
+      "id": "hubspot-pipelines-v1-sunset",
+      "title": "Pipelines API v1 retired on 2026-12-04",
+      "endpoint": {
+        "method": "*",
+        "path": "/crm-pipelines/v1/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-12-04",
+      "severity": "high",
+      "status": "verified",
+      "fix": "apply-fix",
+      "url": "https://shapi.dev/advisories/hubspot-pipelines-v1-sunset",
+      "markdown": "https://shapi.dev/advisories/hubspot-pipelines-v1-sunset.md",
+      "osv": "https://shapi.dev/osv/hubspot-pipelines-v1-sunset.json"
+    }
+  ]
+}

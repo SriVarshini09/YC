@@ -1,0 +1,39 @@
+{
+  "provider": "anthropic",
+  "name": "Anthropic",
+  "count": 2,
+  "advisories": [
+    {
+      "id": "anthropic-api-version-2026-10-21-sampling-params-400",
+      "title": "anthropic-version 2026-10-21 rejects temperature, top_p and top_k with 400",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/messages"
+      },
+      "changeClass": "status-code",
+      "effectiveDate": "2026-10-21",
+      "severity": "high",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/anthropic-api-version-2026-10-21-sampling-params-400",
+      "markdown": "https://shapi.dev/advisories/anthropic-api-version-2026-10-21-sampling-params-400.md",
+      "osv": "https://shapi.dev/osv/anthropic-api-version-2026-10-21-sampling-params-400.json"
+    },
+    {
+      "id": "anthropic-claude-sonnet-4-5-retirement",
+      "title": "Claude Sonnet 4.5 retires on 2026-11-30",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/messages"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-11-30",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/anthropic-claude-sonnet-4-5-retirement",
+      "markdown": "https://shapi.dev/advisories/anthropic-claude-sonnet-4-5-retirement.md",
+      "osv": "https://shapi.dev/osv/anthropic-claude-sonnet-4-5-retirement.json"
+    }
+  ]
+}

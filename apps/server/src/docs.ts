@@ -19,6 +19,8 @@ const TYPES: Record<string, string> = {
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
   ".txt": "text/plain; charset=utf-8",
+  ".md": "text/markdown; charset=utf-8",
+  ".ics": "text/calendar; charset=utf-8",
   ".xml": "application/xml",
 };
 
@@ -59,7 +61,7 @@ async function serve(req: FastifyRequest, reply: FastifyReply, root: string): Pr
   if (ext === ".html") reply.header("content-security-policy", DOCS_CSP).header("x-frame-options", "DENY");
   // Published JSON Schemas (/schema/advisory.json), OSV records (/osv/<id>.json), overlays and Arazzo workflows:
   // editors, validators and vulnerability and API tools load them from any origin.
-  if (["schema", "osv", "overlays", "arazzo"].some((d) => found.startsWith(path.join(root, d) + path.sep))) reply.header("access-control-allow-origin", "*");
+  if (["schema", "osv", "overlays", "arazzo", "api"].some((d) => found.startsWith(path.join(root, d) + path.sep))) reply.header("access-control-allow-origin", "*");
   return reply.send(await readFile(found));
 }
 
