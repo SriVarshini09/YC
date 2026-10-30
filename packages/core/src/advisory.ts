@@ -93,6 +93,17 @@ export const FixSchema = z
   .refine((f) => Object.values(f).some((v) => v !== undefined), "fix needs at least one change");
 export type Fix = z.infer<typeof FixSchema>;
 
+/** One source as SHAPI fetched it: the words that back the advisory, and a hash of the page they were read from. */
+export const ProvenanceSchema = z.object({
+  url: z.url(),
+  /** Words copied from the page, exactly as it says them. */
+  quote: z.string().min(1),
+  /** SHA-256 of the page body as fetched, hex. */
+  sourceSha256: z.string().regex(/^[0-9a-f]{64}$/),
+  fetchedAt: z.iso.datetime(),
+});
+export type Provenance = z.infer<typeof ProvenanceSchema>;
+
 export const AdvisorySchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   provider: z.string(),
@@ -124,8 +135,36 @@ export const AdvisorySchema = z.object({
       changes: z.array(z.string()),
     })
     .optional(),
+  /** The sources as fetched, each with its quote (execution plan C-02). */
+  provenance: z.array(ProvenanceSchema).optional(),
 });
 export type Advisory = z.infer<typeof AdvisorySchema>;
+
+/** Whether an advisory may become `verified`, and what it lacks if not. */
+export interface PromotionCheck {
+  ok: boolean;
+  missing: string[];
+}
+
+/**
+ * The promotion rule (execution plan C-03): `unverified` becomes `verified` only with provenance, a source fetched with
+ * the quote that backs the advisory, plus a second source on another site or a witness. A witness means SHAPI saw the
+ * change itself: the advisory's `evidence`, or a recorded before/after the caller found (`witnessed`).
+ */
+export function promotionCheck(advisory: Advisory, opts: { witnessed?: boolean } = {}): PromotionCheck {
+  const provenance = advisory.provenance ?? [];
+  const missing: string[] = [];
+  if (!provenance.length) missing.push("provenance: a source fetched with the quote that backs the advisory");
+  const sites = new Set(provenance.map((p) => new URL(p.url).hostname.replace(/^www\./, "")));
+  const witnessed = Boolean(opts.witnessed || advisory.evidence);
+  if (!witnessed && sites.size < 2) missing.push("a witness (SHAPI saw the change) or a second source on another site");
+  return { ok: missing.length === 0, missing };
+}
+
+/** Only verified advisories open pull requests; an unverified one is reported, never fixed on its own. */
+export function opensPullRequests(advisory: Advisory): boolean {
+  return advisory.status === "verified";
+}
 
 /** Load every `*.json` advisory directly in `dir` (subfolders such as `drafts/` are skipped), sorted by id. */
 export function loadAdvisories(dir: string): Advisory[] {

@@ -467,6 +467,24 @@ describe("fixes after an upgrade", () => {
     expect(await scansToRefix(db, "build-6")).toEqual([{ scanId, repositoryId }]);
   }, 120_000);
 
+  it("never opens a pull request for an unverified advisory, even one its recipe can fix (C-03)", async () => {
+    const t = setup();
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    await owner.deleteFrom("findings").where("scan_id", "=", scanId).where("advisory_id", "!=", "github-workflow-dispatch-204-to-200").execute();
+    await owner.updateTable("findings").set({ advisory_id: "github-dispatch-unverified" }).where("scan_id", "=", scanId).execute();
+    const base = loadAdvisories(ADVISORIES).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
+    await upsertAdvisories(db, [{ ...base, id: "github-dispatch-unverified", status: "unverified" }], { reviewed: true, source: "repo" });
+    try {
+      const report = await runFixJob(t.fixDeps, { scanId });
+      expect(report.repairs).toEqual([{ advisoryId: "github-dispatch-unverified", status: "unverified", reason: "the advisory is not verified yet" }]);
+      expect(t.runs).toEqual([]);
+      expect(t.github.pulls).toEqual([]);
+    } finally {
+      await owner.deleteFrom("advisories").where("id", "=", "github-dispatch-unverified").execute();
+    }
+  }, 120_000);
+
   it("leaves findings no recipe can fix alone unless the account opted in to Claude and the worker has a key", async () => {
     const t = setup();
     const scanId = await queueScan(t.github.refs.get("main")!);
