@@ -23,13 +23,18 @@ export interface ProbeResult {
   shapeHash?: string;
   /** The response as a shape witness (A-01): value-free, every key recorded (SHAPI's own test accounts). */
   witness?: Witness;
-  /** The shape differs from the previous observation of this endpoint. */
+  /** The shape differs from the previous observation of this endpoint: a candidate change, not yet drafted. */
   changed: boolean;
+  /**
+   * The change seen in the previous cycle held in this one too (CN-03): it is confirmed, and drafted when breaking.
+   * A probe that answers differently once and then goes back never confirms, so a single flaky response drafts nothing.
+   */
+  confirmed?: boolean;
   /** Hash of the previous observation, when there was one. */
   previousHash?: string;
-  /** What changed, when the shape changed. */
+  /** What changed: this cycle's candidate change, or the change this cycle confirmed. */
   diff?: ShapeDiff;
-  /** Draft advisory, when the change is breaking. */
+  /** Draft advisory, when a confirmed change is breaking. */
   draft?: Advisory;
   error?: string;
   ms: number;
@@ -118,14 +123,18 @@ async function runProbe(
       shape,
     });
     const changed = previous !== undefined && previous.shapeHash !== stored.shapeHash;
-    const diff = changed ? diffShapes(previous.shape, stored.shape) : undefined;
-    const draft = changed && diff ? draftAdvisory({ before: previous, after: stored, diff }) : undefined;
+    // CN-03: the shape before last differs, and the last one matches this one: the change has held for two cycles.
+    const [, last, before] = await store.history(probe.provider, probe.method, probe.endpoint, { limit: 3, source });
+    const confirmed = !changed && last !== undefined && before !== undefined && last.shapeHash === stored.shapeHash && before.shapeHash !== stored.shapeHash;
+    const diff = changed ? diffShapes(previous.shape, stored.shape) : confirmed ? diffShapes(before.shape, stored.shape) : undefined;
+    const draft = confirmed && diff ? draftAdvisory({ before, after: stored, diff }) : undefined;
     return {
       ...base,
       status: res.status,
       shapeHash: stored.shapeHash,
       witness,
       changed,
+      ...(confirmed ? { confirmed } : {}),
       previousHash: previous?.shapeHash,
       ...(diff ? { diff } : {}),
       ...(draft ? { draft } : {}),

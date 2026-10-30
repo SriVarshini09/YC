@@ -78,13 +78,17 @@ describe("jobs", () => {
     const first = await runCanaryJob({ db, env, providers: ["github"], fetch: github(() => new Response(null, { status: 204 })), now });
     expect(first).toMatchObject({ probes: 5, changed: 0, failed: 0, drafts: [] });
 
-    const second = await runCanaryJob({ db, env, providers: ["github"], fetch: github(() => json(200, { workflow_run_id: 1, run_url: "https://x", html_url: "https://y" })), now });
+    const changed = () => github(() => json(200, { workflow_run_id: 1, run_url: "https://x", html_url: "https://y" }));
+    const second = await runCanaryJob({ db, env, providers: ["github"], fetch: changed(), now });
     expect(second.changed).toBe(1);
-    expect(second.drafts).toEqual(["github-workflows-dispatches-status-code-20251218"]);
+    // CN-03: a candidate until the next cycle sees it again.
+    expect(second.drafts).toEqual([]);
+    const third = await runCanaryJob({ db, env, providers: ["github"], fetch: changed(), now });
+    expect(third.drafts).toEqual(["github-workflows-dispatches-status-code-20251218"]);
 
     const store = new PgShapeStore(db);
     const history = await store.history("github", "POST", "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches", { source: "canary:github:token" });
-    expect(history.map((o) => o.shape.status)).toEqual([200, 204]);
+    expect(history.map((o) => o.shape.status)).toEqual([200, 200, 204]);
     const drafts = await listAdvisories(db, { includeDrafts: true });
     expect(drafts.find((a) => a.id === "github-workflows-dispatches-status-code-20251218")).toMatchObject({ status: "unverified", changeClass: "status-code" });
     // drafts never reach matching until reviewed
