@@ -7,3 +7,4 @@ export * from "./deliveries";
 export * from "./policy";
 export * from "./dashboard";
 export * from "./snapshot";
+export * from "./feedback";

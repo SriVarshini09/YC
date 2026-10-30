@@ -9,7 +9,10 @@ import { webRoutes } from "./web/routes";
 
 export interface AppDeps {
   db: Db;
-  config: Pick<Config, "LOG_LEVEL" | "GIT_SHA" | "NODE_ENV" | "githubApp" | "webApp" | "billing"> & Partial<Pick<Config, "docs">> & Partial<Pick<Config, "ANTHROPIC_API_KEY">>;
+  config: Pick<Config, "LOG_LEVEL" | "GIT_SHA" | "NODE_ENV" | "githubApp" | "webApp" | "billing"> &
+    Partial<Pick<Config, "docs">> &
+    Partial<Pick<Config, "ANTHROPIC_API_KEY">> &
+    Partial<Pick<Config, "SHAPI_SHAPE_SECRET">>;
   /** Queue a stored webhook delivery for the worker. */
   enqueueWebhook?: (deliveryId: string) => Promise<void>;
   /** Queue a fix job on a repository's scan (a repository unpaused from the web app). */
@@ -48,7 +51,7 @@ export function buildApp({ db, config, enqueueWebhook, enqueueFix, fetch }: AppD
   webhookRoutes(app, { db, secret: config.githubApp?.webhookSecret, enqueue: enqueueWebhook ?? (async () => {}) });
   const billing: BillingDeps | undefined = config.billing ? { db, stripe: stripeClient(config.billing, { fetch }), config: config.billing } : undefined;
   stripeWebhookRoutes(app, { billing });
-  webRoutes(app, { db, config: config.webApp, fetch, billing, enqueueFix, llmAvailable: Boolean(config.ANTHROPIC_API_KEY) });
+  webRoutes(app, { db, config: config.webApp, fetch, billing, enqueueFix, llmAvailable: Boolean(config.ANTHROPIC_API_KEY), feedbackSecret: config.SHAPI_SHAPE_SECRET });
 
   return app;
 }

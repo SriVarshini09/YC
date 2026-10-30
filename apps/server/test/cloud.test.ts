@@ -360,7 +360,7 @@ describe("cloud fix", () => {
 
     const pr = t.github.pulls.find((p) => p.head.ref === "shapi/github-workflow-dispatch-204-to-200")!;
     expect(pr).toMatchObject({ head: { ref: "shapi/github-workflow-dispatch-204-to-200" }, labels: [{ name: "shapi" }] });
-    expect(pr.body).toContain("### Contract test");
+    expect(pr.body).toContain("**Checked:** ✅ contract test (failed before, passes after)");
     expect(t.github.fileAt(pr.head.ref, "src/deploy.ts")).toContain("![200, 204].includes(res.status)");
     expect(t.github.fileAt(pr.head.ref, "test/shapi/github-workflow-dispatch-204-to-200.test.ts")).toBeTruthy();
     expect(t.github.commits.get(t.github.refs.get(pr.head.ref)!)!.message).toContain("verified in");

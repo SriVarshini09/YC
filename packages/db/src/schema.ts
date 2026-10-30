@@ -172,6 +172,16 @@ export interface FixJobLlmCallsTable {
   created_at: CreatedAt;
 }
 
+/** A 👍/👎 click on a fix PR's feedback link (D-01). Who clicked is not known or kept. */
+export interface PrFeedbackTable {
+  id: Id;
+  account_id: string;
+  repository_id: string;
+  advisory_id: string;
+  vote: "up" | "down";
+  created_at: CreatedAt;
+}
+
 /** Internal: a signed-in web session. The cookie holds the token; this row holds its SHA-256. */
 export interface SessionsTable {
   token_hash: string;
@@ -215,7 +225,8 @@ export interface Database {
   billing: BillingTable;
   stripe_events: StripeEventsTable;
   fix_job_llm_calls: FixJobLlmCallsTable;
+  pr_feedback: PrFeedbackTable;
 }
 
 /** Tables holding one customer's data; row-level security keeps each customer to its own rows. */
-export const TENANT_TABLES = ["accounts", "repositories", "scans", "findings", "fix_prs", "billing"] as const;
+export const TENANT_TABLES = ["accounts", "repositories", "scans", "findings", "fix_prs", "billing", "pr_feedback"] as const;

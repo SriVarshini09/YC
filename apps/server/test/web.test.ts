@@ -7,6 +7,7 @@ import { fakeUserGitHub, type FakeUserInstallation, type FakeUserRepository } fr
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { generateKeyPairSync } from "node:crypto";
 import { buildApp, githubClients, loadConfig, processDelivery, type GitHubClients } from "../src/index";
+import { feedbackLinks, feedbackToken, readFeedbackToken } from "@shapi/github-app";
 import { MARK } from "../src/web/html";
 import { landingPage } from "../src/web/landing";
 import { healthOf, loadAccount, withCatchDetail } from "../src/web/queries";
@@ -119,6 +120,44 @@ async function signIn(app: ReturnType<typeof buildApp>) {
 }
 
 const csrfFrom = (body: string) => /name="csrf" value="([^"]+)"/.exec(body)![1]!;
+
+describe("fix PR feedback (D-01)", () => {
+  const secret = "feedback-test-secret";
+  it("opens a page with one button for a signed link, and stores only the button's post", async () => {
+    const app = buildApp({ db, config: { ...config, SHAPI_SHAPE_SECRET: secret }, fetch: fakeGitHub().fetch });
+    const links = feedbackLinks("https://app.shapi.dev/", secret, { repositoryId: mine.repo, advisoryId: "github-workflow-dispatch-204-to-200" });
+    const url = new URL(links.down);
+    const token = url.searchParams.get("t")!;
+    const count = async () => Number((await owner.selectFrom("pr_feedback").select((e) => e.fn.countAll().as("n")).executeTakeFirstOrThrow()).n);
+    const before = await count();
+    // Opening the link (a person, a link preview or a prefetch) stores nothing.
+    const opened = await app.inject(`${url.pathname}${url.search}`);
+    expect(opened.statusCode).toBe(200);
+    expect(opened.body).toContain("Was this pull request useful?");
+    expect(opened.body).toContain("👎 No, it was not useful");
+    expect(await count()).toBe(before);
+    // The button's post is stored, under the repository's account, with nothing about who sent it.
+    const sent = await app.inject({ method: "POST", url: "/feedback", payload: { t: token, v: "down" } });
+    expect(sent.statusCode).toBe(200);
+    expect(sent.body).toContain("Recorded: this pull request was not useful.");
+    const row = await owner.selectFrom("pr_feedback").select(["account_id", "repository_id", "advisory_id", "vote"]).orderBy("id", "desc").executeTakeFirstOrThrow();
+    expect(row).toEqual({ account_id: mine.account, repository_id: mine.repo, advisory_id: "github-workflow-dispatch-204-to-200", vote: "down" });
+    expect(await count()).toBe(before + 1);
+  });
+
+  it("refuses a forged, tampered or unsigned link, and a server without the secret", async () => {
+    const app = buildApp({ db, config: { ...config, SHAPI_SHAPE_SECRET: secret }, fetch: fakeGitHub().fetch });
+    const forged = feedbackToken("someone-else", { repositoryId: mine.repo, advisoryId: "x" });
+    const good = feedbackToken(secret, { repositoryId: mine.repo, advisoryId: "x" });
+    for (const t of [forged, `${good}x`, "nonsense", ""]) {
+      expect((await app.inject({ method: "POST", url: "/feedback", payload: { t, v: "up" } })).statusCode, t).toBe(400);
+    }
+    expect((await app.inject({ method: "POST", url: "/feedback", payload: { t: good, v: "maybe" } })).statusCode).toBe(400);
+    expect(readFeedbackToken(secret, good)).toEqual({ repositoryId: mine.repo, advisoryId: "x" });
+    const without = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    expect((await without.inject(`/feedback?t=${good}&v=up`)).statusCode).toBe(400);
+  });
+});
 
 describe("config", () => {
   it("enables sign-in with the OAuth client, and requires a strong session secret in production", () => {
