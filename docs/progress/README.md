@@ -105,3 +105,4 @@ One line per task: task, summary file, PR, status.
 - PB-56 spec-history replay for Stripe: what the published spec shows of four breaking releases, drafted as unverified advisories and scored against the changelog (P-08): [summary](PB-56-spec-replay.md) · PR: open
 - PB-57 the GitHub App Setup URL lands on the dashboard of the account just set up, through sign-in if needed (U-01): [summary](PB-57-setup-to-dashboard.md) · PR: open
 - PB-58 the benchmark fixes each flagged instance in the E2B sandbox and reports the fix rate with n and a Wilson interval; first run 0 of 4, with why (P-02): [summary](PB-58-fix-rate.md) · PR: open
+- PB-59 an end-to-end test holds every fix PR's "Not changed (N)" to the advisory's exposed plus possible call sites, each with its reason (D-02): [summary](PB-59-not-changed-count.md) · PR: open
