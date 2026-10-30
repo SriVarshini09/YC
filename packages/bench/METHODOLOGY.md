@@ -26,7 +26,7 @@ Each metric is a share of the scored instances, with its count `k`, the number o
 | Flag recall with possible | The same, also counting `possible`. |
 | Flag recall in scanned files | Flag recall where the evidence line is in a file type SHAPI scans (TypeScript, JavaScript, Python). |
 | Fixed-state precision | SHAPI no longer reports `affected` at the fix commit. A flag that survives the human fix counts as a false positive, even when it is right (see adjudications). |
-| Fix rate | Not measured yet: it needs fixes run in the sandbox (`null` in the results). |
+| Fix rate | Of the instances flagged `affected` at the base commit whose fix was tried (`bench:run -- --fix`), the share SHAPI fixed completely: every affected call site changed, with a contract test that failed before and passes after, in the sandbox with the network off. Sandbox and install failures are left out and counted in `fixErrors`. `null` when fixes did not run. |
 
 ## Running it
 
@@ -34,9 +34,14 @@ Each metric is a share of the scored instances, with its count `k`, the number o
 pnpm --filter @shapi/bench build
 pnpm --filter @shapi/bench bench:build -- --csv <commit-mining-verified.csv>   # only to rebuild the dataset
 pnpm --filter @shapi/bench bench:run
+pnpm --filter @shapi/bench bench:run -- --fix                              # also fix each affected instance in the sandbox
 ```
 
 - **Output:** results go to `results/<shapi version>/<dataset hash>.json`, with the git commit they were produced at.
+- **Fixes (`--fix`):** each instance flagged `affected` at its base commit goes into a sandbox, exactly as the GitHub App's fix job runs it (`scripts/fix.ts`):
+  - dependencies install with only the npm registry reachable, then the network is cut;
+  - SHAPI repairs every affected call site test-first with its recipes, then Claude;
+  - it uses E2B when `E2B_API_KEY` is set, and Claude when `ANTHROPIC_API_KEY` is set, at most `--llm-calls` calls for the run (40 by default). `ANTHROPIC_BASE_URL` and `SHAPI_REPAIR_MODEL` route Claude through a gateway.
 - **Token:** set `GITHUB_TOKEN`, or sign in with `gh`. Archives are downloaded through GitHub's API, which limits unauthenticated use.
 - **Okapi head-to-head:** `pnpm --filter @shapi/bench bench:okapi` scans the base commit of every public Okapi PR and rewrites the table in [OKAPI.md](OKAPI.md) (execution plan P-04).
 
@@ -99,3 +104,17 @@ Each gap becomes a fix in SHAPI's extractor or matcher. Its acceptance test is t
 - **Small, public, hobby-leaning repositories.** Public commit search skews toward small projects, so this is evidence of the pattern, not of market size.
 - **Labels.** The hand labels are one reviewer's judgement. The evidence rule makes the scored set mechanical, but the source classification can be re-checked.
 - **Two incidents only (v0).** Meta, Xero and Reddit instances come next, after hand verification.
+
+## Fix rate, first run
+
+Run on 2026-10-30 at SHAPI 0.3.1 in E2B, Claude through Vercel AI Gateway (`anthropic/claude-fable-5.1`). **0 of 4 fixed** (95% interval 0–49%), and 1 install failure. Claude was never called: each instance stopped before a fix could be tried.
+
+| Instance | Why it was not fixed |
+| --- | --- |
+| `vincentng295/gemini_fbchat` | The call site is Python. SHAPI fixes TypeScript and JavaScript only. |
+| `hfscdogg/outgrow` | The call site is Python. |
+| `pyzz58/gpt-recommendations` | The call site is not inside an exported function, so a contract test cannot call it. |
+| `RCOLKITT/AccountingQB-MCP` | The repository has no root `package.json`, so nothing installed vitest and the contract test could not run. |
+| `tioperfumes07/IH35-TMS` | `npm ci` failed (install failure, left out of the rate). |
+
+These are the work list for the fix rate: Python fixes, a test harness for code outside exported functions, and installs for repositories without a root `package.json` or with a lockfile `npm ci` rejects.

@@ -281,6 +281,19 @@ importers:
       '@shapi/extractor':
         specifier: workspace:*
         version: link:../extractor
+    devDependencies:
+      '@shapi/canary':
+        specifier: workspace:*
+        version: link:../canary
+      '@shapi/repair':
+        specifier: workspace:*
+        version: link:../repair
+      '@shapi/sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
+      '@shapi/shapes':
+        specifier: workspace:*
+        version: link:../shapes
 
   packages/canary:
     dependencies:

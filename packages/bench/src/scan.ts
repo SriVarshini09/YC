@@ -37,6 +37,16 @@ export async function scanCommit(input: ScanCommitInput): Promise<Verdict> {
 
 /** As scanCommit, for every advisory: the call sites SHAPI found and the whole match. */
 export async function scanRepo(input: Omit<ScanCommitInput, "advisoryId">): Promise<{ callSites: number; match: MatchResult }> {
+  return withRepoAt(input, (root) => {
+    const lock = createApiLock(extractCallSites(root), "shapi-bench");
+    return { callSites: lock.callSites.length, match: matchAdvisories(lock, input.advisories, { now: input.now ?? new Date() }) };
+  });
+}
+
+type FetchInput = Omit<ScanCommitInput, "advisoryId" | "advisories">;
+
+/** The repository extracted at the commit into a temporary folder for `fn`, removed afterwards. */
+export async function withRepoAt<T>(input: FetchInput, fn: (root: string) => T | Promise<T>): Promise<T> {
   if (!/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/.test(input.repo)) throw new Error(`not owner/name: ${input.repo}`);
   if (!/^[0-9a-f]{40}$/.test(input.sha)) throw new Error(`not a commit sha: ${input.sha}`);
   const body = await cached(input);
@@ -55,15 +65,14 @@ export async function scanRepo(input: Omit<ScanCommitInput, "advisoryId">): Prom
       // Some entries cannot be created on this file system (a name Windows forbids, a symlink); the rest are scanned.
       if (readdirSync(root).length === 0) throw err;
     }
-    const lock = createApiLock(extractCallSites(root), "shapi-bench");
-    return { callSites: lock.callSites.length, match: matchAdvisories(lock, input.advisories, { now: input.now ?? new Date() }) };
+    return await fn(root);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 }
 
 /** The archive from cacheDir, or downloaded and stored there. Written to a temporary name first, so a partial file is never read. */
-async function cached(input: Omit<ScanCommitInput, "advisoryId">): Promise<Buffer> {
+async function cached(input: FetchInput): Promise<Buffer> {
   if (!input.cacheDir) return downloadOrMirror(input);
   const file = path.join(input.cacheDir, `${input.repo.replace("/", "__")}@${input.sha}.tgz`);
   if (existsSync(file)) return readFileSync(file);
@@ -75,7 +84,7 @@ async function cached(input: Omit<ScanCommitInput, "advisoryId">): Promise<Buffe
 }
 
 /** GitHub's archive, or Software Heritage's when GitHub answers 404 and the mirror is on. */
-async function downloadOrMirror(input: Omit<ScanCommitInput, "advisoryId">): Promise<Buffer> {
+async function downloadOrMirror(input: FetchInput): Promise<Buffer> {
   try {
     return await download(input);
   } catch (err) {
@@ -87,7 +96,7 @@ async function downloadOrMirror(input: Omit<ScanCommitInput, "advisoryId">): Pro
 }
 
 /** The repository archive at the commit, retried twice on network errors and 5xx answers. */
-async function download(input: Omit<ScanCommitInput, "advisoryId">): Promise<Buffer> {
+async function download(input: FetchInput): Promise<Buffer> {
   const doFetch = input.fetch ?? fetch;
   const url = `https://api.github.com/repos/${input.repo}/tarball/${input.sha}`;
   const headers = { accept: "application/vnd.github+json", "user-agent": "shapi-bench", ...(input.token ? { authorization: `Bearer ${input.token}` } : {}) };
