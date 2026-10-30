@@ -1,0 +1,173 @@
+{
+  "name": "canary-backtest",
+  "about": "Execution plan P-11 (§3.3). The canary post-dates these incidents, so each case is a reconstruction: the response before and after the change, as SHAPI's probe would have received it. Values are placeholders; for QuickBooks the field names are illustrative, since the test is that the field set changes with no error status, not which fields. Expected classifications come from SHAPI's reviewed advisory for the case where there is one; SHAPI has none for the Slack rate limit, and no change class for rate limits.",
+  "cycleMinutes": 60,
+  "cases": [
+    {
+      "id": "github-workflow-dispatch-204-to-200",
+      "title": "GitHub workflow_dispatch answers 200 with run details instead of 204",
+      "provider": "github",
+      "method": "POST",
+      "endpoint": "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+      "changedAt": "2025-12-19T00:00:00Z",
+      "sources": [
+        "https://stategraph.com/blog/github-broke-the-contract"
+      ],
+      "expected": {
+        "changeClass": "status-code",
+        "severity": "critical",
+        "advisory": "github-workflow-dispatch-204-to-200"
+      },
+      "probe": {
+        "id": "github:workflow-dispatch"
+      },
+      "before": {
+        "status": 204,
+        "headers": {
+          "x-github-api-version-selected": "2022-11-28"
+        },
+        "body": ""
+      },
+      "after": {
+        "status": 200,
+        "headers": {
+          "x-github-api-version-selected": "2022-11-28",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "body": "{\"workflow_run_id\":1,\"run_url\":\"https://api.github.com/repos/o/r/actions/runs/1\",\"html_url\":\"https://github.com/o/r/actions/runs/1\"}"
+      }
+    },
+    {
+      "id": "github-workflow-dispatch-revert-2026-02-19",
+      "title": "GitHub partially reverts: 204 again unless return_run_details is sent",
+      "provider": "github",
+      "method": "POST",
+      "endpoint": "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+      "changedAt": "2026-02-19T00:00:00Z",
+      "sources": [
+        "https://github.blog/changelog/2026-02-19-workflow-dispatch-api-now-returns-run-ids"
+      ],
+      "expected": {
+        "changeClass": "status-code",
+        "severity": "critical",
+        "advisory": "github-workflow-dispatch-204-to-200"
+      },
+      "probe": {
+        "id": "github:workflow-dispatch"
+      },
+      "before": {
+        "status": 200,
+        "headers": {
+          "x-github-api-version-selected": "2022-11-28",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "body": "{\"workflow_run_id\":1,\"run_url\":\"https://api.github.com/repos/o/r/actions/runs/1\",\"html_url\":\"https://github.com/o/r/actions/runs/1\"}"
+      },
+      "after": {
+        "status": 204,
+        "headers": {
+          "x-github-api-version-selected": "2022-11-28"
+        },
+        "body": ""
+      }
+    },
+    {
+      "id": "quickbooks-minorversion-below-75-ignored",
+      "title": "QuickBooks serves minorversion 75 fields to requests that ask for an older minorversion",
+      "provider": "quickbooks",
+      "method": "GET",
+      "endpoint": "/v3/company/{realmId}/query",
+      "changedAt": "2025-08-01T00:00:00Z",
+      "sources": [
+        "https://www.apideck.com/blog/quickbooks-online-minor-version-75"
+      ],
+      "expected": {
+        "changeClass": "version-sunset",
+        "severity": "high",
+        "advisory": "quickbooks-minorversion-below-75-ignored"
+      },
+      "probe": null,
+      "gap": "No QuickBooks probe yet, and one that sends today's minorversion sees no change. Detecting it needs a sandbox probe that sends minorversion=65 and compares the field set (CN-01).",
+      "before": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": "{\"QueryResponse\":{\"Invoice\":[{\"Id\":\"1\",\"DocNumber\":\"1001\",\"TotalAmt\":10,\"Balance\":10,\"TxnTaxDetail\":{\"TotalTax\":0}}]},\"time\":\"2025-07-31T00:00:00Z\"}"
+      },
+      "after": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": "{\"QueryResponse\":{\"Invoice\":[{\"Id\":\"1\",\"DocNumber\":\"1001\",\"TotalAmt\":10,\"Balance\":10,\"TaxDetail\":{\"TotalTax\":0}}]},\"time\":\"2025-08-01T00:00:00Z\"}"
+      },
+      "probeSees": "after"
+    },
+    {
+      "id": "reddit-logged-out-json-403",
+      "title": "Reddit answers 403 to logged-out .json requests",
+      "provider": "reddit",
+      "method": "GET",
+      "endpoint": "/r/{subreddit}.json",
+      "changedAt": "2026-05-30T00:00:00Z",
+      "sources": [
+        "https://www.reddit.com/r/redditdev/"
+      ],
+      "expected": {
+        "changeClass": "auth",
+        "severity": "high",
+        "advisory": "reddit-logged-out-json-403"
+      },
+      "probe": null,
+      "gap": "No Reddit probe yet. An anonymous GET of a public subreddit's .json would see it on the first cycle after the change.",
+      "before": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json; charset=UTF-8"
+        },
+        "body": "{\"kind\":\"Listing\",\"data\":{\"after\":null,\"children\":[{\"kind\":\"t3\",\"data\":{\"id\":\"a\",\"title\":\"x\"}}]}}"
+      },
+      "after": {
+        "status": 403,
+        "headers": {
+          "content-type": "application/json; charset=UTF-8"
+        },
+        "body": "{\"message\":\"Forbidden\",\"error\":403}"
+      }
+    },
+    {
+      "id": "slack-non-marketplace-rate-limit",
+      "title": "Slack rate-limits conversations.history for apps outside the Marketplace",
+      "provider": "slack",
+      "method": "GET",
+      "endpoint": "/api/conversations.history",
+      "changedAt": "2025-05-29T00:00:00Z",
+      "sources": [
+        "https://api.slack.com/changelog/2025-05-terms-rate-limit-update-and-faq"
+      ],
+      "expected": {
+        "changeClass": "rate-limit",
+        "severity": "high"
+      },
+      "probe": null,
+      "gap": "One request per cycle stays under the new limit, so today's probe keeps seeing 200. A burst probe that sends several requests in a minute would see the 429 (CN-03), but the diff treats 429 as availability, not contract, and SHAPI has no change class for rate limits: both are needed.",
+      "before": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json; charset=utf-8"
+        },
+        "body": "{\"ok\":true,\"messages\":[{\"type\":\"message\",\"ts\":\"1\"}],\"has_more\":false}"
+      },
+      "after": {
+        "status": 429,
+        "headers": {
+          "content-type": "application/json; charset=utf-8",
+          "retry-after": "60"
+        },
+        "body": "{\"ok\":false,\"error\":\"ratelimited\"}"
+      },
+      "probeSees": "before"
+    }
+  ]
+}

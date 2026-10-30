@@ -275,25 +275,25 @@ importers:
 
   packages/bench:
     dependencies:
+      '@shapi/canary':
+        specifier: workspace:*
+        version: link:../canary
       '@shapi/core':
         specifier: workspace:*
         version: link:../core
       '@shapi/extractor':
         specifier: workspace:*
         version: link:../extractor
-    devDependencies:
-      '@shapi/canary':
+      '@shapi/shapes':
         specifier: workspace:*
-        version: link:../canary
+        version: link:../shapes
+    devDependencies:
       '@shapi/repair':
         specifier: workspace:*
         version: link:../repair
       '@shapi/sandbox':
         specifier: workspace:*
         version: link:../sandbox
-      '@shapi/shapes':
-        specifier: workspace:*
-        version: link:../shapes
 
   packages/canary:
     dependencies:

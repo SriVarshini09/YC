@@ -1,0 +1,123 @@
+{
+  "cycleMinutes": 60,
+  "results": [
+    {
+      "id": "github-workflow-dispatch-204-to-200",
+      "title": "GitHub workflow_dispatch answers 200 with run details instead of 204",
+      "expected": {
+        "changeClass": "status-code",
+        "severity": "critical",
+        "advisory": "github-workflow-dispatch-204-to-200"
+      },
+      "classified": {
+        "changeClass": "status-code",
+        "severity": "critical",
+        "breaking": true,
+        "changes": [
+          "breaking: status 204 → 200",
+          "informational: body empty → json",
+          "informational: header content-type: application/json added"
+        ]
+      },
+      "classMatches": true,
+      "severityMatches": true,
+      "probe": "github:workflow-dispatch",
+      "cyclesNow": 1,
+      "cyclesWithProbe": 1
+    },
+    {
+      "id": "github-workflow-dispatch-revert-2026-02-19",
+      "title": "GitHub partially reverts: 204 again unless return_run_details is sent",
+      "expected": {
+        "changeClass": "status-code",
+        "severity": "critical",
+        "advisory": "github-workflow-dispatch-204-to-200"
+      },
+      "classified": {
+        "changeClass": "status-code",
+        "severity": "critical",
+        "breaking": true,
+        "changes": [
+          "breaking: status 200 → 204",
+          "breaking: body json → empty",
+          "informational: header content-type removed"
+        ]
+      },
+      "classMatches": true,
+      "severityMatches": true,
+      "probe": "github:workflow-dispatch",
+      "cyclesNow": 1,
+      "cyclesWithProbe": 1
+    },
+    {
+      "id": "quickbooks-minorversion-below-75-ignored",
+      "title": "QuickBooks serves minorversion 75 fields to requests that ask for an older minorversion",
+      "expected": {
+        "changeClass": "version-sunset",
+        "severity": "high",
+        "advisory": "quickbooks-minorversion-below-75-ignored"
+      },
+      "classified": {
+        "changeClass": "field-rename",
+        "severity": "high",
+        "breaking": true,
+        "changes": [
+          "breaking: field QueryResponse.Invoice[].TxnTaxDetail removed",
+          "non-breaking: field QueryResponse.Invoice[].TaxDetail added (object)"
+        ]
+      },
+      "classMatches": false,
+      "severityMatches": true,
+      "probe": null,
+      "cyclesNow": null,
+      "cyclesWithProbe": 1,
+      "gap": "No QuickBooks probe yet, and one that sends today's minorversion sees no change. Detecting it needs a sandbox probe that sends minorversion=65 and compares the field set (CN-01)."
+    },
+    {
+      "id": "reddit-logged-out-json-403",
+      "title": "Reddit answers 403 to logged-out .json requests",
+      "expected": {
+        "changeClass": "auth",
+        "severity": "high",
+        "advisory": "reddit-logged-out-json-403"
+      },
+      "classified": {
+        "changeClass": "auth",
+        "severity": "critical",
+        "breaking": true,
+        "changes": [
+          "breaking: status 200 → 403"
+        ]
+      },
+      "classMatches": true,
+      "severityMatches": false,
+      "probe": null,
+      "cyclesNow": null,
+      "cyclesWithProbe": 1,
+      "gap": "No Reddit probe yet. An anonymous GET of a public subreddit's .json would see it on the first cycle after the change."
+    },
+    {
+      "id": "slack-non-marketplace-rate-limit",
+      "title": "Slack rate-limits conversations.history for apps outside the Marketplace",
+      "expected": {
+        "changeClass": "rate-limit",
+        "severity": "high"
+      },
+      "classified": {
+        "changeClass": null,
+        "severity": null,
+        "breaking": false,
+        "changes": [
+          "informational: status 200 → 429",
+          "informational: header retry-after added"
+        ]
+      },
+      "classMatches": false,
+      "severityMatches": false,
+      "probe": null,
+      "cyclesNow": null,
+      "cyclesWithProbe": 1,
+      "gap": "One request per cycle stays under the new limit, so today's probe keeps seeing 200. A burst probe that sends several requests in a minute would see the 429 (CN-03), but the diff treats 429 as availability, not contract, and SHAPI has no change class for rate limits: both are needed."
+    }
+  ]
+}
