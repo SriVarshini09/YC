@@ -5,7 +5,8 @@ import type { ResponseShape } from "@shapi/shapes";
 import { BREAKAGE, CONTRACT_DIR, UNTESTABLE, generateContractTest } from "./contract";
 import type { LlmFixer } from "./llm";
 import { runRecipe, type FileChange, type Recipe } from "./recipe";
-import { runFailure, testsRan, type TestRun } from "./runner";
+import { SHAPI_VITEST_CONFIG, runFailure, testsRan, type TestRun } from "./runner";
+import { checkSuite, type SuiteCheck, type SuiteRun } from "./suite";
 import { checkTypes, typeBaseline, type TypeBaseline, type TypeCheck } from "./typecheck";
 import { localWorkspace, type Workspace } from "./workspace";
 
@@ -261,6 +262,18 @@ export interface AdvisoryRepair {
   changes: FileChange[];
   method?: "recipe" | "llm";
   sandbox?: string;
+  /** The repository's own tests before and after the change, when any site was fixed. */
+  suite?: SuiteCheck;
+}
+
+/** The repository's own test run before any change, or why there is none. */
+async function suiteBaseline(ws: Workspace): Promise<{ run?: SuiteRun; unavailable?: string }> {
+  if (!ws.runSuite) return { unavailable: "this workspace cannot run the repository's tests" };
+  try {
+    return { run: await ws.runSuite() };
+  } catch (err) {
+    return { unavailable: `the test command could not start: ${err instanceof Error ? err.message : String(err)}` };
+  }
 }
 
 /**
@@ -281,6 +294,8 @@ export async function repairAdvisory(input: AdvisoryRepairInput): Promise<Adviso
     })
     .sort((a, b) => a.file.localeCompare(b.file) || b.line - a.line || b.column - a.column);
 
+  // Before any change: the repository's tests as they stand, to tell a failure the change causes from one it found.
+  const suiteBefore = await suiteBaseline(ws);
   const originals = new Map<string, string>();
   const sites: SiteRepair[] = [];
   for (const [i, callSite] of order.entries()) {
@@ -307,6 +322,28 @@ export async function repairAdvisory(input: AdvisoryRepairInput): Promise<Adviso
     }
   }
 
+  // The repository's own tests on the combined change (execution plan V-01). SHAPI's contract tests are set
+  // aside while they run, so the repository's runner does not count them; a test that newly fails rejects every fix.
+  let suite: SuiteCheck | undefined;
+  const passing = sites.filter((s) => s.result.status === "fixed");
+  if (passing.length) {
+    suite = suiteBefore.unavailable
+      ? { status: "not-run", detail: suiteBefore.unavailable }
+      : await checkSuite(suiteBefore.run, async () => {
+          const contract = passing.flatMap((s) => (s.result.test ? [s.result.test] : []));
+          for (const t of contract) await ws.remove(t.file);
+          await ws.remove(SHAPI_VITEST_CONFIG);
+          try {
+            return await ws.runSuite!();
+          } finally {
+            for (const t of contract) await ws.write(t.file, t.content);
+          }
+        });
+    if (suite.status === "failed") {
+      for (const s of passing) s.result = { ...s.result, status: "rejected", reason: `the repository's own tests fail after the change: ${suite.detail}` };
+    }
+  }
+
   const fixed = sites.filter((s) => s.result.status === "fixed");
   const needed = sites.filter((s) => s.result.status !== "already-handled");
   const tests = new Set(changed.map((s) => s.result.test?.file));
@@ -326,5 +363,6 @@ export async function repairAdvisory(input: AdvisoryRepairInput): Promise<Adviso
     changes,
     ...(fixed.length ? { method: methods.has("llm") ? ("llm" as const) : ("recipe" as const) } : {}),
     sandbox: ws.location,
+    ...(suite ? { suite } : {}),
   };
 }
