@@ -24,6 +24,8 @@ export interface RepoRow {
   dashboard_issue: number | null;
   paused: boolean;
   pausedFromWeb: boolean;
+  /** SHAPI paused itself: its last PRs here were closed without merging (U-05). */
+  autoPaused?: { at: string; prs: number[] };
   /** The latest scan of any status. */
   scan?: ScanRow;
   /** From the latest successful scan's api.lock: its providers and call-site count (every page), and the lock itself (the repository page, for that repository only). */
@@ -210,7 +212,7 @@ export async function loadAccount(db: Db, accountId: string, opts: { readable: r
     const prs: PrRow[] = prRows.map((p) => ({ ...p, repo: repoName.get(p.repository_id) ?? "", advisory: advisories.get(p.advisory_id), repair: p.repair }));
     const repos: RepoRow[] = repoRows.map((r) => {
       const good = goodByRepo.get(r.id) as { sha: string; providers: unknown; call_sites: number | null; api_lock?: unknown } | undefined;
-      const settings = r.settings as { paused?: boolean; pausedFromWeb?: boolean };
+      const settings = r.settings as { paused?: boolean; pausedFromWeb?: boolean; autoPaused?: { at: string; prs: number[] } | null };
       const lockParsed = good?.api_lock ? ApiLockSchema.safeParse(good.api_lock) : undefined;
       const providers = good?.providers ? ApiLockSchema.shape.providers.safeParse(good.providers) : undefined;
       const mine = findings.filter((f) => f.repository_id === r.id);
@@ -227,6 +229,7 @@ export async function loadAccount(db: Db, accountId: string, opts: { readable: r
         dashboard_issue: r.dashboard_issue,
         paused: settings.paused === true,
         pausedFromWeb: settings.pausedFromWeb === true,
+        ...(settings.paused === true && settings.autoPaused ? { autoPaused: settings.autoPaused } : {}),
         scan: latest.find((s) => s.repository_id === r.id),
         providers: providers?.success ? providers.data : [],
         callSites: Number(good?.call_sites ?? 0),

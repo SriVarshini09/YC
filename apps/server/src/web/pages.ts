@@ -146,7 +146,7 @@ export function repositoryPage(data: AccountData, repo: RepoRow, detail: RepoDet
   const actions = html`<a class="button" href="https://github.com/${repo.full_name}">${ICONS.external} GitHub</a>${
     repo.dashboard_issue ? html`<a class="button" href="https://github.com/${repo.full_name}/issues/${repo.dashboard_issue}">Dashboard issue #${repo.dashboard_issue}</a>` : EMPTY
   }${pause}`;
-  const flags = html`${repo.private ? tag("private", "plain") : tag("public", "plain")}${repo.pausedFromWeb ? tag("paused here", "warn") : EMPTY}${repo.paused ? tag("paused from the dashboard issue", "warn") : EMPTY}${repo.enabled ? EMPTY : tag("archived", "")}`;
+  const flags = html`${repo.private ? tag("private", "plain") : tag("public", "plain")}${repo.pausedFromWeb ? tag("paused here", "warn") : EMPTY}${repo.autoPaused ? tag("paused by SHAPI", "warn") : repo.paused ? tag("paused from the dashboard issue", "warn") : EMPTY}${repo.enabled ? EMPTY : tag("archived", "")}`;
   const kv = (k: string, v: Html | string) => html`<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`;
   const strip = html`<div class="card strip">
 ${kv("Last scan", repo.scan ? html`${stateTag(repo.scan.status)} <a class="mono" href="${commitUrl(repo.full_name, repo.scan.sha)}">${shortSha(repo.scan.sha)}</a> <span class="muted small">${timeAgo(repo.scan.finished_at ?? repo.scan.created_at, data.now)}</span>` : html`<span class="muted">pending</span>`)}
@@ -158,6 +158,7 @@ ${kv("Fixes to review", String(repo.openPrs))}
   return html`${crumbs([{ label: "Overview", href: b }, { label: "Repositories", href: `${b}/repositories` }, { label: repo.full_name }])}
 ${head(repo.full_name, "", actions)}
 <div>${flags}${repo.pausedFromWeb || repo.paused ? html` <span class="note">Scans continue; no PRs are opened or updated while paused.</span>` : EMPTY}</div>
+${repo.autoPaused ? html`<p class="note">SHAPI paused itself on ${repo.autoPaused.at.slice(0, 10)}: its last ${repo.autoPaused.prs.length} fix PRs here were closed without merging. Untick the pause box on the repository's SHAPI Dashboard issue to resume.</p>` : EMPTY}
 ${strip}
 ${section("API calls by provider", callSitesByProvider(data, repo, findings, prs))}
 ${repo.lock ? html`<p class="note"><a href="${accountHref(data)}/r/${repo.id}/sbom.cdx.json" download>Download the API inventory (CycloneDX 1.7 SaaSBOM)</a> · from the scan of <span class="mono">${shortSha(repo.lockSha ?? "")}</span></p>` : EMPTY}

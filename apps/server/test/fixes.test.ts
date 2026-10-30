@@ -295,6 +295,74 @@ describe("fix delivery", () => {
     expect(t.github.fileAt("shapi/crit", "src/a.ts")).toBe("theirs again\n");
   });
 
+  it("pauses a repository whose last three SHAPI PRs were closed unmerged, says why on the dashboard, and starts fresh on resume (U-05)", async () => {
+    const t = setup();
+    const now = new Date("2026-10-30T12:00:00Z");
+    // Three PRs over two hours (two per hour).
+    await deliverRepoFixes(t.deps, { repositoryId, fixes, now });
+    await deliverRepoFixes(t.deps, { repositoryId, fixes, now: new Date(now.getTime() + 2 * 3600_000) });
+    expect(t.github.pulls).toHaveLength(3);
+    const account = await owner.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow();
+    const scan = await owner
+      .insertInto("scans")
+      .values({ account_id: account.account_id, repository_id: repositoryId, sha: "a".repeat(40), status: "succeeded", api_lock: JSON.stringify({ callSites: [] }), finished_at: new Date() })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+    const close = async (i: number) => {
+      t.github.close(t.github.pulls[i]!.number);
+      const id = randomUUID();
+      await db.insertInto("webhook_deliveries").values({ delivery_id: id, event: "pull_request", action: "closed", installation_id: 42, payload: JSON.stringify({ action: "closed", pull_request: { ...t.github.pulls[i]!, merged: false }, repository: { id: 777 } }) }).execute();
+      return processDelivery(t.deps, id);
+    };
+    const settings = async () => (await owner.selectFrom("repositories").select("settings").where("id", "=", repositoryId).executeTakeFirstOrThrow()).settings as Record<string, unknown>;
+
+    const n = (i: number) => t.github.pulls[i]!.number;
+    expect((await close(0)).outcome).toBe(`fix PR #${n(0)} closed`);
+    expect((await close(1)).outcome).toBe(`fix PR #${n(1)} closed`);
+    expect((await settings()).paused).not.toBe(true);
+    const third = await close(2);
+    expect(third.outcome).toBe(`fix PR #${n(2)} closed; repository paused: its last 3 SHAPI PRs were closed without merging`);
+    // The dashboard is redrawn right away.
+    expect(third.fixes).toEqual([{ scanId: scan.id, repositoryId }]);
+    expect(await settings()).toMatchObject({ paused: true, autoPaused: { prs: [n(2), n(1), n(0)] } });
+
+    // The next run opens nothing, and the dashboard shows the pause ticked with why.
+    const paused = await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(advisory("next", "critical"), "src/a.ts")], now: new Date(now.getTime() + 5 * 3600_000) });
+    expect(paused.outcomes.map((o) => o.action)).toEqual(["wait"]);
+    const issue = t.github.issues[0]!;
+    expect(issue.body).toContain("- [x] <!-- shapi:pause -->");
+    expect(issue.body).toContain("SHAPI paused itself on");
+    expect(issue.body).toContain(`its last 3 fix PRs (#${n(2)}, #${n(1)}, #${n(0)}) were closed without merging`);
+
+    // Untick to resume: the automatic pause clears, and the old closes don't count toward the next one.
+    issue.body = issue.body.replace("- [x] <!-- shapi:pause -->", "- [ ] <!-- shapi:pause -->");
+    expect(await webhook(t, "issues", { action: "edited", issue, sender: { type: "User" } })).toMatch(/^dashboard saved \(paused: false/);
+    expect(await settings()).toMatchObject({ paused: false, autoPaused: null, resumedAt: expect.any(String) });
+    const resumed = await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(advisory("next", "critical"), "src/a.ts")], now: new Date(now.getTime() + 6 * 3600_000) });
+    expect(resumed.outcomes.map((o) => o.action)).toEqual(["created"]);
+    expect((await close(3)).outcome).toBe(`fix PR #${n(3)} closed`);
+    expect((await settings()).paused).toBe(false);
+  });
+
+  it("groups open fix PRs on the dashboard by when their change takes effect (U-05)", async () => {
+    const t = setup();
+    const now = new Date("2026-10-30T12:00:00Z");
+    const due = (id: string, effectiveDate: string) => ({ ...advisory(id, "critical"), effectiveDate });
+    const all = [candidate(due("later", "2027-03-01"), "src/a.ts"), candidate(due("soon", "2026-11-12"), "src/b.ts"), candidate(due("past", "2026-01-15"), "src/c.ts")];
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: all, now });
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: all, now: new Date(now.getTime() + 2 * 3600_000) });
+    const body = t.github.issues[0]!.body;
+    const at = (s: string) => body.indexOf(s);
+    expect(at("### Already in effect")).toBeGreaterThan(-1);
+    expect(at("### Already in effect")).toBeLessThan(at("Change past"));
+    expect(at("Change past")).toBeLessThan(at("### In the next 30 days"));
+    expect(at("### In the next 30 days")).toBeLessThan(at("Change soon"));
+    expect(at("Change soon")).toBeLessThan(at("### Later"));
+    expect(at("### Later")).toBeLessThan(at("Change later"));
+    expect(body).toContain("(took effect 2026-01-15)");
+    expect(body).toMatch(/Change soon \[#\d+\]\(.+\) \(takes effect 2026-11-12, in 13 days\)/);
+  });
+
   it("pause on the dashboard stops all changes; dashboard edits arrive by webhook, bot edits are ignored", async () => {
     const t = setup();
     const now = new Date();
