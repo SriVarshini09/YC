@@ -2,8 +2,8 @@
   "dataset": "APIBreak-Replay v0",
   "datasetHash": "37fa931e8278",
   "shapiVersion": "0.3.1",
-  "gitSha": "be2872abfbdffc0b5e49c488a6f4644c41373ef8",
-  "runAt": "2026-10-30T00:08:05.667Z",
+  "gitSha": "24f40b784cf230011cd323543af0aa70b84ae646",
+  "runAt": "2026-10-30T08:16:14.569Z",
   "summary": {
     "instances": 71,
     "inScope": 14,
@@ -71,7 +71,14 @@
         }
       }
     },
-    "fixRate": null
+    "fixRate": {
+      "k": 0,
+      "n": 4,
+      "rate": 0,
+      "low": 0,
+      "high": 0.49
+    },
+    "fixErrors": 1
   },
   "results": [
     {
@@ -82,7 +89,9 @@
       "language": "Python",
       "evidenceFile": "github_utils.py",
       "base": "affected",
-      "fix": "exposed"
+      "fix": "exposed",
+      "fixOutcome": "not-fixed",
+      "fixDetail": "github_utils.py:60 unsupported (fixes support TypeScript and JavaScript; github_utils.py is scanned only)"
     },
     {
       "id": "github-workflow-dispatch-204-to-200__stategraph__stategraph",
@@ -158,7 +167,9 @@
       "language": "Python",
       "evidenceFile": "newspaper/startup/worker.js",
       "base": "affected",
-      "fix": "exposed"
+      "fix": "exposed",
+      "fixOutcome": "not-fixed",
+      "fixDetail": "newspaper/startup/worker.js:15 unsupported (the call site is not inside an exported function)"
     },
     {
       "id": "github-workflow-dispatch-204-to-200__oliverwirthsalpine__planner-delta-tracker",
@@ -600,7 +611,9 @@
       "language": "Python",
       "evidenceFile": "sync/qbo.py",
       "base": "affected",
-      "fix": "affected"
+      "fix": "affected",
+      "fixOutcome": "not-fixed",
+      "fixDetail": "scripts/smoke_creds.py:129 unsupported (fixes support TypeScript and JavaScript; scripts/smoke_creds.py is scanned only)"
     },
     {
       "id": "quickbooks-minorversion-below-75__RCOLKITT__AccountingQB-MCP",
@@ -610,7 +623,9 @@
       "language": "Python",
       "evidenceFile": "web/src/app/api/oauth/callback/route.ts",
       "base": "affected",
-      "fix": "exposed"
+      "fix": "exposed",
+      "fixOutcome": "not-fixed",
+      "fixDetail": "web/src/app/api/oauth/callback/route.ts:106 unsupported (the contract test could not run: Error: Cannot find module '/home/user/repo/node_modules/vitest/vitest.mjs')"
     },
     {
       "id": "quickbooks-minorversion-below-75__tioperfumes07__IH35-TMS",
@@ -620,7 +635,9 @@
       "language": "TypeScript",
       "evidenceFile": "apps/backend/src/admin/health-deep.service.ts",
       "base": "affected",
-      "fix": "exposed"
+      "fix": "exposed",
+      "fixOutcome": "error",
+      "fixDetail": "dependency install failed (npm ci --no-audit --no-fund, exit 1)"
     },
     {
       "id": "quickbooks-minorversion-below-75__mindstone__mcp-servers",
