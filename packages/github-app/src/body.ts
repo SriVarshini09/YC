@@ -1,5 +1,5 @@
 import type { Advisory } from "@shapi/core";
-import { codeSpan, testCounts, type AdvisoryRepair, type SuiteCheck, type TestRun, type TypeCheck } from "@shapi/repair";
+import { codeSpan, testCounts, type AdvisoryRepair, type SuiteCheck, type TestRun, type TypeCheck, type UndoCheck } from "@shapi/repair";
 
 export { codeSpan };
 
@@ -57,6 +57,8 @@ export function renderPrBody({ advisory, repair, shapeSource, dashboardUrl, witn
     "Each test calls the code with the response it was written for and the one the provider sends now. Each failed before this change and passes after it. A change that adds type errors is not kept.",
     "",
     stubLine(fixed.map((s) => s.result.test?.kind), shapeSource, witnesses),
+    "",
+    undoLine(fixed.map((s) => s.result.undo)),
     "",
     "| Test | Before this change | After this change | Type check |",
     "|---|---|---|---|",
@@ -123,6 +125,20 @@ function stubLine(kinds: (string | undefined)[], shapeSource: string, witnesses:
     return `**Stub:** from recorded responses (${shapeSource}${ids}).`;
   }
   return "**Stub:** synthesized from the advisory (no recorded responses for this endpoint).";
+}
+
+/** The undo check across the fixed call sites (V-04): undoing each part of the change must make its test fail. */
+export function undoLine(checks: (UndoCheck | undefined)[]): string {
+  const ran = checks.filter((c): c is UndoCheck => c !== undefined && c.status !== "not-run");
+  if (!ran.length) {
+    const why = checks.find((c) => c?.status === "not-run")?.detail;
+    return `**Undo check:** ⚪ not run${why ? `: ${why}` : ""}.`;
+  }
+  const killed = ran.reduce((n, c) => n + c.killed, 0);
+  const total = ran.reduce((n, c) => n + c.total, 0);
+  const survived = ran.flatMap((c) => c.survived ?? []);
+  if (!survived.length) return `**Undo check:** ✅ ${killed}/${total}: undoing any part of this change makes its contract test fail.`;
+  return `**Undo check:** ⚠️ ${killed}/${total}: undoing ${survived.map((s) => codeSpan(s)).join(", ")} does not make the contract test fail, so the test does not cover that part. A person should check it (labelled \`needs-human\`).`;
 }
 
 /** The verdict and vitest's counts; nothing else from the output, which the repository's code prints to. */

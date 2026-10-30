@@ -7,7 +7,7 @@ import { SandboxLifetimeError, type SandboxProvider, type SnapshotFile } from "@
 import type { GitHubClients } from "../github/clients";
 import { repositoryCovered } from "../billing/plan";
 import { latestScanId } from "../github/events";
-import { deliverRepoFixes, type DeliveryReport, type FixCandidate } from "../github/fixes";
+import { NEEDS_HUMAN_LABEL, deliverRepoFixes, type DeliveryReport, type FixCandidate } from "../github/fixes";
 import { repoPageUrl } from "../links";
 import { reviewedAdvisories, storedLock } from "./scan";
 import type { ResponseShape } from "@shapi/shapes";
@@ -184,6 +184,8 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
               files: repair.changes.map((c) => ({ path: c.file, content: c.after })),
               sha: scan.sha,
               repair: summarizeRepair({ advisory: t.advisory, sites: repair.sites, changes: repair.changes, method: repair.method, sandbox: repair.sandbox }, now()),
+              // V-04: a part of the change its contract test does not cover needs a person.
+              ...(fixedSites.some((s) => s.result.undo?.status === "survived") ? { labels: [NEEDS_HUMAN_LABEL] } : {}),
             });
           }
         }

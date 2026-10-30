@@ -99,3 +99,4 @@ One line per task: task, summary file, PR, status.
 - PB-50 a fix may not delete the call or the read of what changed, even when the contract test passes (V-06): [summary](PB-50-fix-keeps-the-call.md) · PR: open
 - PB-51 contract-test stubs from recorded witnesses, and the PR says whether the stub is recorded or synthesized from the advisory (V-03): [summary](PB-51-stubs-from-witnesses.md) · PR: open
 - PB-52 Anthropic messages.parse() and batch methods are mapped, a gap A-03 surfaced on Nori: [summary](PB-52-anthropic-sdk-methods.md) · PR: open
+- PB-53 the undo check: each part of a fix is undone alone and must make its contract test fail; a part it survives labels the PR needs-human (V-04): [summary](PB-53-undo-check.md) · PR: open
