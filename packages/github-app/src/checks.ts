@@ -1,5 +1,5 @@
 import type { Octokit } from "@octokit/rest";
-import type { Finding, MatchResult } from "@shapi/core";
+import type { Finding, LintFinding, MatchResult } from "@shapi/core";
 import { cell } from "./body";
 
 export const CHECK_NAME = "SHAPI";
@@ -44,9 +44,10 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 /** Turn a scan's match result into a check run conclusion, summary and line annotations. */
 export function checkRunOutput(
   match: Pick<MatchResult, "affected" | "exposed" | "upcoming"> & Partial<Pick<MatchResult, "unresolved">>,
-  opts: { failOnAffected?: boolean } = {},
+  opts: { failOnAffected?: boolean; lint?: LintFinding[] } = {},
 ): CheckRunResult {
   const { affected, exposed, upcoming } = match;
+  const lint = opts.lint ?? [];
   const unresolved = match.unresolved ?? [];
   const advisories = new Set(affected.map((f) => f.advisory.id));
   const title = affected.length
@@ -71,6 +72,16 @@ export function checkRunOutput(
   if (upcoming.length) {
     lines.push("### Upcoming deadlines", "");
     for (const u of upcoming) lines.push(`- ${u.advisory.title}: in ${plural(u.daysUntil, "day")} (${plural(u.callSites, "call site")})`);
+    lines.push("");
+  }
+  if (lint.length) {
+    // Execution plan S-06: names verified advisories retire, wherever they appear in the code.
+    lines.push("### Retired names in the code", "");
+    for (const l of lint.slice(0, 20)) {
+      const what = l.kind === "enum" ? "enum value" : l.kind;
+      lines.push(`- \`${l.file}:${l.line}\` ${what} \`${l.name}\`${l.replacement ? ` → \`${l.replacement}\`` : ""} (\`${l.advisoryId}\`)`);
+    }
+    if (lint.length > 20) lines.push(`- and ${lint.length - 20} more`);
     lines.push("");
   }
   if (!lines.length) lines.push("SHAPI checked every third-party API call site in this commit against its advisory database.");
