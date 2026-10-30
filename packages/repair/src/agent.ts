@@ -7,6 +7,7 @@ import type { LlmFixer } from "./llm";
 import { runRecipe, type FileChange, type Recipe } from "./recipe";
 import { SHAPI_VITEST_CONFIG, runFailure, testsRan, type TestRun } from "./runner";
 import { checkSuite, type SuiteCheck, type SuiteRun } from "./suite";
+import { checkKept, type KeepCheck } from "./keep";
 import { checkTypes, typeBaseline, type TypeBaseline, type TypeCheck } from "./typecheck";
 import { localWorkspace, type Workspace } from "./workspace";
 
@@ -55,6 +56,8 @@ export interface RepairResult {
    * errors), or why that was not checked. A fix with new type errors is not kept.
    */
   typecheck?: TypeCheck;
+  /** For a fix: whether it keeps the call and the read of what changed (V-06), or why that was not checked. */
+  keep?: KeepCheck;
 }
 
 const PROTECTED = new Set([".git", "node_modules", "dist", "coverage", ".shapi"]);
@@ -126,14 +129,18 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
     if (!run.passed || !testsRan(run.output)) return { run: { ...run, passed: false } };
     return { run, typecheck: await checkTypes(ws, types) };
   };
-  const failure = (typecheck: TypeCheck | undefined, detail: string) => (typecheck?.status === "failed" ? `${detail}; the test passes, but ${typecheck.detail}` : detail);
+  const failure = (typecheck: TypeCheck | undefined, keep: KeepCheck | undefined, detail: string) =>
+    typecheck?.status === "failed" ? `${detail}; the test passes, but ${typecheck.detail}` : keep?.status === "removed" ? `${detail}; the test passes, but ${keep.detail}` : detail;
+  /** V-06: a passing change must keep the call and the read of what changed. */
+  const keepCheck = async (files: { file: string; before: string; after: string }[]) => checkKept({ advisory, callSite, files, packageJson: await ws.read("package.json") });
 
   const recipe = runRecipe(input.recipes, advisory, callSite, original);
   if (recipe.status === "applied") {
     const { run, typecheck } = await verify(() => ws.write(callSite.file, recipe.change.after));
-    const kept = run.passed && typecheck?.status !== "failed";
-    attempts.push({ method: "recipe", outcome: kept ? "passed" : "failed", detail: kept ? recipe.recipe : failure(typecheck, recipe.recipe), run });
-    if (kept) return { status: "fixed", method: "recipe", sandbox: ws.location, changes: [recipe.change, testChange], test: ran, baseline, attempts, typecheck };
+    const keep = run.passed && typecheck?.status !== "failed" ? await keepCheck([{ file: callSite.file, before: original, after: recipe.change.after }]) : undefined;
+    const kept = run.passed && typecheck?.status !== "failed" && keep?.status !== "removed";
+    attempts.push({ method: "recipe", outcome: kept ? "passed" : "failed", detail: kept ? recipe.recipe : failure(typecheck, keep, recipe.recipe), run });
+    if (kept) return { status: "fixed", method: "recipe", sandbox: ws.location, changes: [recipe.change, testChange], test: ran, baseline, attempts, typecheck, keep };
     await ws.write(callSite.file, original);
   } else {
     attempts.push({ method: "recipe", outcome: "skipped", detail: recipe.reason });
@@ -177,11 +184,12 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
         changes.push({ file: rel, before: before ?? "", after: content, notes: [proposal.explanation], created: before === undefined });
       }
     });
-    const kept = run.passed && typecheck?.status !== "failed";
+    const keep = run.passed && typecheck?.status !== "failed" ? await keepCheck(changes.map(({ file, before, after }) => ({ file, before, after }))) : undefined;
+    const kept = run.passed && typecheck?.status !== "failed" && keep?.status !== "removed";
     const detail = `${proposal.model}: ${proposal.explanation}`;
-    attempts.push({ method: "llm", outcome: kept ? "passed" : "failed", detail: kept ? detail : failure(typecheck, detail), run });
+    attempts.push({ method: "llm", outcome: kept ? "passed" : "failed", detail: kept ? detail : failure(typecheck, keep, detail), run });
     if (kept) {
-      return { status: "fixed", method: "llm", sandbox: ws.location, changes: [...changes.map(({ file, before, after, notes }) => ({ file, before, after, notes })), testChange], test: ran, baseline, attempts, typecheck };
+      return { status: "fixed", method: "llm", sandbox: ws.location, changes: [...changes.map(({ file, before, after, notes }) => ({ file, before, after, notes })), testChange], test: ran, baseline, attempts, typecheck, keep };
     }
   } catch (err) {
     // The sandbox is out of time: nothing more can run in it, so the caller decides what to deliver.

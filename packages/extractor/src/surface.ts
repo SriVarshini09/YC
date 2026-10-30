@@ -281,7 +281,9 @@ function comparedLiterals(node: Node): { nums: number[]; strs: string[] } {
   } else if (Node.isCallExpression(p) && p.getArguments()[0] === cur) {
     const callee = p.getExpression();
     if (Node.isPropertyAccessExpression(callee) && callee.getName() === "includes") {
-      const arr = callee.getExpression();
+      // `(["hosted", "hosted_page"] as unknown[]).includes(x)`: SHAPI's own fixes widen the list's type for tsc.
+      let arr: Node = callee.getExpression();
+      while (Node.isParenthesizedExpression(arr) || Node.isAsExpression(arr) || Node.isSatisfiesExpression(arr)) arr = arr.getExpression();
       if (Node.isArrayLiteralExpression(arr)) arr.getElements().forEach(take);
     }
   }
