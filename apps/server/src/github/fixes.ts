@@ -16,6 +16,7 @@ import {
 } from "@shapi/github-app";
 import { AdvisorySchema } from "@shapi/core";
 import type { GitHubClients } from "./clients";
+import { repoPageUrl } from "../links";
 import { mergeSettings } from "./events";
 
 /** A verified fix ready to deliver: produced by the scan and repair jobs (A5). */
@@ -54,7 +55,7 @@ export const PR_LABEL = "shapi";
  * Deliver one repository's ready fixes as PRs under the noise policy, record each PR, then refresh
  * the dashboard issue. Every step is idempotent, so a retried job only finishes what is left.
  */
-export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, input: DeliverInput): Promise<DeliveryReport> {
+export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients; publicUrl?: string }, input: DeliverInput): Promise<DeliveryReport> {
   const now = input.now ?? new Date();
   const ctx = await withService(deps.db, async (tx) => {
     const repo = await tx
@@ -144,6 +145,7 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients }, 
     paused: intents.paused,
     pausedFromWeb,
     limits,
+    dashboardUrl: repoPageUrl(deps.publicUrl, repo.account_id, repo.id),
   });
   try {
     // A box ticked on the issue during this run stays ticked in the new body (see upsertDashboard), for the next job.

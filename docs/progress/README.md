@@ -87,3 +87,4 @@ One line per task: task, summary file, PR, status.
 - PB-38 fixes must keep the repository's own tests passing (V-01): [summary](PB-38-repo-tests-gate.md) · PR: [#92](https://github.com/SriVarshini09/YC/pull/92) · merged
 - PB-39 a `{repo}` path parameter holding owner/name matches GitHub advisories (benchmark recall 4/14 to 5/14): [summary](PB-39-repo-fullname-paths.md) · PR: open
 - PB-40 a fix may not edit, remove or skip the repository's tests (V-02): [summary](PB-40-test-guard.md) · PR: open
+- PB-41 from GitHub to the dashboard in one click: Setup URL, and dashboard links on checks, PRs and the Dashboard issue (U-01, U-02): [summary](PB-41-dashboard-links.md) · PR: open

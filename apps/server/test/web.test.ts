@@ -229,6 +229,17 @@ describe("web sign-in", () => {
     await app.close();
   });
 
+  it("sends people from the GitHub App's Setup URL to sign-in, or straight to their dashboard (U-01)", async () => {
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const anonymous = await app.inject("/setup?installation_id=1&setup_action=install");
+    expect(anonymous.statusCode).toBe(302);
+    expect(anonymous.headers.location).toBe("/login");
+    const { cookie } = await signIn(app);
+    const signedIn = await app.inject({ url: "/setup?installation_id=1&setup_action=install", headers: { cookie } });
+    expect(signedIn.statusCode).toBe(302);
+    expect(signedIn.headers.location).toBe("/");
+  });
+
   it("rejects a callback without the matching state, and a failed token exchange", async () => {
     const app = buildApp({ db, config, fetch: fakeGitHub({ failToken: true }).fetch });
     expect((await app.inject("/auth/github/callback?code=c&state=forged")).statusCode).toBe(400);

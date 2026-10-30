@@ -224,6 +224,12 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       return reply.redirect(authorizeUrl(deps.config, state));
     });
 
+    // The GitHub App's Setup URL: after installing, signed-in people go to their dashboard and others sign in first.
+    scope.get("/setup", async (req, reply) => {
+      const { session } = await sessionOf(req);
+      return reply.redirect(session ? "/" : "/login");
+    });
+
     scope.get("/auth/github/callback", async (req, reply) => {
       if (!deps.config) return send(reply, page("Sign in", messagePage("Sign-in is not configured", "This server has no GitHub OAuth client yet."), bare(req)), 503);
       const { code, state, error } = req.query as { code?: string; state?: string; error?: string };

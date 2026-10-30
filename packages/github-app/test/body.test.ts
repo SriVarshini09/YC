@@ -110,3 +110,11 @@ describe("suiteLine (V-01)", () => {
     expect(suiteLine(undefined)).toBe("**Your tests:** ⚪ not run: not checked.");
   });
 });
+
+describe("dashboard link (U-02)", () => {
+  it("links the PR to the repository's page in SHAPI, when the server knows its public URL", () => {
+    const repair = { status: "fixed", sites: [], changes: [] } as unknown as AdvisoryRepair;
+    expect(renderPrBody({ advisory, repair, shapeSource: "advisory", dashboardUrl: "https://app.shapi.dev/a/1/r/2" })).toContain("[View this repository in SHAPI](https://app.shapi.dev/a/1/r/2).");
+    expect(renderPrBody({ advisory, repair, shapeSource: "advisory" })).not.toContain("View this repository in SHAPI");
+  });
+});

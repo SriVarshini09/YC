@@ -98,6 +98,8 @@ describe("dashboard", () => {
     expect(body).toContain("Limits: 2 new PRs per hour");
     expect(renderDashboard({ ...input, limits: { hourly: 1, open: 10 } })).toContain("Limits: 1 new PR per hour");
     expect(parseDashboard(body)).toEqual({ createNow: new Set(), retry: new Set(), paused: false });
+    expect(body).not.toContain("View this repository in SHAPI");
+    expect(renderDashboard({ ...input, dashboardUrl: "https://app.shapi.dev/a/1/r/2" })).toContain("[View this repository in SHAPI](https://app.shapi.dev/a/1/r/2)");
 
     const ticked = body.replace("- [ ] <!-- shapi:create:b -->", "- [x] <!-- shapi:create:b -->").replace("- [ ] <!-- shapi:pause -->", "- [X] <!-- shapi:pause -->").replace("- [ ] <!-- shapi:retry:c -->", "- [x] <!-- shapi:retry:c -->");
     expect(parseDashboard(ticked)).toEqual({ createNow: new Set(["b"]), retry: new Set(["c"]), paused: true });

@@ -8,6 +8,7 @@ import type { GitHubClients } from "../github/clients";
 import { repositoryCovered } from "../billing/plan";
 import { latestScanId } from "../github/events";
 import { deliverRepoFixes, type DeliveryReport, type FixCandidate } from "../github/fixes";
+import { repoPageUrl } from "../links";
 import { reviewedAdvisories, storedLock } from "./scan";
 import type { ResponseShape } from "@shapi/shapes";
 import { shapesFor } from "./shapes";
@@ -32,6 +33,8 @@ export interface FixDeps {
   billingEnforced?: boolean;
   /** This SHAPI build (git sha), recorded on the scan once its fix job finishes (see scansToRefix). */
   engine?: string;
+  /** The web app's public URL: fix PRs and the Dashboard issue link to the repository's page there. */
+  publicUrl?: string;
   now?: () => Date;
 }
 
@@ -170,7 +173,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
             fixes.push({
               advisory: t.advisory,
               title: prTitle(t.advisory),
-              body: renderPrBody({ advisory: t.advisory, repair, shapeSource: t.shapes.source }),
+              body: renderPrBody({ advisory: t.advisory, repair, shapeSource: t.shapes.source, dashboardUrl: repoPageUrl(deps.publicUrl, scan.account_id, scan.repository_id) }),
               commitMessage: `fix: ${t.advisory.title}\n\nAdvisory ${t.advisory.id}, ${fixedSites.length} of ${repair.sites.length} call sites. Contract tests ${testFiles} fail before this change and pass after, verified in ${repair.sandbox}.`,
               files: repair.changes.map((c) => ({ path: c.file, content: c.after })),
               sha: scan.sha,
