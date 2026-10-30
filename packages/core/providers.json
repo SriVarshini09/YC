@@ -312,8 +312,12 @@
     "sdkPackages": ["@anthropic-ai/sdk"],
     "sdkMethods": {
       "messages.create": "POST /v1/messages",
+      "messages.parse": "POST /v1/messages",
       "messages.stream": "POST /v1/messages",
       "messages.countTokens": "POST /v1/messages/count_tokens",
+      "messages.batches.create": "POST /v1/messages/batches",
+      "messages.batches.retrieve": "GET /v1/messages/batches/{message_batch_id}",
+      "messages.batches.list": "GET /v1/messages/batches",
       "models.list": "GET /v1/models"
     },
     "docsUrl": "https://docs.claude.com/en/api",
@@ -324,9 +328,12 @@
       ],
       "methods": {
         "messages.create": "POST /v1/messages",
+        "messages.parse": "POST /v1/messages",
         "messages.stream": "POST /v1/messages",
         "messages.count_tokens": "POST /v1/messages/count_tokens",
         "messages.batches.create": "POST /v1/messages/batches",
+        "messages.batches.retrieve": "GET /v1/messages/batches/{message_batch_id}",
+        "messages.batches.list": "GET /v1/messages/batches",
         "models.list": "GET /v1/models"
       }
     }

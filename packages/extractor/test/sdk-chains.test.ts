@@ -27,6 +27,24 @@ const affectedIds = (files: Record<string, string>) =>
   matchAdvisories(createApiLock(scan(files), "test"), advisories, { now }).affected.map((f) => `${f.callSite.line} ${f.advisory.id}`);
 const line = (s: CallSite) => `${s.line} ${s.operation} ${s.method ?? "?"} ${s.provider} ${s.endpoint}`;
 
+describe("Anthropic SDK", () => {
+  it("maps messages.parse() and the batch methods, so a structured-output call is checked like messages.create()", () => {
+    const files = {
+      "package.json": JSON.stringify({ dependencies: { "@anthropic-ai/sdk": "^1.1.0" } }),
+      "src/llm.ts": `import Anthropic from "@anthropic-ai/sdk";
+const anthropic = new Anthropic();
+export const parsed = () => anthropic.messages.parse({ model: "claude-sonnet-4-5", max_tokens: 100, messages: [] });
+export const batch = (id: string) => anthropic.messages.batches.retrieve(id);
+`,
+    };
+    expect(sitesOf(files).map(line)).toEqual([
+      "3 messages.parse POST anthropic /v1/messages",
+      "4 messages.batches.retrieve GET anthropic /v1/messages/batches/{message_batch_id}",
+    ]);
+    expect(affectedIds(files)).toEqual(["3 anthropic-claude-sonnet-4-5-retirement"]);
+  });
+});
+
 describe("GraphQL through an SDK", () => {
   it("maps shopify-api-node's graphql() to the Admin GraphQL endpoint, and Octokit's to /graphql", () => {
     const files = {
