@@ -1,0 +1,360 @@
+{
+  "provider": "openai",
+  "repo": "openai/openai-openapi",
+  "commit": "2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce",
+  "files": [
+    {
+      "file": "openapi.json",
+      "base": "/v1",
+      "paths": {
+        "/assistants": {
+          "get": {
+            "operationId": "listAssistants",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "createAssistant",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/assistants/{assistant_id}": {
+          "delete": {
+            "operationId": "deleteAssistant",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "get": {
+            "operationId": "getAssistant",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "modifyAssistant",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/audio/translations": {
+          "post": {
+            "operationId": "createTranslation",
+            "responses": {
+              "200": {},
+              "400": {},
+              "401": {},
+              "403": {},
+              "413": {},
+              "429": {},
+              "500": {},
+              "502": {},
+              "503": {}
+            }
+          }
+        },
+        "/chat/completions": {
+          "post": {
+            "operationId": "createChatCompletion",
+            "responses": {
+              "200": {},
+              "400": {},
+              "401": {},
+              "403": {},
+              "404": {},
+              "429": {},
+              "500": {},
+              "503": {}
+            }
+          }
+        },
+        "/evals": {
+          "get": {
+            "operationId": "listEvals",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "createEval",
+            "responses": {
+              "201": {},
+              "400": {},
+              "429": {}
+            }
+          }
+        },
+        "/evals/{eval_id}": {
+          "delete": {
+            "operationId": "deleteEval",
+            "responses": {
+              "200": {},
+              "400": {},
+              "404": {},
+              "429": {}
+            }
+          },
+          "get": {
+            "operationId": "getEval",
+            "responses": {
+              "200": {},
+              "404": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "updateEval",
+            "responses": {
+              "200": {},
+              "400": {},
+              "404": {},
+              "429": {}
+            }
+          }
+        },
+        "/evals/{eval_id}/runs": {
+          "get": {
+            "operationId": "getEvalRuns",
+            "responses": {
+              "200": {},
+              "400": {},
+              "404": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "createEvalRun",
+            "responses": {
+              "201": {},
+              "400": {},
+              "404": {},
+              "429": {},
+              "500": {}
+            }
+          }
+        },
+        "/evals/{eval_id}/runs/{run_id}": {
+          "delete": {
+            "operationId": "deleteEvalRun",
+            "responses": {
+              "200": {},
+              "400": {},
+              "404": {},
+              "429": {}
+            }
+          },
+          "get": {
+            "operationId": "getEvalRun",
+            "responses": {
+              "200": {},
+              "400": {},
+              "404": {},
+              "429": {}
+            }
+          }
+        },
+        "/evals/{eval_id}/runs/{run_id}/cancel": {
+          "post": {
+            "operationId": "cancelEvalRun",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/evals/{eval_id}/runs/{run_id}/output_items": {
+          "get": {
+            "operationId": "getEvalRunOutputItems",
+            "responses": {
+              "200": {},
+              "400": {},
+              "404": {},
+              "429": {}
+            }
+          }
+        },
+        "/evals/{eval_id}/runs/{run_id}/output_items/{output_item_id}": {
+          "get": {
+            "operationId": "getEvalRunOutputItem",
+            "responses": {
+              "200": {},
+              "400": {},
+              "404": {},
+              "429": {}
+            }
+          }
+        },
+        "/responses": {
+          "post": {
+            "operationId": "createResponse",
+            "responses": {
+              "200": {},
+              "400": {},
+              "404": {},
+              "429": {},
+              "503": {}
+            }
+          }
+        },
+        "/threads": {
+          "post": {
+            "operationId": "createThread",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/{thread_id}": {
+          "delete": {
+            "operationId": "deleteThread",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "get": {
+            "operationId": "getThread",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "modifyThread",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/{thread_id}/messages": {
+          "get": {
+            "operationId": "listMessages",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "createMessage",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/{thread_id}/messages/{message_id}": {
+          "delete": {
+            "operationId": "deleteMessage",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "get": {
+            "operationId": "getMessage",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "modifyMessage",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/{thread_id}/runs": {
+          "get": {
+            "operationId": "listRuns",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "createRun",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/{thread_id}/runs/{run_id}": {
+          "get": {
+            "operationId": "getRun",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          },
+          "post": {
+            "operationId": "modifyRun",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/{thread_id}/runs/{run_id}/cancel": {
+          "post": {
+            "operationId": "cancelRun",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/{thread_id}/runs/{run_id}/steps": {
+          "get": {
+            "operationId": "listRunSteps",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/{thread_id}/runs/{run_id}/steps/{step_id}": {
+          "get": {
+            "operationId": "getRunStep",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/{thread_id}/runs/{run_id}/submit_tool_outputs": {
+          "post": {
+            "operationId": "submitToolOuputsToRun",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        },
+        "/threads/runs": {
+          "post": {
+            "operationId": "createThreadAndRun",
+            "responses": {
+              "200": {},
+              "429": {}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

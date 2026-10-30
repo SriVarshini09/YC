@@ -1,0 +1,101 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory stripe-checkout-session-ui-mode-values-renamed",
+    "summary": "Stripe 2026-03-25.dahlia renames Checkout Session ui_mode values",
+    "version": "2026-03-25"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "stripe-spec3",
+      "url": "https://raw.githubusercontent.com/stripe/openapi/51610f5f061c9723730582a7638b8cc0e646640d/openapi/spec3.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "stripe-checkout-session-ui-mode-values-renamed",
+      "summary": "Shows the change: From API version 2026-03-25.dahlia, Checkout Session ui_mode values hosted, embedded and custom are replaced by hosted_page, embedded_page and elements (and form is added). Creating a session with an old value fails, and code that compares the returned ui_mode to the old strings stops matching once the account or SDK is upgraded.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "GET /v1/checkout/sessions fails from 2026-03-25 when the body sends ui_mode = hosted",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1checkout~1sessions/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-2",
+          "description": "POST /v1/checkout/sessions fails from 2026-03-25 when the body sends ui_mode = hosted",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1checkout~1sessions/post",
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "ui_mode": "hosted"
+            }
+          },
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-3",
+          "description": "GET /v1/checkout/sessions/{session} fails from 2026-03-25 when the body sends ui_mode = hosted",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1checkout~1sessions~1{session}/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-4",
+          "description": "POST /v1/checkout/sessions/{session} fails from 2026-03-25 when the body sends ui_mode = hosted",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1checkout~1sessions~1{session}/post",
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "ui_mode": "hosted"
+            }
+          },
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-5",
+          "description": "POST /v1/checkout/sessions/{session}/expire fails from 2026-03-25 when the body sends ui_mode = hosted",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1checkout~1sessions~1{session}~1expire/post",
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "ui_mode": "hosted"
+            }
+          },
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-6",
+          "description": "GET /v1/checkout/sessions/{session}/line_items fails from 2026-03-25 when the body sends ui_mode = hosted",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1checkout~1sessions~1{session}~1line_items/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

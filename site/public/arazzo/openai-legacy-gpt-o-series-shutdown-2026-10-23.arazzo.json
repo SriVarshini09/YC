@@ -1,0 +1,39 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory openai-legacy-gpt-o-series-shutdown-2026-10-23",
+    "summary": "gpt-3.5-turbo, gpt-4, gpt-4-turbo, o1, o3-mini and o4-mini shut down on 2026-10-23",
+    "version": "2026-10-23"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "openai-openapi",
+      "url": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "openai-legacy-gpt-o-series-shutdown-2026-10-23",
+      "summary": "Shows the change: On 2026-10-23 OpenAI shuts down gpt-3.5-turbo (0125), gpt-4 (0613), gpt-4-1106-preview, gpt-4-turbo, gpt-4.1-nano, gpt-4o-2024-05-13, o1, o1-pro, o3-mini and o4-mini, plus fine-tunes of gpt-3.5-turbo, gpt-4, gpt-4.1-nano and o4-mini. Only calls that send one of these model names (or their aliases) are hit; they fail from then on.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "POST /v1/chat/completions fails from 2026-10-23 when the body sends model = gpt-3.5-turbo",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1chat~1completions/post",
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "model": "gpt-3.5-turbo"
+            }
+          },
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

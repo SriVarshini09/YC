@@ -1,0 +1,19 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14: gpt-4o, gpt-4o-mini, gpt-4.1 and gpt-4.1-mini snapshots shut down on 2027-01-14",
+    "version": "2027-01-14"
+  },
+  "extends": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+  "actions": [
+    {
+      "target": "$.paths['/chat/completions'].post",
+      "description": "gpt-4o, gpt-4o-mini, gpt-4.1 and gpt-4.1-mini snapshots shut down on 2027-01-14",
+      "update": {
+        "x-shapi-advisory": "openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14",
+        "x-shapi-change-class": "version-sunset",
+        "x-shapi-effective-date": "2027-01-14"
+      }
+    }
+  ]
+}

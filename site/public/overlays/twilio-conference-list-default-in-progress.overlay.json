@@ -1,0 +1,19 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory twilio-conference-list-default-in-progress: Twilio Conference list returns only in-progress conferences by default from 2026-09-30",
+    "version": "2026-09-30"
+  },
+  "extends": "https://raw.githubusercontent.com/twilio/twilio-oai/d9775142962ea67d5f3d50c5021a23ae6d330c5b/spec/json/twilio_api_v2010.json",
+  "actions": [
+    {
+      "target": "$.paths['/2010-04-01/Accounts/{AccountSid}/Conferences.json'].get",
+      "description": "Twilio Conference list returns only in-progress conferences by default from 2026-09-30",
+      "update": {
+        "x-shapi-advisory": "twilio-conference-list-default-in-progress",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    }
+  ]
+}

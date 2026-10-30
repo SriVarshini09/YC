@@ -1,0 +1,33 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory twilio-conference-list-default-in-progress",
+    "summary": "Twilio Conference list returns only in-progress conferences by default from 2026-09-30",
+    "version": "2026-09-30"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "twilio-twilio_api_v2010",
+      "url": "https://raw.githubusercontent.com/twilio/twilio-oai/d9775142962ea67d5f3d50c5021a23ae6d330c5b/spec/json/twilio_api_v2010.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "twilio-conference-list-default-in-progress",
+      "summary": "Shows the change: Starting September 30, 2026 (rollout delayed from July 13, 2026), GET /2010-04-01/Accounts/{AccountSid}/Conferences.json without a Status filter returns only in-progress conferences instead of in-progress and completed ones. Code that lists conferences without Status and expects completed ones gets silently incomplete results.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "GET /2010-04-01/Accounts/{AccountSid}/Conferences.json succeeds, with the changed response the advisory describes (required-field)",
+          "operationPath": "{$sourceDescriptions.twilio-twilio_api_v2010.url}#/paths/~12010-04-01~1Accounts~1{AccountSid}~1Conferences.json/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

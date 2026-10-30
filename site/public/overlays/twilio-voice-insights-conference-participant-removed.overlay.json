@@ -1,0 +1,19 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory twilio-voice-insights-conference-participant-removed: Twilio Voice Insights Call Summary drops attributes.conference_participant on 2026-08-01",
+    "version": "2026-08-01"
+  },
+  "extends": "https://raw.githubusercontent.com/twilio/twilio-oai/d9775142962ea67d5f3d50c5021a23ae6d330c5b/spec/json/twilio_insights_v1.json",
+  "actions": [
+    {
+      "target": "$.paths['/v1/Voice/{CallSid}/Summary'].get",
+      "description": "Twilio Voice Insights Call Summary drops attributes.conference_participant on 2026-08-01",
+      "update": {
+        "x-shapi-advisory": "twilio-voice-insights-conference-participant-removed",
+        "x-shapi-change-class": "field-rename",
+        "x-shapi-effective-date": "2026-08-01"
+      }
+    }
+  ]
+}

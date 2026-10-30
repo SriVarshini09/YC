@@ -1,0 +1,123 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory openai-assistants-threads-api-shutdown",
+    "summary": "Assistants API threads, messages and runs removed on 2026-08-26",
+    "version": "2026-08-26"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "openai-openapi",
+      "url": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "openai-assistants-threads-api-shutdown",
+      "summary": "Shows the change: OpenAI removed the Assistants API on 2026-08-26, one year after its 2025-08-26 deprecation notice, including the threads, messages and runs endpoints that go with it (/v1/threads/**). Calls to them no longer work. The replacement is the Responses API plus the Conversations API. The assistants endpoints themselves are covered by openai-assistants-api-shutdown.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "POST /v1/threads fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-2",
+          "description": "DELETE /v1/threads/{thread_id} fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads~1{thread_id}/delete",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-3",
+          "description": "GET /v1/threads/{thread_id} fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads~1{thread_id}/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-4",
+          "description": "POST /v1/threads/{thread_id} fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads~1{thread_id}/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-5",
+          "description": "GET /v1/threads/{thread_id}/messages fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads~1{thread_id}~1messages/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-6",
+          "description": "POST /v1/threads/{thread_id}/messages fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads~1{thread_id}~1messages/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-7",
+          "description": "DELETE /v1/threads/{thread_id}/messages/{message_id} fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads~1{thread_id}~1messages~1{message_id}/delete",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-8",
+          "description": "GET /v1/threads/{thread_id}/messages/{message_id} fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads~1{thread_id}~1messages~1{message_id}/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-9",
+          "description": "POST /v1/threads/{thread_id}/messages/{message_id} fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads~1{thread_id}~1messages~1{message_id}/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-10",
+          "description": "GET /v1/threads/{thread_id}/runs fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1threads~1{thread_id}~1runs/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

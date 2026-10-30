@@ -1,0 +1,46 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory twilio-rcs-undelivered-error-code-30046: Twilio RCS unconfirmed-delivery error code changed from 30036 to 30046",
+    "version": "2026-08-10"
+  },
+  "extends": "https://raw.githubusercontent.com/twilio/twilio-oai/d9775142962ea67d5f3d50c5021a23ae6d330c5b/spec/json/twilio_api_v2010.json",
+  "actions": [
+    {
+      "target": "$.paths['/2010-04-01/Accounts/{AccountSid}/Messages.json'].get",
+      "description": "Twilio RCS unconfirmed-delivery error code changed from 30036 to 30046",
+      "update": {
+        "x-shapi-advisory": "twilio-rcs-undelivered-error-code-30046",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-08-10"
+      }
+    },
+    {
+      "target": "$.paths['/2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json'].get",
+      "description": "Twilio RCS unconfirmed-delivery error code changed from 30036 to 30046",
+      "update": {
+        "x-shapi-advisory": "twilio-rcs-undelivered-error-code-30046",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-08-10"
+      }
+    },
+    {
+      "target": "$.paths['/2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json'].get",
+      "description": "Twilio RCS unconfirmed-delivery error code changed from 30036 to 30046",
+      "update": {
+        "x-shapi-advisory": "twilio-rcs-undelivered-error-code-30046",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-08-10"
+      }
+    },
+    {
+      "target": "$.paths['/2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json'].get",
+      "description": "Twilio RCS unconfirmed-delivery error code changed from 30036 to 30046",
+      "update": {
+        "x-shapi-advisory": "twilio-rcs-undelivered-error-code-30046",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-08-10"
+      }
+    }
+  ]
+}

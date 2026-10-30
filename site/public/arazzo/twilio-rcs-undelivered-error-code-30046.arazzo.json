@@ -1,0 +1,63 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory twilio-rcs-undelivered-error-code-30046",
+    "summary": "Twilio RCS unconfirmed-delivery error code changed from 30036 to 30046",
+    "version": "2026-08-10"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "twilio-twilio_api_v2010",
+      "url": "https://raw.githubusercontent.com/twilio/twilio-oai/d9775142962ea67d5f3d50c5021a23ae6d330c5b/spec/json/twilio_api_v2010.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "twilio-rcs-undelivered-error-code-30046",
+      "summary": "Shows the change: Since August 10, 2026, an RCS message that cannot be delivered to an unreachable device fails with error code 30046 (Message delivery not confirmed) instead of 30036 (Validity Period Expired). Custom SMS failover logic that checks error_code or ErrorCode for 30036 no longer fires; Twilio's native SMS fallback is not affected.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "GET /2010-04-01/Accounts/{AccountSid}/Messages.json succeeds, with the changed response the advisory describes (enum-added)",
+          "operationPath": "{$sourceDescriptions.twilio-twilio_api_v2010.url}#/paths/~12010-04-01~1Accounts~1{AccountSid}~1Messages.json/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        },
+        {
+          "stepId": "call-2",
+          "description": "GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json succeeds, with the changed response the advisory describes (enum-added)",
+          "operationPath": "{$sourceDescriptions.twilio-twilio_api_v2010.url}#/paths/~12010-04-01~1Accounts~1{AccountSid}~1Messages~1{MessageSid}~1Media.json/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        },
+        {
+          "stepId": "call-3",
+          "description": "GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json succeeds, with the changed response the advisory describes (enum-added)",
+          "operationPath": "{$sourceDescriptions.twilio-twilio_api_v2010.url}#/paths/~12010-04-01~1Accounts~1{AccountSid}~1Messages~1{MessageSid}~1Media~1{Sid}.json/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        },
+        {
+          "stepId": "call-4",
+          "description": "GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json succeeds, with the changed response the advisory describes (enum-added)",
+          "operationPath": "{$sourceDescriptions.twilio-twilio_api_v2010.url}#/paths/~12010-04-01~1Accounts~1{AccountSid}~1Messages~1{Sid}.json/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

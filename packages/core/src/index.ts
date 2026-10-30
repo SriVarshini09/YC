@@ -7,3 +7,4 @@ export * from "./lint";
 export * from "./graphql";
 export * from "./tiers";
 export * from "./osv";
+export * from "./overlay";

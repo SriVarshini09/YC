@@ -1,0 +1,33 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory stripe-endive-checkout-session-payment-method-types-removed",
+    "summary": "Stripe 2026-09-30.endive removes payment_method_types from Checkout Session creation",
+    "version": "2026-09-30"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "stripe-spec3",
+      "url": "https://raw.githubusercontent.com/stripe/openapi/51610f5f061c9723730582a7638b8cc0e646640d/openapi/spec3.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "stripe-endive-checkout-session-payment-method-types-removed",
+      "summary": "Shows the change: From API version 2026-09-30.endive, creating a Checkout Session with payment_method_types returns a 400 error. Stripe replaces it with dynamic payment methods, excluded_payment_method_types, or the new allowed_payment_method_types, which filters out incompatible types instead of failing.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "POST /v1/checkout/sessions succeeds, with the changed response the advisory describes (required-field)",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1checkout~1sessions/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

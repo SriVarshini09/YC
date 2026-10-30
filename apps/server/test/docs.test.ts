@@ -24,6 +24,8 @@ beforeAll(() => {
   put("404.html", "<h1>not found</h1>");
   put("schema/advisory.json", '{"$id":"https://shapi.dev/schema/advisory.json"}');
   put("osv/stripe-x.json", '{"id":"x_SHAPI-stripe-x"}');
+  put("overlays/stripe-x.overlay.json", '{"overlay":"1.0.0"}');
+  put("arazzo/stripe-x.arazzo.json", '{"arazzo":"1.0.1"}');
   put(".hidden", "no");
   writeFileSync(outside, "outside the docs");
 });
@@ -61,6 +63,7 @@ describe("docs site on its own hostname", () => {
     const osv = await get("/osv/stripe-x.json");
     expect(osv.headers["access-control-allow-origin"]).toBe("*");
     expect(osv.json()).toEqual({ id: "x_SHAPI-stripe-x" });
+    for (const p of ["/overlays/stripe-x.overlay.json", "/arazzo/stripe-x.arazzo.json"]) expect((await get(p)).headers["access-control-allow-origin"]).toBe("*");
     // Other files are not shared across origins.
     expect((await get("/guide/cli")).headers["access-control-allow-origin"]).toBeUndefined();
   });

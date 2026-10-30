@@ -1,0 +1,100 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory openai-assistants-threads-api-shutdown: Assistants API threads, messages and runs removed on 2026-08-26",
+    "version": "2026-08-26"
+  },
+  "extends": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+  "actions": [
+    {
+      "target": "$.paths['/threads'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}'].delete",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}'].get",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/messages'].get",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/messages'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/messages/{message_id}'].delete",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/messages/{message_id}'].get",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/messages/{message_id}'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/runs'].get",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/runs'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/runs/{run_id}'].get",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/runs/{run_id}'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/runs/{run_id}/cancel'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/runs/{run_id}/steps'].get",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/runs/{run_id}/steps/{step_id}'].get",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/{thread_id}/runs/{run_id}/submit_tool_outputs'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/threads/runs'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    }
+  ]
+}

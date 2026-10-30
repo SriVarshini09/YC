@@ -1,0 +1,73 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory openai-assistants-api-shutdown",
+    "summary": "Assistants API removed on 2026-08-26",
+    "version": "2026-08-26"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "openai-openapi",
+      "url": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "openai-assistants-api-shutdown",
+      "summary": "Shows the change: OpenAI removed the Assistants API on 2026-08-26, one year after its 2025-08-26 deprecation notice. Calls to the assistants endpoints, and to the threads, messages and runs endpoints that go with them (/v1/threads/**), no longer work. The replacement is the Responses API plus the Conversations API.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "GET /v1/assistants fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1assistants/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-2",
+          "description": "POST /v1/assistants fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1assistants/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-3",
+          "description": "DELETE /v1/assistants/{assistant_id} fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1assistants~1{assistant_id}/delete",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-4",
+          "description": "GET /v1/assistants/{assistant_id} fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1assistants~1{assistant_id}/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-5",
+          "description": "POST /v1/assistants/{assistant_id} fails from 2026-08-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1assistants~1{assistant_id}/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
