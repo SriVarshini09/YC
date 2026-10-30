@@ -26,7 +26,8 @@
     "bench:spec-replay:twilio": "node ../../scripts/run-ts.mjs scripts/spec-replay-twilio.ts",
     "bench:spec-replay:openai": "node ../../scripts/run-ts.mjs scripts/spec-replay-openai.ts",
     "bench:wayback": "node ../../scripts/run-ts.mjs scripts/wayback.ts",
-    "bench:canary-backtest": "node ../../scripts/run-ts.mjs scripts/canary-backtest.ts"
+    "bench:canary-backtest": "node ../../scripts/run-ts.mjs scripts/canary-backtest.ts",
+    "bench:stripe-coverage": "node ../../scripts/run-ts.mjs scripts/stripe-coverage.ts"
   },
   "dependencies": {
     "@shapi/canary": "workspace:*",
