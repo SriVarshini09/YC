@@ -1,0 +1,79 @@
+{
+  "dataset": "APIBreak-Replay v0",
+  "datasetHash": "37fa931e8278",
+  "gitSha": "4fb4c68643ca5aab2a276241cfa3fc17ac6c1a8c",
+  "flagRecall": "5 / 14",
+  "fixedStatePrecision": "13 / 14",
+  "instances": [
+    {
+      "id": "github-workflow-dispatch-204-to-200__vincentng295__gemini_fbchat",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__stategraph__stategraph",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__refracta__df-translations",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kikujizo__ai-harness",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__dlstupka__hth",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__opaque-dev__opaque",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__pyzz58__gpt-recommendations",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__hfscdogg__outgrow",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__RCOLKITT__AccountingQB-MCP",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__tioperfumes07__IH35-TMS",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__mindstone__mcp-servers",
+      "base": "exposed",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__theomleslie-ops__bakery-dashboard-2",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Chamfer-Consulting__gpc-purchase-order-hx",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Tans2101__Trenston",
+      "base": "none",
+      "fix": "none"
+    }
+  ]
+}

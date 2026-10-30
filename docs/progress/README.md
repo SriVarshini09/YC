@@ -92,3 +92,4 @@ One line per task: task, summary file, PR, status.
 - PB-43 every job has a time limit, a hung scan shows failed on the next sweep, and a job that keeps failing lands in a dead-letter queue (I-02): [summary](PB-43-job-timeouts.md) · PR: open
 - PB-44 the advisory JSON Schema is published at shapi.dev/schema/advisory.json, and every advisory validates against it (S-01): [summary](PB-44-advisory-schema.md) · PR: open
 - PB-45 head-to-head with Okapi on its 14 public PRs, scan only: SHAPI has advisories for 3, finds 1, and the 2 misses are extractor gaps (P-04): [summary](PB-45-okapi-head-to-head.md) · PR: open
+- PB-46 the benchmark runs in CI as the matcher regression suite: a lost catch or a new false positive fails the PR (P-05): [summary](PB-46-bench-regression-gate.md) · PR: open

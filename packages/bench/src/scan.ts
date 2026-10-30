@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { createApiLock, matchAdvisories, type Advisory, type MatchResult } from "@shapi/core";
@@ -14,6 +14,8 @@ export interface ScanCommitInput {
   advisories: Advisory[];
   /** A GitHub token: tarball downloads are rate-limited without one. */
   token?: string;
+  /** A folder for downloaded archives, kept across runs (CI caches it): a commit's archive never changes. */
+  cacheDir?: string;
   /** Larger archives are not scanned. */
   maxBytes?: number;
   now?: Date;
@@ -34,7 +36,7 @@ export async function scanCommit(input: ScanCommitInput): Promise<Verdict> {
 export async function scanRepo(input: Omit<ScanCommitInput, "advisoryId">): Promise<{ callSites: number; match: MatchResult }> {
   if (!/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/.test(input.repo)) throw new Error(`not owner/name: ${input.repo}`);
   if (!/^[0-9a-f]{40}$/.test(input.sha)) throw new Error(`not a commit sha: ${input.sha}`);
-  const body = await download(input);
+  const body = await cached(input);
   if (body.length > (input.maxBytes ?? DEFAULT_MAX_BYTES)) throw new Error(`archive is ${Math.round(body.length / 1048576)} MB, over the limit`);
 
   const dir = mkdtempSync(path.join(os.tmpdir(), "shapi-bench-"));
@@ -55,6 +57,18 @@ export async function scanRepo(input: Omit<ScanCommitInput, "advisoryId">): Prom
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+}
+
+/** The archive from cacheDir, or downloaded and stored there. Written to a temporary name first, so a partial file is never read. */
+async function cached(input: Omit<ScanCommitInput, "advisoryId">): Promise<Buffer> {
+  if (!input.cacheDir) return download(input);
+  const file = path.join(input.cacheDir, `${input.repo.replace("/", "__")}@${input.sha}.tgz`);
+  if (existsSync(file)) return readFileSync(file);
+  const body = await download(input);
+  mkdirSync(input.cacheDir, { recursive: true });
+  writeFileSync(`${file}.part`, body);
+  renameSync(`${file}.part`, file);
+  return body;
 }
 
 /** The repository archive at the commit, retried twice on network errors and 5xx answers. */
