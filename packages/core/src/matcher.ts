@@ -1,4 +1,5 @@
 import { SEVERITY_RANK, type Advisory, type EndpointPattern, type Trigger } from "./advisory";
+import { graphqlPathsFor, graphqlSelections, type GraphqlSelections } from "./graphql";
 import { pathUnresolved, type ApiLock, type LockedCallSite } from "./lockfile";
 
 export interface Finding {
@@ -153,6 +154,10 @@ function mayMatchReason(site: LockedCallSite, advisory: Advisory): string | unde
  * all where the pattern's `{?}` segment says the path carries that value at runtime (a REST Gemini call).
  */
 function unknownValueReason(site: LockedCallSite, advisory: Advisory): string | undefined {
+  const graphql = advisory.trigger.graphql ?? [];
+  if (graphql.length && !readableGraphql(site)) {
+    return `calls ${describe(site)}, but SHAPI cannot read its GraphQL document (affected if it selects ${graphql.map((g) => g.field).join(" or ")})`;
+  }
   for (const b of advisory.trigger.body ?? []) {
     if (!b.values) continue;
     const set = (site.surface.body ?? []).find((x) => x.name === b.field);
@@ -275,6 +280,13 @@ function triggerReasons(site: LockedCallSite, trigger: Trigger): string[] {
     if (!b.values) reasons.push(`sends ${set.name} in the request body`);
     else if (set.value !== null && b.values.includes(set.value)) reasons.push(`sends ${set.name}: ${JSON.stringify(set.value)} in the request body`);
   }
+  const selections = trigger.graphql?.length ? readableGraphql(site) : undefined;
+  for (const g of trigger.graphql ?? []) {
+    if (!selections || (g.operation && !selections.operations.includes(g.operation))) continue;
+    // The matched fields themselves, not everything selected under them.
+    const hit = graphqlPathsFor(selections, g.field).filter((p, _, all) => !all.some((q) => q !== p && p.startsWith(`${q}.`)));
+    if (hit.length) reasons.push(`selects ${hit.slice(0, 3).join(", ")}${hit.length > 3 ? ` and ${hit.length - 3} more` : ""} in its GraphQL ${g.operation ?? "document"}`);
+  }
   if (trigger.any) reasons.push(`calls ${describe(site)}`);
   return reasons;
 }
@@ -294,4 +306,10 @@ function byFinding(a: Finding, b: Finding): number {
 
 function cmp(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/** The GraphQL document a call sends (the `query` body field), parsed; undefined when it is unknown or unreadable. */
+function readableGraphql(site: LockedCallSite): GraphqlSelections | undefined {
+  const doc = (site.surface.body ?? []).find((x) => x.name === "query")?.value;
+  return doc ? graphqlSelections(doc) : undefined;
 }

@@ -33,7 +33,7 @@ export const EndpointPatternSchema = z.object({
 export type EndpointPattern = z.infer<typeof EndpointPatternSchema>;
 
 /** Trigger lists that can make a call site affected. `newStatusCodes` only suppresses `statusCodes`. */
-const TRIGGER_CONDITIONS = ["statusCodes", "fields", "enums", "headers", "query", "body"] as const;
+const TRIGGER_CONDITIONS = ["statusCodes", "fields", "enums", "headers", "query", "body", "graphql"] as const;
 
 /** The part of a call site's dependency surface that makes it affected rather than merely exposed. */
 export const TriggerSchema = z
@@ -64,12 +64,18 @@ export const TriggerSchema = z
      * (for example `model` set to a retired model). A value the scanner cannot read statically is not a match.
      */
     body: z.array(z.object({ field: z.string().min(1), values: z.array(z.string()).min(1).optional() })).optional(),
+    /**
+     * For a GraphQL endpoint: affected when the request's GraphQL document selects this field. `field` is a root
+     * field (`automaticDiscounts`), a dotted path from the root, or a field name matched at any depth (`priceRule`);
+     * `operation` limits it to queries or mutations. A document SHAPI cannot read makes the call possibly affected.
+     */
+    graphql: z.array(z.object({ field: z.string().min(1), operation: z.enum(["query", "mutation", "subscription"]).optional() })).optional(),
     /** Every call to the endpoint is affected (sunsets, auth and scope changes). */
     any: z.boolean().optional(),
   })
   .refine(
     (t) => t.any === true || TRIGGER_CONDITIONS.some((k) => (t[k]?.length ?? 0) > 0),
-    "trigger needs at least one condition: any, or a non-empty statusCodes, fields, enums, headers, query or body",
+    "trigger needs at least one condition: any, or a non-empty statusCodes, fields, enums, headers, query, body or graphql",
   );
 export type Trigger = z.infer<typeof TriggerSchema>;
 

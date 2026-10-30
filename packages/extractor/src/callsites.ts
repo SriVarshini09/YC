@@ -1,5 +1,6 @@
 import {
   HTTP_METHODS,
+  getProvider,
   pathUnresolved,
   providerForHost,
   providerForPackage,
@@ -90,7 +91,7 @@ export function extractFromFile(sf: SourceFile, file: string): FoundCall[] {
 
   const found: FoundCall[] = [];
   for (const call of descendantsOfKind(sf, SyntaxKind.CallExpression)) {
-    const hit = matchHttp(ctx, call) ?? matchSdk(ctx, call);
+    const hit = matchHttp(ctx, call) ?? matchSdk(ctx, call) ?? matchShopifyAppGraphql(ctx, call);
     if (!hit) continue;
     const { line, column } = position(call.getStart());
     hit.site.file = file;
@@ -537,6 +538,9 @@ function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined
   // are variables, so they are left out.
   const body = operation !== "request" && operation !== "graphql" ? bodyEntries(ctx, options) : [];
   if (body.length) surface.body = body;
+  // A GraphQL client's first argument is the document: recorded as the body's `query`, as a fetch to the endpoint sends it.
+  const document = endpoint && GRAPHQL_PATH.test(endpoint) ? graphqlDocument(ctx, args[0]) : undefined;
+  if (document) surface.body = [{ name: "query", value: document }];
   return {
     call,
     options,
@@ -553,6 +557,59 @@ function matchSdk(ctx: FileContext, call: CallExpression): FoundCall | undefined
       host,
       endpoint,
       resolved: Boolean(method && endpoint),
+      surface,
+    },
+  };
+}
+
+/** A GraphQL endpoint: `/graphql`, or Shopify's `/admin/api/{version}/graphql.json`. */
+const GRAPHQL_PATH = /\/graphql(?:\.json)?$/;
+
+/** Text that starts like a GraphQL document (after an optional `#graphql` marker comment). */
+const looksLikeGraphql = (s: string) => /^\s*(?:#graphql[^\n]*\n\s*)?(?:query|mutation|subscription|fragment)\b|^\s*(?:#graphql[^\n]*\n\s*)?\{/.test(s);
+
+/** The GraphQL document an argument holds: a string or template literal, a `gql`/`graphql` tagged template, or a const of one. */
+function graphqlDocument(ctx: FileContext, node: Node | undefined): string | undefined {
+  if (!node) return undefined;
+  let expr = unwrap(node);
+  if (Node.isIdentifier(expr)) {
+    const init = ctx.consts.get(expr.getText());
+    if (init) expr = unwrap(init);
+  }
+  const text = Node.isTaggedTemplateExpression(expr) ? evalString(ctx, expr.getTemplate()) : evalString(ctx, expr);
+  return text !== undefined && looksLikeGraphql(text) ? text : undefined;
+}
+
+/**
+ * Shopify's app templates (Remix, React Router) call the Admin API through `admin.graphql(document)`, where `admin`
+ * comes from `authenticate.admin(request)` rather than an SDK client SHAPI can see constructed. A `.graphql()` call
+ * with a GraphQL document, in a file that imports from Shopify (a `@shopify/` package or the app's `shopify.server`),
+ * is that call.
+ */
+function matchShopifyAppGraphql(ctx: FileContext, call: CallExpression): FoundCall | undefined {
+  const callee = call.getExpression();
+  if (!Node.isPropertyAccessExpression(callee) || callee.getName() !== "graphql") return undefined;
+  if (![...ctx.imports.values()].some((ref) => /^@shopify\/|(?:^|\/)shopify\.server$/.test(ref.module))) return undefined;
+  const document = graphqlDocument(ctx, call.getArguments()[0]);
+  const provider = getProvider("shopify");
+  if (!document || !provider) return undefined;
+  const surface = emptySurface();
+  surface.body = [{ name: "query", value: document }];
+  return {
+    call,
+    options: call.getArguments()[1],
+    site: {
+      file: "",
+      line: 0,
+      column: 0,
+      provider: provider.id,
+      kind: "sdk",
+      client: `${callee.getExpression().getText()}.graphql`,
+      operation: "graphql",
+      method: "POST",
+      host: null,
+      endpoint: "/admin/api/{version}/graphql.json",
+      resolved: true,
       surface,
     },
   };
