@@ -22,3 +22,4 @@ export function sandboxFromEnv(env: Record<string, string | undefined> = process
   if (env.NODE_ENV === "production") throw new Error("the local sandbox is not isolated and is refused in production; set E2B_API_KEY");
   return localProvider();
 }
+export { SECRET_NAME, SandboxSecretError, assertNoSecrets, hostSecrets } from "./secrets";
