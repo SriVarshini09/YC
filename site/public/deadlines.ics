@@ -1,0 +1,1539 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//SHAPI//API change deadlines//EN
+CALSCALE:GREGORIAN
+X-WR-CALNAME:SHAPI API change deadlines
+BEGIN:VEVENT
+UID:quickbooks-minorversion-below-75-ignored@shapi.dev
+DTSTAMP:20250801T000000Z
+DTSTART;VALUE=DATE:20250801
+DTEND;VALUE=DATE:20250802
+SUMMARY:QuickBooks Online: Minor versions below 75 are silently answered as
+  minor version 75
+DESCRIPTION:Since 2025-08-01 the QuickBooks Online Accounting API ignores a
+ ny minorversion below 75 and responds with minor version 75 data\, without
+  an error. Code pinned to an older minor version receives a different resp
+ onse shape with no signal.\n\nWhat to do: Set minorversion=75 (or remove i
+ t) and re-test parsing against minor version 75 responses.
+URL:https://shapi.dev/advisories/quickbooks-minorversion-below-75-ignored
+END:VEVENT
+BEGIN:VEVENT
+UID:hubspot-marketing-emails-v1-sunset@shapi.dev
+DTSTAMP:20251101T000000Z
+DTSTART;VALUE=DATE:20251101
+DTEND;VALUE=DATE:20251102
+SUMMARY:HubSpot: Marketing Email API v1 sunset on 2025-11-01
+DESCRIPTION:HubSpot sunset the v1 Marketing Email API (/marketing-emails/v1
+ /...) on 2025-11-01 in favour of the Marketing Email v3 API\; requests to 
+ v1 after that date return an error. Other legacy email APIs\, including em
+ ail analytics\, are not affected. HubSpot's changelog post is now a 404\, 
+ so the source is its Wayback Machine copy.\n\nWhat to do: Move email calls
+  from /marketing-emails/v1/emails to the Marketing Email v3 API (POST /mar
+ keting/v3/emails to create\, GET /marketing/v3/emails to list\, GET /marke
+ ting/v3/emails/{emailId} to read one) and read folders from folderIdV2: fo
+ lderId was removed from v3 on 2026-01-28. Other legacy email APIs\, such a
+ s email analytics\, are not part of this sunset.
+URL:https://shapi.dev/advisories/hubspot-marketing-emails-v1-sunset
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-instagram-oembed-fields-removed@shapi.dev
+DTSTAMP:20251103T000000Z
+DTSTART;VALUE=DATE:20251103
+DTEND;VALUE=DATE:20251104
+SUMMARY:Meta Graph API: oEmbed responses no longer return author and thumbn
+ ail fields
+DESCRIPTION:Since 2025-11-03\, on all API versions\, Instagram post oEmbed 
+ responses (GET /{version}/instagram_oembed) no longer include author_name\
+ , author_url\, thumbnail_url\, thumbnail_width or thumbnail_height. The sa
+ me fields were removed from Facebook post and video oEmbed (oembed_post\, 
+ oembed_video)\, and the Facebook page oEmbed endpoint was deprecated.\n\nW
+ hat to do: Stop reading author and thumbnail fields from oEmbed and render
+  the returned html instead. If you need a thumbnail or author\, read them 
+ from the Instagram Graph API media object for media your app can access\, 
+ and treat the oEmbed fields as absent.
+URL:https://shapi.dev/advisories/meta-graph-instagram-oembed-fields-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:slack-files-upload-retired@shapi.dev
+DTSTAMP:20251112T000000Z
+DTSTART;VALUE=DATE:20251112
+DTEND;VALUE=DATE:20251113
+SUMMARY:Slack: files.upload Web API method sunset on 2025-11-12
+DESCRIPTION:Slack deprecated files.upload. Apps created on or after 2024-05
+ -16 could not use it\, and Slack's reference page says the method stops wo
+ rking and is sunset on 2025-11-12 for existing apps too (the date was move
+ d from 2025-03-11). Code that still uploads through files.upload fails wit
+ h method_deprecated or deprecated_endpoint errors.\n\nWhat to do: Replace 
+ files.upload with the two-step flow: call files.getUploadURLExternal (file
+ name\, length) to get an upload_url and file_id\, POST the file bytes to u
+ pload_url\, then call files.completeUploadExternal with the file_id(s) and
+  the channel_id\, initial_comment or thread_ts you used to pass to files.u
+ pload. The official Slack SDKs wrap this as files_upload_v2 / filesUploadV
+ 2 / uploadV2.
+URL:https://shapi.dev/advisories/slack-files-upload-retired
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-page-insights-impressions-fans-removed@shapi.dev
+DTSTAMP:20251115T000000Z
+DTSTART;VALUE=DATE:20251115
+DTEND;VALUE=DATE:20251116
+SUMMARY:Meta Graph API: Page Insights impressions and page fans metrics rem
+ oved on 2025-11-15
+DESCRIPTION:Since 2025-11-15\, on all API versions\, requesting the Page an
+ d post impressions metrics (page_impressions\, page_impressions_paid\, pag
+ e_impressions_viral\, page_impressions_nonviral\, post_impressions\, post_
+ impressions_paid\, post_impressions_fan\, post_impressions_organic\, post_
+ impressions_viral\, post_impressions_nonviral) or the fans metrics (page_f
+ ans\, page_fans_locale\, page_fans_city\, page_fans_country\, page_fan_add
+ s\, page_fan_adds_unique\, page_fan_removes\, page_fan_removes_unique) ret
+ urns an invalid metric error. SHAPI flags calls that request one of these 
+ metrics.\n\nWhat to do: Replace page_impressions with page_media_view and 
+ post_impressions with post_media_view (use the is_from_ads or is_from_foll
+ owers breakdowns for the paid\, organic and fan splits)\, and replace page
+ _fans/page_fans_city/page_fans_country with page_follows/page_follows_city
+ /page_follows_country. Remove the other listed metrics\; one invalid metri
+ c fails the whole insights request.
+URL:https://shapi.dev/advisories/meta-graph-page-insights-impressions-fans-
+ removed
+END:VEVENT
+BEGIN:VEVENT
+UID:github-workflow-dispatch-204-to-200@shapi.dev
+DTSTAMP:20251219T000000Z
+DTSTART;VALUE=DATE:20251219
+DTEND;VALUE=DATE:20251220
+SUMMARY:GitHub: workflow_dispatch returns 200 with a body instead of 204
+DESCRIPTION:POST .../actions/workflows/{workflow_id}/dispatches started ans
+ wering 200 OK with a JSON body (workflow run id) instead of 204 No Content
+ . The OpenAPI schema and docs still said 204\, and there was no changelog\
+ , version\, or preview header. Clients that require exactly 204 treat a su
+ ccessful dispatch as a failure. GitHub later (2026-02-19) documented 200 a
+ s the response when return_run_details is set\, and GitHub CLI v2.87.0+ se
+ ts it by default.\n\nWhat to do: Treat both 200 and 204 as success (any 2x
+ x). If you want the run id\, send return_run_details: true and read it fro
+ m the 200 body.
+URL:https://shapi.dev/advisories/github-workflow-dispatch-204-to-200
+END:VEVENT
+BEGIN:VEVENT
+UID:quickbooks-companyinfo-neoenabled-removed@shapi.dev
+DTSTAMP:20260127T000000Z
+DTSTART;VALUE=DATE:20260127
+DTEND;VALUE=DATE:20260128
+SUMMARY:QuickBooks Online: CompanyInfo no longer returns the NeoEnabled Nam
+ eValue
+DESCRIPTION:Since 2026-01-27 in production (2025-12-10 in sandbox)\, the Co
+ mpanyInfo entity no longer includes the NeoEnabled attribute in its NameVa
+ lue list. Code that looks up NeoEnabled gets no entry\, while the API refe
+ rence samples still show it.\n\nWhat to do: Treat a missing NeoEnabled ent
+ ry in CompanyInfo.NameValue as normal\, and stop deciding behavior from it
+ . The same applies to CompanyInfo returned by the query endpoint.
+URL:https://shapi.dev/advisories/quickbooks-companyinfo-neoenabled-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:hubspot-marketing-emails-folderid-removed@shapi.dev
+DTSTAMP:20260128T000000Z
+DTSTART;VALUE=DATE:20260128
+DTEND;VALUE=DATE:20260129
+SUMMARY:HubSpot: Marketing Email v3 stopped returning folderId on 2026-01-2
+ 8
+DESCRIPTION:HubSpot moved marketing email folders to a v2 folder system and
+  added folderIdV2 to Marketing Email v3 responses. Both fields were return
+ ed side by side until folderId was removed on 2026-01-28\; since then only
+  folderIdV2 is returned\, so code keyed on folderId gets no folder value.\
+ n\nWhat to do: Read folderIdV2 instead of folderId from /marketing/v3/emai
+ ls responses and re-key any stored folder index on folderIdV2 (list emails
+  with folderId__not_null to rebuild it)\; old folderId values no longer ma
+ tch anything the API returns.
+URL:https://shapi.dev/advisories/hubspot-marketing-emails-folderid-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-delivery-method-definition-rate-groups@shapi.dev
+DTSTAMP:20260224T000000Z
+DTSTART;VALUE=DATE:20260224
+DTEND;VALUE=DATE:20260225
+SUMMARY:Shopify: Shopify shipping options move to rateGroups\; rateProvider
+  and methodConditions are legacy
+DESCRIPTION:A shipping option can now hold several tiered rates. DeliveryMe
+ thodDefinition.rateGroups and DeliveryRateDefinition.conditions replace th
+ e legacy rateProvider and methodConditions fields\, and apps that write me
+ rchant-managed delivery profiles must move to the new write API.\n\nWhat t
+ o do: Read shipping options from DeliveryMethodDefinition.rateGroups and D
+ eliveryRateDefinition.conditions\, and use the new write API for merchant-
+ managed delivery profiles\; app-managed profiles need no change.
+URL:https://shapi.dev/advisories/shopify-delivery-method-definition-rate-gr
+ oups
+END:VEVENT
+BEGIN:VEVENT
+UID:x-activity-api-pascalcase-event-types-removed@shapi.dev
+DTSTAMP:20260318T000000Z
+DTSTART;VALUE=DATE:20260318
+DTEND;VALUE=DATE:20260319
+SUMMARY:X (Twitter): X Activity API event types renamed from PascalCase to 
+ dot-separated lowercase
+DESCRIPTION:From 2026-03-18 the X Activity API (XAA) uses dot-separated low
+ ercase event_type values such as profile.update.bio instead of PascalCase 
+ names such as ProfileBioUpdate. Subscriptions created with\, or event hand
+ lers that switch on\, the old names stop matching.\n\nWhat to do: Send the
+  new lowercase names (for example profile.update.bio\, follow.follow\, pos
+ t.create) in POST /2/activity/subscriptions and update every filter\, swit
+ ch statement and deserializer that reads event_type from the activity stre
+ am or webhook payloads.
+URL:https://shapi.dev/advisories/x-activity-api-pascalcase-event-types-remo
+ ved
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-rest-order-line-item-pre-tax-price-removed@shapi.dev
+DTSTAMP:20260323T000000Z
+DTSTART;VALUE=DATE:20260323
+DTEND;VALUE=DATE:20260324
+SUMMARY:Shopify: Shopify removes pre_tax_price from REST order line items
+DESCRIPTION:The pre_tax_price and pre_tax_price_set fields on order line it
+ ems in the REST Admin API are removed. They were only populated for stores
+  using the Avalara AvaTax 1.0 integration\, deprecated in April 2025.\n\nW
+ hat to do: Read order line item pricing from the GraphQL Admin API instead
+  of pre_tax_price.
+URL:https://shapi.dev/advisories/shopify-rest-order-line-item-pre-tax-price
+ -removed
+END:VEVENT
+BEGIN:VEVENT
+UID:stripe-checkout-session-ui-mode-values-renamed@shapi.dev
+DTSTAMP:20260325T000000Z
+DTSTART;VALUE=DATE:20260325
+DTEND;VALUE=DATE:20260326
+SUMMARY:Stripe: Stripe 2026-03-25.dahlia renames Checkout Session ui_mode v
+ alues
+DESCRIPTION:From API version 2026-03-25.dahlia\, Checkout Session ui_mode v
+ alues hosted\, embedded and custom are replaced by hosted_page\, embedded_
+ page and elements (and form is added). Creating a session with an old valu
+ e fails\, and code that compares the returned ui_mode to the old strings s
+ tops matching once the account or SDK is upgraded.\n\nWhat to do: When mov
+ ing to 2026-03-25.dahlia or later\, send ui_mode hosted_page instead of ho
+ sted\, embedded_page instead of embedded and elements instead of custom\, 
+ and update every comparison of session.ui_mode (including checkout.session
+  webhook handlers) to the new values\; handle the new form value too.
+URL:https://shapi.dev/advisories/stripe-checkout-session-ui-mode-values-ren
+ amed
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-inventory-activate-preserves-quantities@shapi.dev
+DTSTAMP:20260401T000000Z
+DTSTART;VALUE=DATE:20260401
+DTEND;VALUE=DATE:20260402
+SUMMARY:Shopify: Shopify inventoryActivate keeps existing quantities instea
+ d of resetting them to zero\, as of 2026-04
+DESCRIPTION:As of Admin API version 2026-04\, inventoryActivate without an 
+ available or onHand argument keeps an inventory level's earlier quantities
+  instead of resetting them to zero.\n\nWhat to do: Pass available or onHan
+ d explicitly to inventoryActivate if your app relied on activation resetti
+ ng quantities to zero.
+URL:https://shapi.dev/advisories/shopify-inventory-activate-preserves-quant
+ ities
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-rest-inventory-connect-preserves-quantities@shapi.dev
+DTSTAMP:20260401T000000Z
+DTSTART;VALUE=DATE:20260401
+DTEND;VALUE=DATE:20260402
+SUMMARY:Shopify: Shopify's REST inventory_levels/connect keeps existing qua
+ ntities instead of resetting them\, as of 2026-04
+DESCRIPTION:As of Admin API version 2026-04\, POST inventory_levels/connect
+ .json keeps an inventory level's earlier quantities instead of resetting t
+ hem to zero.\n\nWhat to do: Set the available quantity explicitly after co
+ nnecting a location if your app relied on it starting at zero.
+URL:https://shapi.dev/advisories/shopify-rest-inventory-connect-preserves-q
+ uantities
+END:VEVENT
+BEGIN:VEVENT
+UID:x-self-serve-follow-writes-removed@shapi.dev
+DTSTAMP:20260416T000000Z
+DTSTART;VALUE=DATE:20260416
+DTEND;VALUE=DATE:20260417
+SUMMARY:X (Twitter): Following users removed from X API self-serve tiers
+DESCRIPTION:X's 2026-04-16 changelog says Following via the API has been re
+ moved from all self-serve tiers (Free\, Basic\, Pro\, pay-per-use)\, leavi
+ ng it to Enterprise. POST /2/users/{id}/following calls with self-serve cr
+ edentials are rejected\; X does not document the status code.\n\nWhat to d
+ o: Remove or feature-flag follow actions for self-serve apps and show user
+ s a clear message (for example a link to the profile so they can follow in
+  the X app)\, or move to an Enterprise agreement.
+URL:https://shapi.dev/advisories/x-self-serve-follow-writes-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:x-self-serve-like-writes-removed@shapi.dev
+DTSTAMP:20260416T000000Z
+DTSTART;VALUE=DATE:20260416
+DTEND;VALUE=DATE:20260417
+SUMMARY:X (Twitter): Liking Posts removed from X API self-serve tiers
+DESCRIPTION:X's 2026-04-16 changelog says Following\, Likes and Quote-Posts
+  via the API have been removed from all self-serve tiers (Free\, Basic\, P
+ ro\, pay-per-use)\, leaving them to Enterprise. POST /2/users/{id}/likes c
+ alls with self-serve credentials are rejected\; X does not document the st
+ atus code. Quote-Posts (POST /2/tweets with quote_tweet_id) are also remov
+ ed but cannot be matched by path.\n\nWhat to do: Remove or feature-flag li
+ ke actions for self-serve apps and surface a clear error to users\, or mov
+ e to an Enterprise agreement. Also drop quote_tweet_id from POST /2/tweets
+  on self-serve keys.
+URL:https://shapi.dev/advisories/x-self-serve-like-writes-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-order-transaction-total-unsettled-fixed@shapi.dev
+DTSTAMP:20260424T000000Z
+DTSTART;VALUE=DATE:20260424
+DTEND;VALUE=DATE:20260425
+SUMMARY:Shopify: Shopify fixes OrderTransaction.totalUnsettledSet for pendi
+ ng captures
+DESCRIPTION:OrderTransaction.totalUnsettledSet no longer double-counts a pe
+ nding capture: for a $100 authorization with a $50 pending capture it retu
+ rns $100\, not $150. The fix applies to all API versions at once and only 
+ affects multi-capture orders.\n\nWhat to do: Check any logic that compensa
+ ted for the inflated totalUnsettledSet on multi-capture orders\; the field
+  now returns the amount still capturable.
+URL:https://shapi.dev/advisories/shopify-order-transaction-total-unsettled-
+ fixed
+END:VEVENT
+BEGIN:VEVENT
+UID:hubspot-contact-lists-v1-sunset@shapi.dev
+DTSTAMP:20260430T000000Z
+DTSTART;VALUE=DATE:20260430
+DTEND;VALUE=DATE:20260501
+SUMMARY:HubSpot: Contact Lists API v1 retired on 2026-04-30\; endpoints ret
+ urn 404
+DESCRIPTION:HubSpot sunset the v1 Contact Lists API on 2026-04-30 (moved fr
+ om 2025-09-30). Since then the /contacts/v1/lists endpoints for creating\,
+  updating\, deleting and reading lists and list contacts return HTTP 404. 
+ The replacement is the Lists API (2026-03 or v3)\, which uses a new listId
+  instead of the v1 legacyListId.\n\nWhat to do: Map each stored legacyList
+ Id to the new listId with GET /crm/lists/2026-03/idmapping?legacyListId=..
+ . (or POST /crm/lists/2026-03/idmapping for up to 10\,000 ids\; ids in mis
+ singLegacyListIds no longer exist)\, then move reads to GET /crm/lists/202
+ 6-03/{listId} and /crm/lists/2026-03/{listId}/memberships\, and membership
+  writes to PUT /crm/lists/2026-03/{listId}/memberships/add\, /remove or /a
+ dd-and-remove. The legacy GET /v1/lists/{legacyListId}/sizeAndEditsHistory
+ /between endpoint was retired too and is not covered by this path pattern.
+URL:https://shapi.dev/advisories/hubspot-contact-lists-v1-sunset
+END:VEVENT
+BEGIN:VEVENT
+UID:hubspot-contacts-v1-list-memberships-removed@shapi.dev
+DTSTAMP:20260430T000000Z
+DTSTART;VALUE=DATE:20260430
+DTEND;VALUE=DATE:20260501
+SUMMARY:HubSpot: v1 contact read endpoints stopped returning list membershi
+ ps on 2026-04-30
+DESCRIPTION:With the Contact Lists v1 sunset\, six v1 contact read endpoint
+ s (get by vid\, email or utk\, and their batch versions) keep working but\
+ , since 2026-04-30\, no longer return list memberships. The field in the v
+ 1 response is list-memberships (requested with showListMemberships)\; code
+  that reads it now gets no membership data\, without an error.\n\nWhat to 
+ do: Stop reading list-memberships from /contacts/v1/contact/... responses.
+  Map stored legacy list ids to new list ids with /crm/lists/2026-03/idmapp
+ ing\, then read list members from GET /crm/lists/2026-03/{listId}/membersh
+ ips (results ordered by record id) and build the contact-to-list mapping f
+ rom that\, or move contact reads to the current CRM objects API together w
+ ith the Lists API.
+URL:https://shapi.dev/advisories/hubspot-contacts-v1-list-memberships-remov
+ ed
+END:VEVENT
+BEGIN:VEVENT
+UID:xero-finance-accounting-activities-decommissioned@shapi.dev
+DTSTAMP:20260504T000000Z
+DTSTART;VALUE=DATE:20260504
+DTEND;VALUE=DATE:20260505
+SUMMARY:Xero: Finance API Accounting Activities endpoints decommissioned
+DESCRIPTION:On 2026-05-04 Xero decommissioned the Finance API's Accounting 
+ Activities API: Account Usage\, Lock History\, Report History and User Act
+ ivities. All of these endpoints now return errors. Xero suggests the Bank 
+ Statements API for cash flow and financial analysis.\n\nWhat to do: Remove
+  calls to /finance.xro/1.0/AccountingActivities/AccountUsage\, LockHistory
+ \, ReportHistory and UserActivities\, along with the features built on the
+ m. For cash-flow or transaction analysis\, move to the Finance API Bank St
+ atements endpoint (/finance.xro/1.0/BankStatementsPlus/statements). Lock h
+ istory and user activity data have no direct replacement.
+URL:https://shapi.dev/advisories/xero-finance-accounting-activities-decommi
+ ssioned
+END:VEVENT
+BEGIN:VEVENT
+UID:reddit-logged-out-json-403@shapi.dev
+DTSTAMP:20260530T000000Z
+DTSTART;VALUE=DATE:20260530
+DTEND;VALUE=DATE:20260531
+SUMMARY:Reddit: Logged-out .json endpoints return 403
+DESCRIPTION:Unauthenticated requests to Reddit's public .json listing endpo
+ ints (for example /r/{subreddit}/top.json) started returning 403 Forbidden
+  around 2026-05-30. Reddit announced the shutdown of unauthenticated .json
+  endpoints in r/modnews on 2026-05-28 and said logged-in and authenticated
+  access is not affected\; the 403 status and the 2026-05-30 date come from
+  third-party reports.\n\nWhat to do: Move to an approved OAuth app and cal
+ l oauth.reddit.com with a bearer token. Reddit's notice points developers 
+ who need structured access to Devvit.
+URL:https://shapi.dev/advisories/reddit-logged-out-json-403
+END:VEVENT
+BEGIN:VEVENT
+UID:google-gemini-2-0-flash-shutdown@shapi.dev
+DTSTAMP:20260601T000000Z
+DTSTART;VALUE=DATE:20260601
+DTEND;VALUE=DATE:20260602
+SUMMARY:Google Gemini API: gemini-2.0-flash and gemini-2.0-flash-lite shut 
+ down on 2026-06-01
+DESCRIPTION:Google shut down gemini-2.0-flash\, gemini-2.0-flash-001\, gemi
+ ni-2.0-flash-lite and gemini-2.0-flash-lite-001 on 2026-06-01. A shut-down
+  model is completely turned off\, so generateContent and streamGenerateCon
+ tent calls that name it in the path fail. Calls that pass the model in a r
+ equest body (as /v1beta/interactions does) or in a variable are not matche
+ d by this path.\n\nWhat to do: Change the model segment to gemini-3.6-flas
+ h (for gemini-2.0-flash) or gemini-3.1-flash-lite (for gemini-2.0-flash-li
+ te)\, for example /v1beta/models/gemini-3.6-flash:generateContent\, and re
+ -test prompts and output parsing.
+URL:https://shapi.dev/advisories/google-gemini-2-0-flash-shutdown
+END:VEVENT
+BEGIN:VEVENT
+UID:google-gemini-2-0-flash-shutdown-sdk@shapi.dev
+DTSTAMP:20260601T000000Z
+DTSTART;VALUE=DATE:20260601
+DTEND;VALUE=DATE:20260602
+SUMMARY:Google Gemini API: gemini-2.0-flash and gemini-2.0-flash-lite shut 
+ down on 2026-06-01 (model in the request body)
+DESCRIPTION:Google shut down gemini-2.0-flash\, gemini-2.0-flash-001\, gemi
+ ni-2.0-flash-lite and gemini-2.0-flash-lite-001 on 2026-06-01. A shut-down
+  model is completely turned off\, so generateContent and streamGenerateCon
+ tent calls fail. This advisory covers calls that pass the model as a param
+ eter\, as the @google/genai SDK does (ai.models.generateContent({ model })
+ )\; google-gemini-2-0-flash-shutdown covers calls that name the model in t
+ he path.\n\nWhat to do: Change the model to gemini-3.6-flash (for gemini-2
+ .0-flash) or gemini-3.1-flash-lite (for gemini-2.0-flash-lite)\, and re-te
+ st prompts and output parsing.
+URL:https://shapi.dev/advisories/google-gemini-2-0-flash-shutdown-sdk
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-page-insights-reach-video-views-removed@shapi.dev
+DTSTAMP:20260615T000000Z
+DTSTART;VALUE=DATE:20260615
+DTEND;VALUE=DATE:20260616
+SUMMARY:Meta Graph API: Page Insights reach and 3-second video viewer metri
+ cs removed on 2026-06-15
+DESCRIPTION:By 2026-06-15\, on all API versions\, the Page/post reach metri
+ cs (page_impressions_unique\, post_impressions_unique and their paid\, vir
+ al\, nonviral\, organic and fan variants\, the page_posts_impressions fami
+ ly\, page_posts_served_impressions_organic_unique) and the 3-second viewer
+  metrics (page_video_views_unique\, post_video_views_unique) return an inv
+ alid metric error. SHAPI flags calls that request one of these metrics.\n\
+ nWhat to do: Switch reach and unique-viewer reporting to page_total_media_
+ view_unique and post_total_media_view_unique (and page_media_view/post_med
+ ia_view with is_from_ads for paid vs organic). The numbers use a different
+  method\, so do not splice them onto historical reach series\, and drop me
+ trics that have no replacement (viral/nonviral reach).
+URL:https://shapi.dev/advisories/meta-graph-page-insights-reach-video-views
+ -removed
+END:VEVENT
+BEGIN:VEVENT
+UID:xero-organisation-class-ultra-enum@shapi.dev
+DTSTAMP:20260630T000000Z
+DTSTART;VALUE=DATE:20260630
+DTEND;VALUE=DATE:20260701
+SUMMARY:Xero: Organisation Class enum gains ULTRA
+DESCRIPTION:Since 2026-06-30 the Organisation endpoint can return Class ULT
+ RA for Australian organisations on the new Xero Ultra plan. Xero warns tha
+ t integrations assuming only the existing values may fail to keep their co
+ nnection to Xero. Strict enum parsing\, including older SDK enums\, can th
+ row on the new value.\n\nWhat to do: Accept unknown Organisation Class val
+ ues instead of failing\, and map ULTRA wherever you branch on plan type. I
+ f you use a generated SDK\, upgrade to a version whose Class enum includes
+  ULTRA\, or deserialize Class as a plain string.
+URL:https://shapi.dev/advisories/xero-organisation-class-ultra-enum
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-customer-payment-method-remote-create-identifier-required@shapi
+ .dev
+DTSTAMP:20260701T000000Z
+DTSTART;VALUE=DATE:20260701
+DTEND;VALUE=DATE:20260702
+SUMMARY:Shopify: Shopify customerPaymentMethodRemoteCreate requires a payme
+ nt method identifier as of 2026-07
+DESCRIPTION:As of Admin API version 2026-07\, customerPaymentMethodRemoteCr
+ eate requires the gateway's payment method identifier: paymentMethodId for
+  Stripe\, customerPaymentProfileId for Authorize.net\, paymentMethodToken 
+ for Braintree.\n\nWhat to do: Send the gateway's payment method identifier
+  with every customerPaymentMethodRemoteCreate call before moving to 2026-0
+ 7.
+URL:https://shapi.dev/advisories/shopify-customer-payment-method-remote-cre
+ ate-identifier-required
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-inventory-set-scheduled-changes-removed@shapi.dev
+DTSTAMP:20260701T000000Z
+DTSTART;VALUE=DATE:20260701
+DTEND;VALUE=DATE:20260702
+SUMMARY:Shopify: Shopify removes the inventorySetScheduledChanges mutation 
+ in API version 2026-07
+DESCRIPTION:As of Admin API version 2026-07\, the inventorySetScheduledChan
+ ges mutation is removed with no replacement.\n\nWhat to do: Remove calls t
+ o inventorySetScheduledChanges. Use inventoryAdjustQuantities for immediat
+ e adjustments\, or schedule changes in your own app.
+URL:https://shapi.dev/advisories/shopify-inventory-set-scheduled-changes-re
+ moved
+END:VEVENT
+BEGIN:VEVENT
+UID:twilio-voice-insights-conference-participant-removed@shapi.dev
+DTSTAMP:20260801T000000Z
+DTSTART;VALUE=DATE:20260801
+DTEND;VALUE=DATE:20260802
+SUMMARY:Twilio: Twilio Voice Insights Call Summary drops attributes.confere
+ nce_participant on 2026-08-01
+DESCRIPTION:On August 1\, 2026 Twilio removed the conference_participant at
+ tribute from the Voice Insights Call Summary (GET /v1/Voice/{CallSid}/Summ
+ ary on insights.twilio.com) and the matching Event Streams event\; attribu
+ tes now returns null for every call. Code that reads attributes.conference
+ _participant gets nothing\, and code that dereferences attributes can thro
+ w.\n\nWhat to do: Stop reading attributes.conference_participant and treat
+  attributes as nullable. Get conference data from the Conference Insights 
+ API or Conference Insights Event Streams instead.
+URL:https://shapi.dev/advisories/twilio-voice-insights-conference-participa
+ nt-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:twilio-rcs-undelivered-error-code-30046@shapi.dev
+DTSTAMP:20260810T000000Z
+DTSTART;VALUE=DATE:20260810
+DTEND;VALUE=DATE:20260811
+SUMMARY:Twilio: Twilio RCS unconfirmed-delivery error code changed from 300
+ 36 to 30046
+DESCRIPTION:Since August 10\, 2026\, an RCS message that cannot be delivere
+ d to an unreachable device fails with error code 30046 (Message delivery n
+ ot confirmed) instead of 30036 (Validity Period Expired). Custom SMS failo
+ ver logic that checks error_code or ErrorCode for 30036 no longer fires\; 
+ Twilio's native SMS fallback is not affected.\n\nWhat to do: Wherever you 
+ branch on error_code (Message resource\; errorCode in the Node.js SDK) or 
+ ErrorCode (status callbacks) to trigger SMS failover for RCS\, treat 30046
+  the same as 30036\, and test the fallback path.
+URL:https://shapi.dev/advisories/twilio-rcs-undelivered-error-code-30046
+END:VEVENT
+BEGIN:VEVENT
+UID:openai-assistants-api-shutdown@shapi.dev
+DTSTAMP:20260826T000000Z
+DTSTART;VALUE=DATE:20260826
+DTEND;VALUE=DATE:20260827
+SUMMARY:OpenAI: Assistants API removed on 2026-08-26
+DESCRIPTION:OpenAI removed the Assistants API on 2026-08-26\, one year afte
+ r its 2025-08-26 deprecation notice. Calls to the assistants endpoints\, a
+ nd to the threads\, messages and runs endpoints that go with them (/v1/thr
+ eads/**)\, no longer work. The replacement is the Responses API plus the C
+ onversations API.\n\nWhat to do: Move assistants to prompts (configuration
+  created in the dashboard)\, threads to Conversations\, and runs to Respon
+ ses (send input items or a conversation id to the Responses API)\, and run
+  the tool-call loop in your own code. Thread messages can no longer be fet
+ ched from the API\, so read history from your own stored copy.
+URL:https://shapi.dev/advisories/openai-assistants-api-shutdown
+END:VEVENT
+BEGIN:VEVENT
+UID:openai-assistants-threads-api-shutdown@shapi.dev
+DTSTAMP:20260826T000000Z
+DTSTART;VALUE=DATE:20260826
+DTEND;VALUE=DATE:20260827
+SUMMARY:OpenAI: Assistants API threads\, messages and runs removed on 2026-
+ 08-26
+DESCRIPTION:OpenAI removed the Assistants API on 2026-08-26\, one year afte
+ r its 2025-08-26 deprecation notice\, including the threads\, messages and
+  runs endpoints that go with it (/v1/threads/**). Calls to them no longer 
+ work. The replacement is the Responses API plus the Conversations API. The
+  assistants endpoints themselves are covered by openai-assistants-api-shut
+ down.\n\nWhat to do: Move assistants to prompts (configuration created in 
+ the dashboard)\, threads to Conversations\, and runs to Responses (send in
+ put items or a conversation id to the Responses API)\, and run the tool-ca
+ ll loop in your own code. Thread messages can no longer be fetched from th
+ e API\, so read history from your own stored copy.
+URL:https://shapi.dev/advisories/openai-assistants-threads-api-shutdown
+END:VEVENT
+BEGIN:VEVENT
+UID:xero-au-payroll-isqualifyingearnings-required@shapi.dev
+DTSTAMP:20260910T000000Z
+DTSTART;VALUE=DATE:20260910
+DTEND;VALUE=DATE:20260911
+SUMMARY:Xero: AU Payroll pay item and earnings rate writes require IsQualif
+ yingEarnings
+DESCRIPTION:Since 2026-09-10\, AU Payroll create and update requests for Ea
+ rnings Rates and Pay Items must include IsQualifyingEarnings. Requests wit
+ hout it return a 400 validation error\, and when it is true the matching s
+ uper flag must agree. The same rule applies to the v2 endpoint POST /payro
+ ll.xro/2.0/earningsRates.\n\nWhat to do: Add IsQualifyingEarnings to every
+  earnings rate sent to POST /payroll.xro/1.0/PayItems\, and isQualifyingEa
+ rnings to POST /payroll.xro/2.0/earningsRates. Keep it consistent with the
+  super flags: when it is true\, Pay Items need IsExemptFromSuper false and
+  Earnings Rates need IsSubjectToSuper true. For rates you read and write b
+ ack\, keep the value Xero returned.
+URL:https://shapi.dev/advisories/xero-au-payroll-isqualifyingearnings-requi
+ red
+END:VEVENT
+BEGIN:VEVENT
+UID:xero-au-payroll-isqualifyingearnings-required-earningsrates@shapi.dev
+DTSTAMP:20260910T000000Z
+DTSTART;VALUE=DATE:20260910
+DTEND;VALUE=DATE:20260911
+SUMMARY:Xero: AU Payroll pay item and earnings rate writes require IsQualif
+ yingEarnings (v2 earningsRates)
+DESCRIPTION:Since 2026-09-10\, AU Payroll create and update requests for Ea
+ rnings Rates and Pay Items must include IsQualifyingEarnings. Requests wit
+ hout it return a 400 validation error\, and when it is true the matching s
+ uper flag must agree. This advisory covers the v2 endpoint POST /payroll.x
+ ro/2.0/earningsRates\; xero-au-payroll-isqualifyingearnings-required cover
+ s POST /payroll.xro/1.0/PayItems.\n\nWhat to do: Add IsQualifyingEarnings 
+ to every earnings rate sent to POST /payroll.xro/1.0/PayItems\, and isQual
+ ifyingEarnings to POST /payroll.xro/2.0/earningsRates. Keep it consistent 
+ with the super flags: when it is true\, Pay Items need IsExemptFromSuper f
+ alse and Earnings Rates need IsSubjectToSuper true. For rates you read and
+  write back\, keep the value Xero returned.
+URL:https://shapi.dev/advisories/xero-au-payroll-isqualifyingearnings-requi
+ red-earningsrates
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-v20-sunset@shapi.dev
+DTSTAMP:20260924T000000Z
+DTSTART;VALUE=DATE:20260924
+DTEND;VALUE=DATE:20260925
+SUMMARY:Meta Graph API: Graph API v20.0 removed\; calls fall forward to the
+  next version
+DESCRIPTION:Graph API v20.0 was deprecated and removed on 2026-09-24. Calls
+  pinned to v20.0 do not fail: they are served by the next oldest usable ve
+ rsion\, so response shapes can change silently.\n\nWhat to do: Move the ve
+ rsion segment to a supported version (v22.0 or later) and re-test the fiel
+ ds you read.
+URL:https://shapi.dev/advisories/meta-graph-v20-sunset
+END:VEVENT
+BEGIN:VEVENT
+UID:stripe-endive-billing-cycle-anchor-object@shapi.dev
+DTSTAMP:20260930T000000Z
+DTSTART;VALUE=DATE:20260930
+DTEND;VALUE=DATE:20261001
+SUMMARY:Stripe: Stripe 2026-09-30.endive requires an object for billing_cyc
+ le_anchor on subscription updates
+DESCRIPTION:From API version 2026-09-30.endive\, billing_cycle_anchor on Su
+ bscription update and resume (and subscription_details.billing_cycle_ancho
+ r on Invoice create_preview) takes an object with a type instead of the st
+ rings now and unchanged\, so requests sending the old string form fail.\n\
+ nWhat to do: When moving to 2026-09-30.endive\, send billing_cycle_anchor:
+  {type: 'now'} instead of 'now' and {type: 'unchanged'} instead of 'unchan
+ ged' when updating or resuming a subscription. For a preview invoice of a 
+ new subscription anchored to a timestamp\, send {type: 'timestamp'\, times
+ tamp: <unix seconds>}.
+URL:https://shapi.dev/advisories/stripe-endive-billing-cycle-anchor-object
+END:VEVENT
+BEGIN:VEVENT
+UID:stripe-endive-checkout-session-payment-method-types-removed@shapi.dev
+DTSTAMP:20260930T000000Z
+DTSTART;VALUE=DATE:20260930
+DTEND;VALUE=DATE:20261001
+SUMMARY:Stripe: Stripe 2026-09-30.endive removes payment_method_types from 
+ Checkout Session creation
+DESCRIPTION:From API version 2026-09-30.endive\, creating a Checkout Sessio
+ n with payment_method_types returns a 400 error. Stripe replaces it with d
+ ynamic payment methods\, excluded_payment_method_types\, or the new allowe
+ d_payment_method_types\, which filters out incompatible types instead of f
+ ailing.\n\nWhat to do: Before moving to 2026-09-30.endive\, stop sending p
+ ayment_method_types when creating Checkout Sessions. Use dynamic payment m
+ ethods (manage them in the Dashboard)\, excluded_payment_method_types to d
+ rop some\, or allowed_payment_method_types to list the ones you accept.
+URL:https://shapi.dev/advisories/stripe-endive-checkout-session-payment-met
+ hod-types-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:stripe-endive-payment-intent-payment-method-types-removed@shapi.dev
+DTSTAMP:20260930T000000Z
+DTSTART;VALUE=DATE:20260930
+DTEND;VALUE=DATE:20261001
+SUMMARY:Stripe: Stripe 2026-09-30.endive removes payment_method_types from 
+ Payment Intent create\, update and confirm
+DESCRIPTION:From API version 2026-09-30.endive\, payment_method_types is no
+  longer writable on Payment Intents: create\, update and confirm requests 
+ that send it return a 400 error. It stays a read-only property on the Paym
+ ent Intent\, listing the computed payment methods.\n\nWhat to do: Before m
+ oving to 2026-09-30.endive\, stop sending payment_method_types when creati
+ ng\, updating or confirming Payment Intents. Use dynamic payment methods\,
+  excluded_payment_method_types\, or allowed_payment_method_types (incompat
+ ible types are filtered out instead of failing). Reading payment_method_ty
+ pes from the returned object still works.
+URL:https://shapi.dev/advisories/stripe-endive-payment-intent-payment-metho
+ d-types-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:stripe-endive-setup-intent-payment-method-types-removed@shapi.dev
+DTSTAMP:20260930T000000Z
+DTSTART;VALUE=DATE:20260930
+DTEND;VALUE=DATE:20261001
+SUMMARY:Stripe: Stripe 2026-09-30.endive removes payment_method_types from 
+ Setup Intent create and update
+DESCRIPTION:From API version 2026-09-30.endive\, payment_method_types is no
+  longer writable on Setup Intents: create and update requests that send it
+  return a 400 error. It stays a read-only property on the Setup Intent.\n\
+ nWhat to do: Before moving to 2026-09-30.endive\, stop sending payment_met
+ hod_types when creating or updating Setup Intents. Use dynamic payment met
+ hods\, excluded_payment_method_types\, or allowed_payment_method_types.
+URL:https://shapi.dev/advisories/stripe-endive-setup-intent-payment-method-
+ types-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:twilio-conference-list-default-in-progress@shapi.dev
+DTSTAMP:20260930T000000Z
+DTSTART;VALUE=DATE:20260930
+DTEND;VALUE=DATE:20261001
+SUMMARY:Twilio: Twilio Conference list returns only in-progress conferences
+  by default from 2026-09-30
+DESCRIPTION:Starting September 30\, 2026 (rollout delayed from July 13\, 20
+ 26)\, GET /2010-04-01/Accounts/{AccountSid}/Conferences.json without a Sta
+ tus filter returns only in-progress conferences instead of in-progress and
+  completed ones. Code that lists conferences without Status and expects co
+ mpleted ones gets silently incomplete results.\n\nWhat to do: Pass Status=
+ completed explicitly when you need completed conferences (reporting\, bill
+ ing or cleanup jobs)\, and make a second request without it for in-progres
+ s ones if you need both\; do not rely on the unfiltered list containing co
+ mpleted conferences.
+URL:https://shapi.dev/advisories/twilio-conference-list-default-in-progress
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-carrier-service-not-added-to-default-profile@shapi.dev
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Shopify: Shopify carrierServiceCreate no longer adds the carrier se
+ rvice to the General shipping profile\, as of 2026-10
+DESCRIPTION:As of Admin API version 2026-10\, creating a carrier service wi
+ th carrierServiceCreate only registers it\; Shopify no longer adds it to t
+ he General shipping profile\, so merchants see no rates from it until it i
+ s added to a profile.\n\nWhat to do: After creating a carrier service\, ad
+ d its rates to a shipping profile with the delivery profile APIs\, or dire
+ ct merchants to add the carrier-calculated rate in the Shopify admin.
+URL:https://shapi.dev/advisories/shopify-carrier-service-not-added-to-defau
+ lt-profile
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-draft-order-warning-price-rule-removed@shapi.dev
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Shopify: Shopify removes priceRule from DraftOrderDiscountNotApplie
+ dWarning in API version 2026-10
+DESCRIPTION:As of Admin API version 2026-10\, the deprecated priceRule fiel
+ d on DraftOrderDiscountNotAppliedWarning (returned by draftOrderCalculate\
+ , draftOrderCreate and draftOrderUpdate) is removed\, and with it the Pric
+ eRule object from the public schema.\n\nWhat to do: Select discountTitle i
+ nstead of priceRule { title } and discountCode instead of priceRule { disc
+ ountCodes { nodes { code } } } on DraftOrderDiscountNotAppliedWarning.
+URL:https://shapi.dev/advisories/shopify-draft-order-warning-price-rule-rem
+ oved
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-order-display-fulfillment-status-not-required@shapi.dev
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Shopify: Shopify OrderDisplayFulfillmentStatus can return FULFILLME
+ NT_NOT_REQUIRED as of 2026-10
+DESCRIPTION:As of Admin API version 2026-10\, Order.displayFulfillmentStatu
+ s can return FULFILLMENT_NOT_REQUIRED for orders with nothing left to fulf
+ ill (cancelled or refunded before fulfillment)\, which returned UNFULFILLE
+ D before.\n\nWhat to do: Handle FULFILLMENT_NOT_REQUIRED wherever the code
+  maps or filters displayFulfillmentStatus\, and stop treating these orders
+  as UNFULFILLED.
+URL:https://shapi.dev/advisories/shopify-order-display-fulfillment-status-n
+ ot-required
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-order-update-shipping-address-recalculates-taxes@shapi.dev
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Shopify: Shopify orderUpdate recalculates taxes when an unfulfilled
+  order's shipping address changes\, as of 2026-10
+DESCRIPTION:As of Admin API version 2026-10\, changing the shipping address
+  of an unfulfilled order with orderUpdate recalculates its taxes and total
+ s against the new destination. Before\, the tax lines were left unchanged.
+ \n\nWhat to do: After updating a shipping address\, read the order's taxLi
+ nes\, totalTaxSet and totals again instead of assuming they are unchanged\
+ ; reconcile any amounts your app stored.
+URL:https://shapi.dev/advisories/shopify-order-update-shipping-address-reca
+ lculates-taxes
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-rest-carrier-service-not-added-to-default-profile@shapi.dev
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Shopify: Shopify's REST carrier service creation no longer adds it 
+ to the General shipping profile\, as of 2026-10
+DESCRIPTION:As of Admin API version 2026-10\, POST carrier_services.json on
+ ly registers the carrier service\; Shopify no longer adds it to the Genera
+ l shipping profile.\n\nWhat to do: After creating a carrier service\, add 
+ its rates to a shipping profile\, or direct merchants to add the carrier-c
+ alculated rate in the Shopify admin.
+URL:https://shapi.dev/advisories/shopify-rest-carrier-service-not-added-to-
+ default-profile
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-rest-order-update-shipping-address-recalculates-taxes@shapi.dev
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Shopify: Shopify's REST order update recalculates taxes when an unf
+ ulfilled order's shipping address changes\, as of 2026-10
+DESCRIPTION:As of Admin API version 2026-10\, changing the shipping address
+  of an unfulfilled order through the REST order update endpoint recalculat
+ es its taxes and totals against the new destination.\n\nWhat to do: After 
+ updating a shipping address\, read the order's tax lines and totals again 
+ instead of assuming they are unchanged.
+URL:https://shapi.dev/advisories/shopify-rest-order-update-shipping-address
+ -recalculates-taxes
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-segment-query-function-syntax@shapi.dev
+DTSTAMP:20261001T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261002
+SUMMARY:Shopify: Shopify segment query functions use MATCHES instead of = t
+ rue as of API version 2026-10
+DESCRIPTION:As of Admin API version 2026-10\, functions in the customer seg
+ ment query language use MATCHES / NOT MATCHES instead of = true / = false 
+ (shopify_email.opened MATCHES ())\, function parameters take their own ope
+ rators\, and the named dates 12_months_ago\, 90_days_ago\, 30_days_ago and
+  7_days_ago are deprecated.\n\nWhat to do: Rewrite segment queries for 202
+ 6-10: replace function() = true with function MATCHES () and = false with 
+ NOT MATCHES ()\, move parameters inside the parentheses (products_purchase
+ d MATCHES (quantity = 5))\, and replace named dates with offsets such as -
+ 12m.
+URL:https://shapi.dev/advisories/shopify-segment-query-function-syntax
+END:VEVENT
+BEGIN:VEVENT
+UID:google-ads-api-v22-sunset@shapi.dev
+DTSTAMP:20261007T000000Z
+DTSTART;VALUE=DATE:20261007
+DTEND;VALUE=DATE:20261008
+SUMMARY:Google APIs: Google Ads API v22 sunset on 2026-10-07
+DESCRIPTION:Google Ads API v22 was sunset on 2026-10-07\; from that date al
+ l v22 requests fail. Code still pinned to /v22/ paths\, or to client libra
+ ry versions that only speak v22\, is broken.\n\nWhat to do: Change the ver
+ sion segment of googleads.googleapis.com paths to a supported version (v24
+  or later is safest\, since v23 sunsets in February 2027)\, upgrade the cl
+ ient library\, and work through each skipped version's breaking-changes li
+ st. The Google Ads API metrics page in the Cloud Console shows which versi
+ oned methods your project still calls.
+URL:https://shapi.dev/advisories/google-ads-api-v22-sunset
+END:VEVENT
+BEGIN:VEVENT
+UID:xero-allocations-contact-mismatch-rejected@shapi.dev
+DTSTAMP:20261008T000000Z
+DTSTART;VALUE=DATE:20261008
+DTEND;VALUE=DATE:20261009
+SUMMARY:Xero: Allocations between documents of different contacts are rejec
+ ted
+DESCRIPTION:Xero is beginning to require (notice of 2026-10-08) a credit no
+ te\, prepayment or overpayment to belong to the same contact as the invoic
+ e or bill it is allocated to. Allocation requests that create a new contac
+ t mismatch return a validation error (HTTP 400). The notice is dated 2026-
+ 10-08 and gives no separate enforcement date.\n\nWhat to do: Before callin
+ g PUT /CreditNotes/{CreditNoteID}/Allocations\, /Prepayments/{PrepaymentID
+ }/Allocations or /Overpayments/{OverpaymentID}/Allocations\, check that Co
+ ntact.ContactID is the same on the source document and on the target invoi
+ ce or bill. On a validation error\, show the user the mismatch instead of 
+ retrying\, because the unchanged request keeps failing.
+URL:https://shapi.dev/advisories/xero-allocations-contact-mismatch-rejected
+END:VEVENT
+BEGIN:VEVENT
+UID:anthropic-api-version-2026-10-21-sampling-params-400@shapi.dev
+DTSTAMP:20261021T000000Z
+DTSTART;VALUE=DATE:20261021
+DTEND;VALUE=DATE:20261022
+SUMMARY:Anthropic: anthropic-version 2026-10-21 rejects temperature\, top_p
+  and top_k with 400
+DESCRIPTION:API version 2026-10-21 (released 2026-10-21 and sent by default
+  by the new major SDK versions) removes temperature\, top_p and top_k from
+  the Messages API: any request that sends one of them returns 400\, even a
+ t the default value. The same version also returns 400 for document blocks
+  in assistant messages and for citations on user text blocks. Requests tha
+ t stay on 2023-06-01 are unchanged.\n\nWhat to do: Before sending anthropi
+ c-version: 2026-10-21 or upgrading to the new SDK majors (Python 2.0.0\, T
+ ypeScript 1.0.0\, Go 2.0.0\, Java 3.0.0\, Ruby 2.0.0\, PHP 1.0.0\, C# 13.0
+ .0)\, remove temperature\, top_p and top_k from Messages\, token-counting 
+ and batch requests\, move document blocks into user messages\, and drop ci
+ tations from user text blocks. If a request depends on a non-default tempe
+ rature\, keep that request on 2023-06-01.
+URL:https://shapi.dev/advisories/anthropic-api-version-2026-10-21-sampling-
+ params-400
+END:VEVENT
+BEGIN:VEVENT
+UID:openai-legacy-gpt-o-series-shutdown-2026-10-23@shapi.dev
+DTSTAMP:20261023T000000Z
+DTSTART;VALUE=DATE:20261023
+DTEND;VALUE=DATE:20261024
+SUMMARY:OpenAI: gpt-3.5-turbo\, gpt-4\, gpt-4-turbo\, o1\, o3-mini and o4-m
+ ini shut down on 2026-10-23
+DESCRIPTION:On 2026-10-23 OpenAI shuts down gpt-3.5-turbo (0125)\, gpt-4 (0
+ 613)\, gpt-4-1106-preview\, gpt-4-turbo\, gpt-4.1-nano\, gpt-4o-2024-05-13
+ \, o1\, o1-pro\, o3-mini and o4-mini\, plus fine-tunes of gpt-3.5-turbo\, 
+ gpt-4\, gpt-4.1-nano and o4-mini. Only calls that send one of these model 
+ names (or their aliases) are hit\; they fail from then on.\n\nWhat to do: 
+ Search request bodies and config for these model names and switch them: gp
+ t-3.5-turbo and o4-mini to gpt-5.6-terra\; gpt-4\, gpt-4-1106-preview\, gp
+ t-4-turbo\, gpt-4o-2024-05-13\, o1 and o3-mini to gpt-5.6-sol\; o1-pro to 
+ gpt-5.6-sol with reasoning.mode: pro\; gpt-4.1-nano to gpt-5.6-luna. Re-ru
+ n fine-tunes on the new base models. The same model names also stop workin
+ g on the Responses and legacy Completions endpoints.
+URL:https://shapi.dev/advisories/openai-legacy-gpt-o-series-shutdown-2026-1
+ 0-23
+END:VEVENT
+BEGIN:VEVENT
+UID:openai-legacy-gpt-o-series-shutdown-2026-10-23-responses@shapi.dev
+DTSTAMP:20261023T000000Z
+DTSTART;VALUE=DATE:20261023
+DTEND;VALUE=DATE:20261024
+SUMMARY:OpenAI: gpt-3.5-turbo\, gpt-4\, gpt-4-turbo\, o1\, o3-mini and o4-m
+ ini shut down on 2026-10-23 (Responses API)
+DESCRIPTION:On 2026-10-23 OpenAI shuts down gpt-3.5-turbo (0125)\, gpt-4 (0
+ 613)\, gpt-4-1106-preview\, gpt-4-turbo\, gpt-4.1-nano\, gpt-4o-2024-05-13
+ \, o1\, o1-pro\, o3-mini and o4-mini\, plus fine-tunes of gpt-3.5-turbo\, 
+ gpt-4\, gpt-4.1-nano and o4-mini. This advisory covers calls to the Respon
+ ses API (POST /v1/responses) that send one of these model names (or their 
+ aliases)\; they fail from then on. openai-legacy-gpt-o-series-shutdown-202
+ 6-10-23 covers chat completions.\n\nWhat to do: Search request bodies and 
+ config for these model names and switch them: gpt-3.5-turbo and o4-mini to
+  gpt-5.6-terra\; gpt-4\, gpt-4-1106-preview\, gpt-4-turbo\, gpt-4o-2024-05
+ -13\, o1 and o3-mini to gpt-5.6-sol\; o1-pro to gpt-5.6-sol with reasoning
+ .mode: pro\; gpt-4.1-nano to gpt-5.6-luna. Re-run fine-tunes on the new ba
+ se models. The same model names also stop working on the Responses and leg
+ acy Completions endpoints.
+URL:https://shapi.dev/advisories/openai-legacy-gpt-o-series-shutdown-2026-1
+ 0-23-responses
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-commerce-order-management-removed@shapi.dev
+DTSTAMP:20261027T000000Z
+DTSTART;VALUE=DATE:20261027
+DTEND;VALUE=DATE:20261028
+SUMMARY:Meta Graph API: Commerce Order Management API removed on all versio
+ ns on 2026-10-27
+DESCRIPTION:Meta deprecated the Commerce Order Management API (47 endpoints
+ \, including GET /{page-id}/commerce_orders and GET /{commerce-merchant-se
+ ttings-id}/commerce_orders) with no replacement. Calls on v26.0+ are block
+ ed since 2026-07-29\, and the endpoints are removed from all remaining ver
+ sions on 2026-10-27. Order sub-resources (items\, shipments\, refunds\, ca
+ ncellations\, payments\, tax_settings) by object id go too\, but only the 
+ commerce_orders list edge is matched here.\n\nWhat to do: There is no repl
+ acement API. Stop calling commerce_orders\, commerce_returns\, tax_setting
+ s and the order\, shipment\, refund and cancellation object reads\, and ha
+ ndle orders in Commerce Manager or your own order system. Guard any remain
+ ing calls so the error does not break sync jobs.
+URL:https://shapi.dev/advisories/meta-graph-commerce-order-management-remov
+ ed
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-date-format-param-removed@shapi.dev
+DTSTAMP:20261027T000000Z
+DTSTART;VALUE=DATE:20261027
+DTEND;VALUE=DATE:20261028
+SUMMARY:Meta Graph API: date_format query parameter returns an error from 2
+ 026-10-27
+DESCRIPTION:Requests that include the legacy date_format parameter return a
+ n error on Graph API v26.0+ since 2026-07-29 and on all supported versions
+  from 2026-10-27. The same change makes pretty and debug ignored and remov
+ es ETag/304 Not Modified behaviour.\n\nWhat to do: Remove date_format from
+  every Graph API request and parse the default ISO 8601 timestamps in your
+  own code. While you are there\, drop any reliance on If-None-Match/304 ca
+ ching and on pretty or debug output.
+URL:https://shapi.dev/advisories/meta-graph-date-format-param-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-delivery-estimate-fields-removed@shapi.dev
+DTSTAMP:20261027T000000Z
+DTSTART;VALUE=DATE:20261027
+DTEND;VALUE=DATE:20261028
+SUMMARY:Meta Graph API: Delivery Estimate drops daily_outcomes_curve\, budg
+ et_guardrail and estimate_dau
+DESCRIPTION:The daily_outcomes_curve\, budget_guardrail and estimate_dau fi
+ elds are removed from GET /{ad-account-id}/delivery_estimate and GET /{ads
+ et-id}/delivery_estimate responses because the service behind them was shu
+ t down. The removal applies to Marketing API v26.0 and to all remaining ve
+ rsions on 2026-10-27\; the calls still succeed but the fields are missing.
+ \n\nWhat to do: Stop requesting and reading daily_outcomes_curve\, budget_
+ guardrail and estimate_dau\; treat them as absent. Meta offers no replacem
+ ent\, so remove any forecasting or budget UI that depends on them or deriv
+ e it from the remaining estimate fields.
+URL:https://shapi.dev/advisories/meta-graph-delivery-estimate-fields-remove
+ d
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-root-ids-lookup-removed@shapi.dev
+DTSTAMP:20261027T000000Z
+DTSTART;VALUE=DATE:20261027
+DTEND;VALUE=DATE:20261028
+SUMMARY:Meta Graph API: Root GET /?ids= multi-object lookup returns an erro
+ r from 2026-10-27
+DESCRIPTION:Graph API dropped legacy protocol features: root requests of th
+ e form GET /?ids=a\,b (or /{version}/?ids=) return an error on v26.0+ sinc
+ e 2026-07-29 and on all supported versions from 2026-10-27. Meta does not 
+ state the error code.\n\nWhat to do: Replace each GET /?ids=... call with 
+ one request per object\, or send the per-object requests in a single batch
+  request (POST / with a batch parameter)\, and merge the results in your c
+ ode.
+URL:https://shapi.dev/advisories/meta-graph-root-ids-lookup-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-global-catalog-rest-api-shutdown@shapi.dev
+DTSTAMP:20261102T000000Z
+DTSTART;VALUE=DATE:20261102
+DTEND;VALUE=DATE:20261103
+SUMMARY:Shopify: Shopify Global Catalog REST API stops serving traffic on 2
+ 026-11-02
+DESCRIPTION:The Global Catalog REST API on discover.shopifyapps.com (/globa
+ l/v2/search\, /global/v2/p/{upid}\, /global/v2/p/by-variant/{vid}\, POST /
+ global/v2/lookup\, including saved-catalog requests) stops serving traffic
+  on November 2\, 2026\, and requests to it will fail. Anything still calli
+ ng it must move to the Global Catalog MCP server.\n\nWhat to do: Switch to
+  the Global Catalog MCP server at https://catalog.shopify.com/api/ucp/mcp:
+  use the search_catalog tool instead of GET /global/v2/search\, get_produc
+ t instead of the single-product and by-variant lookups\, and lookup_catalo
+ g (up to 50 items per request) instead of POST /global/v2/lookup.
+URL:https://shapi.dev/advisories/shopify-global-catalog-rest-api-shutdown
+END:VEVENT
+BEGIN:VEVENT
+UID:xero-nz-payroll-employee-tax-kiwisaverstatus-required@shapi.dev
+DTSTAMP:20261105T000000Z
+DTSTART;VALUE=DATE:20261105
+DTEND;VALUE=DATE:20261106
+SUMMARY:Xero: NZ Payroll employee tax requests without KiwiSaverStatus retu
+ rn 400 from 2026-11-05
+DESCRIPTION:From 2026-11-05\, KiwiSaverStatus is required when creating or 
+ updating employee tax details in NZ Payroll\, for every tax code except WT
+  and NSW. Requests that omit it return 400 Bad Request. Xero says it will 
+ not provide test instances or workarounds.\n\nWhat to do: Send KiwiSaverSt
+ atus explicitly in every POST to /payroll.xro/2.0/Employees/{EmployeeID}/T
+ ax whose tax code is not WT or NSW. Get it from your own employee record o
+ r read the current tax details with a GET before updating. Treat a 400 on 
+ this call as a data error to show the user\, not a reason to retry.
+URL:https://shapi.dev/advisories/xero-nz-payroll-employee-tax-kiwisaverstat
+ us-required
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-marketing-api-v24-sunset@shapi.dev
+DTSTAMP:20261110T000000Z
+DTSTART;VALUE=DATE:20261110
+DTEND;VALUE=DATE:20261111
+SUMMARY:Meta Graph API: Marketing API v24.0 available until 2026-11-10
+DESCRIPTION:Marketing API v24.0 is available until 2026-11-10\, much earlie
+ r than Graph API v24.0. After that\, ads calls pinned to v24.0 either fail
+  or are auto-upgraded to the next version\; endpoints that changed between
+  versions fail. This matches ad account edges (/v24.0/act_{id}/...)\; call
+ s to campaign\, ad set and ad objects by numeric id on v24.0 are affected 
+ too but cannot be told apart from other Graph calls by path.\n\nWhat to do
+ : Move all Marketing API calls (ad accounts\, campaigns\, ad sets\, ads\, 
+ creatives\, insights) to v25.0 or\, better\, v26.0\, and re-test against t
+ he v25.0 and v26.0 changelogs (for example the Advantage+ campaign and tar
+ geting_automation changes) before 2026-11-10.
+URL:https://shapi.dev/advisories/meta-graph-marketing-api-v24-sunset
+END:VEVENT
+BEGIN:VEVENT
+UID:google-gemini-2-5-preview-tts-shutdown@shapi.dev
+DTSTAMP:20261117T000000Z
+DTSTART;VALUE=DATE:20261117
+DTEND;VALUE=DATE:20261118
+SUMMARY:Google Gemini API: Gemini 2.5 preview TTS models shut down on 2026-
+ 11-17
+DESCRIPTION:Google shuts down gemini-2.5-flash-preview-tts and gemini-2.5-p
+ ro-preview-tts on 2026-11-17. After that the models are turned off and spe
+ ech-generation calls that name them in the path fail. Calls that pass the 
+ model in a request body are not matched by this path.\n\nWhat to do: Switc
+ h to gemini-3.8-flash-tts or gemini-3.8-flash-lite-tts before 2026-11-17\;
+  the current speech-generation docs send the model in the body of POST /v1
+ beta/interactions. Re-check voice names and how you decode the returned au
+ dio.
+URL:https://shapi.dev/advisories/google-gemini-2-5-preview-tts-shutdown
+END:VEVENT
+BEGIN:VEVENT
+UID:google-gemini-2-5-preview-tts-shutdown-sdk@shapi.dev
+DTSTAMP:20261117T000000Z
+DTSTART;VALUE=DATE:20261117
+DTEND;VALUE=DATE:20261118
+SUMMARY:Google Gemini API: Gemini 2.5 preview TTS models shut down on 2026-
+ 11-17 (model in the request body)
+DESCRIPTION:Google shuts down gemini-2.5-flash-preview-tts and gemini-2.5-p
+ ro-preview-tts on 2026-11-17. After that the models are turned off and spe
+ ech-generation calls that name them fail. This advisory covers calls that 
+ pass the model as a parameter\, as the @google/genai SDK does (ai.models.g
+ enerateContent({ model }))\; google-gemini-2-5-preview-tts-shutdown covers
+  calls that name the model in the path.\n\nWhat to do: Switch to gemini-3.
+ 8-flash-tts or gemini-3.8-flash-lite-tts before 2026-11-17\; the current s
+ peech-generation docs send the model in the body of POST /v1beta/interacti
+ ons. Re-check voice names and how you decode the returned audio.
+URL:https://shapi.dev/advisories/google-gemini-2-5-preview-tts-shutdown-sdk
+END:VEVENT
+BEGIN:VEVENT
+UID:anthropic-claude-sonnet-4-5-retirement@shapi.dev
+DTSTAMP:20261130T000000Z
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+SUMMARY:Anthropic: Claude Sonnet 4.5 retires on 2026-11-30
+DESCRIPTION:Anthropic retires claude-sonnet-4-5-20250929 on the Claude API 
+ on 2026-11-30 (announced 2026-09-30). Only calls that send this model are 
+ hit\; requests to a retired model fail.\n\nWhat to do: Change the model to
+  claude-sonnet-5-5 (Anthropic's recommended replacement) and follow the So
+ nnet 4.5 to 5.5 migration guide\, because some request shapes Sonnet 4.5 a
+ ccepts (for example sampling parameters or forced tool use) can return 400
+  on newer models. Amazon Bedrock and Google-managed Google Cloud set their
+  own retirement dates.
+URL:https://shapi.dev/advisories/anthropic-claude-sonnet-4-5-retirement
+END:VEVENT
+BEGIN:VEVENT
+UID:openai-evals-api-shutdown@shapi.dev
+DTSTAMP:20261130T000000Z
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+SUMMARY:OpenAI: Evals API shuts down on 2026-11-30
+DESCRIPTION:OpenAI is retiring the Evals platform: existing evals become re
+ ad-only on 2026-10-31\, and the Evals dashboard and API shut down on 2026-
+ 11-30. After that\, calls to /v1/evals and its runs fail.\n\nWhat to do: E
+ xport the eval definitions and results you need before 2026-11-30\, stop c
+ reating or updating evals (they are read-only from 2026-10-31)\, and move 
+ eval runs to Promptfoo following OpenAI's "Moving from OpenAI Evals to Pro
+ mptfoo" guide.
+URL:https://shapi.dev/advisories/openai-evals-api-shutdown
+END:VEVENT
+BEGIN:VEVENT
+UID:salesforce-soap-login-use-any-api-auth-required@shapi.dev
+DTSTAMP:20261201T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:Salesforce: SOAP login() requires the Use Any API Auth permission f
+ rom 2026-12-01
+DESCRIPTION:Salesforce enforces a new control on SOAP API login() in all or
+ gs on 2026-12-01: login() succeeds only for users with the Use Any API Aut
+ h user permission\, and otherwise is rejected with INSUFFICIENT_ACCESS. It
+  is already the default in new orgs. It applies to login() on the Enterpri
+ se (/services/Soap/c/{v}) and Partner (/services/Soap/u/{v}) endpoints in 
+ API 31.0-64.0\; login() is already unavailable in 65.0 and later.\n\nWhat 
+ to do: Assign the Use Any API Auth permission (permission set or profile) 
+ to every integration user that still calls SOAP login()\, and test with th
+ e 'Assign Use Any API Auth Permission for SOAP login()' release update. Pl
+ an the real fix at the same time: authenticate through an External Client 
+ App with OAuth 2.0 (JWT bearer or client credentials for server-to-server\
+ , web server flow for user-driven apps)\, because login() is retired in Su
+ mmer '27.
+URL:https://shapi.dev/advisories/salesforce-soap-login-use-any-api-auth-req
+ uired
+END:VEVENT
+BEGIN:VEVENT
+UID:hubspot-pipelines-v1-sunset@shapi.dev
+DTSTAMP:20261204T000000Z
+DTSTART;VALUE=DATE:20261204
+DTEND;VALUE=DATE:20261205
+SUMMARY:HubSpot: Pipelines API v1 retired on 2026-12-04
+DESCRIPTION:HubSpot retires the legacy CRM Pipelines API v1 on 2026-12-04\;
+  after that\, calls to v1 endpoints stop working. The replacement is the P
+ ipelines API 2026-09 version (GA 2026-09-09). The /crm-pipelines/v1 path c
+ omes from HubSpot's legacy v1 reference\; the notice itself names no paths
+ .\n\nWhat to do: Call GET /crm/pipelines/2026-09/{objectType} (HubSpot's O
+ penAPI spec for the 2026-09 Pipelines API) instead of /crm-pipelines/v1/pi
+ pelines/{objectType} before 2026-12-04. The response keeps results[] and s
+ tages[]\, but pipelines and stages are identified by id instead of pipelin
+ eId and stageId.
+URL:https://shapi.dev/advisories/hubspot-pipelines-v1-sunset
+END:VEVENT
+BEGIN:VEVENT
+UID:salesforce-soap-login-broad-ip-range-token-required@shapi.dev
+DTSTAMP:20261215T000000Z
+DTSTART;VALUE=DATE:20261215
+DTEND;VALUE=DATE:20261216
+SUMMARY:Salesforce: SOAP login() from a broad IP range needs a security tok
+ en from 2026-12-15
+DESCRIPTION:Starting 2026-12-15 in sandboxes and 2027-01-31 in production\,
+  SOAP API login() for a user whose org or profile login IP range is broad 
+ (larger than /8 IPv4 or /29 IPv6) fails without a security token (or mTLS)
+ \; username and password alone fail with TOKEN_REQUIRED (Login History res
+ ult 1502). It applies to login() on /services/Soap/c/{v} and /services/Soa
+ p/u/{v} in API 31.0-64.0.\n\nWhat to do: Preferably switch the integration
+  to an External Client App with OAuth 2.0 before 2026-12-15 (sandbox) / 20
+ 27-01-31 (production). As a stopgap\, append the user's security token to 
+ the password in the login() call\, or narrow the org Network Access or pro
+ file Login IP Ranges so they are no longer broad\; test with the 'SOAP API
+  login() Security Remediation' release update.
+URL:https://shapi.dev/advisories/salesforce-soap-login-broad-ip-range-token
+ -required
+END:VEVENT
+BEGIN:VEVENT
+UID:salesforce-soap-login-disabled-when-unused@shapi.dev
+DTSTAMP:20261215T000000Z
+DTSTART;VALUE=DATE:20261215
+DTEND;VALUE=DATE:20261216
+SUMMARY:Salesforce: SOAP login() turned off in orgs with no use in six mont
+ hs\, from 2026-12-15
+DESCRIPTION:In a one-time check on 2026-12-15 (sandboxes) and 2027-01-31 (p
+ roduction)\, Salesforce disables SOAP API login() in orgs that had no SOAP
+  login() call in the previous six months\; after that\, login() fails in t
+ hat org. Rarely run jobs (annual\, seasonal\, disaster recovery) can look 
+ inactive and then break. One call by any user in the window keeps login() 
+ on.\n\nWhat to do: Check Login History (API Type SOAP Enterprise/Partner) 
+ and the API Total Usage event log (API_FAMILY SOAP\, API_RESOURCE login) f
+ or every integration that uses SOAP login()\, including rarely run jobs\, 
+ and move them to an External Client App with OAuth 2.0 before 2026-12-15 (
+ sandbox) / 2027-01-31 (production).
+URL:https://shapi.dev/advisories/salesforce-soap-login-disabled-when-unused
+END:VEVENT
+BEGIN:VEVENT
+UID:google-custom-search-json-api-shutdown@shapi.dev
+DTSTAMP:20270101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Google APIs: Custom Search JSON API discontinued on 2027-01-01
+DESCRIPTION:The Custom Search JSON API is closed to new customers\, and exi
+ sting customers have until 2027-01-01 to move off it\; Google calls that d
+ ate the service discontinuation. After that\, calls to /customsearch/v1 st
+ op working.\n\nWhat to do: Replace calls to www.googleapis.com/customsearc
+ h/v1 before 2027-01-01: Google points to Vertex AI Search for searching up
+  to 50 domains\, and to its interest form for full-web search. Expect a di
+ fferent request format\, response shape and pricing.
+URL:https://shapi.dev/advisories/google-custom-search-json-api-shutdown
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-automatic-discounts-query-removed@shapi.dev
+DTSTAMP:20270101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Shopify: Shopify removes the automaticDiscounts query in API versio
+ n 2027-01
+DESCRIPTION:As of Admin API version 2027-01\, the deprecated automaticDisco
+ unts query no longer exists on QueryRoot\, and requests that include it re
+ turn a validation error. DiscountAutomaticConnection and DiscountAutomatic
+ Edge are removed too.\n\nWhat to do: Query discountNodes with query: "meth
+ od:automatic" and read each discount from the discount field. Don't move t
+ o automaticDiscountNodes\, which is also deprecated.
+URL:https://shapi.dev/advisories/shopify-automatic-discounts-query-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-collection-metafield-integer-condition-removed@shapi.dev
+DTSTAMP:20270101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Shopify: Shopify removes the metafieldInteger collection condition 
+ in API version 2027-01
+DESCRIPTION:As of Admin API version 2027-01\, the metafieldInteger collecti
+ on source condition inputs and types are removed and replaced by metafield
+ Int\, whose value is a String instead of an Int.\n\nWhat to do: Before mov
+ ing to 2027-01\, replace metafieldInteger with metafieldInt in collection 
+ condition inputs and reads (CollectionSourceInclusionConditionMetafieldInt
+ )\, and send the value as a String.
+URL:https://shapi.dev/advisories/shopify-collection-metafield-integer-condi
+ tion-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-market-currency-settings-update-removed@shapi.dev
+DTSTAMP:20270101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Shopify: Shopify removes the marketCurrencySettingsUpdate mutation 
+ in API version 2027-01
+DESCRIPTION:As of Admin API version 2027-01\, the marketCurrencySettingsUpd
+ ate mutation and its payload and error types are removed. Every call alrea
+ dy returns the UNIFIED_MARKETS_ENABLED user error\; on 2027-01 the request
+  is rejected at validation.\n\nWhat to do: Set market currency settings th
+ rough marketCreate and marketUpdate\, which accept them directly\, and rem
+ ove calls to marketCurrencySettingsUpdate before moving to 2027-01.
+URL:https://shapi.dev/advisories/shopify-market-currency-settings-update-re
+ moved
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-metaobject-admin-access-private-public-read-removed@shapi.dev
+DTSTAMP:20270101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Shopify: Shopify deprecates the PRIVATE and PUBLIC_READ metaobject 
+ admin access values
+DESCRIPTION:The PRIVATE and PUBLIC_READ values of the MetaobjectAdminAccess
+  enum are deprecated and are never returned by the API\; they go away with
+  API version 2027-01.\n\nWhat to do: Stop sending PRIVATE or PUBLIC_READ a
+ s a metaobject definition's admin access\, and drop code that expects them
+  back.
+URL:https://shapi.dev/advisories/shopify-metaobject-admin-access-private-pu
+ blic-read-removed
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-non-expiring-offline-tokens-rejected@shapi.dev
+DTSTAMP:20270101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Shopify: Shopify rejects non-expiring offline access tokens from pu
+ blic apps on 2027-01-01
+DESCRIPTION:Starting January 1\, 2027\, every public app (including ones cr
+ eated before April 1\, 2026) must use expiring offline access tokens to ca
+ ll the Admin API. Shopify enforces this on GraphQL Admin API requests: a r
+ equest with a non-expiring token gets 403 Forbidden with "Non-expiring acc
+ ess tokens are no longer accepted for the Admin API"\, and merchants lose 
+ access until they re-authenticate. Custom apps and merchant-created apps a
+ re not affected.\n\nWhat to do: Exchange each stored non-expiring token fo
+ r an expiring one with POST /admin/oauth/access_token (grant_type=urn:ietf
+ :params:oauth:grant-type:token-exchange\, subject_token_type and requested
+ _token_type urn:shopify:params:oauth:token-type:offline-access-token\, exp
+ iring=1)\, store the access token\, refresh token and expiry\, and refresh
+  before expiry\; on the official app templates set future.expiringOfflineA
+ ccessTokens: true and redeploy. Check API Health in the Dev Dashboard to c
+ onfirm the app is migrated.
+URL:https://shapi.dev/advisories/shopify-non-expiring-offline-tokens-reject
+ ed
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-tax-managed-mode-write-validation@shapi.dev
+DTSTAMP:20270101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Shopify: Shopify Tax managed mode rejects market and publishing wri
+ tes that conflict with it
+DESCRIPTION:For stores using Shopify Tax managed mode\, Markets API writes 
+ and product publishing writes can now fail validation when they conflict w
+ ith managed-mode requirements\, and the taxable input on custom line items
+  is deprecated in favor of productCategoryId.\n\nWhat to do: Handle valida
+ tion errors from marketCreate\, marketUpdate and publishablePublish for st
+ ores in Shopify Tax managed mode\, and omit tax settings your app doesn't 
+ need to manage. For custom line items\, send productCategoryId instead of 
+ taxable.
+URL:https://shapi.dev/advisories/shopify-tax-managed-mode-write-validation
+END:VEVENT
+BEGIN:VEVENT
+UID:openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14@shapi.dev
+DTSTAMP:20270114T000000Z
+DTSTART;VALUE=DATE:20270114
+DTEND;VALUE=DATE:20270115
+SUMMARY:OpenAI: gpt-4o\, gpt-4o-mini\, gpt-4.1 and gpt-4.1-mini snapshots s
+ hut down on 2027-01-14
+DESCRIPTION:OpenAI shuts down gpt-4o-2024-08-06\, gpt-4o-2024-11-20\, gpt-4
+ o-mini-2024-07-18\, gpt-4.1-2025-04-14 and gpt-4.1-mini-2025-04-14 on 2027
+ -01-14\, and fine-tunes of these models follow the same date. Only calls t
+ hat send one of these models are hit. The notice lists dated snapshots and
+  does not say what happens to the undated gpt-4o or gpt-4o-mini aliases.\n
+ \nWhat to do: Replace these model names with gpt-6-luna (OpenAI's recommen
+ ded replacement) in request bodies and config\, re-run fine-tunes on a sup
+ ported base model\, and compare output quality before 2027-01-14. The same
+  model names are also used on the Responses API.
+URL:https://shapi.dev/advisories/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2
+ 027-01-14
+END:VEVENT
+BEGIN:VEVENT
+UID:openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses@shapi.dev
+DTSTAMP:20270114T000000Z
+DTSTART;VALUE=DATE:20270114
+DTEND;VALUE=DATE:20270115
+SUMMARY:OpenAI: gpt-4o\, gpt-4o-mini\, gpt-4.1 and gpt-4.1-mini snapshots s
+ hut down on 2027-01-14 (Responses API)
+DESCRIPTION:OpenAI shuts down gpt-4o-2024-08-06\, gpt-4o-2024-11-20\, gpt-4
+ o-mini-2024-07-18\, gpt-4.1-2025-04-14 and gpt-4.1-mini-2025-04-14 on 2027
+ -01-14\, and fine-tunes of these models follow the same date. This advisor
+ y covers calls to the Responses API (POST /v1/responses) that send one of 
+ these models\; openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14 covers 
+ chat completions. The notice lists dated snapshots and does not say what h
+ appens to the undated gpt-4o or gpt-4o-mini aliases.\n\nWhat to do: Replac
+ e these model names with gpt-6-luna (OpenAI's recommended replacement) in 
+ request bodies and config\, re-run fine-tunes on a supported base model\, 
+ and compare output quality before 2027-01-14. The same model names are als
+ o used on the Responses API.
+URL:https://shapi.dev/advisories/openai-gpt-4o-gpt-4-1-snapshots-shutdown-2
+ 027-01-14-responses
+END:VEVENT
+BEGIN:VEVENT
+UID:xero-invoices-email-daily-limit-429@shapi.dev
+DTSTAMP:20270114T000000Z
+DTSTART;VALUE=DATE:20270114
+DTEND;VALUE=DATE:20270115
+SUMMARY:Xero: Invoice email daily limit returns 429 instead of 500 from 202
+ 7-01-14
+DESCRIPTION:From 2027-01-14\, POST Invoices/{InvoiceID}/Email returns 429 T
+ oo Many Requests instead of a generic 500 when the organisation reaches it
+ s daily invoice-email limit. The 429 has no Retry-After header. Code that 
+ treats 500 as a retryable server error\, or retries a 429 at once with a s
+ hort backoff\, will mishandle the limit.\n\nWhat to do: Handle a 429 from 
+ the invoice Email endpoint separately from the per-minute rate limit. It i
+ s a daily limit with no Retry-After header\, so don't retry immediately. Q
+ ueue the send for after the daily reset\, or tell the user sending was del
+ ayed. Stop relying on a 500 to detect this case.
+URL:https://shapi.dev/advisories/xero-invoices-email-daily-limit-429
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-admin-api-2026-01-unsupported@shapi.dev
+DTSTAMP:20270116T000000Z
+DTSTART;VALUE=DATE:20270116
+DTEND;VALUE=DATE:20270117
+SUMMARY:Shopify: Shopify Admin API version 2026-01 becomes unsupported on 2
+ 027-01-16
+DESCRIPTION:Admin API version 2026-01 is accessible until January 16\, 2027
+  15:00 UTC. After that\, requests to /admin/api/2026-01/... (REST and Grap
+ hQL) and webhooks pinned to 2026-01 fall forward to the oldest accessible 
+ stable version without an error\, so responses can change shape silently. 
+ Every app still pinned to 2026-01 is hit.\n\nWhat to do: Move the version 
+ segment in your Admin API URLs and webhook subscriptions to a supported ve
+ rsion (2026-04 or later\; 2026-10 is the latest stable)\, work through the
+  release notes for every version in between\, and check the X-Shopify-API-
+ Version response header to confirm Shopify is not falling forward.
+URL:https://shapi.dev/advisories/shopify-admin-api-2026-01-unsupported
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-v21-sunset@shapi.dev
+DTSTAMP:20270121T000000Z
+DTSTART;VALUE=DATE:20270121
+DTEND;VALUE=DATE:20270122
+SUMMARY:Meta Graph API: Graph API v21.0 removed on 2027-01-21
+DESCRIPTION:Graph API v21.0 is deprecated and removed on 2027-01-21. After 
+ that\, calls pinned to v21.0 are served by the next oldest usable version 
+ without an error.\n\nWhat to do: Move the version segment to a supported v
+ ersion (v22.0 or later) and re-test the fields you read.
+URL:https://shapi.dev/advisories/meta-graph-v21-sunset
+END:VEVENT
+BEGIN:VEVENT
+UID:twilio-notify-end-of-life@shapi.dev
+DTSTAMP:20270131T000000Z
+DTSTART;VALUE=DATE:20270131
+DTEND;VALUE=DATE:20270201
+SUMMARY:Twilio: Twilio Notify reaches end of life on 2027-01-31
+DESCRIPTION:Twilio Notify (notify.twilio.com\, e.g. POST /v1/Services/{Serv
+ iceSid}/Notifications) has been unsupported and closed to new customers si
+ nce October 2022 and reaches end of life for existing customers on 2027-01
+ -31\, per Twilio's Help Center (superseding the 2025-12-31 date in the Jan
+ uary 2024 changelog). Push sent through Verify\, Voice\, Conversations or 
+ Engage is not affected.\n\nWhat to do: Move bulk SMS sends to the Messagin
+ g API (or Twilio's Bulk Messaging API) and push notifications to a direct 
+ APNs/FCM integration or another push provider\, then remove Notify Service
+ s and Bindings.
+URL:https://shapi.dev/advisories/twilio-notify-end-of-life
+END:VEVENT
+BEGIN:VEVENT
+UID:quickbooks-refresh-token-five-year-hard-expiry@shapi.dev
+DTSTAMP:20270201T000000Z
+DTSTART;VALUE=DATE:20270201
+DTEND;VALUE=DATE:20270202
+SUMMARY:QuickBooks Online: Refresh tokens hard-expire after five years\, fi
+ rst ones in February 2027
+DESCRIPTION:Intuit refresh tokens now have a maximum lifetime of five years
+ \, even if they are used regularly. For apps on restricted or granular sco
+ pes\, tokens issued from February 2022 start expiring in February 2027. Fo
+ r com.intuit.quickbooks.accounting and com.intuit.quickbooks.payments\, to
+ kens issued from October 2023 start expiring in October 2028. Intuit gives
+  only the month\, so the effective date here is the first day of that mont
+ h.\n\nWhat to do: On token requests\, send the header x-include-refresh-to
+ ken-hard-expires-in: true (Intuit's docs also list an x_refresh_token_hard
+ _expires_in=true parameter) and store the returned x_refresh_token_hard_ex
+ pires_in (seconds left in the five-year lifetime) alongside the token. Tre
+ at invalid_grant from /oauth2/v1/tokens/bearer as a disconnect that needs 
+ the user to reconnect\, not as a retryable error. Prompt users to re-autho
+ rize before the hard expiry\, and set the Reconnect URL in the developer p
+ ortal app settings.
+URL:https://shapi.dev/advisories/quickbooks-refresh-token-five-year-hard-ex
+ piry
+END:VEVENT
+BEGIN:VEVENT
+UID:meta-graph-marketing-api-v25-sunset@shapi.dev
+DTSTAMP:20270223T000000Z
+DTSTART;VALUE=DATE:20270223
+DTEND;VALUE=DATE:20270224
+SUMMARY:Meta Graph API: Marketing API v25.0 available until 2027-02-23
+DESCRIPTION:Marketing API v25.0 is available until 2027-02-23 (Graph API v2
+ 5.0 itself runs to 2028). After that\, ads calls pinned to v25.0 fail or a
+ re auto-upgraded\, and endpoints that changed in v26.0 fail. Meta also say
+ s the explicit targeting_automation.advantage_audience flag becomes mandat
+ ory on all versions once v25.0 is deprecated.\n\nWhat to do: Upgrade Marke
+ ting API calls to v26.0\, set targeting_automation.advantage_audience to 1
+  or 0 explicitly on ad set targeting\, and review the v26.0 changelog (pol
+ l ads\, Messenger Stories\, Explore placement\, delivery estimate fields) 
+ before 2027-02-23.
+URL:https://shapi.dev/advisories/meta-graph-marketing-api-v25-sunset
+END:VEVENT
+BEGIN:VEVENT
+UID:openai-audio-translations-endpoint-shutdown@shapi.dev
+DTSTAMP:20270226T000000Z
+DTSTART;VALUE=DATE:20270226
+DTEND;VALUE=DATE:20270227
+SUMMARY:OpenAI: /v1/audio/translations shuts down on 2027-02-26
+DESCRIPTION:OpenAI deprecated the audio translations endpoint on 2026-08-26
+  and shuts it down on 2027-02-26\, together with whisper-1 and the gpt-4o 
+ transcribe models. After that date every call to POST /v1/audio/translatio
+ ns fails.\n\nWhat to do: Replace calls to POST /v1/audio/translations with
+  the Realtime translations interface (v1/realtime/translations) that OpenA
+ I names as the replacement\, and move transcription off whisper-1 to gpt-l
+ ive-transcribe or gpt-transcribe before 2027-02-26.
+URL:https://shapi.dev/advisories/openai-audio-translations-endpoint-shutdow
+ n
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-script-tags-stop-running@shapi.dev
+DTSTAMP:20270301T000000Z
+DTSTART;VALUE=DATE:20270301
+DTEND;VALUE=DATE:20270302
+SUMMARY:Shopify: Shopify script tags stop running on storefronts on 2027-03
+ -01
+DESCRIPTION:Script tags are deprecated in every Admin API version. Since Oc
+ tober 1\, 2026 the REST ScriptTag resource rejects POST and PUT and the Gr
+ aphQL scriptTagCreate and scriptTagUpdate mutations return a user error\; 
+ on March 1\, 2027 Shopify stops injecting existing script tags into storef
+ ronts\, so their JavaScript no longer loads. Listing and deleting script t
+ ags keeps working.\n\nWhat to do: Stop creating or updating script tags (P
+ OST /admin/api/{version}/script_tags.json and PUT .../script_tags/{script_
+ tag_id}.json already fail). Move storefront scripts to app embed blocks in
+  a theme app extension\, and analytics or conversion scripts to a web pixe
+ l\; then delete the old script tags. Pinning an older API version does not
+  delay this.
+URL:https://shapi.dev/advisories/shopify-script-tags-stop-running
+END:VEVENT
+BEGIN:VEVENT
+UID:google-gemini-2-5-flash-image-shutdown@shapi.dev
+DTSTAMP:20270315T000000Z
+DTSTART;VALUE=DATE:20270315
+DTEND;VALUE=DATE:20270316
+SUMMARY:Google Gemini API: gemini-2.5-flash-image shuts down on 2027-03-15
+DESCRIPTION:Google shuts down gemini-2.5-flash-image (the original Nano Ban
+ ana image model) on 2027-03-15. After that the model is turned off and gen
+ erateContent calls that name it in the path fail. Calls that pass the mode
+ l in a request body are not matched by this path.\n\nWhat to do: Move imag
+ e generation to gemini-3.1-flash-lite-image\, the replacement on the depre
+ cations page\, before 2027-03-15\, and re-test how you read the returned i
+ mage parts.
+URL:https://shapi.dev/advisories/google-gemini-2-5-flash-image-shutdown
+END:VEVENT
+BEGIN:VEVENT
+UID:google-gemini-2-5-flash-image-shutdown-sdk@shapi.dev
+DTSTAMP:20270315T000000Z
+DTSTART;VALUE=DATE:20270315
+DTEND;VALUE=DATE:20270316
+SUMMARY:Google Gemini API: gemini-2.5-flash-image shuts down on 2027-03-15 
+ (model in the request body)
+DESCRIPTION:Google shuts down gemini-2.5-flash-image (the original Nano Ban
+ ana image model) on 2027-03-15. After that the model is turned off and gen
+ erateContent calls that name it fail. This advisory covers calls that pass
+  the model as a parameter\, as the @google/genai SDK does (ai.models.gener
+ ateContent({ model }))\; google-gemini-2-5-flash-image-shutdown covers cal
+ ls that name the model in the path.\n\nWhat to do: Move image generation t
+ o gemini-3.1-flash-lite-image\, the replacement on the deprecations page\,
+  before 2027-03-15\, and re-test how you read the returned image parts.
+URL:https://shapi.dev/advisories/google-gemini-2-5-flash-image-shutdown-sdk
+END:VEVENT
+BEGIN:VEVENT
+UID:shopify-admin-api-2026-04-unsupported@shapi.dev
+DTSTAMP:20270416T000000Z
+DTSTART;VALUE=DATE:20270416
+DTEND;VALUE=DATE:20270417
+SUMMARY:Shopify: Shopify Admin API version 2026-04 becomes unsupported on 2
+ 027-04-16
+DESCRIPTION:Admin API version 2026-04 is accessible until April 16\, 2027 1
+ 5:00 UTC. After that\, requests to /admin/api/2026-04/... (REST and GraphQ
+ L) and webhooks pinned to 2026-04 fall forward to the oldest accessible st
+ able version without an error\, so responses can change shape silently. Ev
+ ery app still pinned to 2026-04 is hit.\n\nWhat to do: Move the version se
+ gment in your Admin API URLs and webhook subscriptions to a supported vers
+ ion (2026-07 or later\; 2026-10 is the latest stable)\, work through the r
+ elease notes for every version in between\, and check the X-Shopify-API-Ve
+ rsion response header to confirm Shopify is not falling forward.
+URL:https://shapi.dev/advisories/shopify-admin-api-2026-04-unsupported
+END:VEVENT
+BEGIN:VEVENT
+UID:xero-accounting-transactions-scope-split@shapi.dev
+DTSTAMP:20270913T000000Z
+DTSTART;VALUE=DATE:20270913
+DTEND;VALUE=DATE:20270914
+SUMMARY:Xero: Broad accounting.transactions scope replaced by granular scop
+ es
+DESCRIPTION:Xero split accounting.transactions into granular scopes (invoic
+ es\, payments\, bank transactions\, manual journals\, classic expenses\, e
+ ach with a .read variant). Apps created after 2026-03-02 must request gran
+ ular scopes\; existing apps keep the broad scopes until September 2027\, a
+ nd each connected user must re-authorize to receive the new ones.\n\nWhat 
+ to do: Request the granular scopes in the authorization URL and have each 
+ connection re-authorize before the cutoff.
+URL:https://shapi.dev/advisories/xero-accounting-transactions-scope-split
+END:VEVENT
+END:VCALENDAR

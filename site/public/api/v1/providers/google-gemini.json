@@ -1,0 +1,103 @@
+{
+  "provider": "google-gemini",
+  "name": "Google Gemini API",
+  "count": 6,
+  "advisories": [
+    {
+      "id": "google-gemini-2-0-flash-shutdown",
+      "title": "gemini-2.0-flash and gemini-2.0-flash-lite shut down on 2026-06-01",
+      "endpoint": {
+        "method": "POST",
+        "path": "/*/models/gemini-2.0-flash*:*"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-06-01",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/google-gemini-2-0-flash-shutdown",
+      "markdown": "https://shapi.dev/advisories/google-gemini-2-0-flash-shutdown.md",
+      "osv": "https://shapi.dev/osv/google-gemini-2-0-flash-shutdown.json"
+    },
+    {
+      "id": "google-gemini-2-0-flash-shutdown-sdk",
+      "title": "gemini-2.0-flash and gemini-2.0-flash-lite shut down on 2026-06-01 (model in the request body)",
+      "endpoint": {
+        "method": "POST",
+        "path": "/*/models/{?}:*"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-06-01",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/google-gemini-2-0-flash-shutdown-sdk",
+      "markdown": "https://shapi.dev/advisories/google-gemini-2-0-flash-shutdown-sdk.md",
+      "osv": "https://shapi.dev/osv/google-gemini-2-0-flash-shutdown-sdk.json"
+    },
+    {
+      "id": "google-gemini-2-5-preview-tts-shutdown",
+      "title": "Gemini 2.5 preview TTS models shut down on 2026-11-17",
+      "endpoint": {
+        "method": "POST",
+        "path": "/*/models/gemini-2.5-*-preview-tts:*"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-11-17",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/google-gemini-2-5-preview-tts-shutdown",
+      "markdown": "https://shapi.dev/advisories/google-gemini-2-5-preview-tts-shutdown.md",
+      "osv": "https://shapi.dev/osv/google-gemini-2-5-preview-tts-shutdown.json"
+    },
+    {
+      "id": "google-gemini-2-5-preview-tts-shutdown-sdk",
+      "title": "Gemini 2.5 preview TTS models shut down on 2026-11-17 (model in the request body)",
+      "endpoint": {
+        "method": "POST",
+        "path": "/*/models/{?}:*"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-11-17",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/google-gemini-2-5-preview-tts-shutdown-sdk",
+      "markdown": "https://shapi.dev/advisories/google-gemini-2-5-preview-tts-shutdown-sdk.md",
+      "osv": "https://shapi.dev/osv/google-gemini-2-5-preview-tts-shutdown-sdk.json"
+    },
+    {
+      "id": "google-gemini-2-5-flash-image-shutdown",
+      "title": "gemini-2.5-flash-image shuts down on 2027-03-15",
+      "endpoint": {
+        "method": "POST",
+        "path": "/*/models/gemini-2.5-flash-image:*"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-03-15",
+      "severity": "high",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/google-gemini-2-5-flash-image-shutdown",
+      "markdown": "https://shapi.dev/advisories/google-gemini-2-5-flash-image-shutdown.md",
+      "osv": "https://shapi.dev/osv/google-gemini-2-5-flash-image-shutdown.json"
+    },
+    {
+      "id": "google-gemini-2-5-flash-image-shutdown-sdk",
+      "title": "gemini-2.5-flash-image shuts down on 2027-03-15 (model in the request body)",
+      "endpoint": {
+        "method": "POST",
+        "path": "/*/models/{?}:*"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-03-15",
+      "severity": "high",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/google-gemini-2-5-flash-image-shutdown-sdk",
+      "markdown": "https://shapi.dev/advisories/google-gemini-2-5-flash-image-shutdown-sdk.md",
+      "osv": "https://shapi.dev/osv/google-gemini-2-5-flash-image-shutdown-sdk.json"
+    }
+  ]
+}

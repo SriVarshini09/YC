@@ -1,0 +1,28 @@
+{
+  "provider": "reddit",
+  "name": "Reddit",
+  "count": 1,
+  "advisories": [
+    {
+      "id": "reddit-logged-out-json-403",
+      "title": "Logged-out .json endpoints return 403",
+      "endpoint": {
+        "method": "GET",
+        "path": "/**/*.json",
+        "hosts": [
+          "reddit.com",
+          "www.reddit.com",
+          "old.reddit.com"
+        ]
+      },
+      "changeClass": "auth",
+      "effectiveDate": "2026-05-30",
+      "severity": "high",
+      "status": "unverified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/reddit-logged-out-json-403",
+      "markdown": "https://shapi.dev/advisories/reddit-logged-out-json-403.md",
+      "osv": "https://shapi.dev/osv/reddit-logged-out-json-403.json"
+    }
+  ]
+}

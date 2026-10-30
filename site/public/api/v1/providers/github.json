@@ -1,0 +1,23 @@
+{
+  "provider": "github",
+  "name": "GitHub",
+  "count": 1,
+  "advisories": [
+    {
+      "id": "github-workflow-dispatch-204-to-200",
+      "title": "workflow_dispatch returns 200 with a body instead of 204",
+      "endpoint": {
+        "method": "POST",
+        "path": "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches"
+      },
+      "changeClass": "status-code",
+      "effectiveDate": "2025-12-19",
+      "severity": "critical",
+      "status": "verified",
+      "fix": "status-code-accept-set",
+      "url": "https://shapi.dev/advisories/github-workflow-dispatch-204-to-200",
+      "markdown": "https://shapi.dev/advisories/github-workflow-dispatch-204-to-200.md",
+      "osv": "https://shapi.dev/osv/github-workflow-dispatch-204-to-200.json"
+    }
+  ]
+}
