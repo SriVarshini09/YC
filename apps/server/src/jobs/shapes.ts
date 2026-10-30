@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { loadRecording, replay } from "@shapi/canary";
+import { fixtureStatus, loadRecording, replay, type FixtureStatus } from "@shapi/canary";
 import { pathMatches, type Advisory } from "@shapi/core";
 import { PgShapeStore, type Db } from "@shapi/db";
 import { ShapeStore, witnessToShape, type ResponseShape } from "@shapi/shapes";
@@ -47,4 +47,26 @@ export async function shapesFor(db: Db, advisory: Advisory, recordingsDir: strin
     }
   }
   return undefined;
+}
+
+/**
+ * Every shipped recording's expiry and drift status (A-02): an expired recording is compared with SHAPI's latest canary
+ * observation of its endpoint, hashed with the same secret, so a change in what the API sends marks it stale.
+ */
+export async function fixtureStatuses(db: Db, recordingsDir: string, secret: string, now: Date): Promise<(FixtureStatus & { file: string })[]> {
+  if (!existsSync(recordingsDir)) return [];
+  const store = new PgShapeStore(db);
+  const out: (FixtureStatus & { file: string })[] = [];
+  for (const file of readdirSync(recordingsDir).filter((f) => f.endsWith(".json")).sort()) {
+    const recording = loadRecording(path.join(recordingsDir, file));
+    const memory = ShapeStore.open(":memory:");
+    try {
+      const { after } = replay(recording, memory, secret);
+      const live = await store.latest(recording.provider, recording.method, recording.endpoint);
+      out.push({ file, ...fixtureStatus(recording, after.shapeHash, live && { observedAt: live.observedAt, shapeHash: live.shapeHash }, now) });
+    } finally {
+      memory.close();
+    }
+  }
+  return out;
 }
