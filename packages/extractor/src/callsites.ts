@@ -1,5 +1,6 @@
 import {
   HTTP_METHODS,
+  pathUnresolved,
   providerForHost,
   providerForPackage,
   providerForPath,
@@ -489,7 +490,7 @@ function httpSite(
       method,
       host,
       endpoint: path,
-      resolved: Boolean(provider && path && method),
+      resolved: Boolean(provider && path && method) && !pathUnresolved(path),
       surface,
     },
   };
@@ -973,9 +974,16 @@ export function parseUrl(url: string | undefined): { host: string | null; path: 
   const m = /^(?:[a-z]+:)?\/\/([^/?#]+)(.*)$/i.exec(url);
   if (m) {
     const authority = m[1]!.replace(/^.*@/, "").replace(/:(\d+|\{[^{}]*\})$/, "").toLowerCase();
-    if (authority.includes("{")) runtimeHost = authority;
-    else host = authority;
-    rest = m[2] || "/";
+    // `https://api.github.com${path}`: a known host with the runtime path written straight after it.
+    const glued = /^([a-z0-9-]+(?:\.[a-z0-9-]+)+)(\{.*)$/.exec(authority);
+    if (glued) {
+      host = glued[1]!;
+      rest = `/${glued[2]}${m[2] ?? ""}`;
+    } else {
+      if (authority.includes("{")) runtimeHost = authority;
+      else host = authority;
+      rest = m[2] || "/";
+    }
   } else if (!url.startsWith("/")) {
     // "{base}/repos/x": unknown base, keep the path after it
     const slash = url.indexOf("/");

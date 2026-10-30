@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { HTTP_METHODS, getProvider, providerForPythonModule, type CallSite, type HttpMethod, type NameValue, type Provider, type Surface } from "@shapi/core";
+import { HTTP_METHODS, getProvider, pathUnresolved, providerForPythonModule, type CallSite, type HttpMethod, type NameValue, type Provider, type Surface } from "@shapi/core";
 import { Language, Parser, type Node } from "web-tree-sitter";
 import { parseUrl, providerOf, urlParts } from "./callsites";
 
@@ -203,7 +203,7 @@ function httpCall(ctx: FileContext, call: Node): CallSite | undefined {
   const body = dictEntries(ctx, keyword(args, "json") ?? keyword(args, "data"));
   if (body.length) surface.body = body;
   const provider = providerOf(host, path, runtimeHost);
-  return { file: "", line: 0, column: 0, provider, kind: "http", client: binding.lib, method, host, endpoint: path, resolved: Boolean(provider && path && method), surface };
+  return { file: "", line: 0, column: 0, provider, kind: "http", client: binding.lib, method, host, endpoint: path, resolved: Boolean(provider && path && method) && !pathUnresolved(path), surface };
 }
 
 function sdkCall(ctx: FileContext, call: Node): CallSite | undefined {
