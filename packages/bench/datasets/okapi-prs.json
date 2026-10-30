@@ -1,0 +1,422 @@
+{
+  "name": "Okapi head-to-head",
+  "version": "2026-10-29",
+  "description": "Every public pull request the Okapi GitHub App (okapi-agent) had opened on 2026-10-29. SHAPI scans each one's base commit, read only, and is compared with what Okapi changed. No pull request is opened anywhere.",
+  "source": "gh search prs --author app/okapi-agent; each PR's base commit and diff from the GitHub API, read on 2026-10-29",
+  "prs": [
+    {
+      "repo": "abdellahsinaoui1-lang/Fire-Ai-bot",
+      "number": 1,
+      "url": "https://github.com/abdellahsinaoui1-lang/Fire-Ai-bot/pull/1",
+      "title": "fix(groq): move chat and parser off llama-3.3-70b-versatile",
+      "merged": false,
+      "base": "dc69de9bef6e8c2358cffc7c74e82af521ab21b3",
+      "provider": "groq",
+      "kind": "retirement",
+      "files": [
+        {
+          "path": "ai.py",
+          "removedLines": [
+            15,
+            64
+          ]
+        }
+      ],
+      "okapiTarget": "openai/gpt-oss-120b",
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "ajayma7339-code/youtube",
+      "number": 1,
+      "url": "https://github.com/ajayma7339-code/youtube/pull/1",
+      "title": "fix(gemini): move calls to gemini-3.8-flash, gemini-1.5-flash is retired",
+      "merged": false,
+      "base": "ad4cbff73780c9e461b558e9fa7a53c666a425bf",
+      "provider": "google",
+      "kind": "retirement",
+      "files": [
+        {
+          "path": "yt-automation/yt-automation/src/script-gen.ts",
+          "removedLines": [
+            11
+          ]
+        },
+        {
+          "path": "yt-automation/yt-automation/src/seo-optimizer.ts",
+          "removedLines": [
+            47
+          ]
+        },
+        {
+          "path": "yt-automation/yt-automation/src/topic-picker.ts",
+          "removedLines": [
+            71
+          ]
+        }
+      ],
+      "okapiTarget": "gemini-3.8-flash",
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "alyawiguna310-blip/LUMI",
+      "number": 2,
+      "url": "https://github.com/alyawiguna310-blip/LUMI/pull/2",
+      "title": "fix(anthropic): move default model off claude-3-5-sonnet-latest",
+      "merged": false,
+      "base": "9204f0d70d1f2ff54b7073c1aeb24c62953e9dbf",
+      "provider": "anthropic",
+      "kind": "retirement",
+      "files": [
+        {
+          "path": "ai/providers/anthropic_provider.py",
+          "removedLines": [
+            22,
+            95
+          ]
+        },
+        {
+          "path": "config.py",
+          "removedLines": [
+            36
+          ]
+        }
+      ],
+      "okapiTarget": "claude-sonnet-5-5",
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "basilll007/MedPerturb",
+      "number": 1,
+      "url": "https://github.com/basilll007/MedPerturb/pull/1",
+      "title": "fix(anthropic): remove the effort parameter Haiku 4.5 rejects",
+      "merged": false,
+      "base": "78baa1bec4a7bedf34076806fa83c7435ec75392",
+      "provider": "anthropic",
+      "kind": "parameter",
+      "files": [
+        {
+          "path": "scripts/phase1a_run_smoke.py",
+          "removedLines": [
+            85,
+            86,
+            87,
+            99,
+            192
+          ]
+        },
+        {
+          "path": "scripts/phase1a_smoke.py",
+          "removedLines": [
+            132,
+            160
+          ]
+        }
+      ],
+      "okapiTarget": null,
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "basilll007/MedPerturb",
+      "number": 2,
+      "url": "https://github.com/basilll007/MedPerturb/pull/2",
+      "title": "fix(gemini): send thinking_level and drop temperature on Gemini 3.x",
+      "merged": false,
+      "base": "78baa1bec4a7bedf34076806fa83c7435ec75392",
+      "provider": "google",
+      "kind": "parameter",
+      "files": [
+        {
+          "path": "scripts/phase1a_smoke.py",
+          "removedLines": [
+            37,
+            38,
+            39,
+            40,
+            41,
+            177,
+            178,
+            179,
+            180,
+            181,
+            182,
+            183,
+            184,
+            185,
+            211
+          ]
+        },
+        {
+          "path": "scripts/phase1c_smoke.py",
+          "removedLines": [
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            204,
+            206,
+            235,
+            259,
+            315,
+            371,
+            448,
+            470,
+            487
+          ]
+        },
+        {
+          "path": "scripts/phase2a_run.py",
+          "removedLines": [
+            43,
+            162
+          ]
+        },
+        {
+          "path": "src/medperturb/adapters/gemini.py",
+          "removedLines": [
+            31,
+            32,
+            36,
+            38,
+            42,
+            43,
+            64,
+            66
+          ]
+        }
+      ],
+      "okapiTarget": null,
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "coderxp1/tugpt",
+      "number": 7,
+      "url": "https://github.com/coderxp1/tugpt/pull/7",
+      "title": "fix(facebook): default WhatsApp media client to Graph v26.0",
+      "merged": false,
+      "base": "440dcaec9ecc87bf6c6488332e3bb2815a5bc03d",
+      "provider": "meta",
+      "kind": "retirement",
+      "files": [
+        {
+          "path": "apps/worker/src/whatsapp-media.ts",
+          "removedLines": [
+            74
+          ]
+        }
+      ],
+      "okapiTarget": "v26.0",
+      "shapiAdvisories": [
+        "meta-graph-v21-sunset"
+      ],
+      "shapiTarget": "v26.0"
+    },
+    {
+      "repo": "hasanaskaryan1983/PumpWatch3",
+      "number": 1,
+      "url": "https://github.com/hasanaskaryan1983/PumpWatch3/pull/1",
+      "title": "fix(gate): read create_time_ms as the string Gate sends",
+      "merged": false,
+      "base": "7a2ba0e09ddf33db4bb10dd44369afcaad0f90a9",
+      "provider": "gate",
+      "kind": "response",
+      "files": [
+        {
+          "path": "app/src/main/java/com/pumpwatch/app/data/WhaleApi.kt",
+          "removedLines": [
+            307,
+            336
+          ]
+        }
+      ],
+      "okapiTarget": null,
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "hasanaskaryan1983/PumpWatch3",
+      "number": 2,
+      "url": "https://github.com/hasanaskaryan1983/PumpWatch3/pull/2",
+      "title": "fix(goplus): read Solana authority flags and EVM LP locks as GoPlus returns them",
+      "merged": false,
+      "base": "7a2ba0e09ddf33db4bb10dd44369afcaad0f90a9",
+      "provider": "goplus",
+      "kind": "response",
+      "files": [
+        {
+          "path": "app/src/main/java/com/pumpwatch/app/data/GoPlusClient.kt",
+          "removedLines": []
+        },
+        {
+          "path": "app/src/main/java/com/pumpwatch/app/engine/MemeRadar.kt",
+          "removedLines": [
+            396
+          ]
+        }
+      ],
+      "okapiTarget": null,
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "hasanaskaryan1983/PumpWatch3",
+      "number": 3,
+      "url": "https://github.com/hasanaskaryan1983/PumpWatch3/pull/3",
+      "title": "fix(solana): drop the keyless dRPC endpoint, which no longer serves Solana",
+      "merged": false,
+      "base": "7a2ba0e09ddf33db4bb10dd44369afcaad0f90a9",
+      "provider": "drpc",
+      "kind": "retirement",
+      "files": [
+        {
+          "path": "app/src/main/java/com/pumpwatch/app/data/WalletApi.kt",
+          "removedLines": [
+            138,
+            139,
+            140,
+            141,
+            142,
+            143,
+            144,
+            159,
+            161,
+            205
+          ]
+        }
+      ],
+      "okapiTarget": null,
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "hasanaskaryan1983/PumpWatch3",
+      "number": 4,
+      "url": "https://github.com/hasanaskaryan1983/PumpWatch3/pull/4",
+      "title": "fix(helius): send the personal API key on every request",
+      "merged": false,
+      "base": "7a2ba0e09ddf33db4bb10dd44369afcaad0f90a9",
+      "provider": "helius",
+      "kind": "bug",
+      "files": [
+        {
+          "path": "app/src/main/java/com/pumpwatch/app/data/WalletApi.kt",
+          "removedLines": [
+            146
+          ]
+        }
+      ],
+      "okapiTarget": null,
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "hasanaskaryan1983/PumpWatch3",
+      "number": 5,
+      "url": "https://github.com/hasanaskaryan1983/PumpWatch3/pull/5",
+      "title": "fix(solana): use getTransaction, getParsedTransaction is not an RPC method",
+      "merged": false,
+      "base": "7a2ba0e09ddf33db4bb10dd44369afcaad0f90a9",
+      "provider": "solana",
+      "kind": "bug",
+      "files": [
+        {
+          "path": "app/src/main/java/com/pumpwatch/app/ui/WalletForensics.kt",
+          "removedLines": [
+            437,
+            442,
+            461
+          ]
+        }
+      ],
+      "okapiTarget": null,
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "ismail-sha/studymind-ai",
+      "number": 1,
+      "url": "https://github.com/ismail-sha/studymind-ai/pull/1",
+      "title": "fix(gemini): move chat calls off gemini-2.0-flash before it shuts down",
+      "merged": false,
+      "base": "e9e7c16c58842c4d0de291681da37a267c71c147",
+      "provider": "google",
+      "kind": "retirement",
+      "files": [
+        {
+          "path": "src/api/gemini.js",
+          "removedLines": [
+            26,
+            146
+          ]
+        }
+      ],
+      "okapiTarget": "gemini-3.6-flash",
+      "shapiAdvisories": [
+        "google-gemini-2-0-flash-shutdown",
+        "google-gemini-2-0-flash-shutdown-sdk"
+      ],
+      "shapiTarget": "gemini-3.6-flash"
+    },
+    {
+      "repo": "saudmoto6868-oss/ai-trading-dashboard",
+      "number": 7,
+      "url": "https://github.com/saudmoto6868-oss/ai-trading-dashboard/pull/7",
+      "title": "fix(deepseek): move school review off deepseek-chat before it shuts down",
+      "merged": true,
+      "base": "29a68ffd43263172bc1e72852c5d33a05c93f297",
+      "provider": "deepseek",
+      "kind": "retirement",
+      "files": [
+        {
+          "path": "modules/school_review.py",
+          "removedLines": [
+            69,
+            114
+          ]
+        }
+      ],
+      "okapiTarget": "deepseek-flash",
+      "shapiAdvisories": [],
+      "shapiTarget": null
+    },
+    {
+      "repo": "seanford/MoneyPrinterTurbo",
+      "number": 2,
+      "url": "https://github.com/seanford/MoneyPrinterTurbo/pull/2",
+      "title": "fix(gemini): move TTS to gemini-3.8-flash-tts before 2.5 preview shuts",
+      "merged": false,
+      "base": "c184fccd05621d7a654b6e6ea34102a0a0de0657",
+      "provider": "google",
+      "kind": "retirement",
+      "files": [
+        {
+          "path": "app/services/voice.py",
+          "removedLines": [
+            1949
+          ]
+        },
+        {
+          "path": "test/services/test_voice.py",
+          "removedLines": [
+            587
+          ]
+        }
+      ],
+      "okapiTarget": "gemini-3.8-flash-tts",
+      "shapiAdvisories": [
+        "google-gemini-2-5-preview-tts-shutdown",
+        "google-gemini-2-5-preview-tts-shutdown-sdk"
+      ],
+      "shapiTarget": "gemini-3.8-flash-tts"
+    }
+  ]
+}

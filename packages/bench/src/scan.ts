@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { createApiLock, matchAdvisories, type Advisory } from "@shapi/core";
+import { createApiLock, matchAdvisories, type Advisory, type MatchResult } from "@shapi/core";
 import { extractCallSites } from "@shapi/extractor";
 import { verdictFor, type Verdict } from "./metrics";
 
@@ -27,6 +27,11 @@ const DEFAULT_MAX_BYTES = 150 * 1024 * 1024;
  * verdict for one advisory. Static analysis only: nothing in the repository is run.
  */
 export async function scanCommit(input: ScanCommitInput): Promise<Verdict> {
+  return verdictFor((await scanRepo(input)).match, input.advisoryId);
+}
+
+/** As scanCommit, for every advisory: the call sites SHAPI found and the whole match. */
+export async function scanRepo(input: Omit<ScanCommitInput, "advisoryId">): Promise<{ callSites: number; match: MatchResult }> {
   if (!/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/.test(input.repo)) throw new Error(`not owner/name: ${input.repo}`);
   if (!/^[0-9a-f]{40}$/.test(input.sha)) throw new Error(`not a commit sha: ${input.sha}`);
   const body = await download(input);
@@ -46,14 +51,14 @@ export async function scanCommit(input: ScanCommitInput): Promise<Verdict> {
       if (readdirSync(root).length === 0) throw err;
     }
     const lock = createApiLock(extractCallSites(root), "shapi-bench");
-    return verdictFor(matchAdvisories(lock, input.advisories, { now: input.now ?? new Date() }), input.advisoryId);
+    return { callSites: lock.callSites.length, match: matchAdvisories(lock, input.advisories, { now: input.now ?? new Date() }) };
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 }
 
 /** The repository archive at the commit, retried twice on network errors and 5xx answers. */
-async function download(input: ScanCommitInput): Promise<Buffer> {
+async function download(input: Omit<ScanCommitInput, "advisoryId">): Promise<Buffer> {
   const doFetch = input.fetch ?? fetch;
   const url = `https://api.github.com/repos/${input.repo}/tarball/${input.sha}`;
   const headers = { accept: "application/vnd.github+json", "user-agent": "shapi-bench", ...(input.token ? { authorization: `Bearer ${input.token}` } : {}) };
