@@ -2,7 +2,26 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { MAP_MIN_KEYS, WITNESS_SCHEMA, WitnessSchema, shapeId, toWitness, witnessJsonSchema, type WitnessContext } from "../src/index";
+import { MAP_MIN_KEYS, WITNESS_SCHEMA, WitnessSchema, shapeId, toWitness, witnessJsonSchema, witnessToShape, type WitnessContext } from "../src/index";
+
+describe("witnessToShape (V-03)", () => {
+  it("turns a witness back into a response shape a contract-test stub can be built from", () => {
+    const body = JSON.stringify({ id: 7, state: "open", owner: { email: null }, rates: { "3f2a9c1e-5b7d-4e8a-9c21-7d4e5f6a8b90": 1, "4e3b0d2f-6c8e-4f9b-8d32-8e5f6a7b9c01": 2, "5f4c1e30-7d9f-4a0c-9e43-9f6a7b8c0d12": 3 } });
+    const w = toWitness({ status: 201, headers: { "content-type": "application/json" }, body }, { provider: "acme", method: "POST", pathTemplate: "/x", source: "fixture", observedAt: "2026-10-30T00:00:00.000Z", allow: { keys: "*", enums: ["$.state"] } });
+    const shape = witnessToShape(w);
+    expect(shape).toMatchObject({ status: 201, headers: { "content-type": "application/json" }, body: { kind: "json", rootType: "object" } });
+    expect(Object.fromEntries(shape.body.fields.map((f) => [f.path, [f.types, f.classes]]))).toEqual({
+      id: [["integer"], []],
+      owner: [["object"], []],
+      "owner.email": [["null"], []],
+      rates: [["object"], []],
+      "rates.key": [["integer"], []],
+      state: [["string"], ["token"]],
+    });
+    const empty = witnessToShape(toWitness({ status: 204, headers: {}, body: "" }, { provider: "acme", method: "POST", pathTemplate: "/x", source: "fixture", observedAt: "2026-10-30T00:00:00.000Z", allow: { keys: "*" } }));
+    expect(empty).toMatchObject({ status: 204, headers: {}, body: { kind: "empty", fields: [] } });
+  });
+});
 
 const ctx: WitnessContext = { provider: "github", method: "GET", pathTemplate: "/repos/{owner}/{repo}/pulls", source: "canary", observedAt: "2026-10-30T10:00:00.000Z", allow: { keys: "*" } };
 const pulls = JSON.stringify([

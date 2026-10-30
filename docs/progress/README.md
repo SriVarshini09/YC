@@ -97,3 +97,4 @@ One line per task: task, summary file, PR, status.
 - PB-48 one shared shape record, the shape witness: values zeroed, a key allowlist that fails closed, map collapse and a stable shape_id; the canary and replay emit it (A-01): [summary](PB-48-shape-witness.md) · PR: open
 - PB-49 SHAPI says when it cannot tell: a call site whose endpoint is built entirely at runtime is listed as unresolved, never guessed or counted as clear (A-03): [summary](PB-49-unresolved-call-sites.md) · PR: open
 - PB-50 a fix may not delete the call or the read of what changed, even when the contract test passes (V-06): [summary](PB-50-fix-keeps-the-call.md) · PR: open
+- PB-51 contract-test stubs from recorded witnesses, and the PR says whether the stub is recorded or synthesized from the advisory (V-03): [summary](PB-51-stubs-from-witnesses.md) · PR: open
