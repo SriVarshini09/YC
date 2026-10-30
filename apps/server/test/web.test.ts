@@ -268,15 +268,36 @@ describe("web sign-in", () => {
     await app.close();
   });
 
-  it("sends people from the GitHub App's Setup URL to sign-in, or straight to their dashboard (U-01)", async () => {
+  it("sends people from the GitHub App's Setup URL to the dashboard of the account they set up, in one click (U-01)", async () => {
+    // Two accounts this user can open, so "/" would show the picker: the Setup URL skips it.
+    const second = await owner.insertInto("accounts").values({ github_installation_id: 5555, login: "octo", type: "User", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
     const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
-    const anonymous = await app.inject("/setup?installation_id=1&setup_action=install");
-    expect(anonymous.statusCode).toBe(302);
-    expect(anonymous.headers.location).toBe("/login");
     const { cookie } = await signIn(app);
-    const signedIn = await app.inject({ url: "/setup?installation_id=1&setup_action=install", headers: { cookie } });
-    expect(signedIn.statusCode).toBe(302);
-    expect(signedIn.headers.location).toBe("/");
+    expect((await app.inject({ url: "/setup?installation_id=5555&setup_action=update", headers: { cookie } })).headers.location).toBe(`/a/${second.id}`);
+    expect((await app.inject({ url: "/setup?installation_id=4242&setup_action=install", headers: { cookie } })).headers.location).toBe(`/a/${mine.account}`);
+    expect((await app.inject({ url: "/setup", headers: { cookie } })).headers.location).toBe("/");
+    // An installation this session doesn't know (made after it signed in): sign in again to pick it up.
+    expect((await app.inject({ url: "/setup?installation_id=7777", headers: { cookie } })).headers.location).toBe("/login");
+
+    // Signed out: sign in, and the callback finishes the trip.
+    const fresh = await app.inject("/setup?installation_id=5555&setup_action=install");
+    expect(fresh.statusCode).toBe(302);
+    expect(fresh.headers.location).toBe("/login");
+    const login = await app.inject("/login");
+    const state = new URL(String(login.headers.location)).searchParams.get("state")!;
+    const callback = await app.inject({ url: `/auth/github/callback?code=c0de&state=${state}`, headers: { cookie: cookieHeader([...fresh.cookies, ...login.cookies]) } });
+    expect(callback.headers.location).toBe(`/a/${second.id}`);
+    expect(callback.cookies.find((c) => c.name === "shapi_setup_installation")?.value).toBe("");
+    // An unsigned installation cookie is ignored, and so is one for an account the user can't open.
+    for (const extra of ["shapi_setup_installation=5555", ...fresh.cookies.map((c) => `${c.name}=${c.value.replace("5555", "7777")}`)]) {
+      const again = await app.inject("/login");
+      const s = new URL(String(again.headers.location)).searchParams.get("state")!;
+      const res = await app.inject({ url: `/auth/github/callback?code=c0de&state=${s}`, headers: { cookie: `${cookieHeader(again.cookies)}; ${extra}` } });
+      expect(res.headers.location).toBe("/");
+    }
+    // Junk is not stored.
+    expect((await app.inject("/setup?installation_id=x%0Ay")).cookies).toEqual([]);
+    await app.close();
   });
 
   it("rejects a callback without the matching state, and a failed token exchange", async () => {

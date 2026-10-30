@@ -10,6 +10,7 @@ import { readFeedbackToken } from "@shapi/github-app";
 import {
   SESSION_COOKIE,
   SESSION_HOURS,
+  SETUP_COOKIE,
   STATE_COOKIE,
   accountAccess,
   authorizeUrl,
@@ -228,10 +229,24 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       return reply.redirect(authorizeUrl(deps.config, state));
     });
 
-    // The GitHub App's Setup URL: after installing, signed-in people go to their dashboard and others sign in first.
+    // The dashboard of the installation a person just set up, when this session can open it.
+    const setupAccount = async (session: Session, installationId: string | undefined) => {
+      if (!installationId) return undefined;
+      const account = (await sessionAccounts(deps.db, session)).find((a) => String(a.github_installation_id) === installationId);
+      return account ? `/a/${account.id}` : undefined;
+    };
+
+    // The GitHub App's Setup URL: GitHub adds the installation, so people land on that account's dashboard. A session
+    // from before the install doesn't know it yet: signing in again picks it up, and the callback finishes the trip.
     scope.get("/setup", async (req, reply) => {
       const { session } = await sessionOf(req);
-      return reply.redirect(session ? "/" : "/login");
+      const raw = (req.query as { installation_id?: string }).installation_id;
+      const installationId = raw && /^\d{1,20}$/.test(raw) ? raw : undefined;
+      const target = session ? await setupAccount(session, installationId) : undefined;
+      if (target) return reply.redirect(target);
+      if (session && !installationId) return reply.redirect("/");
+      if (installationId) reply.setCookie(SETUP_COOKIE, installationId, { httpOnly: true, sameSite: "lax", secure, path: "/auth", maxAge: 600, signed: true });
+      return reply.redirect("/login");
     });
 
     // A fix PR's 👍/👎 link (D-01). The link opens a page with one button; only that button's post is stored, so link
@@ -284,9 +299,12 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
         req.log.warn({ err }, "GitHub sign-in failed");
         return send(reply, page("Sign in", messagePage("GitHub sign-in failed", "Please try again.", { href: "/login", label: "Sign in with GitHub" }), bare(req)), 502);
       }
-      const { token } = await createSession(deps.db, identity);
+      const { token, session } = await createSession(deps.db, identity);
       reply.setCookie(SESSION_COOKIE, token, { httpOnly: true, sameSite: "lax", secure, path: "/", maxAge: SESSION_HOURS * 3600, signed: true });
-      return reply.redirect("/");
+      const rawSetup = req.cookies[SETUP_COOKIE];
+      const setup = rawSetup ? req.unsignCookie(rawSetup) : undefined;
+      if (rawSetup) reply.clearCookie(SETUP_COOKIE, { path: "/auth" });
+      return reply.redirect((setup?.valid && (await setupAccount(session, setup.value ?? undefined))) || "/");
     });
 
     scope.post("/logout", async (req, reply) => {
