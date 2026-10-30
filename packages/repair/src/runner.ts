@@ -55,8 +55,17 @@ export default {
 `;
 }
 
-/** Run one test file with vitest, rooted at `dir`. */
+/** The Python a contract test runs with: SHAPI_PYTHON, else `python` on Windows and `python3` elsewhere. */
+export const pythonCommand = () => process.env.SHAPI_PYTHON ?? (process.platform === "win32" ? "python" : "python3");
+
+/** Run one test file with vitest, rooted at `dir`; a Python contract test (`.py`) runs as a script. */
 export function runTestFile(dir: string, file: string, timeoutMs = 120_000): TestRun {
+  if (file.endsWith(".py")) {
+    const res = spawnSync(pythonCommand(), [file], { cwd: dir, encoding: "utf8", timeout: timeoutMs, env: { ...runEnv(), PYTHONDONTWRITEBYTECODE: "1" } });
+    const exitCode = res.status ?? 1;
+    return { passed: exitCode === 0, exitCode, output: `${res.stdout ?? ""}${res.stderr ?? ""}${res.error ? `
+${res.error.message}` : ""}` };
+  }
   const repoConfig = VITEST_CONFIGS.find((c) => existsSync(path.join(dir, c)));
   const config: string[] = [];
   if (repoConfig) {

@@ -1,7 +1,7 @@
 import path from "node:path";
 import { readFileSync } from "node:fs";
 import { Project, ScriptKind, type SourceFile } from "ts-morph";
-import { GENERATED_TEST_HEADER, type CallSite } from "@shapi/core";
+import { GENERATED_TEST_HEADER, PYTHON_GENERATED_TEST_HEADER, type CallSite } from "@shapi/core";
 import { extractFromFile, looseUrlSites, type FoundCall } from "./callsites";
 import { addResponseSurface } from "./surface";
 import { declaredProviders, declaredPythonProviders, listRepoFiles, toPosix, type DeclaredProvider } from "./files";
@@ -12,7 +12,7 @@ export type { FoundCall } from "./callsites";
 export { evalString, parseUrl } from "./callsites";
 export type { DeclaredProvider, RepoFiles } from "./files";
 export { listRepoFiles, toPosix } from "./files";
-export { loadPythonParser, pythonParserLoaded } from "./python";
+export { loadPythonParser, parsePython, pythonParserLoaded, type PyNode, type PyTree } from "./python";
 
 export interface ExtractResult {
   root: string;
@@ -96,7 +96,12 @@ export function extractCallSites(rootDir: string): ExtractResult {
       continue;
     }
     try {
-      pythonSites.push(...extractPython(readFileSync(abs, "utf8"), rel));
+      const text = readFileSync(abs, "utf8");
+      if (text.replace(/^\uFEFF/, "").startsWith(PYTHON_GENERATED_TEST_HEADER)) {
+        generated++;
+        continue;
+      }
+      pythonSites.push(...extractPython(text, rel));
     } catch (err) {
       failed(rel, err);
     }

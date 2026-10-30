@@ -35,7 +35,7 @@ Other flags: `--json`, `--out api.lock`, `--repo <git url>`, `--advisories <dir>
 pnpm exec shapi fix fixtures/demo-ts
 ```
 
-For each affected TypeScript or JavaScript call site whose advisory has a fix recipe, `shapi fix` generates a contract test (from the advisory's fix, or from recorded before/after responses), confirms it fails, applies the recipe (or asks Claude with `--llm` when no recipe fits), and keeps the change only if the test then passes. Other call sites are reported with the provider's migration steps; Python is scan-only for now. `--write` writes the fix into the repo; `--pr` opens a pull request with the fix, the test and the evidence (`--repo <github url> --pr` works on a repo you haven't cloned). [What a fix PR contains](https://shapi.dev/guide/fixes#what-a-fix-pr-contains).
+For each affected TypeScript, JavaScript or Python call site whose advisory has a fix recipe, `shapi fix` generates a contract test (from the advisory's fix, or from recorded before/after responses), confirms it fails, applies the recipe (or asks Claude with `--llm` when no recipe fits), and keeps the change only if the test then passes. Other call sites are reported with the provider's migration steps; Python gets the `apply-fix` and `status-code-accept-set` recipes, not Claude, for now. `--write` writes the fix into the repo; `--pr` opens a pull request with the fix, the test and the evidence (`--repo <github url> --pr` works on a repo you haven't cloned). [What a fix PR contains](https://shapi.dev/guide/fixes#what-a-fix-pr-contains).
 
 ## Use it from your editor
 

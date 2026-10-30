@@ -22,7 +22,7 @@ Python files are parsed with tree-sitter, and the same things are recorded for t
 
 SHAPI also records URLs of known APIs that no recognized client sends: a project's own request helper, a config object (`baseUrl: "https://..."`), or a connector framework's `url_base` and `path`. Their method is unknown, and they are matched by provider and path. A path that only one provider serves names its provider even when the host is built at runtime: `https://${shop}/admin/api/2026-01/...` is Shopify, also with a runtime version (`/admin/api/${version}/...`), and `/crm-pipelines/v1/...` is HubSpot. A host whose subdomain is built at runtime names its provider by its fixed suffix: `https://${subdomain}.zendesk.com/...` (in Python, `f"https://{subdomain}.zendesk.com/..."`) is Zendesk.
 
-Python call sites are matched against the same advisories. Fixes are proposed for TypeScript and JavaScript only, for now.
+Python call sites are matched against the same advisories, and the two deterministic recipes fix them too: `apply-fix` (a changed path, query value or header) and `status-code-accept-set`, each with a Python contract test. Claude is not asked to fix Python yet.
 
 For each call site it records the provider, the HTTP method and endpoint (with dynamic segments such as `{owner}`), the file and line, and the **dependency surface**: what the code does with the response. That means the status codes it compares against, the fields it reads, the enum values it switches on, and the headers and query parameters it sends.
 

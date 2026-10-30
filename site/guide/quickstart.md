@@ -55,7 +55,7 @@ npx shapi-cli fix .
 3. applies the advisory's deterministic recipe
 4. runs the test again, and keeps the change only if it **passes**.
 
-Call sites without a recipe (and all Python call sites, which are scan-only for now) are reported as not fixed; `shapi scan` shows the provider's migration steps for them.
+Call sites without a recipe (and Python call sites outside the two recipes Python has so far) are reported as not fixed; `shapi scan` shows the provider's migration steps for them.
 
 Nothing in your repository changes until you ask:
 

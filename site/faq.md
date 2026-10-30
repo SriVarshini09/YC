@@ -8,7 +8,7 @@ description: "Common questions about SHAPI: languages, providers, pull request l
 
 TypeScript and JavaScript, with the usual HTTP clients (`fetch`, axios, got, undici, ky, node-fetch) and the official SDKs of the providers it knows.
 
-Python is scanned too: `requests`, `httpx`, `aiohttp`, and the OpenAI, Anthropic, Stripe, Slack, Twilio and HubSpot SDKs. SHAPI finds the affected call sites in Python, but proposes fixes only for TypeScript and JavaScript for now.
+Python is scanned too: `requests`, `httpx`, `aiohttp`, and the OpenAI, Anthropic, Stripe, Slack, Twilio and HubSpot SDKs. SHAPI finds the affected call sites in Python and fixes the ones its `apply-fix` (a changed path, query value or header) and `status-code-accept-set` recipes cover, with a Python contract test; Claude is not asked to fix Python yet.
 
 ## Which APIs does it know?
 
