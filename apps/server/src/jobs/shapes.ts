@@ -3,13 +3,15 @@ import path from "node:path";
 import { loadRecording, replay } from "@shapi/canary";
 import { pathMatches, type Advisory } from "@shapi/core";
 import { PgShapeStore, type Db } from "@shapi/db";
-import { ShapeStore, type ResponseShape } from "@shapi/shapes";
+import { ShapeStore, witnessToShape, type ResponseShape } from "@shapi/shapes";
 
 export interface AdvisoryShapes {
   before: ResponseShape;
   after: ResponseShape;
   /** Where they came from, shown in the PR: a canary source, or a recording file. */
   source: string;
+  /** For a recording: the shape ids of the witnesses the shapes were built from (V-03), shown in the PR. */
+  witnesses?: { before: string; after: string };
 }
 
 const endpointOf = (advisory: Advisory, provider: string, method: string, endpoint: string) =>
@@ -34,7 +36,12 @@ export async function shapesFor(db: Db, advisory: Advisory, recordingsDir: strin
     const memory = ShapeStore.open(":memory:");
     try {
       const replayed = replay(recording, memory, secret);
-      if (replayed.before) return { before: replayed.before.shape, after: replayed.after.shape, source: `recording ${name}` };
+      if (!replayed.before) continue;
+      // The contract test's stub is built from the recorded witnesses (V-03): the last response before the change and the latest one.
+      const before = replayed.witnesses.find((w) => w.observedAt === replayed.before!.observedAt);
+      const after = replayed.witnesses.find((w) => w.observedAt === replayed.after.observedAt);
+      if (!before || !after) return { before: replayed.before.shape, after: replayed.after.shape, source: `recording ${name}` };
+      return { before: witnessToShape(before), after: witnessToShape(after), source: `recording ${name}`, witnesses: { before: before.shapeId, after: after.shapeId } };
     } finally {
       memory.close();
     }

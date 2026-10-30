@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { HTTP_METHODS } from "@shapi/core";
 import { z } from "zod";
-import { MAX_DEPTH, classify, typeOf, type RawResponse } from "./shape";
+import { MAX_DEPTH, classify, typeOf, type FieldShape, type JsonType, type RawResponse, type ResponseShape, type ValueClass } from "./shape";
 
 /**
  * The shape witness (execution plan A-01): one value-free record of one HTTP response, the same for every source
@@ -236,4 +236,45 @@ function canonical(value: unknown): string {
 
 function cmp(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/**
+ * A witness as a response shape (execution plan V-03), so a contract-test stub can be built from what was
+ * recorded: its status, a JSON content type for a JSON body, and every key path with its types and string format.
+ * A map (`{}`) gets one key, `key`; an allowlisted enum is a string. Values stay zeroed: the stub synthesizes them.
+ */
+export function witnessToShape(w: Witness): ResponseShape {
+  const fields: FieldShape[] = [];
+  let rootType: ResponseShape["body"]["rootType"];
+  for (const [witnessPath, descriptor] of Object.entries(w.body.fields)) {
+    const types = new Set<JsonType>();
+    const classes = new Set<ValueClass>();
+    for (const part of descriptor.split("|")) {
+      if (part.startsWith("enum{")) {
+        types.add("string");
+        classes.add("token");
+        continue;
+      }
+      const [type, formats] = part.split(":") as [JsonType, string | undefined];
+      types.add(type);
+      for (const f of formats?.split("+") ?? []) classes.add(f as ValueClass);
+    }
+    if (witnessPath === "$") {
+      rootType = [...types].find((t) => t !== "null");
+      continue;
+    }
+    // "$.a\.b[].c{}.d" → "a\.b[].c.key.d" in shape notation (a key with "." or "[" stays escaped).
+    const path = witnessPath
+      .replace(/^\$\.?/, "")
+      .replace(/(?<!\\)\{\}/g, ".key")
+      .replace(/\\([{}\]])/g, "$1")
+      .replace(/^\./, "");
+    fields.push({ path, pathHash: path, types: [...types].sort(), classes: [...classes].sort(), occurrences: 1, nullRate: types.has("null") ? 0.5 : 0 });
+  }
+  return {
+    status: w.status,
+    headers: w.body.kind === "json" ? { "content-type": "application/json" } : {},
+    headerNames: w.headerNames,
+    body: { kind: w.body.kind, ...(rootType ? { rootType } : {}), fields },
+  };
 }

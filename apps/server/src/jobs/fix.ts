@@ -112,7 +112,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
     (scan.settings as { llmFixes?: boolean }).llmFixes === true && deps.llm ? withCallBudget(deps.llm, undefined, jobId ? () => takeLlmCall(deps.db, jobId) : undefined) : undefined;
   const report: FixReport = { scanId: scan.id, repairs: [] };
   const manual: { advisory: Advisory; callSites: number }[] = [];
-  const todo: { advisory: Advisory; callSites: LockedCallSite[]; shapes: { before?: ResponseShape; after?: ResponseShape; source: string } }[] = [];
+  const todo: { advisory: Advisory; callSites: LockedCallSite[]; shapes: { before?: ResponseShape; after?: ResponseShape; source: string; witnesses?: { before: string; after: string } } }[] = [];
   for (const entry of byAdvisory.values()) {
     const fixable = (entry.advisory.recipeId && RECIPES[entry.advisory.recipeId]) || llm;
     if (!fixable) {
@@ -173,7 +173,13 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
             fixes.push({
               advisory: t.advisory,
               title: prTitle(t.advisory),
-              body: renderPrBody({ advisory: t.advisory, repair, shapeSource: t.shapes.source, dashboardUrl: repoPageUrl(deps.publicUrl, scan.account_id, scan.repository_id) }),
+              body: renderPrBody({
+                advisory: t.advisory,
+                repair,
+                shapeSource: t.shapes.source,
+                witnesses: t.shapes.witnesses,
+                dashboardUrl: repoPageUrl(deps.publicUrl, scan.account_id, scan.repository_id),
+              }),
               commitMessage: `fix: ${t.advisory.title}\n\nAdvisory ${t.advisory.id}, ${fixedSites.length} of ${repair.sites.length} call sites. Contract tests ${testFiles} fail before this change and pass after, verified in ${repair.sandbox}.`,
               files: repair.changes.map((c) => ({ path: c.file, content: c.after })),
               sha: scan.sha,

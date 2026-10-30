@@ -696,6 +696,13 @@ describe("triggers", () => {
       expect(logs.filter((l) => l.startsWith("ERROR"))).toEqual([]);
       expect(logs).toEqual(expect.arrayContaining(["webhook processed", "scan finished", "fix job finished"]));
       expect(t.github.pulls.map((p) => p.head.ref).sort()).toEqual(["shapi/github-workflow-dispatch-204-to-200", "shapi/quickbooks-minorversion-below-75-ignored"]);
+      // V-03: the GitHub 204→200 contract test is stubbed from the recorded witnesses, and its PR says so; the
+      // QuickBooks one is built from the advisory's fix.
+      const [witness204, witness200] = [0, 2].map((i) => JSON.parse(readFileSync(path.join(root, "fixtures", "witnesses", "github-workflow-dispatch-204-to-200.json"), "utf8"))[i].shapeId as string);
+      const github = t.github.pulls.find((p) => p.head.ref === "shapi/github-workflow-dispatch-204-to-200")!;
+      expect(github.body).toContain(`**Stub:** from recorded responses (recording github-workflow-dispatch-204-to-200.json, witnesses \`${witness204!.slice(0, 12)}\` → \`${witness200!.slice(0, 12)}\`).`);
+      const quickbooks = t.github.pulls.find((p) => p.head.ref === "shapi/quickbooks-minorversion-below-75-ignored")!;
+      expect(quickbooks.body).toContain("**Stub:** synthesized from the advisory (no recorded responses for this endpoint).");
       expect(t.github.checkRuns[0]).toMatchObject({ head_sha: sha, status: "completed" });
     } finally {
       await boss.stop({ graceful: false, timeout: 5_000 });

@@ -11,6 +11,8 @@ export interface PrBodyInput {
   shapeSource: string;
   /** The repository's page in the SHAPI web app. */
   dashboardUrl?: string;
+  /** The recorded witnesses the contract tests' stub was built from (V-03), when there were any. */
+  witnesses?: { before: string; after: string };
 }
 
 export function prTitle(advisory: Advisory): string {
@@ -22,7 +24,7 @@ export function prBranch(advisory: Advisory): string {
 }
 
 /** Pull request description: what broke, every call site it hits, what changed, the tests that prove it, and the evidence. */
-export function renderPrBody({ advisory, repair, shapeSource, dashboardUrl }: PrBodyInput): string {
+export function renderPrBody({ advisory, repair, shapeSource, dashboardUrl, witnesses }: PrBodyInput): string {
   const fixed = repair.sites.filter((s) => s.result.status === "fixed");
   const tests = new Set(fixed.map((s) => s.result.test?.file));
   // Claude's explanations are model output (the model read the repository's code): shown as literal text.
@@ -53,6 +55,8 @@ export function renderPrBody({ advisory, repair, shapeSource, dashboardUrl }: Pr
     "",
     `### Contract test${fixed.length === 1 ? "" : "s"}`,
     "Each test calls the code with the response it was written for and the one the provider sends now. Each failed before this change and passes after it. A change that adds type errors is not kept.",
+    "",
+    stubLine(fixed.map((s) => s.result.test?.kind), shapeSource, witnesses),
     "",
     "| Test | Before this change | After this change | Type check |",
     "|---|---|---|---|",
@@ -105,6 +109,20 @@ export function suiteLine(suite: SuiteCheck | undefined): string {
   const command = suite.command ? ` ${codeSpan(suite.command)}` : "";
   const flaky = (suite.runs ?? 1) > 1 ? `, after ${suite.runs} runs (a flaky test)` : "";
   return `**Your tests:** ✅${command} passes with this change${flaky}${counts}.`;
+}
+
+/**
+ * What the contract tests' fake provider answers with (execution plan V-03): responses SHAPI recorded, so the fix
+ * and its test do not share one belief, or, when none exist, a stub synthesized from the advisory.
+ */
+function stubLine(kinds: (string | undefined)[], shapeSource: string, witnesses: PrBodyInput["witnesses"]): string {
+  if (kinds.length && kinds.every((k) => k === "recorded")) {
+    // Shape ids are hex, so plain code spans are safe.
+    const short = (id: string) => `\`${id.replace(/[^0-9a-f]/g, "").slice(0, 12)}\``;
+    const ids = witnesses ? `, witnesses ${short(witnesses.before)} → ${short(witnesses.after)}` : "";
+    return `**Stub:** from recorded responses (${shapeSource}${ids}).`;
+  }
+  return "**Stub:** synthesized from the advisory (no recorded responses for this endpoint).";
 }
 
 /** The verdict and vitest's counts; nothing else from the output, which the repository's code prints to. */

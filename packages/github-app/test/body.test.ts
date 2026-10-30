@@ -53,6 +53,18 @@ describe("fix PR body", () => {
     expect(codeSpan("x".repeat(600))).toHaveLength(500 + 4);
   });
 
+  it("says what the contract test's stub was built from: recorded witnesses, or the advisory (V-03)", () => {
+    const recorded = llmRepair("Accept 200.");
+    recorded.sites[0]!.result.test = { ...recorded.sites[0]!.result.test!, kind: "recorded" };
+    const witnesses = { before: "a".repeat(64), after: "b".repeat(64) };
+    expect(renderPrBody({ advisory, repair: recorded, shapeSource: "recording github.json", witnesses })).toContain(
+      "**Stub:** from recorded responses (recording github.json, witnesses `aaaaaaaaaaaa` → `bbbbbbbbbbbb`).",
+    );
+    const synthesized = llmRepair("Accept 200.");
+    synthesized.sites[0]!.result.test = { ...synthesized.sites[0]!.result.test!, kind: "request" };
+    expect(renderPrBody({ advisory, repair: synthesized, shapeSource: "advisory" })).toContain("**Stub:** synthesized from the advisory (no recorded responses for this endpoint).");
+  });
+
   it("shows the type-check result next to the contract test", () => {
     const body = renderPrBody({ advisory, repair: llmRepair("Accept 200."), shapeSource: "advisory" });
     expect(body).toContain("| Test | Before this change | After this change | Type check |");

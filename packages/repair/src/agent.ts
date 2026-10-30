@@ -44,7 +44,8 @@ export interface RepairResult {
   sandbox?: string;
   /** Source files changed by the fix, plus the added contract test. Paths are repo-relative. */
   changes: FileChange[];
-  test?: { file: string; content: string };
+  /** The contract test, and what its stub was built from: recorded responses, or the advisory's fix (`request`, `same-result`). */
+  test?: { file: string; content: string; kind?: "request" | "same-result" | "recorded" };
   /** The contract test run before any change: it must fail for a fix to be attempted. */
   baseline?: TestRun;
   attempts: Attempt[];
@@ -79,7 +80,7 @@ export async function repairCallSite(input: RepairInput): Promise<RepairResult> 
 
   await ws.write(test.file, test.content);
   const testChange: FileChange = { file: test.file, before: "", after: test.content, notes: ["generated contract test"] };
-  const ran = { file: test.file, content: test.content };
+  const ran = { file: test.file, content: test.content, kind: test.kind };
 
   const baseline = await ws.runTest(test.file);
   // The baseline only confirms the breakage if the test really ran and failed; a broken environment proves nothing.
