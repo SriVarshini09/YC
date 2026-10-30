@@ -2,7 +2,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createApiLock, loadAdvisories } from "@shapi/core";
-import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
+import { loadRecording, replay } from "@shapi/canary";
+import { PgShapeStore, createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
+import { ShapeStore } from "@shapi/shapes";
 import { fakeUserGitHub, type FakeUserInstallation, type FakeUserRepository } from "../../../test-utils/fake-github";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
 import { generateKeyPairSync } from "node:crypto";
@@ -368,6 +370,48 @@ describe("web pages", () => {
     expect(repo.body).toContain("&lt;img src=x onerror=alert(1)&gt;");
     expect(repo.body).not.toContain("<img");
     await app.close();
+  });
+
+  it("flags a recording past its expiry whose endpoint the canary now sees answering differently (A-02)", async () => {
+    const secret = "fixture-test-secret";
+    const recordings = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "fixtures", "recordings");
+    const recording = loadRecording(path.join(recordings, "github-workflow-dispatch-204-to-200.json"));
+    // What the canary sees: the recorded responses with the latest one changed again, hashed with the same secret.
+    const last = recording.observations.at(-1)!;
+    const canary = (status: number) => {
+      const memory = ShapeStore.open(":memory:");
+      try {
+        return replay({ ...recording, observations: [...recording.observations, { ...last, observedAt: "2026-10-29T09:00:00Z", status }] }, memory, secret).after.shape;
+      } finally {
+        memory.close();
+      }
+    };
+    const store = new PgShapeStore(owner);
+    const { provider, method, endpoint } = recording;
+    const app = buildApp({ db, config: { ...config, SHAPI_SHAPE_SECRET: secret, SHAPI_RECORDINGS: recordings }, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const page = async () => (await app.inject({ url: `/a/${mine.account}/advisories`, headers: { cookie } })).body;
+    try {
+      // Expired (recorded December 2025, trusted 90 days) and no canary yet: unchecked.
+      let body = await page();
+      expect(body).toContain("Recorded responses");
+      expect(body).toContain('<span class="tag warn">unchecked</span>');
+      expect(body).not.toContain("stub stale");
+      // The canary sees what the recording says: revalidated.
+      await store.record({ provider, method, endpoint, observedAt: "2026-10-29T09:00:00Z", source: "canary", shape: canary(last.status) });
+      body = await page();
+      expect(body).toContain('<span class="tag ok">revalidated</span>');
+      expect(body).not.toContain("stub stale");
+      // The live API changed again (200 → 202): stale, on the fixture and on the advisory built from it.
+      await store.record({ provider, method, endpoint, observedAt: "2026-10-30T09:00:00Z", source: "canary", shape: canary(202) });
+      body = await page();
+      expect(body).toContain('<span class="tag bad">stale</span>');
+      expect(body).toContain("the canary saw a different shape on 2026-10-30");
+      expect(body).toContain("stub stale");
+    } finally {
+      await owner.deleteFrom("observations").execute();
+      await app.close();
+    }
   });
 
   it("counts one problem per API change and repository, however many lines it touches", async () => {

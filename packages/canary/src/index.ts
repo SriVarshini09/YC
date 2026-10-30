@@ -16,7 +16,7 @@ export { MODELS_DEV_URL, modelsDevDrafts, modelsDevHost, type ModelsDevApi, type
 export { githubWorker } from "./workers/github";
 export { stripeWorker } from "./workers/stripe";
 export { anthropicWorker, hubspotWorker, openaiWorker, slackWorker, twilioWorker } from "./workers/more";
-export { RecordingSchema, loadRecording, replay, type Recording, type ReplayResult } from "./replay";
+export { RecordingSchema, fixtureStatus, loadRecording, replay, type FixtureState, type FixtureStatus, type Recording, type ReplayResult } from "./replay";
 export { DEFAULT_DB, DEV_SECRET, WORKERS, runEvery, runOnce, type ProbeResult, type RunOptions, type RunReport } from "./scheduler";
 
 export interface Io {

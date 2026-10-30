@@ -6,6 +6,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { sql } from "kysely";
 import { z } from "zod";
 import { withService, withTenant, type Db } from "@shapi/db";
+import type { FixtureStatus } from "@shapi/canary";
 import { readFeedbackToken } from "@shapi/github-app";
 import {
   SESSION_COOKIE,
@@ -69,6 +70,8 @@ export interface WebDeps {
   llmAvailable?: boolean;
   /** Verifies the signed 👍/👎 links in fix PRs (SHAPI_SHAPE_SECRET); unset, the feedback page is not served. */
   feedbackSecret?: string;
+  /** The shipped recordings' expiry and drift status (A-02); unset, the API changes page doesn't show them. */
+  fixtures?: () => Promise<(FixtureStatus & { file: string })[]>;
 }
 
 // form-action also governs where a submitted form may redirect: the billing buttons go on to Stripe.
@@ -381,7 +384,9 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       const ctx = await accountFor(req, reply);
       if (!ctx) return;
       const data = await dataFor(ctx);
-      return send(reply, page("API changes", advisoriesPage(data, req.query as { provider?: string; advisory?: string }), shellFor(data, ctx.ctx, "advisories")));
+      // A failure to check the recordings must not take the page down: it shows without them.
+      const fixtures = deps.fixtures ? await deps.fixtures().catch((err: unknown) => (req.log.warn({ err }, "fixture status failed"), [])) : [];
+      return send(reply, page("API changes", advisoriesPage(data, req.query as { provider?: string; advisory?: string }, fixtures), shellFor(data, ctx.ctx, "advisories")));
     });
 
     scope.get("/a/:accountId/settings", async (req, reply) => {
