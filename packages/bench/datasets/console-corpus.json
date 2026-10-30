@@ -1,0 +1,4957 @@
+{
+  "name": "SHAPI provider console corpus",
+  "builtAt": "2026-10-30",
+  "perProvider": 25,
+  "repos": [
+    {
+      "repo": "ngrx/platform",
+      "sha": "ddd9772e81e2db8a8964fa65f355086118d29dd9",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "soroushchehresa/awesome-coronavirus",
+      "sha": "37fd2b1180cd976ea42f755a7f27f722d2cc1aea",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "postlight/parser",
+      "sha": "e8ba7ece291efa4d915d50dd4deeec17d54359f2",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "mxschmitt/action-tmate",
+      "sha": "7a47031e0b4a52c4e72f1b5ab2b123f8063a5a67",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "antiwork/shortest",
+      "sha": "45a8dcfe89992b37ed2dfb1f76618048cff0f45c",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "github/combine-prs",
+      "sha": "65dd00210b5d0e84ee68f4fe4bf33cca37c56055",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "nextify-limited/libra",
+      "sha": "454e5c45fb5406e69d12f290b489236870f2beb0",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "craftship/codebox-npm",
+      "sha": "fb281b8d99ca04ad6bfbd31475eed68be57b2b5e",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "coleam00/remote-agentic-coding-system",
+      "sha": "ad60e90631bd73296d22ffbf730cc38096cf2f05",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "veithly/BountyBoard",
+      "sha": "25c95b9e9c072babf42935611f4c9359d14ff2a8",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "stkb/Rewrap",
+      "sha": "6a27098e20baf95759c621a5cc1cd9b3fedbd9ed",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "denis-sokolov/remove-github-forks",
+      "sha": "70aa3349c5fd65b5acd3faed5fc3e6b4c6aebe00",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "fimbullinter/wotan",
+      "sha": "e25bf84561562935584a47220af5c996d6b746e7",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "rewbs/sd-parseq",
+      "sha": "12e91260ea2c6cb853d974ca3b6e9aef87511207",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "aporia-ai/mlops.toys",
+      "sha": "9d942251e203d86cf3224dcded6ece6e9d17f946",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "babelcloud/LLM-RGB",
+      "sha": "30bc7434aef504afecd22aba9643bf107483f7a4",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "hiteshchoudhary/gitbackup",
+      "sha": "de8ebd0696d718d298d1e736adbbbe3e0ff13e4e",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "directus-labs/directus-template-cli",
+      "sha": "043dfd5bf6ef55df7eae176cc754978527dbba72",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "skyline-emu/skyline-bot",
+      "sha": "0778b1d2f90a171a53e02e0630b663c687daca9b",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "adobe/sizewatcher",
+      "sha": "ca66e57b589e1750ca53e0f93ce1724f54f299bc",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "beepboopbangbang/githoard",
+      "sha": "37157838c3ee1140c1f4f17ff58f8422f62be250",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "unbounce/iidy",
+      "sha": "f93793a7df136ca50a97dd24d26e08eed9e5d8a0",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "dcramer/dex",
+      "sha": "3f55b2a3ec9746fc56cf62037ca6a828555ce17d",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "iFixit/pulldasher",
+      "sha": "155510945f19d1b27739d5ce2505d2d3b196e19c",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "antdv-next/antdv-next",
+      "sha": "1ee597d66208a1936b3cb4fb9c7a933093b2d66e",
+      "provider": "github",
+      "package": "@octokit/rest"
+    },
+    {
+      "repo": "guillim/nextjs-boilerplate",
+      "sha": "6a45468a3e477f7ff7a9489aa0843d1ac4b4446f",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "ViniMTrevisan/Kybernus-CLI",
+      "sha": "d7a9ba7ee21d58b1515911217540054482ec720f",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "arjun-kadam/DocsGPT",
+      "sha": "5daade5d2d593e3b1efc6478af2ce7462b3ca18e",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "qamarq/netnook",
+      "sha": "3653b36e17e506203a369b23b027688fc15ade65",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "lefnire/jobpig",
+      "sha": "c54c4a2154894841636b4c5e9d47ea041bf2f865",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "harsh661/airbnb-clone",
+      "sha": "6ec677a2713894b16e4371ca53b6398742df60c7",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "RiP3rQ/Trello-Clone-NextJs-",
+      "sha": "46201d1cbeceafd46a0b050cce0e5fcbdf6ff33d",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "zyxzb/QuickCommerce",
+      "sha": "d387332b6b4f7daad826873ee5c7a70d2c9afc01",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "TheBetterStore/tbs-app-order",
+      "sha": "e8e374607a19a16af8b3d9553f785630234fd707",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "jinkos/ifa-web",
+      "sha": "991a2c7a70b500740f711323843defd2df516d9c",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "Hostilian/courier-connect",
+      "sha": "aee62f7e663c21c475de12a16f8b034b82ac21e3",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "lucasps136/baseClaudeReactWebtemplate",
+      "sha": "6c4905512dc331acdb83ec1402cd1218c9702f45",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "vibetemplate/vibecli",
+      "sha": "0a53fdb77a2aa710f16dc8d3eb65a376b7ed8b1a",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "Bilovodskyi/ai-investor",
+      "sha": "369e6bad7fc81a3ed0d5fe831c108a482bfc9524",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "profullstack/vibe-stack",
+      "sha": "26b774d586c917fe6d56f1d6ec958b212652ebf0",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "Haythembz91/ecommerce-app",
+      "sha": "6bdaacc97811bb2c02be52da5bcea67b778520e5",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "MohammadOwais10/MEW",
+      "sha": "d8179159befca227f5cbc7180be7f82c5a3b40d5",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "jillianseaton/node.js1",
+      "sha": "296f0d0d09f0dd0ea0df73d3161188c1d47f3b14",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "palhinhax/North-Sail.com",
+      "sha": "84b2439990763be49412bbf2cf0bd51420523c94",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "ahmedsemih/Fullstack-Cloud-Storage-App",
+      "sha": "dc73f7d2be66f322d3e38edc4744e980fac08e74",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "ZurcLeo/solutions",
+      "sha": "05671e77d69238b28dd3867883801f4cfcde5748",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "Diti2604/library-app-react",
+      "sha": "18faa89f7802b5c2d337a0d01de185323c394655",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "BgtPtr/Szakdolgozat",
+      "sha": "68fa5fe3716f46e838d5bba957996dad36e90357",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "JosephKlenk/Tyro",
+      "sha": "310d88cb9310c229d5e1f942da93909eadc90caf",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "bobanest/bobanest",
+      "sha": "7b73f370921d9d5f40dc04be44e9086aa51103c9",
+      "provider": "stripe",
+      "package": "stripe"
+    },
+    {
+      "repo": "Prince25/StockAlertBot",
+      "sha": "4d68eb095f9e8c3f9f649ae0850654cf211f430f",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "likeastore/heartbeat",
+      "sha": "8eea0c796437b3cc9d4b742cc1779633009c42e5",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "sourcefuse/loopback4-notifications",
+      "sha": "330b9641571a76d92de1fd56d961c308ceae3c7b",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "Syncano/nodejs-codebox",
+      "sha": "08aee174ac5d582e77fd3dab4f75f5bf5cc9abe9",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "erikanderson/quakemon",
+      "sha": "bfa5bae08169467dbaa5a4a2c8310cc268b905fd",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "soajs/soajs.oauth",
+      "sha": "f717193aee0cca3aba5cc53e6cf1b72bfe656b00",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "hvardhanx/AMBER-alerts",
+      "sha": "99549cef4338056775516a27850b3e065634f78b",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "Autodesk/machine-collaboration-utility",
+      "sha": "e45e56a8542b7f034a021aec943de6a801af4755",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "EGreg/Platform-history",
+      "sha": "91a2a103b17af75a7b0e788c72e92d718556a411",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "sagnew/CallStatusDashboard",
+      "sha": "aec830eee92f0520d7a9718be8e5633e6ec89a56",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "ascendia-network/ambrosus-node-extended",
+      "sha": "1b5cdd5dda7c055f2a36627735fb245f6c131c82",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "twilio-labs/sample-template-nodejs",
+      "sha": "7eadcf4c9d816965e11b9037919b47a1c6b46323",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "utter-one/bonsai",
+      "sha": "ba57fb73ef7b140d219b67ee91b0264fa928eb07",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "DanielCordell/TextEverything",
+      "sha": "2cb3d049d66b664ffb3d9ebf5a0cca8717570fd2",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "janecakemaster/exquisitetexts",
+      "sha": "a4574c3aca7a25018494d1ddf24836dd21d5d437",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "pebblecode/iot-washing-machine",
+      "sha": "088fb854721e35698248476a481c967daff92fa0",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "twilio-demos/twilio-agent-create-app",
+      "sha": "1d8956d91c5dfa9b2e34bf09ee6a45b8ce0007fa",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "amirrajan/pomodoro-text",
+      "sha": "2a1340469567b7c9e908f6775b134c46bdf8d6b0",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "ali-bennezia/basilic-io-serveur-application",
+      "sha": "d7fc7ad6d016f34a23c47ac33b596d242b0cae8d",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "aleph-engineering/feedonideas.com",
+      "sha": "17d507cfa0ea023b5bfc7a752064f4a38e084348",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "usha-madithati/esmart.github.io",
+      "sha": "e5468e784efab7c2538fadcae4adaa68eaa490eb",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "sagnew/Twilio-IP-Messaging-Plays-Pokemon",
+      "sha": "55145e923e9e047ec6388b3f4b6b10b934432b76",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "adarshaacharya/MentorLabs",
+      "sha": "e6337f8f1e2a67aaebf713bd12861bf90743d2af",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "ECLabs/UpBoard",
+      "sha": "5c45f58d1bb00267cc97c21afd908c385cc2ffe4",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "BrentAureli/BrentAureli.com",
+      "sha": "351c4d98033b24ee55862d612e3440143c7b0236",
+      "provider": "twilio",
+      "package": "twilio"
+    },
+    {
+      "repo": "kinngh/shopify-nextjs-prisma-app",
+      "sha": "dabfa7d9a7b990fe4c0c44cb297459497a4fbdd5",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "jacob-ebey/remix-ecommerce",
+      "sha": "fe0f986f26ca0b6e98cba6c881200cd7993cedc9",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Shopify/subscriptions-reference-app",
+      "sha": "575a825f9f38aca9b0a1880e0fac10121b572a1c",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Shopify/shopify-app-js",
+      "sha": "9ad9d704f5ec33965c4ccf82462a96c19e762702",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "nestjs-shopify/nestjs-shopify",
+      "sha": "d29d96d7f024f6e53f632b60ec642d96d0d78aa9",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "carstenlebek/shopify-node-app-starter",
+      "sha": "ab1eac465239fbcb65933550b27c606df7c368b6",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Shopify/example-admin--action-and-block--react",
+      "sha": "86bfb092c28aa1cd0add8eba8b5b0459594adaa2",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Shopify/shopify-react-conf-22-app",
+      "sha": "94e0310b54949c857073dc17954e4784d39f39ae",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Shopify/editions-dev-2024-workshop-extensibility",
+      "sha": "22234bdccc84485e2e4b81484a9f623410f2f745",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "t-kelly/nextjs-shopify-app",
+      "sha": "a51cda05cbf77206985b38be1775f91595922ece",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "carstenlebek/shopify-non-embedded-app-template",
+      "sha": "3e4560a6e4dd39fd7b16878b6fab03d90b051eec",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "drizzle-team/tento",
+      "sha": "632a318b4ffcb9dead06e33b44a5cba1f572165a",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Shopify/editions-dev-2024-workshop-customer-account",
+      "sha": "24b51d3dc82509f723b89e71a969de7e47170cd1",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "redochka/nextjs-shopify-app-no-custom-server",
+      "sha": "040167ca44dc2895963a985930253ca63e16a1ae",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Shopify/editions-dev-2k-variants",
+      "sha": "370b6811dd84a0874f0a5111c681525366dca135",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Aident-AI/open-cuak",
+      "sha": "24e97076e05089c20bf8704d362b33a704518e4b",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "TheSecurityDev/simple-koa-shopify-auth",
+      "sha": "cc4cf40a96930fa08d5db53dbe11dda6fe9c5b7e",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "jonathangiardino/shopify-app-starter",
+      "sha": "12201fcaf98e2bccfd3ebde684384d2f49dd319e",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "shop3/strapi-plugin-shopify",
+      "sha": "5fa573e66bcf4616a7c8c830d3d0779efa3b43cc",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "maestrooo/metaobject-repository",
+      "sha": "7d99e2710f2568604ae9c8e5cc30fef132490713",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Shopify/example-app--embedded-auth--js",
+      "sha": "16902cffad7102354217d01e62f63d675dc1c1b9",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "unlocomqx/shopify-app-sveltekit",
+      "sha": "96c02a56b605c72c4a3dc113a66c498350a1433e",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "alexandrosk/marketplace-app",
+      "sha": "4643023281797480c9ff805426ed6fbef096cd9c",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "Hujjat/wishlist-inspire-app",
+      "sha": "684f64f9d21ec1ef1e7ab7f1514a51056ad0ff40",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "LeonelAimar/new-shopify-node-ts-app-boilerplate",
+      "sha": "d9d8baacef0db304340147dbe6234bf0ba9bf4ca",
+      "provider": "shopify",
+      "package": "@shopify/shopify-api"
+    },
+    {
+      "repo": "intuit/quickbooks-online-mcp-server",
+      "sha": "31a1dd5c3e170e368dbff651abbaf61aabde6ed9",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "mcohen01/node-quickbooks",
+      "sha": "f5baf5d976c17ccc6786c5b19d9fbceb3b5aac0d",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "IntuitDeveloper/SampleApp-InventoryTracking-QuickBooksV3API-NodeJS",
+      "sha": "98a462879628d9ea1f1b1677214be85fe2c373bc",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "intuit/intuit-developer-nodejs",
+      "sha": "86dd8a7f19914e90536264ccf6847301ee5481d3",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "IntuitDeveloper/SampleApp-WebhookNotifications-nodejs",
+      "sha": "2659ded6a3e0081b719c6de2e217b69e8dcee08f",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "demandforce/node-qbo-sample",
+      "sha": "8a20e85a2a3725b63a442e37dbf31e59af0c4258",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "laf-rge/quickbooks-mcp",
+      "sha": "611ca6d05165e405834bc121762026b285ff5526",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "CodeWithAloha/HACC2022",
+      "sha": "26abe54ab028b52fa1794de328a433503bdf26a5",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "paperMacheTortoise/Hive",
+      "sha": "d67d016336466b33ebc353fb6d67a691cb33df8f",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "eakarsu/cash_flow",
+      "sha": "810d6d5939467e224ef8b7d505f67d81c79d66ac",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "Jobrythm/jobrythm-fullstack",
+      "sha": "7c50a32e3c64d01fc47d3b5ce067bc0597e5b4fa",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "ExentriqLtd/Exentriq-GAIA.node-red-contrib-quickbooks",
+      "sha": "bca76a3b0b5ff34a29f303a0e1f093f91aeb8cc7",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "BlackMac/sipgate-boilerplate",
+      "sha": "673af159e6de1adb947594df7a03bb7d3da5eb9a",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "jharri34/RiseUp",
+      "sha": "fdaafe1dc8c81ed5acdc7349e87757899eb6e78c",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "justinthec/receiptsheep",
+      "sha": "8fb2042017cbe057b08efefd3b9b547e88d469cc",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "codehivetx/goosebay",
+      "sha": "4dedc06210bd8adfa6f726090d5b230ccb743a76",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "matpb/qbo-mcp",
+      "sha": "72e236d64134afc0b501b39222223713a15f15d5",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "jpanuska/qbemailgrabber",
+      "sha": "3317d150f193d3c013ce2cde4088b6f29dcc8378",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "hasankadirdemircan/node-spring-boot-todo-app",
+      "sha": "b96a087e7d0733d0fbc481796ea35dff472abc20",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "nexusct/quickbooks-online-management",
+      "sha": "9a22a43e23342eb949ca9a1844858994d55b9f55",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "rupesh2k/quickbooks-online-mcp-server",
+      "sha": "68f8e5fa91862640d0e2dfce35a06d572aa88e8c",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "IrishHill/benefitsApp",
+      "sha": "9ea7592bbef747ac4a0db2875c50740188a19068",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "ProjectsByJackHe/our-home-treehacks",
+      "sha": "1bfb6eef7fad4c04cb88e1389b09811c4437c058",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "mding5692/htn-financial-analysis-ai",
+      "sha": "397dbcb757282a07c717e76ba4b088d857f27b3a",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "pkuzmickas/social-flying",
+      "sha": "5a8783f0ca674a52a7b55c37f2bfda60c437e43c",
+      "provider": "quickbooks",
+      "package": "node-quickbooks"
+    },
+    {
+      "repo": "XeroAPI/xero-mcp-server",
+      "sha": "3892f4fcd90a955fe4f908e5ead25b1025b7a4ec",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "XeroAPI/xero-node-oauth2-app",
+      "sha": "be704b2d0a10e7ae333a39feea262784e33f1ed2",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "XeroAPI/xero-node-oauth2-ts-starter",
+      "sha": "b03d04fce471a7e60b83f38cfdd00c052ba2cd09",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "john-zhang-dev/xero-mcp",
+      "sha": "0f23abfe1360c603abe0a89725917a7bf84d351d",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "Pinelab-studio/pinelab-vendure-plugins",
+      "sha": "1a9b0cd91b909a11695d0d5347c4bac65042132d",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "XeroAPI/xero-node-sso-app",
+      "sha": "0d7a03c1695ab5779cd9103edaa915ae4b324040",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "XeroAPI/xero-command-line",
+      "sha": "ae346db7406b41c455d786c5f1a2b1ca6e62bd6c",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "hookdeck/webhook-skills",
+      "sha": "5d4a1e6c89e2621aaafc59425806d4aa0e9a61c1",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "XeroAPI/xero-node-oauth2-react-app",
+      "sha": "9b749115129d8c9526428b6b4284b0ffed35f98d",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "XeroAPI/xero-node-custom-connections-starter",
+      "sha": "e98f519b9d8d0c7b1bfa8e5282cd42f341c330df",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "leslie-alldridge/xero-bulk-void-invoice-tool",
+      "sha": "6402446b4c7010ddb20170aed52b70742376f351",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "XeroAPI/xero-node-sso-form",
+      "sha": "2d85fbdc39209be3042c9e0494122f5a41c5e2e9",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "mindstone/mcp-servers",
+      "sha": "8ea9406099b02ed35888033a9bf28b1692721a32",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "rjaus/XeroTierion",
+      "sha": "35700bfc5142f8685624b714c025658a534dbb98",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "outpost-software/stoker",
+      "sha": "8f8e0d75a1b8591c47abdc4bdb2cfe40358f0a9e",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "whpptjs/whppt-api-express",
+      "sha": "b0142438b4eff60e097ae6c80864fb08503b52ca",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "philals/netlify-express",
+      "sha": "bb491064e59e4b471ce22a2175f568ef2e6d2640",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "SerKnight/xero-node-basic-app",
+      "sha": "8d42b6dd4a0f3a442fdb9a706a5474775d1e2393",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "philals/xero-node-sample-app",
+      "sha": "55c788f630f3106ad466a65bb94a31dc08fe6064",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "muness/xero-expenses-mcp",
+      "sha": "0c07613bb4d10f4b798e09abe893aa2c109012f6",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "muness/expenses",
+      "sha": "b44fd4922399075849407e3a78363827ffc311b0",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "tejasvtanna/delivery-docket-app",
+      "sha": "33d59f42eb56d30214b890e85dd3a820c29c32b2",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "Giving-What-We-Can/unfuck-september-dup-invoices",
+      "sha": "b74ed55e5924c0836c9054d2634dc6743de6df23",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "Darshan1510/xero-integration",
+      "sha": "c67acc8ee02bc67a78ef464da1bd7ce5184959c9",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "gabikreal1/squeeze",
+      "sha": "e5a45266f5c91988d738768530732d107f6d4c79",
+      "provider": "xero",
+      "package": "xero-node"
+    },
+    {
+      "repo": "looker-open-source/actions",
+      "sha": "5d136eb830c3ea21b55032f7d4297935eaa03d56",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "HubSpot/ui-extensions-examples",
+      "sha": "23e3dd2624431cefcefee0c6a4cea578ee05f345",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "hubspotdev/crm-object-sync",
+      "sha": "7f24375dc2a0ef708cd0c4c368d6f81364ed10d4",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "friday-platform/friday-studio",
+      "sha": "fb3069a951f23fbde243cd1d25d0980fe550be28",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "Atlas-Authority/marketing-automation",
+      "sha": "f2866ca1d7630c922911b38f6b8a4fe51171e65f",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "abbaspour/actions-gallery",
+      "sha": "4a9aba59d2bc115ad8a5ca2b0636b536980d461e",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "oaknational/oak-ai-lesson-assistant",
+      "sha": "dde50abc94c9df751758dfe4fcd2e95c4a2014ee",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "imageinabox/hubspot-custom-code-action",
+      "sha": "24f1812817730c7695b381d365ace74a18842667",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "scopiousdigital/hubspot-mcp",
+      "sha": "7a891a32fb03402e13a506d25a94a27d811d65eb",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "HubSpot/private-app-starter",
+      "sha": "c1fac04097f6da6c03477da6e145913464751044",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "HubSpot/sample-apps-webhooks",
+      "sha": "4976692a89a15d66a4556555496b39c69db537a3",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "HubSpot/sample-apps-oauth",
+      "sha": "5b95c47820664fff2e6f4af8e1b97bd2a9085ac2",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "pandium/sample_integrations",
+      "sha": "bc7a82e2939da178f56f623d117fd6ae1c571658",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "lkm1developer/hubspot-mcp-server",
+      "sha": "34bc3f9b4dd87ca53f6aaa6e8d2fd6a1a81b2b00",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "HubSpot/sample-apps-manage-crm-objects",
+      "sha": "193a608054f95861bb42038b5f21b44ad4ed8f74",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "HubSpot/sample-apps-search-results-iterating",
+      "sha": "0fa971c974fc6b7b84e40eecc9a94983db9ec0be",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "hubspotdev/property-mapping-server",
+      "sha": "86a3902a3cd8e05e51106a58673f3d0de02a6ccd",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "personizeai/revenue-os",
+      "sha": "7efa73c10495b3f41da10ad9bf7f6c25194089c9",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "Kohorta-team/demo-theme-hs-integration",
+      "sha": "3709708496ca54a0bc62319fdb3db87f78a06047",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "CGeekDylan/Reactflow-data-story",
+      "sha": "838c6137063b477a36477a9d9f053f925ed2de65",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "hermesdev0131/lovable-backend-next-hubspot",
+      "sha": "72a81a6f1e969de8e787e4bc3b38c941b23f8f3a",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "comwrap/adobe-commerce-hubspot-app-builder",
+      "sha": "01faad21a3631e941bcbbc60fac341bff58bd8aa",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "HubSpot/sample-apps-custom-object",
+      "sha": "271e8fb44dd4d3011bd9865a64e1619f8a376512",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "gathertown/grapevine",
+      "sha": "085f11d70b120f010324171243c23df8bf385811",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "HubSpot/sample-apps-imports",
+      "sha": "e9d91adacf6699fdb952d3ae9e61c223ea99741a",
+      "provider": "hubspot",
+      "package": "@hubspot/api-client"
+    },
+    {
+      "repo": "terobox/ChatGPT-API-Faucet",
+      "sha": "1a2c4f6051dca65c3d65cc11193a014038950f36",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "adsr/irslackd",
+      "sha": "0ccfdc32ac8676269d28a483a402e235027c2c17",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "zuplo/rate-my-openapi",
+      "sha": "24819fbe7576e2811b3be2750312e2cea64bcf14",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "dgurkaynak/slack-poker-planner",
+      "sha": "5c8ce18cf4ebe2228740c7fc678f724d1212efdc",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "framna-dk/slack-chatgpt",
+      "sha": "67218b0b7da19398b64a26fb1226ad3f40d699aa",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "Gamesight/slack-workflow-status",
+      "sha": "2e709ce51fd47f02b7221db8547e6e6f49f81f1d",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "vacuumlabs/obedbot",
+      "sha": "fde420e9dd3d61fa4ba5faf2dc5b646676c28535",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "cowprotocol/contracts",
+      "sha": "c07a93e3596194c5e3cf331c755a3f9f0e4a17d8",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "lob/lob-typescript-sdk",
+      "sha": "a4effd9038da17a88ea8af1b74b2d73144acddfb",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "datadotworld/slack-app",
+      "sha": "a66e11691f95fbfd2a1349e6cef8d1eedab1b03f",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "viyiviyi/AI-Assistant-ChatGPT",
+      "sha": "00c0930603f12e501593f1806ce2e36038392eb5",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "npm/action-deploy",
+      "sha": "02ec46cae737e1791129ef8ea80284ab9d3de8c8",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "llamafolio/llamafolio-api",
+      "sha": "bf669cbaf424a7694954d151e39e143d28ff2e35",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "tintin-sh/tintin",
+      "sha": "6c10710a46a0702d7acd05fdab6a7358c2c2b3f7",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "scitix/siclaw",
+      "sha": "ceee3f49f8bdc9223c0a2b0afec33253f95616f9",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "hackthenorth/mentorship-slackbot",
+      "sha": "f1f4b9c8d538e7c2d0e3267aeaf62d23faba8251",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "OpenFn/kit",
+      "sha": "9a5511987c41b4d7c592f717af455da51773c29a",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "trymbill/cypress-slack-video-upload-action",
+      "sha": "d0ec45e249ddf961092630d7acbb7a2e085e467f",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "konecnyna/slack-cat",
+      "sha": "2393e93a2de5745ca0c70c98d3d8d8cbd3c286e4",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "tscircuit/contribution-tracker",
+      "sha": "bd3a743e45034503483e580066715aae8b9f20fc",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "luqmanoop/sync-dotenv-slack",
+      "sha": "dfe26c1c7bbfeffa3a5ae9ac669fa76e64835331",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "markhobson/emojibot",
+      "sha": "a60589d27aa647f8d39157ec22d0899080e044e5",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "anirudhb/prox2",
+      "sha": "55efb2f8d0d1e58194e30ce08610807f4bb737e9",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "kaida-palooza/ccpoke",
+      "sha": "f020a322c01c70601ce5f10d28ebbac4038a785a",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "rikvermeulen/co-op-gitlab",
+      "sha": "04425f89a124473415e3f1e2723e44aec3170335",
+      "provider": "slack",
+      "package": "@slack/web-api"
+    },
+    {
+      "repo": "gcui-art/album-ai",
+      "sha": "fe5eb8838d9a53792375232b8ae90c3d1893eea3",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "henryhu55/tts-web-vue",
+      "sha": "ab91e1ef81e6cd2e707089aed64fbd747295a65b",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "yoshiko-pg/o3-search-mcp",
+      "sha": "1ad6938fcfe504246feef32c153e840436f0496c",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "xuanyuanzhifeng/code-panorama",
+      "sha": "2b37d98ec708967f6d2e50fa630bb6c40d17b06e",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "OctagonAI/octagon-deep-research-mcp",
+      "sha": "c44ec1ce412ba9ab4a853dae4d6ad7367f7efc31",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "open-fractal/flur",
+      "sha": "773e43f825dcfd242b8d58c7db9f604c74b90c05",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "adrianhajdin/job_pilot",
+      "sha": "788baa5784f94264c33780fd051f9d0b17a68f60",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "NianJiuZst/openmeta-cli",
+      "sha": "da5048c25b845c651c00175bce87d22c8a6a748c",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "adrianhajdin/cartograph",
+      "sha": "2c2a7c287f0308d56e247e49a265ef113ecbf3b9",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "gamma-app/aijsx",
+      "sha": "2900075d8251b7a83c6b855fcf36e6df4c5d2539",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "pBread/twilio-openai-realtime-minimalist",
+      "sha": "a9e63c1b7ba3f81d940ec145b3dd3ed6532f876f",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "Haimantika/GitHub-roast",
+      "sha": "23552b668173730fc5a13cf6399487f3dda1765d",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "amazedsaint/openai-agent",
+      "sha": "4bdc2532ab7cf41dcb85772cca7cfd1256d77e50",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "upJiang/DiFlow",
+      "sha": "513935600141f668a29a2cf4c28f34034108e2cd",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "kirandash/ai-projects-nodejs",
+      "sha": "bb6af2df83d6006df290063e4a9b7fc5420f008e",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "MLILA17/DML-MD-Panel",
+      "sha": "cd89ed2e89edfaad20718a1cd18bd68b37a37f1e",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "up2itnow0822/AstraForge-the-App",
+      "sha": "a4a5429d0cfefa2b027114e08b9ec42bcc1b6121",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "AI4Kingdom-org/ai_4kingdom",
+      "sha": "c98a350affbab82ff585850e4f0b9d1019e2b1c1",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "namiindacatherine-a11y/group-ai-bot",
+      "sha": "3a15e0788ff9579e23fed3bae0fbcfcff130e10a",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "LiyamFlx/tech-news-magazine",
+      "sha": "e81cd0e8910a84c82405f57c22285ad3ab3ed349",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "ruvnet/aihl",
+      "sha": "8e80355b595cbc534f0f5f2097f978b0dfefc332",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "andersrex/kindllm",
+      "sha": "1ada7196af56963082b379e867491eb91e84411c",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "ruvnet/symbolic-scribe",
+      "sha": "8a31e52797dbd73703cad368d3f1e5657179bec2",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "nomadcoders/wemake",
+      "sha": "21ceb5d55c608772ed374a651eaf1639eaec6d5c",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "cchavezmx/control-fletes",
+      "sha": "dc711b6b7848d65e5bf2e22f1ce8fdbf6dc8fa10",
+      "provider": "openai",
+      "package": "openai"
+    },
+    {
+      "repo": "corbt/agent.exe",
+      "sha": "e2440622aa0206b9c9223c776f89cb511bbc9f8b",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "yayasoumah/pocket-server",
+      "sha": "10854b5ebc2055346c57bf000f86222da1d953fe",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "babarot/oksskolten",
+      "sha": "8fb6ceed07320b8f85e7fa5bbaebd400af6c4a26",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "breck7/ScrollHub",
+      "sha": "fdfb31ef780342a9b5bd72dc3754a685282ac303",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "microsoft/vscode-copilot-vision",
+      "sha": "c2feef705921a2a7c80de321c4cb1a383e925599",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "txl16095/MiniClaude",
+      "sha": "561531ea4567e83bcaaf0aa45c038b5cfda58297",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "Superexpert/superexpert-ai",
+      "sha": "5ba20ca629c9a3689e4592c80633876a8c162e4a",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "assrt-ai/assrt-mcp",
+      "sha": "0aa002634b4b758865827c77649d7ae35db25bf1",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "ranxi2001/OfferPilot",
+      "sha": "dbd9875ebb60310e8cc8eb1b4f7de3f6e343c13b",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "aliyun/alibabacloud-dataworks-mcp-server",
+      "sha": "348888eb8817cbafc1be8dd20e17cdac30006d4a",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "brandononchain/opentrade",
+      "sha": "d488b2dd6a124d7a2da76cb5afe679842bed0c92",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "dorukozerr/kisuke.vim",
+      "sha": "bf57e4e20909dfb8315cb39758abaf76a40ca115",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "TaGoat/claude_code_cli",
+      "sha": "66f7740787048a97b44c52c89999839cffe49b76",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "castari/cli",
+      "sha": "f5addb239a0fb5cf79e13958a76f69ddd664b8b4",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "allierays/agentic-loop",
+      "sha": "e72385b3009a96ebb509fea071b74c29fe2ecfad",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "Braffolk/mcp-summarization-functions",
+      "sha": "bc02da0f432304480f2ca2ef9f6eb08d02e788e8",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "amirguterman/claudiv",
+      "sha": "5a35768f621c62e1c53b76fbab1ff4468271a13b",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "liminityab/LLMExcel",
+      "sha": "4ca632b3939e1519d5caf023a1ce712537444770",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "fupela/vibeship",
+      "sha": "ffeb46ecf41340416d1889fdb03ba26f41494169",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "mgechev/revolt-llm",
+      "sha": "6f27a141d4faac5c9a47135b2c80076bf2c690f5",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "Adashuai5/awesome-financial-freedom",
+      "sha": "7cc82a059f08221cb0a88cded5ccc573d40eec69",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "dljw/singcompress",
+      "sha": "773f480f1e9abf2d0e19c86183d8ddc69cac95f7",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "linq-team/kalshi-agent",
+      "sha": "8848667aa41f7a3641ec01d477553a4b812ad275",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "mythos-agent/mythos-agent",
+      "sha": "a14abd1c2b63615476b6fef5f1e362c706e2a84b",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "caelum0x/veritas",
+      "sha": "d8f515b1b2666f258c045f2530472b0ed3e98312",
+      "provider": "anthropic",
+      "package": "@anthropic-ai/sdk"
+    },
+    {
+      "repo": "futurice/futurice-super",
+      "sha": "8b0a6b492b3a076486a7371880c73158bf1f96bd",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "wadewegner/deploy-to-sfdx",
+      "sha": "2501db3c1592c24b3cbc5b42617f46d94c15f5ba",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "vlocityinc/vlocity_build",
+      "sha": "efa2b31c801b2bce7cbdbf549d21bdccb6a2f152",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "forcedotcom/SFDX-Data-Move-Utility-Desktop-App",
+      "sha": "07edefaa7248d7e930b0141d742862a02b49b751",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "tsmztech/mcp-server-salesforce",
+      "sha": "18f650025fea09de9ca6994b953a55f501a63f21",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "pozil/salesforce-react-integration",
+      "sha": "26c4c354d05b1b6acff500e515e6f9cc74f8966f",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "mslabina/sfmc-servicecloud-customsplit",
+      "sha": "fcf1771efe4e10a40da7edacde03447826396bec",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "heroku/jsforce-connection",
+      "sha": "ae1d1a61b5e97c29a18d27ce8d470566b4b646ab",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "lwc-soql-builder/lwc-soql-builder",
+      "sha": "61d868f89c45535d0d96d0fe67c46e34f538c570",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "stomita/sfdx-migration-automatic",
+      "sha": "0f0f512840becc102497fa3541336162043ba010",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "SalesforceLabs/OrgCheck",
+      "sha": "8051daf4aff50164b8d7637ee9b4371effaf0f86",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "Accenture/sfmc-customapp",
+      "sha": "2e46275c316f1038bc88d194e1d1a3fbd76fa67c",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "realestate-com-au/json-bourne-sfdx-cli",
+      "sha": "bcc84aab9df7edd0f5c973f229e09a82f8a9bbda",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "arun-sfdc/Analytics-API",
+      "sha": "2157ceeb2ff6aa264762ae661a46ecb61f3d6ae3",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "forcedotcom/package-manager",
+      "sha": "6373a3888566e8b7d0b841e44a4b2148ae3ba003",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "pozil/pub-sub-api-node-client",
+      "sha": "61cb07afae67e0191551310123373c2f12e1be86",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "pcon/SalesforceApps",
+      "sha": "53bf1a0fb7dbb6ecb5fb609bd3eecb37ec8bffd5",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "gavignon/sfdc-generate-data-dictionary",
+      "sha": "bd7d40a957aaa1b75b8140cd7dde318aa5d4e891",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "watzon/salesforce-angular2-boilerplate",
+      "sha": "2ad1cca3e1c763399c70bee74de1d7f3fe113b9e",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "wadewegner/sfdx-waw-plugin",
+      "sha": "4dff037e28c012274f592d7e64e4d8d9033871fb",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "SalesforceCommerceCloud/b2c-crm-sync",
+      "sha": "c29b59794c36e8052aeed5cb55fad9b6c1b82379",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "appcelerator-archive/appc.salesforce",
+      "sha": "ac9d1f1560f22a33be50fde0e90273bc178a4533",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "forcedotcom/git2gus",
+      "sha": "e103cf64ee28ac93d9c58ebbe6a6611a818b80b5",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "jsforce/gulp-jsforce-deploy",
+      "sha": "5dfc52fd64619d901cc41f8a258225532a6ec4ec",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "enreeco/sf-git",
+      "sha": "c319145f9e7cfa7fb1aa9033ee267fe1ffe47780",
+      "provider": "salesforce",
+      "package": "jsforce"
+    },
+    {
+      "repo": "mattermost-community/mattermost-app-zendesk",
+      "sha": "cd532dff8a9b8e48283ff97a2f7dec8e911dc046",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "rakutentech/docpub",
+      "sha": "f55676e88d3ffaffcfa192c1a2348a31d78dfe39",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "octalmage/ZenApp",
+      "sha": "66ca1d978620b4cd8acea65c6a3c1cd6bd87dccd",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "Lostmyname/zendesk-tagger",
+      "sha": "4afc80b8f1addb8300cfa168f9a6b2a1f47088b4",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "cliqk/zendesk-export",
+      "sha": "eb42971a32b97973486072d48b9e59553848eee9",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "koundinya/zd-mcp-server",
+      "sha": "a71522f8152a904467f136cde35c153f1692327c",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "cweems/openai-zendesk",
+      "sha": "068f8ab3b8ec6113571fed0db9ef7194dbeb7788",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "CUL-DigitalServices/symplectic-import",
+      "sha": "260580c18a8986d3b5edf928cee8589f2c6a95ae",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "prismatic-io/components",
+      "sha": "d3d38da1c1eac38557bb9995d12cf005bcfbcc7d",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "Kaholo/kaholo-plugin-zendesk",
+      "sha": "81a2684d1a56ea24e7fb42a8956bbe801d496e27",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "marktoflow/marktoflow",
+      "sha": "707a57c9aa4f5af389cc873f5a4d9a2983d1f7fb",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "rbyamungu/flexiManage",
+      "sha": "25cde5228ee78938b2bec657554747c7693457c7",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "project-isizwe/wifi-chat",
+      "sha": "a261c1b5cf43f22d842c9e5ae21963a626ea4294",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "erikzrekz/zndsk-dash",
+      "sha": "672d930815be121aa978e52916da91efa0039a3c",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "roomorama/phonorama-node",
+      "sha": "d7eecf187f4b3d2146fe8e313baf26b945db6cd4",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "LDCVia/keep-works-public",
+      "sha": "771461ef4281c273c7b414ed77110bc911b5d301",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "clearfeed/quix",
+      "sha": "8c9a70fdf280cf1624b0e510a458b70adcd6cd40",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "nossas/mapa-do-acolhimento",
+      "sha": "817f208f4dde9706cebb788ebadbf2ea140c628e",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "technicalmachine/celery-whiplash",
+      "sha": "81fcb6784c1b5b4f96dd8114d52b70667849ef30",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "nesbtesh/zendesk-to-pdf",
+      "sha": "63741881871ba3dfe594f1ad3c4e7cbe73909f8c",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "augustogoncalves/stackoverflow2zendesk",
+      "sha": "41af61bc9a62438f70a7f6ad826c68f32fa9e3c4",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "cognits/dbot",
+      "sha": "038130692102022de986d05a1a5c70f94c72b72e",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "nexmo-community/vonage-zendesk-integration",
+      "sha": "ccfb544b4de1a39898d11438b3d3aba710fd132c",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "inkeep/zendesk-inkeep-autoreply-template",
+      "sha": "bea0b076efdca2128025bfad1ad6ef105a132819",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "brianshumate/zendo",
+      "sha": "b5ccd288e3b3c0a582022542f499e38c52963d74",
+      "provider": "zendesk",
+      "package": "node-zendesk"
+    },
+    {
+      "repo": "withastro/flue",
+      "sha": "deee93b40d275ecc9a50c50af2158f20089d54bc",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "DavidWells/analytics",
+      "sha": "6a5b895fff4ff050e51e73863fbebf36b9b52c97",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "reindexio/reindex-api",
+      "sha": "2e961c83b720ad2a2e4129188a8d7ba8f5c75214",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "scopsy/nestjs-monorepo-starter",
+      "sha": "903cda1938c400e947f60d68595fb22ca7ea2795",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "basetool-ai/basetool",
+      "sha": "b5074690fa00896152fddf1083a4e20773a3368e",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "devicehive/devicehive-playground",
+      "sha": "016f828fa426cb52f8a957c86d63769583568a91",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "apivideo/deleteVideoDemo",
+      "sha": "71112b2784d7939e95fbc79067ad0cdf931dd93a",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "synchroniseiorepo/server",
+      "sha": "7813366817bb4f3808d94d8af09aef94deebb030",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "Runnable/orion",
+      "sha": "236945de68ea9f6fa8ec19e73c42487f9eb28fc6",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "byte-foundry/inyo-api",
+      "sha": "880ea76952174292f252e3286d4c0ea087301ec5",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "octoblu/endo-intercom",
+      "sha": "ddd66ee2bfc79356ab9e8613b47cf9ef1d976e73",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "PDIS/polisServer-archived",
+      "sha": "5faf52b148768cc9924b3ef2095d1ca699627258",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "likecoin/likecoin-api-public",
+      "sha": "1a9885e0c5984dacc6c8e4962784c581a1b0dee2",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "nicolaslopezj/waveshosting",
+      "sha": "04d88bdd5d7efdac332f3d548fcd00bb5d358182",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "CodeNow/priest",
+      "sha": "d6836140164d9ef40f30698eb162ce619570e2d1",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "Syncano/syncano-socket-intercom-add-lead",
+      "sha": "20ffd8c9dc6751e3e9202608c87c589f65def724",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "Starchup/intercom-sms-router",
+      "sha": "c746edbaa5840e62427ac7bd3fb6059e432a0c8c",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "CodeNow/customerbot",
+      "sha": "38a3ff042cc3fb8c6fb063ffef3506654ceedbeb",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "AP3X-Dev/AG3NT",
+      "sha": "1803d52c946b76c5ec7ec49fa7298b6664be8d0d",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "chrisshayan/theleaderio",
+      "sha": "3ed60da20ae8e6afb808d8beb794ec6a7a13e53b",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "iloveluce/sequence",
+      "sha": "ebf27f8f4e337c895ad5288981c567a7fe0c40e1",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "ztratar/graphql-node-react-boilerplate",
+      "sha": "b1829ae064075010005b9a5a2b296eaffc31bee5",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "CodeNow/khronos",
+      "sha": "3c2faa0581e13c0876ef6e0042151f8ce384775a",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "gkbharathy/Polis_Pulse",
+      "sha": "806e77e508cd8c27a8c372502c111359fdd8b28e",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "gokepelemo/DO-GradientAI-KB-Creation-Tools",
+      "sha": "6c44aaeaf430819793fb68a3e932988ee019ac85",
+      "provider": "intercom",
+      "package": "intercom-client"
+    },
+    {
+      "repo": "JuanmaMenendez/website-change-monitor",
+      "sha": "58b3a3bb2c9f20fcc1f15e460ff1f606a78f4ee7",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "catin-black/meteor-emails",
+      "sha": "857dc6ddfa0d517e7c79740fd6ebbb094baee295",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "iiitv/getmein-web",
+      "sha": "b4cc914e2db1b50fce962c927f80fd2bc419792b",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "aghontpi/dnde",
+      "sha": "434d5075aeca1c522f3f1afee06fac7f5ad1db0e",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "Etheonor/supanextail",
+      "sha": "a0a5466d3ff0c087448d6f94dcb03622b7a67818",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "DAVFoundation/community",
+      "sha": "48432e4d571254077615c83ab197fcc95f355cba",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "daniloaleixo/fundamentalAnalysisHistoricalDataServer",
+      "sha": "07205a5dde070a4a58ed53b6134f11700dff17b6",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "multiversx/mx-api-service",
+      "sha": "7370ac023904a7d576b915f7c93fa1aaf0d56419",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "Hassan950/OudBackEnd",
+      "sha": "85d5f21ff0b970e679675072eca510a297d4fc7c",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "oslabs-beta/Ciphyr",
+      "sha": "993c5f146e8847194c685a3545fd7006c49f54f7",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "Rajdip019/booklee",
+      "sha": "9d0dd8c53ef984fa05936f5edeb846b4c18e0fb0",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "webberwa/Angular-Real-Estate-Tool",
+      "sha": "6ca78926316062cc15a2e39abf53868ffb7fac7b",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "BuildForSDGCohort2/coffee-port-server",
+      "sha": "6cd27ef72444e7c62745d452cdd26724a26946db",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "klekanger/gartnerihagen",
+      "sha": "77685e1e9c7ecb3115d8dd67588f260b93a32f01",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "hack4impact-upenn/javascript-base",
+      "sha": "68347e92e88ca85515fd60fb524727eabfb138c9",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "controversial/luk.ke",
+      "sha": "a52405ff9677ae1217d7b8bf84742b194cf0e201",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "Universal-Code-Modules/universal",
+      "sha": "4c62fc13cf1f0ccf49b30d82ee1575d15b73ae0f",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "Gonzotr8565/Diagflow",
+      "sha": "6cd0a7f8e41d544371f30b1605529048a8009d76",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "mostafa3li/task-manager-app---MERN",
+      "sha": "8da782d59b5e819c8f1416f045a5fe4363dfa444",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "Fool-Stack/Certify-VIT-Hack",
+      "sha": "f1180764c2f2e7ec39d35a3b200f9f323392ed51",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "shashankkatte/feedbackr-mern",
+      "sha": "2292b55e6851b3d42510541f22ee060aa82776a3",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "Mukesh1q2/Konnichiwa",
+      "sha": "b583d5c0ca6bc53f7b4f52e39a28752d8790a25d",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "Shivangisriva/oweu",
+      "sha": "07d55c74de770eca5d7171eaa3b20fc92289f807",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "PDNMX/SistemaDeclaraciones_backend",
+      "sha": "e814e5081f5eaadd16fb97ce0db43067ef73602e",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "johnkueh/node-apollo-saas-boilerplate",
+      "sha": "d6d402f0c2f3aceb9f068646b5e990f7e39501e4",
+      "provider": "sendgrid",
+      "package": "@sendgrid/mail"
+    },
+    {
+      "repo": "salvia-kit/salvia-kit",
+      "sha": "f7b2f2729199904097e8d0cff99ceb546495b7af",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "devedmonton/DES-Website",
+      "sha": "b55806ceb6de82f0e43c39a38939606ead0187e0",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "pycoder2000/blog",
+      "sha": "fdbbc8531c79d1c4b80a672c56fd3710b0c32f73",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "softwaremill/scalatimes",
+      "sha": "da9411039b03601430f9bb69b8f06d0fdd627bc6",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "jakeherp/portfolio",
+      "sha": "e358167f06a9fd24d1ab796e3a5bb249d472c927",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "condinoaljoseph/aljoseph.co",
+      "sha": "59808613ad16b1fc053bf4a03ee27e063dc4d0a3",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "Baroshem/nuxt-newsletter",
+      "sha": "8d1ade0e0673f1303e758a1ea1fd2f9f25676fa2",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "unfolding-io/Astrogency",
+      "sha": "bfadefa364ed937bb961e0ea51402a07554b4e62",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "oslabs-beta/Panoptic",
+      "sha": "478f453a44790dcd7a1555380edae989fee83c23",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "osscameroon/blog",
+      "sha": "9e099a61ca64ddc702b1d16355f99431c3f568e8",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "saleor/examples",
+      "sha": "e731b77343a51ac8a2d195c325b797ef5703d089",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "Nutlope/next-blog",
+      "sha": "facf1741ad693b08fd71131eaf2886bd6a7b2af2",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "tomdohnal/twitter-fomo",
+      "sha": "ff660fefa26361ab2ba42cc1fa74a154f353d6b0",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "BuilderIO/blog-example",
+      "sha": "0819a330402dccc862d993400d351f2a71194005",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "lukef7fywmrp/ilwyennefer",
+      "sha": "0bca1a69622f45a77ab0418138cf787dfe9424b2",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "hubot-archive/hubot-mailchimp",
+      "sha": "29a331ccd47dd325dedd4852b5cf67e3befd1c95",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "marceloavf/marceloformentao.dev",
+      "sha": "c67ee0bacac22ddcab2ca6536d1c78e775f5feb6",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "dlodeprojuicer/ionic-vue-mobile-template-05",
+      "sha": "5f50083e3cc7a4e529e8d1a6676a8ce6ea13715a",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "mailchimp/wordpress",
+      "sha": "07d7f2f31c63f1901427732096693fa0ffcccf57",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "hermesloom/theglobalburn",
+      "sha": "47a4e6238d0bc05c6b6d54a6a9f3b44d8e4c6294",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "einargudnig/einargudni.com-old-js-version",
+      "sha": "674ec600e37d091f13f18c7d27e2f46c56563c5e",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "christianalfoni/predictable-user-experiences-in-react-book",
+      "sha": "af65dddadd8d83cb09fcac96c9d09942574a9898",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "thekamalkashyap/blogging-website-template",
+      "sha": "2d5a38c260dbc69ef2dbee941633042bd6ad7a50",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "Planeshifter/hackernews-ai-digest",
+      "sha": "fa5f9f391858d3e2accb1f543ff5b246ca2b607e",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "OndiekOchieng/digital-space",
+      "sha": "83ecf7a4e8379c20d1023b3288097e48fea278e8",
+      "provider": "mailchimp",
+      "package": "@mailchimp/mailchimp_marketing"
+    },
+    {
+      "repo": "yyx990803/build-your-own-mint",
+      "sha": "87d5e1334b91ec857f541f3a6a333a10827a5363",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "Codehagen/Badget",
+      "sha": "16a677f9536160c8ba0840db3c6d13c21f045a09",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "plaid/idv-quickstart",
+      "sha": "97b45ecd37d43fa060666f7b6dc3737d8ce8447f",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "oss-apps/split-pro",
+      "sha": "3583568319807e193fbe57085ea9560a2e872b93",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "Temple-Stuart/temple-stuart-accounting",
+      "sha": "d78527b6e4248d0055d597f0baec03cbe2cdd1e6",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "dotnetfactory/personal-financial-dashboard",
+      "sha": "258478328cdba370575986a1e8b533bdd113bbb4",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "nviennot/easy-finance",
+      "sha": "715cb0ae5ca211d3ff4be2e9de238bb43fc84383",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "plaid/credit-quickstart",
+      "sha": "7efe7ae83c9a3a17c0fe559868c5c37e49c208c3",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "rishipr/mern-plaid",
+      "sha": "69d85723875223cc18341f2a6fdc9f5327c41261",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "plaid/layer-quickstart",
+      "sha": "87dc6e65f490eeaebbf9fec45fe16eb98b983760",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "cawfree/react-native-use-plaid",
+      "sha": "d048f88003c233b91b47a6ece3e98e11f64d5eb5",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "mohamedelmougy/horizon-banking",
+      "sha": "65c184bcbaf9cc58d7e3fd001c457adcde488696",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "rysolv/rysolv",
+      "sha": "21e53c004855e9997fab26fc62bad8b6d11205c8",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "cmarshman/shoestring",
+      "sha": "09773c63f73a4033da0be2aa1006c48710ca1869",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "tylerjnap/plaid-quickstart-workshop",
+      "sha": "f00d949614c51f294dfc48a465e503284bc09f08",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "gupta-ritik/ExpenseTracker",
+      "sha": "c39b67acf7473573a92b05e3adfb97a478d5438d",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "jagodin/personal-finance-app",
+      "sha": "223f2d11522e4a58f143682f0ef616ed6e02a708",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "dipenbhat557/payment-management",
+      "sha": "96027eff4a3ec8a32ddb8854c2896fc581c0981f",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "SaketKothari/finance-saas-expense-tracker-platform-webapp",
+      "sha": "03be1db262908a20e41e8a1318cc6861a8e6b345",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "fotinh0/foti-banking-app",
+      "sha": "fe5e88bd5e920bdb14c3c61fd8c39f83a6dc025e",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "sardinachanx/SharkFin",
+      "sha": "6cdc20e96551c7cf48e338cc57aacb91d4a39054",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "viperrcrypto/PocketWatch",
+      "sha": "a4854186724af76a1ca6cc634b2118c14d0759fc",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "ansonhwo/subbit",
+      "sha": "3489685e623821080ea1f6ad506e094ad7f50275",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "sid3345/retirement-fintech",
+      "sha": "7fa8d0ea96b21da41baf326ec233825e4766e62a",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "BrianQMclaren/bank-dashboard",
+      "sha": "82e6bd5d2dfd39a9c730fc87d4103e0837feb3ea",
+      "provider": "plaid",
+      "package": "plaid"
+    },
+    {
+      "repo": "amamenko/GlowLabs",
+      "sha": "d93271c699e569627987a560bf89e3e2f8ff61a3",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "square/web-payments-quickstart",
+      "sha": "8adbbf1c6149931acef959279fcfac953f7775df",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "square/in-app-payments-server-quickstart",
+      "sha": "3bf9074d43118141adf2a1196d578a902e13e63c",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "observing/square",
+      "sha": "0a801de3815526d0d5231976f666e97674312de2",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "observing/red",
+      "sha": "e22d4794f7c7d90eb370f55fa630c274f07b0d35",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "flatiron/cortex.js",
+      "sha": "d8fe3829513e36755a5380933a778758c4bf5892",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "naji0329/Microservices-GrowLabs",
+      "sha": "8d1060b37d48b56101bd042ba9d171962d2e2828",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "Vonix-Network/Vonix-Network-WWW",
+      "sha": "19d27c97e4393023fb90d3d3def0cae40e917af5",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "alexiscirmi/nextjs-ecommerce",
+      "sha": "953cc3c48b7d4788a9bd7b1a681c26510335c7e3",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "goparrot/square-connect-plus",
+      "sha": "ccc812c71d9b507433a7859f1312d0f57279019a",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "loppo-llc/loppo-register",
+      "sha": "c8240646f850e9294c52f67f2bc25ba1c251fa02",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "Square-Developers/order-hoarder",
+      "sha": "0b9e3d843c140d4dcbf90baa4cdd7584865e8521",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "nemanjam/next-auth-custom-provider-demo",
+      "sha": "1afed461bbad9336b29828db4078b2d04ce6d3bf",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "rice-apps/HedwigUnified",
+      "sha": "2b2852187875291946a60f05920aa0d0bb22d7f0",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "alexiscirmi/nextjs-square-payments",
+      "sha": "a010056fa556d004f4fb3ec3bb7f726b5bdc6309",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "westborn/SB-Reg-svelte5",
+      "sha": "bd39957fefed932756d44ac98badca8c2d8f0b4b",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "rice-apps/hedwig-square-handler",
+      "sha": "a85ac409437122fb0a1bb549f6ffd0e4652986c8",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "manda-farmer/square-express-shopping-cart-public",
+      "sha": "cebf8ccc99adbd924e75082325b5531a88df92fc",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "triggerdotdev/api-reference",
+      "sha": "cbf46e28cc5a807f0e96738677c0d059665de5bb",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "hack4impact-calpoly/hispanic-business-association",
+      "sha": "bf8677f1b58ca4071cfb9fe5765d56362f530110",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "yohon617/ActivestarsInstApp",
+      "sha": "cc2241e545d96da1bec5324fa63c2e1420f68ee3",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "mikehelland/openmedia.gallery",
+      "sha": "cbc4b6792f132a73b26c66be4137fd732e1631f0",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "square/squaredev-graphql-pkce-demo",
+      "sha": "1581d7a4df2602a0549f4d3389c1b64164bb418e",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "alexandre-k/bookings-api-sample-app",
+      "sha": "06b3e8c512a9226872507229d63169de92ef0cbf",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "mrvautin/nextjs-checkout",
+      "sha": "0e4179367a8a1f1a7f2fbd3d1db75e302bd2414a",
+      "provider": "square",
+      "package": "square"
+    },
+    {
+      "repo": "paypal-examples/v6-web-sdk-sample-integration",
+      "sha": "c4333b444368a67ad54fa4786fccb57021c5abdd",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "paypal/agent-toolkit",
+      "sha": "a3aa963960caf32912691a759879a8ce7a6018b2",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "paypal-examples/docs-examples",
+      "sha": "809537903a2c38757d33cd871465741c610088cd",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "ctate/tooly",
+      "sha": "dd021b71e608665aded46cdd615580a980c7e0ff",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "payrouteshq/paykit-sdk",
+      "sha": "c2e8b3928d7e3596d6ff62048f71cc33a058cdbf",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "httt2333/AI-pic-detect",
+      "sha": "6256da45d5714f0bf038877e8f570451b144b69c",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "fazt/nextjs-payments",
+      "sha": "41a379fc9fe608a1cdbd6895f0289a3d82c28249",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "melo-maniac-29/webly.io",
+      "sha": "ba7d4128d09f6f60561420fe6b79a55a779a62fb",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "remap-keys/remap-firebase-functions",
+      "sha": "50e0b786a5ead86e91c7de2a500ddd7a0c895d50",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "Sin-Estres-dev/Strezless",
+      "sha": "fd12b5be81b68ae11aa88cf88c6e4d1e99223fb8",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "RSC-Labs/medusa-paypal-payment",
+      "sha": "0c4f91334409708e9b21b2ba44b824fc1a5dd0f3",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "BrianPHL/seraphim-luxe-ecommerce",
+      "sha": "524dd684678f9c1be6d832c6c6cfd8636c2a2a00",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "flancer64/teq-agave-paypal",
+      "sha": "7a2facefbe658efba0d910d6bb82fdb72cf2f2f2",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "ZAK123DSFDF/refearnapp",
+      "sha": "1fed820a192e0a8668ef84ee6c43079e879f6946",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "Giathi-Daniel/ShoeStore",
+      "sha": "249205ff15d4cd308a2d23f8577ba942c7a43cc2",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "paypal-examples/paypal-mobile-sdk-demo-server",
+      "sha": "d7c4090512fbd0ccd7ab902282ea47b90bda574c",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "rashinkp/byway",
+      "sha": "a994f98fc036f063082a4b65c73ef595b4def1bd",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "irzix/whmjs-core",
+      "sha": "e62ccef39b99c7cb79c5f4d8ac8fe21fa9dc4af0",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "QuangNV23062004/test-monorepo-microservices",
+      "sha": "abf04b7753b821c38132e0d6b2d761dfcab3e576",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "soufianboukir/feednity",
+      "sha": "56b3df307548299c3e83cc56b00763190eec1778",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "platfone-com/temp-number-backend",
+      "sha": "9634ebb89fae3120c4bcdd89beb88d1306f70d2c",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "reymondgodoy/nextjs-enrollment",
+      "sha": "24a4e4b465b916bbbbd5af89510c106994caf3f1",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "unipayconnect/unipayconnect",
+      "sha": "952b6b337cd7735f9edd3bbbf999ba7d59c5f23f",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "podverse/podverse",
+      "sha": "a93b7a2ed229b0af3610af589c7161d908ea5558",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "GCousido/ClutchPay",
+      "sha": "e261595c79c6dffe8769c62f606cba33b268f369",
+      "provider": "paypal",
+      "package": "@paypal/paypal-server-sdk"
+    },
+    {
+      "repo": "jackfranklin/dotfiles",
+      "sha": "dc10e141bfc716b70e7306352c466f7f404ed9bb",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "iamlooper/Lumi-AI",
+      "sha": "06fe644dd31efb2f1cb26500fef8ca5aea744c2f",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "rvoidex7/ats-cv-Create",
+      "sha": "4269b77b8e976f8261535c32e356504696775bab",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "BOBBY-10000/infinite-canvas-1",
+      "sha": "d9d7038ad205fa2af627a54d986a9a3f1d88dcee",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "ycyy/Nano-Banana-Supermarket",
+      "sha": "386401a1d0569dc5a7de5e0834d8194c93b54448",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "raffaele-ando/AgoraCheck",
+      "sha": "e7eae55f523567ce58cb26023f768e70c265bb50",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "Varshini-svnit/multi_model_check",
+      "sha": "da37d3f78f8cda861feefe4ff926920e7037bf65",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "manthankro/pramanix-ai",
+      "sha": "7f30e389274e2c1fc1680f784ab3252cb6cf7c30",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "rajatchauhannn/paradigm",
+      "sha": "c4590f3957bb96597e7daaea8b0be98d10c841ae",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "Nyaughh/t2chat",
+      "sha": "be89816cd89b44d9ada5177135aff38e45a95aa7",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "yusufwardana/cosmiclibrary",
+      "sha": "6c13161f4e1eb4dfc8677d510b28ffc8f5d2e345",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "Shopbrain-dot/Shopbrain",
+      "sha": "e349757a7d819e21742bcf13d3dec6ef5d963afa",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "hackenstacks/ai-nexus-pages",
+      "sha": "83a32aefee3e0744822640a4cbf74124a6952fce",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "b00skit/faction-panel",
+      "sha": "d7f7bfedaf123a4581c8cc90415c7b4cc4888dd9",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "tomcharlesosman/Editorial-AI---Template",
+      "sha": "0703c251c856cb29ad7311ed08a033e0cc383890",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "theagharshit/LMS",
+      "sha": "475191acfb5270ec480e813cbcc0b91095ca262e",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "Yeasifjanimishad/Elite-Mess-Management",
+      "sha": "bf0f6206fb0788c239dd23561df4b49dec020fd7",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "thiagooliiveira/korus",
+      "sha": "44e7c60367ac7a7113eb3a56b9a0c887a32113b6",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "hamai-one/Ham-ai",
+      "sha": "f602c083ac736ad826c06c0d167707106d7aa5cb",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "mixclubonline-del/Flow-trap-synth-",
+      "sha": "32b7833d8dfdbe3e67e9db52eee2f86126c7dfa3",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "volkov163/migom",
+      "sha": "e805befc078e3e07b7076659b9a4c2b438c6652c",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "sangsakorn/Creator360AI.studio",
+      "sha": "12767e71fa9c1bc185618794a193d2d18e85834d",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "AsaNeonSama/copy_ninjia",
+      "sha": "bdb45fbbd76f28eaf8f3fb8973de4fa629173d0c",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "Cmjha44/Chandra-Jha-Portfolio",
+      "sha": "5ac5c83cf669c6dcbed36d3084f41bc0dc5d4bd8",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "Tsukishima168/kiwimu-mbti",
+      "sha": "e159bf96e6db4c26c9962655ad85d80b2ffc0f3a",
+      "provider": "google-gemini",
+      "package": "@google/genai"
+    },
+    {
+      "repo": "GoogleCloudPlatform/cloud-run-mcp",
+      "sha": "e37371264b9a7af490052c5676149a68817b66ec",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "JasXSL/VibHub-Server",
+      "sha": "c8ca77bc472137ad17abe6289f55d7317256d60e",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "Autodesk-Forge/forge-view.googledrive.models",
+      "sha": "dc4598c68d3365f848f359f223b61fe8506462e5",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "daniel-j/parasprite-radio",
+      "sha": "e6cd1bd6ca7cccc6758a579613469e36db6eb04f",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "mattermost-community/mattermost-app-google-drive",
+      "sha": "705a30d8d4ee7567597497735e65b4a54a477837",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "js-graveyard/pellet",
+      "sha": "6a99dc91ffc12aa20591864c8bdcb84e781b3966",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "arcaneoffice/Photos",
+      "sha": "f9dc6a52960a8d60589be7fd6225562db7bb7037",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "dexin-qi/obsidian-sync-calendar",
+      "sha": "fc8c3e6b387d2a2da78c05136291b8ec7bb3c279",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "Dhenenjay/Axion-MCP",
+      "sha": "27aaf138580a495b72347bed613b73c35bcfd4b7",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "jcmartinezdev/google-tasks-ui",
+      "sha": "b7ba2b6e42c734c811fae905b6ba517b17a40295",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "omegaup/website-OFMI",
+      "sha": "9ca137b144d7e1ced3af2c04710ee307a0e374c7",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "hiprathamesh/doc-prescrip",
+      "sha": "95673078f1f6eed3e4def226053475f2f97fcce0",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "UWCSESecurityLab/confidante",
+      "sha": "cffe1805780f419fa8b4abc09cba12859880cb98",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "Jodebu/upload-to-drive",
+      "sha": "8ff79983f946ec07dd698916d4dfc4f8da820c08",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "GitbookIO/expect-firestore",
+      "sha": "6d8c063b708d2cc9d4cfbbb7210e9752784a2dab",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "ExentriqLtd/CryptoCurrencies",
+      "sha": "bdd8248d5bd7e99c38af8471e27a34f64488a39a",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "bahaaldine/timelion-google-analytics",
+      "sha": "3aa95d663b9694be56854b1b19ed7773f090ca8d",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "ossdaiict/AcadVault2.0",
+      "sha": "d8cb8daebd500e9144af6020b4a552d22be3d75b",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "dimaslanjaka/yt2mp3",
+      "sha": "4b3fb430dd5a4394e994fa67ce1fb69d5ac328b8",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "ismail-codinglab/gmail-inbox",
+      "sha": "988298b7e58e5914de7b62247038433f67e6cdc5",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "Blaqted1/Sung-1.0_DCx_Version",
+      "sha": "4b4aa662fc92a5a5be36c122ed687e48fece0927",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "pranavkarthik10/lazycal",
+      "sha": "257bff3c58c7dd5cbd8270151310da1c09624c96",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "cherscarlett/imposters",
+      "sha": "6281c481ff97541f2303770afeb33f63934d2f5c",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "SvenSommer/MMM-GoogleAnalytics",
+      "sha": "cbe893b74c345d03297d43b4105e7a3f5a5f620c",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "sabotack/P2",
+      "sha": "4f2994816341316b04daac6804b64df6dab4fd6a",
+      "provider": "google",
+      "package": "googleapis"
+    },
+    {
+      "repo": "remotely-save/remotely-save",
+      "sha": "34db181af002f8d71ea0a87e7965abc57b294914",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "microsoftgraph/msgraph-typescript-typings",
+      "sha": "ae0550b30ccc924cbe01182c098d00721a1a6951",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "dotnetfactory/fluid-calendar",
+      "sha": "b8f5dbe11439abba3e3728318182868e9fd6c7a3",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "Autodesk-Forge/bim360appstore-data.management-nodejs-transfer.storage",
+      "sha": "fcb7dd20f0dda8c33b154c47501604e763f53354",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "SidU/openclaw-a365",
+      "sha": "0e176dfc1fa3628687e143e606377fb6293858ef",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "brucemcpherson/gas-fakes",
+      "sha": "a3fb28a162db3bd48f4967f49114ea5a03e991a4",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "pnp/sp-editor",
+      "sha": "2dedde14abafbd66c33ef68fc5e02e14484a6a2e",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "LumosLovegood/obsidian-mstodo-sync",
+      "sha": "ede66817369bf5ebf2b6c5b4640d610f96335de0",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "ellucian-developer/experience-productivity-extensions",
+      "sha": "f60edae34fb2bf5333b1d17f38e8a7beef2b0fa7",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "Azure-Samples/communication-services-authentication-hero-nodejs",
+      "sha": "547410cb26433306c489cd5cc410aca89a53dc0f",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "azure-ad-b2c/deploy-trustframework-policy",
+      "sha": "126e63df5f83fcfad6fbeaefc9a99fec38bb53bf",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "OfficeDev/msteams-sample-contoso-hr-talent-app-node",
+      "sha": "924fec1203119d97a827716800928f9b5f7d2898",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "Jhope188/ca-policy-analyzer",
+      "sha": "66cf8bddabfa95a4fc752e2281189a37f8d8fa0b",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "anhi/obsidian-msgraph-plugin",
+      "sha": "706a3a012003fd8eccb5fe1518aaa65edec294be",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "Lakshay1509/NeatMail",
+      "sha": "e824bf8f132e60a01d67b9ce302d4942168fcec5",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "ROBROICH/TEAMS-Chatbot-Microsoft-SAP-Graph",
+      "sha": "47657b75fa027f2994d95c87bd9e6807f097d664",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "RohiRIK/argus",
+      "sha": "eb6f4fd2c5a0c0f7e4ec0392050838a08ba55ee6",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "anoopt/outlook-meetings-scheduler-mcp-server",
+      "sha": "d77d3ed54269f4538706c36db625d82775edeec2",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "kexa-io/Kexa",
+      "sha": "97c1937832e41f75699f0640a05e53e3e54c51a4",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "matt-wigg/next-14-azure-auth",
+      "sha": "93c69865fa6d8d799b1d7b9a1e2007fd81cd5ea5",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "connexta/eve",
+      "sha": "82b1f368384caee8e88138b496067634e9ff54fc",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "wictorwilen/cocogen",
+      "sha": "f9c5eda20a4696122f2332631845a1954b166644",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "Aanerud/MCP-Microsoft-Office",
+      "sha": "f5686fc37584c1ca3512a8696bfb0a64664a61bd",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "shihchinlin/vue-teams",
+      "sha": "a6306b8d156326c74bec04fe534e51052c91f6d8",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "epatters/onenote-export",
+      "sha": "9415c67241af7debba27b354c193f7173c2e6cc6",
+      "provider": "microsoft-graph",
+      "package": "@microsoft/microsoft-graph-client"
+    },
+    {
+      "repo": "fbsamples/whatsapp-business-jaspers-market",
+      "sha": "557dc5b38020eb5af92b48992858ecb0a4066c2e",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "Tisik79/MCP-Facebook",
+      "sha": "2ebfbc931bd74fad60271f2abc8dd7eb36b4c78f",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "RivercodeAB/facebook-conversion-api",
+      "sha": "7f3e671d09b274aa01b5130c8197a398f7399f88",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "OnethumbOneLove/Real-Estate-Leads-Generator",
+      "sha": "bc2d833c605c9863dd91737bc14be266db79b47b",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "syncmaven/syncmaven",
+      "sha": "dae77102999b218e10fc9e497cf93115390a490f",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "shubham14p3/fb-crud-ad-campaign-node-express",
+      "sha": "6accb71069edeede6241869442c7e402f6c30b91",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "snapmaster-io/snapmaster-api",
+      "sha": "3ff9206ed8de4b1bf91cc333d6494fc4fa407145",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "Naicah/Retargeting_app",
+      "sha": "60932266f93983f23c630fbc1b91c4cdd9ae5b8a",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "JairoDuarte/fbaudience-cli",
+      "sha": "1537fb212124fcbe4561f149175e828c9a7bc73f",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "gabe-almeida/meta-ads-mcp-server",
+      "sha": "fccfa2f9f195a18384eae03c14abc2bb350dd254",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "joecombopiano/stripe-fb-node",
+      "sha": "76e9a715b4050004fe979b8121c652ddf2a4a279",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "ikmalsuzali/lost_dogge_api",
+      "sha": "7dcea72cc1ab8433decdfffd7c6ffb225c31856b",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "nurliman/facebook-conversion-api",
+      "sha": "abbcab9ba258c81644f5ac0ab49a028a29bc12f3",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "KennethMwandiki/vm-chatapp",
+      "sha": "4b0fd7407e2b962f8229ab2134f8883ee88f17af",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "ozma-io/web-funnels",
+      "sha": "e5803b4af2c552f8813833994769612bf8e31ae1",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "kadekdodikwirawan/wa-multi-session",
+      "sha": "2482f2fc24cbd6093aa1f0b88640320e8cca9f71",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "urbanriskmap/cognicity-facebook-ads",
+      "sha": "1ce77f9fbfebc7bbb9ff3126f22d636b296f887e",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "RonaldPrecieux/WhatsApp_ChatBot",
+      "sha": "b2cf1b8c3d44e1c7455386484e6d8a2f7339e0a0",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "mauudev/meta_pixel_conversion_api",
+      "sha": "1eb1c5ab1536a0e88d3cabca55cc3db779cfae69",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "quangpao/fauto",
+      "sha": "ca96425ead2e55bdcb50534173309dd0502f95c6",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "webdevgrisha/crm-integrator",
+      "sha": "6442b0ef76bd34b680c0e0fb62a62871027d5358",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "TrieuNam/ToolUploadPostFB",
+      "sha": "fc45c11efb761932a9681d63c4e4b354bd5e20b4",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "mharnett/mcp-meta-ads-incrementality",
+      "sha": "4023cb8b59b3ca5ca924c6a163bd8afaeb81d4e5",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "luvnft/yupon-ai",
+      "sha": "40ce4f7ae9945c4ebc645c9e90ef1e2b69d12b33",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "Schellbach/slop100",
+      "sha": "d9d3c0c241ce26ddfbbc3af4ec09d2ae7dab40be",
+      "provider": "meta-graph",
+      "package": "facebook-nodejs-business-sdk"
+    },
+    {
+      "repo": "0xfreysa/agent",
+      "sha": "c65136317d7a8447b220f9569b3c86bc30b0fcb4",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "humanwhocodes/crosspost",
+      "sha": "6b0826849a24fa510b1ea3d70cb80b1d2fe76f35",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "rjindael/ca-dmv-bot",
+      "sha": "c702306f2b02c8ecaf5676a409af31c1d8d32320",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "milktoastlab/SolanaNFTBot",
+      "sha": "e77710555004db314117d435f0d2b4f1dca54a77",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "misenhower/splatoon3.ink",
+      "sha": "07ba37540c68f02f3694e59b007f9282dc2157b5",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "whatwg/participate.whatwg.org",
+      "sha": "2117425069530b72dc32c49733440be4b6ff4df5",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "rebeccathedev/petfeedd",
+      "sha": "31647952ba85806e28aa1b13b20bff2ff6062347",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "rhetor-ai/DOGE-AI",
+      "sha": "42839e3631a7d6fb1df82c20486d601459c73928",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "Naeaerc20/MonadTestnet",
+      "sha": "acd6fb5e35eebd28884eb0d18a4fe009307646d8",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "nearform-actions/github-action-notify-twitter",
+      "sha": "e08e6738b44f1d31fd40a053ec46980ba651c0a9",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "joschan21/contentport",
+      "sha": "3d86f3a13fac1eb8ddf88217b21c9bc0b1e74f44",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "litentry/litentry-registrar",
+      "sha": "712823ea3cb150c11700fc5a371cf453fdc38002",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "rohitg00/devops-twitter-bot",
+      "sha": "116e3cfcdbf26044cd1f52322e640d3e29643d61",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "azu/mytweets",
+      "sha": "efd1281ea3936a5794712d39d8be81bc04284a96",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "snow-actions/tweet",
+      "sha": "ae3b21541638d390b601d82a4f2dcc496bf6120c",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "nimish-html/all-socials",
+      "sha": "db61588e5de35b69b0d732794bb9d0b1afb5719c",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "molly/dynamic-website",
+      "sha": "0bc4361f53af7beae7372205706ee57eeeac216a",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "ask-the-hive/the-hive",
+      "sha": "d35c326d1520ce88d6879a22e9c9aef3366375c9",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "DataWhisker/x-mcp-server",
+      "sha": "5a72cc757fab3b4e86efbedbe96960a441a7f8a4",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "pirasalbe/Ebooks_Request_Generator_bot",
+      "sha": "2be75bd3520481f8e190cb97fb26196fffcf3ff1",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "m8s-lab/solana-sniping-bot",
+      "sha": "2a0e3bf5f070c71003e19db3ee35adff3fc0f9b7",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "KalleChen/master-duel-week",
+      "sha": "860beed2a135bf01ebf0da25e864416ed06a92ba",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "takiAA/twitter-scraper-mcp",
+      "sha": "b69cbf711a1eca7e2c8772110790756911e387f2",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "tayler-id/social-media-mcp",
+      "sha": "7966dc14e6e1697165e5d0451f5f6c5c4d749bb6",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "CodemonkeyOSS/Translate-Bot",
+      "sha": "a7af7577d47dbb4246ef4fab0c1dba46b01f9ec7",
+      "provider": "x",
+      "package": "twitter-api-v2"
+    },
+    {
+      "repo": "langchain-ai/social-media-agent",
+      "sha": "be4794b8b30093d2cb826422445a0f4a65c148a8",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "lumenwrites/nulis",
+      "sha": "db8d0325be148fcf44f29bfe0de445bbb7f940c7",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "EtherealEngine/Digital-Beings",
+      "sha": "233e1b9becd214e12c8a9c81624fe23cbff4dbf4",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "ossianhanning/FiveMRpServerResources",
+      "sha": "fdba3ece5ccddba2179638206fbddd7a679c0efd",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "zaarheed/transvribe",
+      "sha": "0133025caa0d4f91268886534ceab988ede742fc",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "AUTplayed/imguralbumbot",
+      "sha": "9dab26efdc877757f19bfe838f14f825e46f862b",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "Tyrrrz/SpellingUkraine",
+      "sha": "c15567b5742d7ce099d0d7a3d5e7a8bebffda0a1",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "haykam821/ShortcutsPreview",
+      "sha": "f9a726840a14d52909366605896669b16d3a72ce",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "SirWaddles/JohnWick",
+      "sha": "242059fc14d5daffeaefc8e8550ed67385138383",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "downfromthetrees/the_magic_eye",
+      "sha": "39143aa1fd8c8020096d4a376cd4f12d2721c004",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "brenapp/Snoostorm",
+      "sha": "bb1b097b08d3dd378bd7eaa2727c6924253939f4",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "wrannaman/rememberall",
+      "sha": "f9f04485c0fb87e491cfc7d201c50e128bc0d4aa",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "wb14123/reddit-desktop",
+      "sha": "085fd4202a5bfa1d5cf1bf23faea15e410b19af1",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "shredding/stellar-bot",
+      "sha": "36326edc1b30a1bd498b7479fcf78afe65218e04",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "mattdiamond/ouijabot",
+      "sha": "2f207d6b50d4bf87daf2165dc4349745d3f00e46",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "Proxtx/redditDownloader",
+      "sha": "bcaf94c5214348c90ce4b41bcdfcccef18a30852",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "wslyvh/autodelete-me",
+      "sha": "83ec2fb780ee3def99fc6637fd100723cbee5789",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "pokemontrades/porygon-bot",
+      "sha": "9a34fd848936c39e28a998535552b7d04d19ca44",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "industry-standard-good-practice/lurker-for-reddit",
+      "sha": "3f8fb85c1dac2769db3b1fa31ce8e2c66ea410d5",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "woodske/GoodBot_BadBot",
+      "sha": "8a532eb5b8d1ee00612627935fc3b2d3f22a126d",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "HackerGiraffe/pewds_bot",
+      "sha": "1b4615013e7f5666c92616099a0c86d7e1c1f00d",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "AnimeSourceBot/AnimeSourceBot",
+      "sha": "ebf508d55dbea9bf0b094312f398b9a29fd714dd",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "junipf/reddit-frontend",
+      "sha": "aaedf26e02149a4be77fafda060e7d22cae2a6c8",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "AniketR10/iamunemployed",
+      "sha": "ce4cea15f47e0db74464e511966109f5be01246d",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "seejamescode/global-upvote",
+      "sha": "5f00b9c328e77d4e30fa47af2f1fd4cda22a442c",
+      "provider": "reddit",
+      "package": "snoowrap"
+    },
+    {
+      "repo": "linkedin-developers/linkedin-api-js-client",
+      "sha": "e4a1fae1f829b370a339477a071d8affe0f6fd3b",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "readysetcloud/social-media-scheduler",
+      "sha": "fe16184f6cbfaadd9794e50044508afc3ce45de6",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "fredericbarthelet/linkedin-mcp-server",
+      "sha": "ccb5b49c5c45893e6f3f0b8b6daa6341c78483a7",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "cameronking4/ReplyGuy-clone",
+      "sha": "391eefab4301d1cd71037714746fd43c98cca16a",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "siddhant-vij/Content-Amplify-Hub",
+      "sha": "c01eb9e8e8cc791a0b82dbda1d501324dc70cfc5",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "prncexe/chronex",
+      "sha": "ced05db228917bf2bb33e195a146b4d9c3e7cf7c",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "momohyusuf/Social-Media-Auto-Poster-with-AI",
+      "sha": "7869e467db03f892aea9966be3c3b00e1a103c38",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "vaibhavpandeyvpz/postmatick",
+      "sha": "c5f8058a9176182abc08bf5ee04ae314136d0372",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "eharris128/content-os-linkedin-oauth-proxy",
+      "sha": "82914278f156003f37076617a55f93c67682c6d7",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "zaim-abbasi/Social-Intent-Monitoring",
+      "sha": "3e1a375792a13092704d92258cc3d3de873d43fa",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "emersonpisoni/portfolio",
+      "sha": "14739aa74cb362030a8e712f6c8b9ac9c8356284",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "MarcBittner/ts-jobsearch-service",
+      "sha": "2e5288a96cd5563e2027c1e632c0ded72287a344",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "MarcBittner/ts-jobs-service",
+      "sha": "0667d59e276751e45766b53f1c003cc09e16b67b",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "abinesha312/mcp-unified",
+      "sha": "90c62534f21de46f1512b4ad78752ffe86a2674b",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "Harsh-dev3221/LinkedIN_MCP",
+      "sha": "48260aa83eb3563a5a4b141781e34ff28b858da5",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "kritsanan1/social-media-cms",
+      "sha": "0cb23265348ba702729324056122a81bfabe26bb",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "Andino-Labs/yiqi-web",
+      "sha": "a5487af936f983b9b9a156b0545591e445997c36",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "Bharath-tars/SMM_AUTOMATION",
+      "sha": "b919f72a8cd8e216ae59f0badad0ac13ae4163d4",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "BahaEddinDridi/Hestia_PIDEV_Frontend",
+      "sha": "952d6c81d1ed6cbfb65b9e7f109aee4f4c79efe2",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "crisbusquets/uifrommars-autoposter",
+      "sha": "92da3ea6d552437439b9a5f8a5bb90449e80f544",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "ruibeep/publicdomain-app",
+      "sha": "6414d8c0bc74eb058af25055b20a080ccef86937",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "invinity/mattpitts-site",
+      "sha": "2a1509ea9e2bd2add5ee779a0bf7174076f64853",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "elhudson/elhudson.github.io",
+      "sha": "3fd30ff0db754cf84078fbf660acdcabfa57614f",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "qbirr/job-portal-backend",
+      "sha": "18038367d0b85b0e924026f20835531d0ff58379",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "IfeOlulesi/voice-engine",
+      "sha": "0669617e1bcd17b6d13d1093c6f19f72533399d1",
+      "provider": "linkedin",
+      "package": "linkedin-api-client"
+    },
+    {
+      "repo": "samuelkraft/notion-blog-nextjs",
+      "sha": "25d3504f9f1063d9c780c2bf6e5a46fa1780e324",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "tryfabric/martian",
+      "sha": "58570384b6d75da9dc5a76d5cff65ea349e6fa5d",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "Intina47/context-sync",
+      "sha": "235fd51cd85ebb30b1ab2af83a57b3f0575cae21",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "HEIGE-PCloud/Notion-Hugo",
+      "sha": "d26100d49146200d297ffda27a5ed62ef2898ce1",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "theodorusclarence/notiolink",
+      "sha": "8582471faad6648aead300d72dfde31df02f93d4",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "iam-robin/notion-budget-planner",
+      "sha": "a9f13aab250ac8469b7e68d018a225761e52ceb9",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "lcjnil/github-notion-star",
+      "sha": "4c9be30f243bc75d74ceab109adc7873f7a8de52",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "luciovilla/notion-nextjs-blog",
+      "sha": "240581c8256ed31e40d1c1cd3d45b536d118bcb2",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "velsa/notion-ts-client",
+      "sha": "0870b5b539738c698e15d81ce2e7d65faa3f2ccd",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "azu/memory-note",
+      "sha": "c07fdc0fe03a4f3e93ae9d40cb56f6d40a5e934b",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "Souvikns/Notion-Board",
+      "sha": "b7c4a66ddaf1aff89b6f6e62400e3572cffdd345",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "vezlo/src-to-kb",
+      "sha": "f5e48067bfd33645adefcf0ca3ac0194a2ef1f40",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "suinkimme/next-judge",
+      "sha": "9fde266b44759480c09290dd172170fc1f0641e4",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "brianlovin/x-notion-sync",
+      "sha": "ae49d81a76d40d7197d11abf78131b5d2ea362af",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "khaaleoo/notion-nextjs-mini-kit",
+      "sha": "ccca26d40ea0dca48c51fd494ecc3488bcc01b61",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "oliverbutler/xeo",
+      "sha": "402b563c34d0cc7d6209cf5894f8a1b073bf6250",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "updatesettings/nextjs-candy-machine-v2",
+      "sha": "9ebf01da4b61127dd68cb5e85ab7ab7a9f32baa0",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "kasware-wallet/extension",
+      "sha": "14fc4e66d0874b75386331abfcd9b70776b83f77",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "Ejb503/systemprompt-mcp-notion",
+      "sha": "056c9cef94df3e45efbe37b41457898182cfa693",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "dobassy/notion-hugo-exporter",
+      "sha": "5a7748089ae4f1c2ff7197ac52e56fc9f8c26ef6",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "WesleySmits/project-manager-bot",
+      "sha": "2b762c9650cf93417ce1ee0e0fba599a03fd237c",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "YusukeKokubo/create-github-issues-by-notion-database",
+      "sha": "e9f6c6fe700c81d14a79c2755d841c78d8f17fe3",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "kodilo-inc/alice-inbox",
+      "sha": "43f1857ab88e2085f90bbc6d201676965df728ff",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "chippeddog/nuxt3-portfolio-blog",
+      "sha": "040306c69c1a446b03adfea4c90d8fd6f3143947",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "dinhanhthi/dinhanhthi.com",
+      "sha": "00febce6bee760eb280766f5fd3c666569e058fd",
+      "provider": "notion",
+      "package": "@notionhq/client"
+    },
+    {
+      "repo": "jbolda/gatsby-source-airtable",
+      "sha": "3ca1768dd820b37f6b67df6f02de4a8a945ca5ed",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "descope-sample-apps/nextjs-hackathon-template",
+      "sha": "0892bfbae8a168d3ade4b5b18b99b1ef30461706",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "aspittel/learn-code-from-us",
+      "sha": "fa8b4faed41f713edb33871a23f4c10419733914",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "MaxBittker/shaderbooth",
+      "sha": "886bbd7bb637916c613db3f9ee8d09277a10d215",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "kulkarniankita/discover-coffee-stores",
+      "sha": "82e036a153ca537b6bceb3a24f537be201be00e1",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "nikolovlazar/v1.nikolovlazar.com",
+      "sha": "d6cde6c4d06b63650b6b4395d1bb932c189f72fb",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "imgly/canva-clone-react-cesdk",
+      "sha": "6c79072441b5b9465567d6984517e40f2edc7100",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "personaelabs/heyanon-v1",
+      "sha": "23a2f21c31357dc4b9e399335b8e54cdc04fc001",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "domdomegg/airtable-ts",
+      "sha": "208cd3182571c5e5ca2ca562f2774157c4a6cc6f",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "oslabs-beta/kafkaESK",
+      "sha": "8873b72b4acaa3dc2495d6bf46f572ddfb166934",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "jamesqquick/Authenticated-Todo-App-with-NextJS-Airtable-and-Auth0",
+      "sha": "ff6e02c6a47636507b273906017186cbc2d26289",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "Qualifyze/airtable",
+      "sha": "96ff087fc56a2320986e67abdaf9b4a683777cef",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "HackNTU/HackingMap",
+      "sha": "728aea55be947c4ec98d4383f540ad4ab64cf8c2",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "hackclub/hack-hour",
+      "sha": "f6f675b438d5edb032fda2734f3875753d644129",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "jaykaycodes/airtable-typegen",
+      "sha": "79eb0a22858ee73081b459fdecfc08a27210200b",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "kevzettler/gatsby-source-airtable",
+      "sha": "7e46518b965204b8b3581f794763a6c649ce2938",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "Rahat-ch/The_Sylar_Project",
+      "sha": "70cc88431a741008c1bedb70d18647766941273c",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "hackclub/librarian",
+      "sha": "79774b8e3b8acb0b7f4c8c9813de40b39f31c479",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "midshipman/owl-shoes",
+      "sha": "d0567ded794af8aef950466fdf6d842adc30a8bf",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "crownheightsaid/airtable-change-detector",
+      "sha": "9024fd433305b9018bf63723449c866fa5d56c6c",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "Learn-Build-Teach/learn-build-teach-discord-bot",
+      "sha": "ae9d8800259c3733110775b706537b715c5dcd29",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "aakashlpin/emailapi",
+      "sha": "24fa76b067e20e096c4b379dcaabd77321e7ead1",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "jamesqquick/Build-a-JAMstack-Course-Tracker-with-React-Serverless-and-Airtable",
+      "sha": "16f175fae2ed0682a66dcdd0f580fef267800822",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "g0v/vaxx-crawler",
+      "sha": "c7883a096967e3e27016252ba1b0d21708b16f93",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "seetadev/pldg-dashboard",
+      "sha": "29fe9c8f2028a5d70798a00d92a160b0ee714982",
+      "provider": "airtable",
+      "package": "airtable"
+    },
+    {
+      "repo": "jonwiggins/optio",
+      "sha": "211ca879ca566a8e0397a401f61826fbfade84b6",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "MrRefactoring/jira.js",
+      "sha": "3a7127513e3a61c88b996896a3207b6ffa04e329",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "mojira/mojira-discord-bot",
+      "sha": "d178b2f7236392d23f99936f9fcbdbd05586f979",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "smartcontractkit/.github",
+      "sha": "a5300809cd1fd2087eeaab5547af1acb6da1c19d",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "gioboa/jira-plugin",
+      "sha": "97514d7cc7bf2113ca3ef4f886349d0c0b616079",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "Credal-ai/actions-sdk",
+      "sha": "b6e546c633c1531dbde94ce187bb74f013d9e098",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "phuc-nt/mcp-atlassian-server",
+      "sha": "6ca56e82e7f87a0bc9261f56b746ed8c26418d2f",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "firecrawl/data-connectors",
+      "sha": "db990dba7946a85f70c7b05fc799fccbb81c3284",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "Qytera-Gmbh/cypress-xray-plugin",
+      "sha": "b523cfc4fd12741c4003ed33a930015518d2f60b",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "nice-af/chronos-app",
+      "sha": "b4ae0f6c47df1a189f98bf379578f93766eb52f5",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "JetBrains/junie-github-action",
+      "sha": "dbc0c78f64dbc81f338767d81988fe337fbed72a",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "promptstore/promptstore",
+      "sha": "d283aa972af5b7edaa6456ee124532219d19e254",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "hardisgroupcom/vscode-sfdx-hardis",
+      "sha": "5ed4c6d4cbc31d852d3df5a17f4efea008dfdb03",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "HainanZhao/mcp-gitlab-jira",
+      "sha": "cf9ec8f67ac2022a868b83e5f31b2eca32e567e8",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "mf-labs/witcher",
+      "sha": "bb95d56927b255ecc05400e86161b5dc2a885a89",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "festoinc/jira-ai",
+      "sha": "cdd5b3b8342a0bb8477c6f4f950075092bf30ac6",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "aexol-studio/bddx",
+      "sha": "3adb260fed8f61ab9344b96877196d224de646c5",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "levigo/github-action-jira-fixversion",
+      "sha": "2ca3246008678e7e55b340f3829e166d3d886c2a",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "kornbed/jira-mcp-server",
+      "sha": "1f355b3cdcc6a23f32432dab3421d5e7d1239f51",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "Qytera-Gmbh/bruno-xray-plugin",
+      "sha": "74a2149f65b078bd0c8352aaf37b14d2a2e9fc68",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "kravanliyski/jira-cli-helper",
+      "sha": "9423744113f91e77c61f5e801a1cd297c969adbc",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "teamstarter/jira-standard-version-release-check",
+      "sha": "518253fb5cabdcb471a8eaa558e58ec62f176190",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "supplypike/jira-pr-link-action",
+      "sha": "91ab9b9d6200a14824c60dd9263295b1b6317ec9",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "redhat-plumbers-in-action/storypointer",
+      "sha": "534e50486a35ba6d659aca1b048df39112f5f646",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "healthvana/jira-github-link",
+      "sha": "960d040c79e8b608536e32a8231442e028bceb1a",
+      "provider": "atlassian",
+      "package": "jira.js"
+    },
+    {
+      "repo": "anthropics/claude-quickstarts",
+      "sha": "1a18c340ca42b9137d991637afe867bdcf70a9ce",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "subsy/ralph-tui",
+      "sha": "00bc598fb382b5f33a3f5f37b5e5e218b85f4e27",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "vercel-labs/workflow-builder-template",
+      "sha": "24fb0fd4524ee10491ea6b73f6df94137ecbf9e1",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "Linen-dev/linen.dev",
+      "sha": "df6977a256897983d997d6259c8a31e14dc7f204",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "giscafer/blog",
+      "sha": "2580cf59d839162111a1649f16efcaef5bfdfba1",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "vercel/chat",
+      "sha": "d3dc15a8653c0c24f3baa793f2008c18e8e19e1d",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "iceener/ai",
+      "sha": "2f41f5e683b4c1054d35918accba9bfe99f16a26",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "cyrusagents/cyrus",
+      "sha": "c4a2c2d6676bedee88f2d7bd097fa462a15be83d",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "mckaywrigley/buildware-ai",
+      "sha": "53da76526301e16bdcbd7db1d4ec548e4d9f1c86",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "Intrect-io/OpenSwarm",
+      "sha": "d8b63a60aeae38dfd4060d7abba353a4c109882c",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "i-am-alice/3rd-devs",
+      "sha": "ece916eaebeac495bb17ca6bcc69dd711604f98d",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "ai-sdlc-framework/ai-sdlc",
+      "sha": "5410dbf5dc8bb2a0f9d65f95230d53e9c19f295b",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "jerhadf/linear-mcp-server",
+      "sha": "5e2cb621c52762618eb015b4a8d6bf884021b29e",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "vercel-labs/emulate",
+      "sha": "1566b8e38177bd606f1b4415b7da047ae653a8b7",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "crafter-station/text0",
+      "sha": "e47d33d1d608158a36f5b2073f13f65ce03589c7",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "cline/linear-mcp",
+      "sha": "023ac902e0f562745dfc84d742fab4f750095e36",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "linear/linear-vscode-open-issue",
+      "sha": "9caa2cf3d575bf27fc00879ead84beb7c36d124f",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "CoreyCole/datastarui",
+      "sha": "feb9af0c58ade31f8fefc1443b7e7e15ad413242",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "AgentScript-AI/agentscript",
+      "sha": "fc56a3160935b95ca0e3f19a697ea68f0ce21093",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "tacticlaunch/mcp-linear",
+      "sha": "d5b4a9d4e7e9fdf06592f699c6a2fe6a017403d6",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "linear/linear-vscode-connect-extension",
+      "sha": "e872b1c6522aebfe3ae714432d40eab65302d968",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "sonpiaz/evox",
+      "sha": "60835be552d417d1ba50976e7c4febee9dc6b385",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "tim-smart/lalph",
+      "sha": "52fe89fe75681e7ff8dfbd1991522067d6748022",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "owainlewis/agent-worker",
+      "sha": "dbaf1b1a9bbb1439506284d583cd280de22c1398",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "yoinkify/yoink",
+      "sha": "061e33ffc8d5050f828196bb78f7034f817e1e2e",
+      "provider": "linear",
+      "package": "@linear/sdk"
+    },
+    {
+      "repo": "Runchuan-BU/BioClaw",
+      "sha": "50a7d9b1dfa536cfe7e047d63be1de368b47a814",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "distubejs/example",
+      "sha": "182aa89f85519649da9c512fc774caa9543ca99f",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "kevinthedang/discord-ollama",
+      "sha": "2c25f7f50089c1589fd6ad22d9f411ea1853d14e",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "MarcusOtter/discord-needle",
+      "sha": "aefcd126abd8861d44d4afd53608b0fdeb093639",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "Markus-Rost/discord-wiki-bot",
+      "sha": "ad3e4af456ef1c4f7ad729bc2eeb72abaefcdd05",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "Fiddlekins/podbot",
+      "sha": "31cc3db2cbcbb6633a4b8dd5a6c7f9759be58c6b",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "Vertex-Solutions-dev/All-In-One-Discord-Bot",
+      "sha": "1114a9fe2e3038b379f29dcbd4ecf3b32e54bb97",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "bas3line/Gopher",
+      "sha": "7eb3c68fee413ae9a7667e69e3552832aa3b2890",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "Refloow/Discord-Channel-Moderator",
+      "sha": "2f1aea285771c00240f0df2044bbee5916f12e66",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "nullabork/talkbot",
+      "sha": "d9f2ba0440fada66b3a0980c50c1e4e00227b8cb",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "1Computer1/comp_iler",
+      "sha": "f207e5ccb425896f6794eaac183692a079a5137e",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "KartoffelChipss/bifrost",
+      "sha": "dfc7dad50428fdc6c11fe417c3b93174931797e1",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "OdarGM/OdarBot",
+      "sha": "0487620401c05e9e1115269c75f2c0caa26bed13",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "voodoohop/discord-pollinations-family",
+      "sha": "cfdc797c17f441071455ded66bc44367f1602bed",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "SwiftBot-Team/SwiftBOT",
+      "sha": "7e18e1e912412d791ae6e800ed6d9f63e2eb4c3d",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "CodingTrain/Discord-Bot-Choo-Choo",
+      "sha": "20cd3de7a1a9c4ab68ebcd8856db7d12f162bbb5",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "GrantGryczan/Miroware",
+      "sha": "913fa504c3ccbafb09f312d710aff8fd85fc773e",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "cryptojobslist/discord-bot",
+      "sha": "bed51ea96a249a964154b3e51ccff008b52b8255",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "pierre0210/NovelAI-bot",
+      "sha": "04c681d89750a3b6a176cb8ab38dd8200f271edb",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "nuekkis/Discord.js-v14-Music-Bot",
+      "sha": "2dbd4f25898a6f692806352c3249e6d256a286ef",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "rafaballerini/Studify",
+      "sha": "d03069c56f1947cbf67af7bd6e5ba7d511a5b28e",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "savioxavier/discord-neofetch",
+      "sha": "3a8f31fdc1e64429f1ea4a19be2fbe0d4ec9207c",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "dr-rei/Discord-Shop",
+      "sha": "90ff46927e9519ab83741ff6ef7b857650fc2bbf",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "leonnardom/Bot-Tutorial",
+      "sha": "60c3c6cc0f96422202dbac2e50681975b72d325a",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "tom-byte-sys/OpenPollen",
+      "sha": "4e61d2eb127d03e6add00bbd26d2b1d7883a60c8",
+      "provider": "discord",
+      "package": "discord.js"
+    },
+    {
+      "repo": "joemccann/dillinger",
+      "sha": "17010b79c18553cf9c1757c297e128f9b950c9be",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "pacexy/flow",
+      "sha": "36f3cc7c4581f62ff6d72b75641c674020bb1e9f",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "LockerProject/Locker",
+      "sha": "cf0c12e25e2a7fd33c7274a5d8bc144de3b65fbb",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "200ok-ch/organice",
+      "sha": "89e52d1324384625acad622dfe3a5616c4d4b48e",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "nimbusdotstorage/Nimbus",
+      "sha": "715b269bc355efe5107f3169ca5f8788e6a56078",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "dropbox/dropbox-sdk-js",
+      "sha": "56298916873ba88a5e8217e19744b99f66e047fa",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "EragonJ/Kaku",
+      "sha": "c28b9a0c61444009f422e3078377968aed16409f",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "igorski/bitmappery",
+      "sha": "93d5bdb9696607e72185b1003f3d160def58f3dd",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "adventurerscodex/adventurerscodex",
+      "sha": "6427fecfe99cb805985d3dee3687cc5be5ea08d7",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "encryptic-team/encryptic",
+      "sha": "8e0c9b556fec15e4cdc381e534100f2dffa7febe",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "TrafficGuard/typedai",
+      "sha": "34139aec65bb70f7062cf7f92667c11ffde4fcb1",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "nodejsera/30daysofnode",
+      "sha": "900fa9a5f04b308e6c379e5989ab773d16a19237",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "asm-products/octobox",
+      "sha": "18f5202f5b429349ec0b7a45c5d7c53af6a36df0",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "IC-Drive/ic-drive",
+      "sha": "4a8f18d7b2879d9aaa50d3f60575a2c3083d1b68",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "hlotvonen/glyph-drawing-club",
+      "sha": "87e6c967abf004cc646e9d23669a3940f30a3f59",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "Cleod9/syncmarx-webext",
+      "sha": "6b4d785adf51052d0918a8ab0154450af46cffd0",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "JimmyLv/styled-roam",
+      "sha": "b2c2983be96ef6d13dbca9d9251642f2279e45c7",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "ChoicescriptIDE/main",
+      "sha": "6407d0a7ac322aa7f0ed070c23f813fda68e0cd0",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "seancdavis/everything-is-a-cms",
+      "sha": "c81d50fdee9ea60605c3635c2a30e22182937252",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "julsemaan/anyfile-notepad",
+      "sha": "d5d1aa7fa608b6b60dd013f7e65a5a954455e186",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "Skyfay/DBackup",
+      "sha": "42a636ced453462d545218f8931b02b8e656152e",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "developit/dropfox",
+      "sha": "b18a2cfc7075fadf79a0f056f8e6e99cf2504362",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "jimniels/netlibox",
+      "sha": "d2f90b490b16dde92362c124ff63f83ee2d0f1cc",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "Cleod9/syncmarx-api",
+      "sha": "8d2bdb2d0b0d90ee7cdfb74a8cd3c7ef9bac9fb6",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "am1t/blotpub",
+      "sha": "80feafbc790c1c07301758190fc88ffd0a919307",
+      "provider": "dropbox",
+      "package": "dropbox"
+    },
+    {
+      "repo": "SGrappelli/pronto",
+      "sha": "e89c5920ef9212acf5a5d217df437f3b991e8f4c",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "harshit-exe/FlowKit",
+      "sha": "a84473298887267e6dae61da1f649c7f82457201",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "kendevco/Portfolio",
+      "sha": "70a88386582e906d1aa78ce1f977ac8b5d1c6c7a",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "RvDstudio/nextjs_drizzle_better-auth",
+      "sha": "8604b84eb208ececf11139f55a0c05fbeedb2fa6",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "cholasimmons/bun-elysia-modular_auth",
+      "sha": "637fd7225d3165de8304f616375e6660913067b5",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "hamidukarimi/Hospital-template-backend",
+      "sha": "fe72bcc31bd4429120aa4df99604dd23bc353067",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "parthupadhyay038/mahanandi-agrotech-website",
+      "sha": "71b2085ba510367e9113e4a897cf45f8b45e3c0e",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "MRSA-J/MRSA-J.github.io",
+      "sha": "274599f4e6f3e97f3e01d70b1072d8ad5a866b2a",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "APIs-guru/APIs-guru.github.io",
+      "sha": "69de1838bd82c1f49f6e5faccfa4e91696c47953",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "anasfarock/my-portfolio-website",
+      "sha": "9c911cad4f6c3f157afd0d5b70f5f4ab16b2c0dc",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "jjaw/good-rabbit",
+      "sha": "c56104a2be324569ef51c2f7a60aab0b7d26138d",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "cavnish/msnss-website",
+      "sha": "a94656888467707d281fbf9d38e1b0a2ce9ae828",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "DigitalHealthAgency/Back_End_Auth_System",
+      "sha": "3caacced03177a0dbeaad8cc15a19d6ec40ce7f1",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "nkaspar/joycreative.io",
+      "sha": "cdc57a44fcda62295c8bc7afd36bd0b37b0a01e8",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "danilo-leal/roles-at",
+      "sha": "3ba0216404d64171fbefe3661e30657aced41108",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "clarity-digital-development/flipops-site",
+      "sha": "ca173aa5d5d97ee482bb35bef10069f7b964b833",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "bidah/nextjs-waitlist",
+      "sha": "4136fb525cd608be987f448a091b161f20c6d550",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "berverlyjoseph3-source/Goodwill",
+      "sha": "ae126375d0986f518d44e19a373cbc693ccfa659",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "Ashwath522/ai-interview-automated",
+      "sha": "7c3a8473fae3af1a3144ce8be29a3f619fd74a6e",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "REAIAN18/propra-app",
+      "sha": "0e0f0247e10864511b652572b941b4ca342ddb14",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "deltaalpha-trade-pro/delta-public-beta",
+      "sha": "ef2fe6576d3e5abdbe6c424ee7eac334c1bc16cb",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "Moses225/Access-care",
+      "sha": "8d8d92b354371210c9d772adc3396e82e6ca9be1",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "felixhard/went",
+      "sha": "319ccd48f22852ff92fda2a171e2fa2e9626e854",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "noisebridge/donate-portal",
+      "sha": "d8371a9f9e584907037f3a4160817232985034c9",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "vedantlavale/Synapse",
+      "sha": "044997da1d844d0b3be11cba1021c6552595c560",
+      "provider": "resend",
+      "package": "resend"
+    },
+    {
+      "repo": "INP146/HomePage",
+      "sha": "dcaf00dc4d4abe735385d5efb649d9d674ce5be4",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "JeffreyCA/lastfm-recently-played-readme",
+      "sha": "cce76de9b974f6f5155254b4fd6f710949470965",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "OpenYabby/OpenYabby",
+      "sha": "5c2dcafbb226494633828fe2c423b93000927eed",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "acoyfellow/UserDO",
+      "sha": "f2a1040343728d4e041679ed124699fbd4281921",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "HQBase/hqbase",
+      "sha": "62bf0751b1d23fc1d735bbdce26ba804ab99a3b4",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "kristianfreeman/workers-ai-image-playground",
+      "sha": "61bc717c78111a5f8e54d7d3161fa46d7b6e5621",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "megaconfidence/veet",
+      "sha": "cca7b6923040a502f873323db2edd3b56fa3681d",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "lgbt-sh/lgbt-sh-v1",
+      "sha": "d731dbc129af3b5af8c95d6c5ea68e3b6ed2479d",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "hasadna/OpenPension-website",
+      "sha": "060af3ad35094cc04a978d22d966afe2eaceeea1",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "blue-pen5805/llm-proxy-on-cloudflare-workers",
+      "sha": "be6d5ea4a2f53f02ffd8313cd110a158f3d8bb57",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "Caltrop256/InfiniCanvas",
+      "sha": "ab4f3d01ef8c5894691425d483b25d93f7161d87",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "acoyfellow/tuiport",
+      "sha": "4ae4aced24e6089601bb13636ba945d389c2d472",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "zzstar101/taygedo-auto-attendance",
+      "sha": "cc8c036d0a66802a39b4ecc10f7095e38f695151",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "ddyy/minvoice",
+      "sha": "99563a5a4d8e90481e76d2440c719c909a67f243",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "wuyifan666888/cpa-cron-web",
+      "sha": "5021886fdd6d456af23660bdbd60038d5918f189",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "mavam/webfox",
+      "sha": "b0e148f235d09c08ddb35e757e3c631f2ed6cdd2",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "xiaomoBoy/pi-durable-edge",
+      "sha": "a90e2c5abd6772dd7de3c64ea589f1bc787a6b17",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "marixdev/marix",
+      "sha": "d0690078ab85ddbe365b92544c865a0a303ed1da",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "katopz/hello-cloudflare-container",
+      "sha": "e0cc73b81cca285f04e4271ac0085b29b1a9971d",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "WangXingFan/ClawEmail",
+      "sha": "e9324955748a7a52abc874e8e9da21f6bb0a4f92",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "skuid/skuid-cloud-dns",
+      "sha": "2b98e13ac3e34899c14a91f33a3561120c843ba6",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "Toolbase-AI/openai-apps-sdk-cloudflare-vite-template",
+      "sha": "5777c10b773a5ba1ce23693198fc293c7deb55b6",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "kol3x/pawmc",
+      "sha": "2eb7a77ff5740ded8ee859c70b62ee51aa351635",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "arturseo-geo/open-seo",
+      "sha": "19504eeae9e8264d3e1605d7e1eb82a7ba544b11",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    },
+    {
+      "repo": "lehuygiang28/gemini-proxy",
+      "sha": "afe0b262601d796dd94a0cf7deb60334c424e041",
+      "provider": "cloudflare",
+      "package": "cloudflare"
+    }
+  ]
+}

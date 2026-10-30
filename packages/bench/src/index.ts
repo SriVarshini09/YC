@@ -12,3 +12,4 @@ export { changeMatchesTwilioEntry, parseTwilioChanges, scoreTwilioReplay, twilio
 export { changeMatchesGithubEntry, parseGithubBreakingChanges, scoreGithubReplay, type GithubBreakingEntry, type GithubReplayScore } from "./spec-replay-github";
 export { changeMatchesRow, diffSpecs, draftAdvisory, operationsReturning, parseEntryChanges, parseReleasePage, previewOnly, resourceKey, scoreRelease, type ChangelogEntry, type ChangelogRow, type DiffOptions, type ReleaseScore, type SpecChange, type SpecChangeKind } from "./spec-replay";
 export { buildTierRegistry, latestRun, type BenchmarkRun } from "./tiers";
+export { CONSOLE_K, providerConsole, type ConsoleEndpoint, type Count, type ProviderConsole, type ProviderReport } from "./provider-console";
