@@ -208,11 +208,15 @@ function marked(output: string, mark: string): string | undefined {
 }
 
 const SOURCE = /\.(c|m)?[jt]sx?$/;
+/** A test file by name (`a.test.ts`, `a.spec.js`), or a file in a folder of tests. */
+const TEST_FILE = /\.(?:test|spec)\.[cm]?[jt]sx?$/;
+const TEST_DIRS = new Set(["test", "tests", "__tests__", "spec", "e2e"]);
 
 /**
  * Why the LLM may not write `rel` (normalized, repo-relative), or undefined when it may. It may only
  * change source files: not the contract tests, config (vitest, tsconfig, package.json), setup files,
- * mocks, type declarations or CI, any of which could make a test pass without fixing the code.
+ * mocks, type declarations or CI, any of which could make a test pass without fixing the code. Nor the
+ * repository's own tests (V-02): a fix that edits them could weaken what checks it.
  * Compared case-insensitively: on Windows and macOS `Test/Shapi/x.test.ts` is the contract test.
  */
 function refuseWrite(rel: string, testFile: string): string | undefined {
@@ -222,6 +226,7 @@ function refuseWrite(rel: string, testFile: string): string | undefined {
   if (rel.startsWith("..") || path.posix.isAbsolute(rel) || rel.includes(":")) return "outside the repository";
   if (lower === testFile.toLowerCase() || lower.startsWith(`${CONTRACT_DIR}/`)) return "the contract tests are not to be edited";
   if (parts.some((s) => PROTECTED.has(s) || s === ".github" || s === "__mocks__")) return "a protected folder";
+  if (TEST_FILE.test(name) || parts.slice(0, -1).some((s) => TEST_DIRS.has(s))) return "the repository's tests are not to be edited";
   if (!SOURCE.test(name) || /\.d\.[cm]?ts$|\.config\.|setup|^(vitest|vite|jest)\./.test(name)) return "only source files may change (not config, setup, mocks or type declarations)";
   return undefined;
 }
