@@ -1,0 +1,46 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory stripe-endive-billing-cycle-anchor-object: Stripe 2026-09-30.endive requires an object for billing_cycle_anchor on subscription updates",
+    "version": "2026-09-30"
+  },
+  "extends": "https://raw.githubusercontent.com/stripe/openapi/51610f5f061c9723730582a7638b8cc0e646640d/openapi/spec3.json",
+  "actions": [
+    {
+      "target": "$.paths['/v1/subscriptions/{subscription_exposed_id}'].post",
+      "description": "Stripe 2026-09-30.endive requires an object for billing_cycle_anchor on subscription updates",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-billing-cycle-anchor-object",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/subscriptions/{subscription}/migrate'].post",
+      "description": "Stripe 2026-09-30.endive requires an object for billing_cycle_anchor on subscription updates",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-billing-cycle-anchor-object",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/subscriptions/{subscription}/pause'].post",
+      "description": "Stripe 2026-09-30.endive requires an object for billing_cycle_anchor on subscription updates",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-billing-cycle-anchor-object",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/subscriptions/{subscription}/resume'].post",
+      "description": "Stripe 2026-09-30.endive requires an object for billing_cycle_anchor on subscription updates",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-billing-cycle-anchor-object",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    }
+  ]
+}

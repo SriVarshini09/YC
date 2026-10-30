@@ -1,0 +1,35 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory openai-assistants-api-shutdown: Assistants API removed on 2026-08-26",
+    "version": "2026-08-26"
+  },
+  "extends": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+  "actions": [
+    {
+      "target": "$.paths['/assistants'].get",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/assistants'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/assistants/{assistant_id}'].delete",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/assistants/{assistant_id}'].get",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/assistants/{assistant_id}'].post",
+      "description": "Shut down on 2026-08-26",
+      "remove": true
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory openai-audio-translations-endpoint-shutdown",
+    "summary": "/v1/audio/translations shuts down on 2027-02-26",
+    "version": "2027-02-26"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "openai-openapi",
+      "url": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "openai-audio-translations-endpoint-shutdown",
+      "summary": "Shows the change: OpenAI deprecated the audio translations endpoint on 2026-08-26 and shuts it down on 2027-02-26, together with whisper-1 and the gpt-4o transcribe models. After that date every call to POST /v1/audio/translations fails.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "POST /v1/audio/translations fails from 2027-02-26: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1audio~1translations/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

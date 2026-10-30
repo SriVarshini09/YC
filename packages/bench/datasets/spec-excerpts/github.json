@@ -1,0 +1,22 @@
+{
+  "provider": "github",
+  "repo": "github/rest-api-description",
+  "commit": "066b825d08409eb6c48ddfdd7547c0b70a72dfaf",
+  "files": [
+    {
+      "file": "descriptions/api.github.com/api.github.com.json",
+      "base": "",
+      "paths": {
+        "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches": {
+          "post": {
+            "operationId": "actions/create-workflow-dispatch",
+            "responses": {
+              "200": {},
+              "204": {}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

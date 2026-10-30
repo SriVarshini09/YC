@@ -1,0 +1,81 @@
+{
+  "provider": "twilio",
+  "repo": "twilio/twilio-oai",
+  "commit": "d9775142962ea67d5f3d50c5021a23ae6d330c5b",
+  "files": [
+    {
+      "file": "spec/json/twilio_api_v2010.json",
+      "base": "",
+      "paths": {
+        "/2010-04-01/Accounts/{AccountSid}/Conferences.json": {
+          "get": {
+            "operationId": "ListConference",
+            "responses": {
+              "200": {}
+            }
+          }
+        },
+        "/2010-04-01/Accounts/{AccountSid}/Messages.json": {
+          "get": {
+            "operationId": "ListMessage",
+            "responses": {
+              "200": {}
+            }
+          }
+        },
+        "/2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json": {
+          "get": {
+            "operationId": "ListMedia",
+            "responses": {
+              "200": {}
+            }
+          }
+        },
+        "/2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json": {
+          "get": {
+            "operationId": "FetchMedia",
+            "responses": {
+              "200": {}
+            }
+          }
+        },
+        "/2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json": {
+          "get": {
+            "operationId": "FetchMessage",
+            "responses": {
+              "200": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "file": "spec/json/twilio_insights_v1.json",
+      "base": "",
+      "paths": {
+        "/v1/Voice/{CallSid}/Summary": {
+          "get": {
+            "operationId": "FetchSummary",
+            "responses": {
+              "200": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "file": "spec/json/twilio_notify_v1.json",
+      "base": "",
+      "paths": {
+        "/v1/Services/{ServiceSid}/Notifications": {
+          "post": {
+            "operationId": "CreateNotification",
+            "responses": {
+              "201": {}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

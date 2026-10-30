@@ -1,0 +1,216 @@
+{
+  "provider": "stripe",
+  "repo": "stripe/openapi",
+  "commit": "51610f5f061c9723730582a7638b8cc0e646640d",
+  "files": [
+    {
+      "file": "openapi/spec3.json",
+      "base": "",
+      "paths": {
+        "/v1/checkout/sessions": {
+          "get": {
+            "operationId": "GetCheckoutSessions",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          },
+          "post": {
+            "operationId": "PostCheckoutSessions",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/checkout/sessions/{session}": {
+          "get": {
+            "operationId": "GetCheckoutSessionsSession",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          },
+          "post": {
+            "operationId": "PostCheckoutSessionsSession",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/checkout/sessions/{session}/expire": {
+          "post": {
+            "operationId": "PostCheckoutSessionsSessionExpire",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/checkout/sessions/{session}/line_items": {
+          "get": {
+            "operationId": "GetCheckoutSessionsSessionLineItems",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/payment_intents": {
+          "post": {
+            "operationId": "PostPaymentIntents",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/payment_intents/{intent}": {
+          "post": {
+            "operationId": "PostPaymentIntentsIntent",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/payment_intents/{intent}/apply_customer_balance": {
+          "post": {
+            "operationId": "PostPaymentIntentsIntentApplyCustomerBalance",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/payment_intents/{intent}/cancel": {
+          "post": {
+            "operationId": "PostPaymentIntentsIntentCancel",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/payment_intents/{intent}/capture": {
+          "post": {
+            "operationId": "PostPaymentIntentsIntentCapture",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/payment_intents/{intent}/confirm": {
+          "post": {
+            "operationId": "PostPaymentIntentsIntentConfirm",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/payment_intents/{intent}/increment_authorization": {
+          "post": {
+            "operationId": "PostPaymentIntentsIntentIncrementAuthorization",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/payment_intents/{intent}/verify_microdeposits": {
+          "post": {
+            "operationId": "PostPaymentIntentsIntentVerifyMicrodeposits",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/setup_intents": {
+          "post": {
+            "operationId": "PostSetupIntents",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/setup_intents/{intent}": {
+          "post": {
+            "operationId": "PostSetupIntentsIntent",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/setup_intents/{intent}/cancel": {
+          "post": {
+            "operationId": "PostSetupIntentsIntentCancel",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/setup_intents/{intent}/confirm": {
+          "post": {
+            "operationId": "PostSetupIntentsIntentConfirm",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/setup_intents/{intent}/verify_microdeposits": {
+          "post": {
+            "operationId": "PostSetupIntentsIntentVerifyMicrodeposits",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/subscriptions/{subscription_exposed_id}": {
+          "post": {
+            "operationId": "PostSubscriptionsSubscriptionExposedId",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/subscriptions/{subscription}/migrate": {
+          "post": {
+            "operationId": "PostSubscriptionsSubscriptionMigrate",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/subscriptions/{subscription}/pause": {
+          "post": {
+            "operationId": "PostSubscriptionsSubscriptionPause",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        },
+        "/v1/subscriptions/{subscription}/resume": {
+          "post": {
+            "operationId": "PostSubscriptionsSubscriptionResume",
+            "responses": {
+              "200": {},
+              "default": {}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

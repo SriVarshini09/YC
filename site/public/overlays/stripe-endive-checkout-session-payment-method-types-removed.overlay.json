@@ -1,0 +1,19 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory stripe-endive-checkout-session-payment-method-types-removed: Stripe 2026-09-30.endive removes payment_method_types from Checkout Session creation",
+    "version": "2026-09-30"
+  },
+  "extends": "https://raw.githubusercontent.com/stripe/openapi/51610f5f061c9723730582a7638b8cc0e646640d/openapi/spec3.json",
+  "actions": [
+    {
+      "target": "$.paths['/v1/checkout/sessions'].post",
+      "description": "Stripe 2026-09-30.endive removes payment_method_types from Checkout Session creation",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-checkout-session-payment-method-types-removed",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    }
+  ]
+}

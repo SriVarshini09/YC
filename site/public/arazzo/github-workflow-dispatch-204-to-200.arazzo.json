@@ -1,0 +1,33 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory github-workflow-dispatch-204-to-200",
+    "summary": "workflow_dispatch returns 200 with a body instead of 204",
+    "version": "2025-12-19"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "github-api-github-com",
+      "url": "https://raw.githubusercontent.com/github/rest-api-description/066b825d08409eb6c48ddfdd7547c0b70a72dfaf/descriptions/api.github.com/api.github.com.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "github-workflow-dispatch-204-to-200",
+      "summary": "Shows the change: POST .../actions/workflows/{workflow_id}/dispatches started answering 200 OK with a JSON body (workflow run id) instead of 204 No Content. The OpenAPI schema and docs still said 204, and there was no changelog, version, or preview header. Clients that require exactly 204 treat a successful dispatch as a failure. GitHub later (2026-02-19) documented 200 as the response when return_run_details is set, and GitHub CLI v2.87.0+ sets it by default.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches answers 200 from 2025-12-19",
+          "operationPath": "{$sourceDescriptions.github-api-github-com.url}#/paths/~1repos~1{owner}~1{repo}~1actions~1workflows~1{workflow_id}~1dispatches/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
