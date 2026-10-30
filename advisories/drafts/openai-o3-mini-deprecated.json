@@ -1,0 +1,31 @@
+{
+  "id": "openai-o3-mini-deprecated",
+  "provider": "openai",
+  "title": "OpenAI deprecated o3-mini",
+  "summary": "models.dev lists `o3-mini` as deprecated on OpenAI. Calls that send this model will fail once OpenAI removes it. Unverified: drafted from models.dev, not yet checked against OpenAI's deprecation notice.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/v1/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "body": [
+      {
+        "field": "model",
+        "values": [
+          "o3-mini"
+        ]
+      }
+    ]
+  },
+  "firstObserved": "2026-10-30",
+  "publishedNotice": null,
+  "effectiveDate": "2026-10-30",
+  "severity": "medium",
+  "migrationNote": "Move off o3-mini before OpenAI removes it. Check OpenAI's deprecation notice for the shutdown date and the recommended replacement.",
+  "sources": [
+    "https://models.dev/api.json",
+    "https://platform.openai.com/docs/models"
+  ],
+  "status": "unverified"
+}

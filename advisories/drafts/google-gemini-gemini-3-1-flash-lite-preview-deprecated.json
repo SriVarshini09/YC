@@ -1,0 +1,32 @@
+{
+  "id": "google-gemini-gemini-3-1-flash-lite-preview-deprecated",
+  "provider": "google-gemini",
+  "title": "Google Gemini API deprecated gemini-3.1-flash-lite-preview",
+  "summary": "models.dev lists Gemini 3.1 Flash Lite Preview (`gemini-3.1-flash-lite-preview`) as deprecated on Google. Calls that send this model will fail once Google Gemini API removes it. Unverified: drafted from models.dev, not yet checked against Google Gemini API's deprecation notice.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/*/models/{?}:*"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "body": [
+      {
+        "field": "model",
+        "values": [
+          "gemini-3.1-flash-lite-preview",
+          "models/gemini-3.1-flash-lite-preview"
+        ]
+      }
+    ]
+  },
+  "firstObserved": "2026-10-30",
+  "publishedNotice": null,
+  "effectiveDate": "2026-10-30",
+  "severity": "medium",
+  "migrationNote": "Move off gemini-3.1-flash-lite-preview before Google Gemini API removes it. Check Google Gemini API's deprecation notice for the shutdown date and the recommended replacement.",
+  "sources": [
+    "https://models.dev/api.json",
+    "https://ai.google.dev/gemini-api/docs/models"
+  ],
+  "status": "unverified"
+}

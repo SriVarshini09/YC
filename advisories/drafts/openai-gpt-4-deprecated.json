@@ -1,0 +1,31 @@
+{
+  "id": "openai-gpt-4-deprecated",
+  "provider": "openai",
+  "title": "OpenAI deprecated gpt-4",
+  "summary": "models.dev lists GPT-4 (`gpt-4`) as deprecated on OpenAI. Calls that send this model will fail once OpenAI removes it. Unverified: drafted from models.dev, not yet checked against OpenAI's deprecation notice.",
+  "endpoint": {
+    "method": "POST",
+    "path": "/v1/**"
+  },
+  "changeClass": "version-sunset",
+  "trigger": {
+    "body": [
+      {
+        "field": "model",
+        "values": [
+          "gpt-4"
+        ]
+      }
+    ]
+  },
+  "firstObserved": "2026-10-30",
+  "publishedNotice": null,
+  "effectiveDate": "2026-10-30",
+  "severity": "medium",
+  "migrationNote": "Move off gpt-4 before OpenAI removes it. Check OpenAI's deprecation notice for the shutdown date and the recommended replacement.",
+  "sources": [
+    "https://models.dev/api.json",
+    "https://platform.openai.com/docs/models"
+  ],
+  "status": "unverified"
+}
