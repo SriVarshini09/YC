@@ -372,6 +372,32 @@ describe("web pages", () => {
     await app.close();
   });
 
+  it("serves each repository's latest api.lock as a CycloneDX SaaSBOM, to people who can open it (S-02)", async () => {
+    const lock = createApiLock(
+      {
+        callSites: [{ file: "src/deploy.ts", line: 13, column: 3, provider: "github", kind: "http", client: "fetch", method: "POST", host: "api.github.com", endpoint: "/repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches", resolved: true, surface: { fields: [], statusCodes: [204], checksOk: false, enums: [], headers: [], query: [], responseHeaders: [] } }],
+        declared: [],
+      },
+      "test",
+    );
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const url = `/a/${mine.account}/r/${mine.repo}/sbom.cdx.json`;
+    // No lock yet: nothing to export.
+    expect((await app.inject({ url, headers: { cookie } })).statusCode).toBe(404);
+    await owner.updateTable("scans").set({ api_lock: JSON.stringify(lock) }).where("repository_id", "=", mine.repo).execute();
+    const res = await app.inject({ url, headers: { cookie } });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toContain("application/vnd.cyclonedx+json");
+    expect(res.headers["content-disposition"]).toBe('attachment; filename="acme-api.cdx.json"');
+    expect(JSON.parse(res.body)).toMatchObject({ bomFormat: "CycloneDX", specVersion: "1.7", metadata: { component: { name: "acme/api", version: "abcdef1234567890" } }, services: [{ "bom-ref": "service:github" }] });
+    expect((await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } })).body).toContain(`href="/a/${mine.account}/r/${mine.repo}/sbom.cdx.json"`);
+    // Signed out, or another account's repository: no SBOM.
+    expect((await app.inject({ url })).statusCode).not.toBe(200);
+    expect((await app.inject({ url: `/a/${other.account}/r/${mine.repo}/sbom.cdx.json`, headers: { cookie } })).statusCode).not.toBe(200);
+    await app.close();
+  });
+
   it("flags a recording past its expiry whose endpoint the canary now sees answering differently (A-02)", async () => {
     const secret = "fixture-test-secret";
     const recordings = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "fixtures", "recordings");

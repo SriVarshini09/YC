@@ -1,10 +1,11 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
   SEVERITIES,
   SEVERITY_RANK,
+  apiLockToCycloneDx,
   createApiLock,
   loadAdvisories,
   matchAdvisories,
@@ -30,6 +31,8 @@ export interface ScanOptions {
   failOn?: string;
   now?: string;
   color?: boolean;
+  /** Also write the api.lock as a CycloneDX 1.7 SaaSBOM (S-02). */
+  sbom?: string;
 }
 
 export interface ScanOutcome {
@@ -67,6 +70,17 @@ export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome
     const extracted = extractCallSites(dir);
     const lock = createApiLock(extracted, `shapi ${VERSION}`);
     if (opts.out) writeApiLock(opts.out, lock);
+    if (opts.sbom) {
+      // The commit, when the directory is a git checkout: it becomes the SBOM's version.
+      let sha: string | undefined;
+      try {
+        sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+      } catch {
+        sha = undefined;
+      }
+      const name = opts.repo ? label.replace(/^https?:\/\/[^/]+\//, "").replace(/\.git$/, "") : path.basename(dir);
+      writeFileSync(opts.sbom, `${JSON.stringify(apiLockToCycloneDx(lock, { name, sha, toolVersion: VERSION }), null, 2)}\n`);
+    }
     const advisories = loadAdvisories(opts.advisories ?? DEFAULT_ADVISORIES);
     const match = matchAdvisories(lock, advisories, { now });
     const failing = failOn === "none" ? [] : match.affected.filter((f) => SEVERITY_RANK[f.advisory.severity] <= SEVERITY_RANK[failOn]);

@@ -160,6 +160,7 @@ ${head(repo.full_name, "", actions)}
 <div>${flags}${repo.pausedFromWeb || repo.paused ? html` <span class="note">Scans continue; no PRs are opened or updated while paused.</span>` : EMPTY}</div>
 ${strip}
 ${section("API calls by provider", callSitesByProvider(data, repo, findings, prs))}
+${repo.lock ? html`<p class="note"><a href="${accountHref(data)}/r/${repo.id}/sbom.cdx.json" download>Download the API inventory (CycloneDX 1.7 SaaSBOM)</a> · from the scan of <span class="mono">${shortSha(repo.lockSha ?? "")}</span></p>` : EMPTY}
 <div id="fixes">${section("Fixes", prTable(data, prs, { repo: false }))}</div>
 ${section("Recent scans", scanTable(repo, detail.scans, data.now))}`;
 }
