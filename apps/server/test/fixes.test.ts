@@ -114,6 +114,12 @@ describe("fix delivery", () => {
     expect(t.github.pulls).toHaveLength(2);
   });
 
+  it("labels a new PR needs-human when its fix asks for it (V-04: an undo the contract test survived)", async () => {
+    const t = setup();
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [{ ...candidate(crit, "src/a.ts"), labels: ["needs-human"] }], now: new Date() });
+    expect(t.github.pulls.map((p) => p.labels.map((l) => l.name))).toEqual([["shapi", "needs-human"]]);
+  });
+
   it("stores how a fix was verified with its PR: kept by a rerun without one, rewritten by any rerun with one", async () => {
     const t = setup();
     const now = new Date();

@@ -10,6 +10,8 @@ import { ShapeStore } from "@shapi/shapes";
 import { loadRecording, replay } from "@shapi/canary";
 import {
   MAX_LLM_FILE_BYTES,
+  checkUndo,
+  partsOf,
   RECIPES,
   claudeFixer,
   localWorkspace,
@@ -264,6 +266,47 @@ function memoryWorkspace(seed: Record<string, string>, run: (n: number, files: M
 }
 
 const proposing = (files: { path: string; content: string }[]): LlmFixer => ({ fix: async () => ({ status: "proposed", files, explanation: "x", model: "stub" }) });
+
+describe("undo check (V-04)", () => {
+  const { callSite, original } = demoRepo("undo");
+  const oldCheck = "if (res.status !== 204) {";
+  // The contract test, as far as the undo check is concerned: it fails while the code still accepts only 204.
+  const contract = (_n: number, files: Map<string, string>) => (files.get(callSite.file)!.includes(oldCheck) ? BROKEN : PASSED);
+  const attempt = (llm: LlmFixer) => repairCallSite({ workspace: memoryWorkspace({ [callSite.file]: original }, contract).ws, advisory: { ...advisory, recipeId: undefined }, callSite, ...shapes, recipes: RECIPES, llm });
+
+  it("splits a change into its parts, each undone on its own", () => {
+    const before = "a\nb\nc\nd\ne\nf\n";
+    const after = "a\nB\nc\nd\ne\nF\n";
+    expect(partsOf("x.ts", before, after).map((p) => [p.line, p.content])).toEqual([
+      [2, "a\nb\nc\nd\ne\nF\n"],
+      [6, "a\nB\nc\nd\ne\nf\n"],
+    ]);
+    expect(partsOf("x.ts", before, before)).toEqual([]);
+  });
+
+  it("passes when undoing every part of the fix makes the contract test fail", async () => {
+    const r = await attempt(proposing([{ path: callSite.file, content: fixedText(original) }]));
+    expect(r.status).toBe("fixed");
+    expect(r.undo).toEqual({ status: "passed", killed: 1, total: 1, detail: "undoing any part of the change makes the contract test fail" });
+  });
+
+  it("names a part of the fix the contract test does not cover, and keeps the fix for a person to check", async () => {
+    const extra = fixedText(original).replace("export interface DeployRequest {", "export const DEPLOY_TIMEOUT_MS = 30_000;\n\nexport interface DeployRequest {");
+    const r = await attempt(proposing([{ path: callSite.file, content: extra }]));
+    expect(r.status).toBe("fixed");
+    expect(r.undo).toMatchObject({ status: "survived", killed: 1, total: 2, survived: [`${callSite.file}:5`] });
+  });
+
+  it("does not undo a change of too many parts, or report a run that did not test anything", async () => {
+    const mem = memoryWorkspace({ "a.ts": "x\n1\nx\n2\nx\n" }, () => PASSED);
+    expect(await checkUndo(mem.ws, "t.test.ts", [{ file: "a.ts", before: "x\n1\nx\n2\nx\n", after: "x\nA\nx\nB\nx\n" }], 1)).toMatchObject({ status: "not-run", total: 2, detail: "the change has 2 parts; SHAPI undoes up to 1" });
+    const noTests: TestRun = { passed: false, exitCode: 1, output: "Error: Cannot find module" };
+    const broken = memoryWorkspace({ "a.ts": "x\nA\n" }, () => noTests);
+    expect(await checkUndo(broken.ws, "t.test.ts", [{ file: "a.ts", before: "x\n1\n", after: "x\nA\n" }])).toMatchObject({ status: "not-run", detail: "the contract test did not run with a part undone" });
+    // The fixed file is put back after every undo.
+    expect(broken.files.get("a.ts")).toBe("x\nA\n");
+  });
+});
 
 describe("repairCallSite: what an LLM change has to get past", () => {
   const { callSite, original } = demoRepo("llm-guards");

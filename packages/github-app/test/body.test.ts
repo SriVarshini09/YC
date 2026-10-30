@@ -3,7 +3,20 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadAdvisories, type LockedCallSite } from "@shapi/core";
 import { swap, type AdvisoryRepair, type FileChange, type RepairResult } from "@shapi/repair";
-import { codeSpan, renderPrBody, suiteLine } from "@shapi/github-app";
+import { codeSpan, renderPrBody, suiteLine, undoLine } from "@shapi/github-app";
+
+describe("undo check line (V-04)", () => {
+  it("shows k/k, names an uncovered part for a person, or says why it did not run", () => {
+    expect(undoLine([{ status: "passed", killed: 2, total: 2, detail: "" }, { status: "passed", killed: 1, total: 1, detail: "" }])).toBe(
+      "**Undo check:** ✅ 3/3: undoing any part of this change makes its contract test fail.",
+    );
+    expect(undoLine([{ status: "survived", killed: 1, total: 2, detail: "", survived: ["src/deploy.ts:5"] }])).toBe(
+      "**Undo check:** ⚠️ 1/2: undoing ` src/deploy.ts:5 ` does not make the contract test fail, so the test does not cover that part. A person should check it (labelled `needs-human`).",
+    );
+    expect(undoLine([{ status: "not-run", killed: 0, total: 9, detail: "the change has 9 parts; SHAPI undoes up to 6" }])).toBe("**Undo check:** ⚪ not run: the change has 9 parts; SHAPI undoes up to 6.");
+    expect(undoLine([undefined])).toBe("**Undo check:** ⚪ not run.");
+  });
+});
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const advisory = loadAdvisories(path.join(root, "advisories")).find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
