@@ -5,6 +5,7 @@ export { okapiRow, okapiTable, removedLines, type OkapiPr, type OkapiRow, type O
 export { scanCommit, scanRepo, withRepoAt } from "./scan";
 export { mirrorUrl, swhHasCommit, swhTarball, type SwhOptions } from "./swh";
 export { runBacktestCase, type BacktestCase, type BacktestResponse, type BacktestResult } from "./canary-backtest";
+export { methodsTouched, stripeCoverage, type CoverageRow } from "./coverage";
 export { cdxUrl, firstCapture, parseCdx, waybackTime, type Capture, type WaybackOptions } from "./wayback";
 export { changeShowsName, parseOpenAiDeprecations, scoreOpenAiReplay, type OpenAiDeprecation, type OpenAiDeprecationRow, type OpenAiReplayScore } from "./spec-replay-openai";
 export { changeMatchesTwilioEntry, parseTwilioChanges, scoreTwilioReplay, twilioSpecFiles, type TwilioBreakingEntry, type TwilioRelease, type TwilioReplayScore } from "./spec-replay-twilio";

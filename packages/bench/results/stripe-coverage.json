@@ -1,0 +1,86 @@
+{
+  "rows": [
+    {
+      "release": "dahlia",
+      "title": "Updates Checkout Session UI mode enum values",
+      "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/updates-available-checkout-session-ui-modes",
+      "methods": [
+        "checkout.sessions.create",
+        "checkout.sessions.retrieve"
+      ],
+      "advisories": [
+        "stripe-checkout-session-ui-mode-values-renamed"
+      ]
+    },
+    {
+      "release": "dahlia",
+      "title": "Removes the source type property from Stripe balance payment methods",
+      "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/stripe-balance-payment-method-source-type",
+      "methods": [
+        "paymentIntents.confirm",
+        "paymentIntents.create"
+      ],
+      "advisories": [],
+      "exempt": "a preview API: every link is to the preview API version, so the GA API doesn't change"
+    },
+    {
+      "release": "endive",
+      "title": "Unifies the billing cycle anchor format across Subscriptions and Invoices",
+      "url": "https://docs.stripe.com/changelog/endive/2026-09-30/polymorphic-billing-cycle-anchor",
+      "methods": [
+        "subscriptions.update"
+      ],
+      "advisories": [
+        "stripe-endive-billing-cycle-anchor-object"
+      ]
+    },
+    {
+      "release": "endive",
+      "title": "Removes the payment method types parameter from Checkout Sessions",
+      "url": "https://docs.stripe.com/changelog/endive/2026-09-30/remove-payment-method-types-checkout-sessions",
+      "methods": [
+        "checkout.sessions.create",
+        "checkout.sessions.retrieve"
+      ],
+      "advisories": [
+        "stripe-endive-checkout-session-payment-method-types-removed"
+      ]
+    },
+    {
+      "release": "endive",
+      "title": "Removes the payment method types parameter from Payment Intents and Setup Intents",
+      "url": "https://docs.stripe.com/changelog/endive/2026-09-30/removes-the-payment-method-types-parameter-from-payment-intents-and-setup-intents",
+      "methods": [
+        "paymentIntents.confirm",
+        "paymentIntents.create"
+      ],
+      "advisories": [
+        "stripe-endive-payment-intent-payment-method-types-removed",
+        "stripe-endive-setup-intent-payment-method-types-removed"
+      ]
+    },
+    {
+      "release": "endive",
+      "title": "Adds archiving and trial end behavior settings to Trial Offers",
+      "url": "https://docs.stripe.com/changelog/endive/2026-09-30/trial-offers-archiving-and-trial-end-behavior-settings",
+      "methods": [
+        "subscriptions.create",
+        "subscriptions.update"
+      ],
+      "advisories": [],
+      "exempt": "a preview API: every link is to the preview API version, so the GA API doesn't change"
+    },
+    {
+      "release": "endive",
+      "title": "Removes the capture method parameter for PayPay payments",
+      "url": "https://docs.stripe.com/changelog/endive/2026-09-30/removes-capture-method-parameter-for-paypay-payments",
+      "methods": [
+        "paymentIntents.confirm",
+        "paymentIntents.create"
+      ],
+      "advisories": [],
+      "exempt": "a preview API: every link is to the preview API version, so the GA API doesn't change"
+    }
+  ],
+  "gaps": 0
+}
