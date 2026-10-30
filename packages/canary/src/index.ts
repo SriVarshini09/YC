@@ -1,6 +1,9 @@
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { Command, CommanderError } from "commander";
 import { ShapeStore } from "@shapi/shapes";
 import { draftAdvisory, writeDraft } from "./draft";
+import { MODELS_DEV_URL, modelsDevDrafts, type ModelsDevApi } from "./models-dev";
 import { loadRecording, replay } from "./replay";
 import { DEFAULT_DB, DEV_SECRET, WORKERS, runEvery, runOnce, type RunReport } from "./scheduler";
 
@@ -9,6 +12,7 @@ export const DEFAULT_DRAFTS = "advisories/drafts";
 
 export { probeSource, type Env, type Probe, type Worker } from "./probe";
 export { draftAdvisory, writeDraft, type DraftInput } from "./draft";
+export { MODELS_DEV_URL, modelsDevDrafts, modelsDevHost, type ModelsDevApi, type ModelsDevDraft } from "./models-dev";
 export { githubWorker } from "./workers/github";
 export { stripeWorker } from "./workers/stripe";
 export { anthropicWorker, hubspotWorker, openaiWorker, slackWorker, twilioWorker } from "./workers/more";
@@ -117,6 +121,29 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
       for (const c of result.diff.changes) io.stdout(`  ${c.impact.padEnd(13)} ${c.changeClass ?? "-"}  ${c.detail}\n`);
       const draft = draftAdvisory({ before: result.before!, after: result.after, diff: result.diff });
       if (draft && opts.drafts !== false) io.stdout(`draft advisory: ${writeDraft(draft, opts.drafts)}\n`);
+    });
+
+  program
+    .command("models-dev")
+    .description("draft a version-sunset advisory for every model models.dev marks deprecated on a host SHAPI knows")
+    .option("--source <url|file>", "models.dev api.json, as a URL or a file", MODELS_DEV_URL)
+    .option("--drafts <dir>", "where to write the drafts", DEFAULT_DRAFTS)
+    .action(async (opts: { source: string; drafts: string }) => {
+      const api = (
+        /^https?:\/\//.test(opts.source) ? await (await fetch(opts.source, { headers: { "user-agent": "shapi-canary" } })).json() : JSON.parse(readFileSync(opts.source, "utf8"))
+      ) as ModelsDevApi;
+      const today = new Date().toISOString().slice(0, 10);
+      let added = 0;
+      for (const { advisory } of modelsDevDrafts(api, { today })) {
+        // A draft written on an earlier run keeps the day the model was first seen deprecated.
+        const file = path.join(opts.drafts, `${advisory.id}.json`);
+        const earlier = existsSync(file) ? (JSON.parse(readFileSync(file, "utf8")) as { firstObserved?: string; effectiveDate?: string }) : undefined;
+        if (earlier?.firstObserved) Object.assign(advisory, { firstObserved: earlier.firstObserved, effectiveDate: earlier.effectiveDate ?? earlier.firstObserved });
+        else added++;
+        writeDraft(advisory, opts.drafts);
+        io.stdout(`${earlier ? "kept " : "new  "} ${advisory.id}\n`);
+      }
+      io.stdout(`${added} new drafts in ${opts.drafts}\n`);
     });
 
   program
