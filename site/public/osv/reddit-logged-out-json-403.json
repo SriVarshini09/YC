@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-reddit-logged-out-json-403",
+  "modified": "2026-05-30T00:00:00Z",
+  "published": "2026-05-28T00:00:00Z",
+  "summary": "Logged-out .json endpoints return 403",
+  "details": "Unauthenticated requests to Reddit's public .json listing endpoints (for example /r/{subreddit}/top.json) started returning 403 Forbidden around 2026-05-30. Reddit announced the shutdown of unauthenticated .json endpoints in r/modnews on 2026-05-28 and said logged-in and authenticated access is not affected; the 403 status and the 2026-05-30 date come from third-party reports.\n\nMove to an approved OAuth app and call oauth.reddit.com with a bearer token. Reddit's notice points developers who need structured access to Devvit.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "reddit",
+        "endpoint": {
+          "method": "GET",
+          "path": "/**/*.json",
+          "hosts": [
+            "reddit.com",
+            "www.reddit.com",
+            "old.reddit.com"
+          ]
+        },
+        "change_class": "auth",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-05-30"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://www.reddit.com/r/modnews/comments/1tq9vxo/protecting_communities_from_scrapers_and_platform/"
+    },
+    {
+      "type": "WEB",
+      "url": "https://web.archive.org/web/20260529180019/https://old.reddit.com/r/modnews/comments/1tq9vxo/protecting_communities_from_scrapers_and_platform/"
+    },
+    {
+      "type": "WEB",
+      "url": "https://dev.to/tonywangca/why-reddit-blocked-unauthenticated-json-in-2026-and-how-to-still-get-reddit-data-58b9"
+    },
+    {
+      "type": "WEB",
+      "url": "https://bigideasdb.com/reddit-json-403-forbidden"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/reddit-logged-out-json-403.json"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-twilio-conference-list-default-in-progress",
+  "modified": "2026-09-30T00:00:00Z",
+  "published": "2026-09-23T00:00:00Z",
+  "summary": "Twilio Conference list returns only in-progress conferences by default from 2026-09-30",
+  "details": "Starting September 30, 2026 (rollout delayed from July 13, 2026), GET /2010-04-01/Accounts/{AccountSid}/Conferences.json without a Status filter returns only in-progress conferences instead of in-progress and completed ones. Code that lists conferences without Status and expects completed ones gets silently incomplete results.\n\nPass Status=completed explicitly when you need completed conferences (reporting, billing or cleanup jobs), and make a second request without it for in-progress ones if you need both; do not rely on the unfiltered list containing completed conferences.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "twilio",
+        "endpoint": {
+          "method": "GET",
+          "path": "/2010-04-01/Accounts/{AccountSid}/Conferences.json"
+        },
+        "change_class": "required-field",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-09-30"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://www.twilio.com/en-us/changelog/conference-list-endpoint-july-2026"
+    },
+    {
+      "type": "WEB",
+      "url": "https://www.twilio.com/en-us/changelog/conference-list-endpoint-rollout-extended"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/twilio-conference-list-default-in-progress.json"
+  }
+}

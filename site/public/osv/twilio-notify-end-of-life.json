@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-twilio-notify-end-of-life",
+  "modified": "2027-01-31T00:00:00Z",
+  "published": "2024-01-23T00:00:00Z",
+  "summary": "Twilio Notify reaches end of life on 2027-01-31",
+  "details": "Twilio Notify (notify.twilio.com, e.g. POST /v1/Services/{ServiceSid}/Notifications) has been unsupported and closed to new customers since October 2022 and reaches end of life for existing customers on 2027-01-31, per Twilio's Help Center (superseding the 2025-12-31 date in the January 2024 changelog). Push sent through Verify, Voice, Conversations or Engage is not affected.\n\nMove bulk SMS sends to the Messaging API (or Twilio's Bulk Messaging API) and push notifications to a direct APNs/FCM integration or another push provider, then remove Notify Services and Bindings.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "twilio",
+        "endpoint": {
+          "method": "POST",
+          "path": "/v1/Services/{ServiceSid}/Notifications"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2027-01-31"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://www.twilio.com/en-us/changelog/notify-api-end-of-life-further-extension-notice"
+    },
+    {
+      "type": "WEB",
+      "url": "https://help.twilio.com/articles/9198083260571-How-to-transition-off-Notify"
+    },
+    {
+      "type": "WEB",
+      "url": "https://www.twilio.com/en-us/changelog/notify-api-eol-notice"
+    },
+    {
+      "type": "WEB",
+      "url": "https://www.twilio.com/docs/notify/api/notification-resource"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/twilio-notify-end-of-life.json"
+  }
+}

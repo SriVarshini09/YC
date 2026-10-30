@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-x-self-serve-follow-writes-removed",
+  "modified": "2026-04-16T00:00:00Z",
+  "published": "2026-04-16T00:00:00Z",
+  "summary": "Following users removed from X API self-serve tiers",
+  "details": "X's 2026-04-16 changelog says Following via the API has been removed from all self-serve tiers (Free, Basic, Pro, pay-per-use), leaving it to Enterprise. POST /2/users/{id}/following calls with self-serve credentials are rejected; X does not document the status code.\n\nRemove or feature-flag follow actions for self-serve apps and show users a clear message (for example a link to the profile so they can follow in the X app), or move to an Enterprise agreement.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "x",
+        "endpoint": {
+          "method": "POST",
+          "path": "/2/users/{id}/following"
+        },
+        "change_class": "scope-change",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-04-16"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://docs.x.com/changelog"
+    },
+    {
+      "type": "WEB",
+      "url": "https://opentweet.io/how-to/fix-x-api-like-follow-endpoint-removed"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/x-self-serve-follow-writes-removed.json"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-x-self-serve-like-writes-removed",
+  "modified": "2026-04-16T00:00:00Z",
+  "published": "2026-04-16T00:00:00Z",
+  "summary": "Liking Posts removed from X API self-serve tiers",
+  "details": "X's 2026-04-16 changelog says Following, Likes and Quote-Posts via the API have been removed from all self-serve tiers (Free, Basic, Pro, pay-per-use), leaving them to Enterprise. POST /2/users/{id}/likes calls with self-serve credentials are rejected; X does not document the status code. Quote-Posts (POST /2/tweets with quote_tweet_id) are also removed but cannot be matched by path.\n\nRemove or feature-flag like actions for self-serve apps and surface a clear error to users, or move to an Enterprise agreement. Also drop quote_tweet_id from POST /2/tweets on self-serve keys.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "x",
+        "endpoint": {
+          "method": "POST",
+          "path": "/2/users/{id}/likes"
+        },
+        "change_class": "scope-change",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-04-16"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://docs.x.com/changelog"
+    },
+    {
+      "type": "WEB",
+      "url": "https://opentweet.io/how-to/fix-x-api-like-follow-endpoint-removed"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/x-self-serve-like-writes-removed.json"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-google-gemini-2-5-flash-image-shutdown",
+  "modified": "2027-03-15T00:00:00Z",
+  "published": "2027-03-15T00:00:00Z",
+  "summary": "gemini-2.5-flash-image shuts down on 2027-03-15",
+  "details": "Google shuts down gemini-2.5-flash-image (the original Nano Banana image model) on 2027-03-15. After that the model is turned off and generateContent calls that name it in the path fail. Calls that pass the model in a request body are not matched by this path.\n\nMove image generation to gemini-3.1-flash-lite-image, the replacement on the deprecations page, before 2027-03-15, and re-test how you read the returned image parts.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "google-gemini",
+        "endpoint": {
+          "method": "POST",
+          "path": "/*/models/gemini-2.5-flash-image:*"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2027-03-15"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations"
+    },
+    {
+      "type": "WEB",
+      "url": "https://ai.google.dev/gemini-api/docs/image-generation"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/google-gemini-2-5-flash-image-shutdown.json"
+  }
+}

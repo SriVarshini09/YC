@@ -40,6 +40,7 @@ export async function run(argv: string[], io: Io = processIo, fixDeps: Partial<F
     .option("--json", "print a JSON report (includes the api.lock)")
     .option("--out <file>", "write the api.lock to this file")
     .option("--sbom <file>", "also write the api.lock as a CycloneDX 1.7 SaaSBOM")
+    .option("--vex <file>", "also write the verdicts as an OpenVEX 0.2.0 document")
     .option("--repo <url>", "clone a git repository (shallow) into a temp dir and scan it")
     .option("--advisories <dir>", "advisory directory (default: the bundled advisories/)")
     .option("--fail-on <severity>", "exit 1 when an affected call site is at least this severe (critical|high|medium|low|none)", "critical")

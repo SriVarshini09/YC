@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-quickbooks-minorversion-below-75-ignored",
+  "modified": "2025-08-01T00:00:00Z",
+  "published": "2025-08-01T00:00:00Z",
+  "summary": "Minor versions below 75 are silently answered as minor version 75",
+  "details": "Since 2025-08-01 the QuickBooks Online Accounting API ignores any minorversion below 75 and responds with minor version 75 data, without an error. Code pinned to an older minor version receives a different response shape with no signal.\n\nSet minorversion=75 (or remove it) and re-test parsing against minor version 75 responses.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "quickbooks",
+        "endpoint": {
+          "method": "*",
+          "path": "/v3/company/{realmId}/**"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "query": [
+            {
+              "name": "minorversion",
+              "below": 75
+            }
+          ]
+        },
+        "effective_date": "2025-08-01",
+        "recipe": "apply-fix"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://blogs.intuit.com/?p=34635"
+    },
+    {
+      "type": "WEB",
+      "url": "https://www.apideck.com/blog/ai-built-accounting-integrations-maintenance"
+    },
+    {
+      "type": "WEB",
+      "url": "https://docs.codat.io/updates/250401-qbo-minor-versions-update"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/quickbooks-minorversion-below-75-ignored.json"
+  }
+}

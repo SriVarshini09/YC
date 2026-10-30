@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-stripe-endive-checkout-session-payment-method-types-removed",
+  "modified": "2026-09-30T00:00:00Z",
+  "published": "2026-09-30T00:00:00Z",
+  "summary": "Stripe 2026-09-30.endive removes payment_method_types from Checkout Session creation",
+  "details": "From API version 2026-09-30.endive, creating a Checkout Session with payment_method_types returns a 400 error. Stripe replaces it with dynamic payment methods, excluded_payment_method_types, or the new allowed_payment_method_types, which filters out incompatible types instead of failing.\n\nBefore moving to 2026-09-30.endive, stop sending payment_method_types when creating Checkout Sessions. Use dynamic payment methods (manage them in the Dashboard), excluded_payment_method_types to drop some, or allowed_payment_method_types to list the ones you accept.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "stripe",
+        "endpoint": {
+          "method": "POST",
+          "path": "/v1/checkout/sessions"
+        },
+        "change_class": "required-field",
+        "trigger": {
+          "body": [
+            {
+              "field": "payment_method_types"
+            }
+          ]
+        },
+        "effective_date": "2026-09-30"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://docs.stripe.com/changelog/endive/2026-09-30/remove-payment-method-types-checkout-sessions"
+    },
+    {
+      "type": "WEB",
+      "url": "https://docs.stripe.com/api/checkout/sessions/create?api-version=2026-09-30.endive"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/stripe-endive-checkout-session-payment-method-types-removed.json"
+  }
+}

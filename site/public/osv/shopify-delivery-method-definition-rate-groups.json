@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-delivery-method-definition-rate-groups",
+  "modified": "2026-02-24T00:00:00Z",
+  "published": "2026-02-24T00:00:00Z",
+  "summary": "Shopify shipping options move to rateGroups; rateProvider and methodConditions are legacy",
+  "details": "A shipping option can now hold several tiered rates. DeliveryMethodDefinition.rateGroups and DeliveryRateDefinition.conditions replace the legacy rateProvider and methodConditions fields, and apps that write merchant-managed delivery profiles must move to the new write API.\n\nRead shipping options from DeliveryMethodDefinition.rateGroups and DeliveryRateDefinition.conditions, and use the new write API for merchant-managed delivery profiles; app-managed profiles need no change.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "POST",
+          "path": "/admin/api/{version}/graphql.json"
+        },
+        "change_class": "field-rename",
+        "trigger": {
+          "graphql": [
+            {
+              "field": "rateProvider"
+            },
+            {
+              "field": "methodConditions"
+            },
+            {
+              "field": "deliveryProfileUpdate",
+              "operation": "mutation"
+            }
+          ]
+        },
+        "effective_date": "2026-02-24"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/new-apis-to-read-and-write-shipping-options-in-delivery-profile"
+    }
+  ],
+  "database_specific": {
+    "severity": "medium",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-delivery-method-definition-rate-groups.json"
+  }
+}

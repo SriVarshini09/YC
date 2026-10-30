@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-rest-order-update-shipping-address-recalculates-taxes",
+  "modified": "2026-10-01T00:00:00Z",
+  "published": "2026-07-30T00:00:00Z",
+  "summary": "Shopify's REST order update recalculates taxes when an unfulfilled order's shipping address changes, as of 2026-10",
+  "details": "As of Admin API version 2026-10, changing the shipping address of an unfulfilled order through the REST order update endpoint recalculates its taxes and totals against the new destination.\n\nAfter updating a shipping address, read the order's tax lines and totals again instead of assuming they are unchanged.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "PUT",
+          "path": "/admin/api/{version}/orders/{id}.json"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-10-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/updating-an-orders-shipping-address-returns-accurate-financial-data"
+    }
+  ],
+  "database_specific": {
+    "severity": "medium",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/shopify-rest-order-update-shipping-address-recalculates-taxes.json"
+  }
+}

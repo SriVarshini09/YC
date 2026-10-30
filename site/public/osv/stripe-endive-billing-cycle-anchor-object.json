@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-stripe-endive-billing-cycle-anchor-object",
+  "modified": "2026-09-30T00:00:00Z",
+  "published": "2026-09-30T00:00:00Z",
+  "summary": "Stripe 2026-09-30.endive requires an object for billing_cycle_anchor on subscription updates",
+  "details": "From API version 2026-09-30.endive, billing_cycle_anchor on Subscription update and resume (and subscription_details.billing_cycle_anchor on Invoice create_preview) takes an object with a type instead of the strings now and unchanged, so requests sending the old string form fail.\n\nWhen moving to 2026-09-30.endive, send billing_cycle_anchor: {type: 'now'} instead of 'now' and {type: 'unchanged'} instead of 'unchanged' when updating or resuming a subscription. For a preview invoice of a new subscription anchored to a timestamp, send {type: 'timestamp', timestamp: <unix seconds>}.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "stripe",
+        "endpoint": {
+          "method": "POST",
+          "path": "/v1/subscriptions/{id}/**"
+        },
+        "change_class": "required-field",
+        "trigger": {
+          "body": [
+            {
+              "field": "billing_cycle_anchor",
+              "values": [
+                "now",
+                "unchanged"
+              ]
+            }
+          ]
+        },
+        "effective_date": "2026-09-30"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://docs.stripe.com/changelog/endive/2026-09-30/polymorphic-billing-cycle-anchor"
+    },
+    {
+      "type": "WEB",
+      "url": "https://docs.stripe.com/api/subscriptions/update?api-version=2026-09-30.endive"
+    }
+  ],
+  "database_specific": {
+    "severity": "medium",
+    "status": "unverified",
+    "url": "https://shapi.dev/osv/stripe-endive-billing-cycle-anchor-object.json"
+  }
+}

@@ -78,6 +78,16 @@ describe("shapi scan", () => {
     expect(sbom.components.flatMap((c) => c.evidence.occurrences)).toHaveLength(3);
   });
 
+  it("--vex writes the verdicts as an OpenVEX document (S-03)", async () => {
+    const file = path.join(tmp, "app.vex.json");
+    await shapi("scan", fixture, "--vex", file, "--fail-on", "none");
+    const vex = JSON.parse(readFileSync(file, "utf8")) as { "@context": string; author: string; statements: { status: string; vulnerability: { name: string } }[] };
+    expect(vex).toMatchObject({ "@context": "https://openvex.dev/ns/v0.2.0", author: "SHAPI" });
+    expect(vex.statements.length).toBeGreaterThan(0);
+    expect(vex.statements.every((s) => s.vulnerability.name.startsWith("x_SHAPI-"))).toBe(true);
+    expect(vex.statements.map((s) => s.status)).toContain("affected");
+  });
+
   it("--repo clones a git repository and scans it", async () => {
     const repo = path.join(tmp, "repo");
     cpSync(fixture, repo, { recursive: true });

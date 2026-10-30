@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-shopify-global-catalog-rest-api-shutdown",
+  "modified": "2026-11-02T00:00:00Z",
+  "published": "2026-10-09T00:00:00Z",
+  "summary": "Shopify Global Catalog REST API stops serving traffic on 2026-11-02",
+  "details": "The Global Catalog REST API on discover.shopifyapps.com (/global/v2/search, /global/v2/p/{upid}, /global/v2/p/by-variant/{vid}, POST /global/v2/lookup, including saved-catalog requests) stops serving traffic on November 2, 2026, and requests to it will fail. Anything still calling it must move to the Global Catalog MCP server.\n\nSwitch to the Global Catalog MCP server at https://catalog.shopify.com/api/ucp/mcp: use the search_catalog tool instead of GET /global/v2/search, get_product instead of the single-product and by-variant lookups, and lookup_catalog (up to 50 items per request) instead of POST /global/v2/lookup.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "shopify",
+        "endpoint": {
+          "method": "*",
+          "path": "/global/v2/**"
+        },
+        "change_class": "version-sunset",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2026-11-02"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://shopify.dev/changelog/posts/global-catalog-rest-api-stops-serving-traffic-on-november-2-2026"
+    }
+  ],
+  "database_specific": {
+    "severity": "critical",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/shopify-global-catalog-rest-api-shutdown.json"
+  }
+}

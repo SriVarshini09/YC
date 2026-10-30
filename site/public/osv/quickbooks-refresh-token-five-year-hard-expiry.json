@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.7.0",
+  "id": "x_SHAPI-quickbooks-refresh-token-five-year-hard-expiry",
+  "modified": "2027-02-01T00:00:00Z",
+  "published": "2025-11-12T00:00:00Z",
+  "summary": "Refresh tokens hard-expire after five years, first ones in February 2027",
+  "details": "Intuit refresh tokens now have a maximum lifetime of five years, even if they are used regularly. For apps on restricted or granular scopes, tokens issued from February 2022 start expiring in February 2027. For com.intuit.quickbooks.accounting and com.intuit.quickbooks.payments, tokens issued from October 2023 start expiring in October 2028. Intuit gives only the month, so the effective date here is the first day of that month.\n\nOn token requests, send the header x-include-refresh-token-hard-expires-in: true (Intuit's docs also list an x_refresh_token_hard_expires_in=true parameter) and store the returned x_refresh_token_hard_expires_in (seconds left in the five-year lifetime) alongside the token. Treat invalid_grant from /oauth2/v1/tokens/bearer as a disconnect that needs the user to reconnect, not as a retryable error. Prompt users to re-authorize before the hard expiry, and set the Reconnect URL in the developer portal app settings.",
+  "affected": [
+    {
+      "ecosystem_specific": {
+        "provider": "quickbooks",
+        "endpoint": {
+          "method": "POST",
+          "path": "/oauth2/v1/tokens/bearer"
+        },
+        "change_class": "auth",
+        "trigger": {
+          "any": true
+        },
+        "effective_date": "2027-02-01"
+      }
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://medium.com/intuitdev/important-changes-to-refresh-token-policy-8443779d40db"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/oauth-2.0"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/faq"
+    },
+    {
+      "type": "WEB",
+      "url": "https://developer.intuit.com/app/developer/qbo/docs/release-notes/general-release-notes"
+    }
+  ],
+  "database_specific": {
+    "severity": "high",
+    "status": "verified",
+    "url": "https://shapi.dev/osv/quickbooks-refresh-token-five-year-hard-expiry.json"
+  }
+}
