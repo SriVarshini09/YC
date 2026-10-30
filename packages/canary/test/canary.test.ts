@@ -113,6 +113,34 @@ describe("runOnce", () => {
     store.close();
   });
 
+  it("learns a field that comes and goes as the endpoint's churn, and still drafts a real removal (CN-04)", async () => {
+    const store = ShapeStore.open(":memory:");
+    let tick = 0;
+    const now = () => new Date(Date.UTC(2026, 9, 2, tick++));
+    const repo = (extra: Record<string, unknown>) => () => json(200, { id: 1296269, full_name: "octocat/Hello-World", ...extra });
+    const cycle = async (body: () => Response) =>
+      (await runOnce({ store, env: {}, fetch: fakeFetch({ ...githubRoutes(() => new Response(null, { status: 204 })), "GET /repos/octocat/Hello-World": body }).fn, now, workers: [githubWorker] })).results.find((r) => r.id === "github:get-repo")!;
+
+    // topics comes and goes: after it has flipped twice it is churn, and its coming and going is no change.
+    await cycle(repo({ private: false, topics: ["a"] }));
+    expect((await cycle(repo({ private: false }))).changed).toBe(true);
+    const learned = await cycle(repo({ private: false, topics: ["b"] }));
+    expect(learned).toMatchObject({ changed: false, churning: ["topics", "topics[]"] });
+    for (const extra of [{ private: false }, { private: false, topics: ["c"] }, { private: false }]) {
+      const r = await cycle(repo(extra));
+      expect(r.changed).toBe(false);
+      expect(r.draft).toBeUndefined();
+    }
+
+    // private disappears for good: a candidate, then confirmed and drafted, without topics in the diff.
+    expect((await cycle(repo({ topics: ["d"] }))).changed).toBe(true);
+    const confirmed = await cycle(repo({}));
+    expect(confirmed.confirmed).toBe(true);
+    expect(confirmed.diff?.changes.map((c) => `${c.kind} ${c.path}`)).toEqual(["field-removed private"]);
+    expect(confirmed.draft).toBeDefined();
+    store.close();
+  });
+
   it("stores a shape per probe and flags the probe whose shape changed between runs", async () => {
     const store = ShapeStore.open(":memory:");
     let tick = 0;
