@@ -1,9 +1,11 @@
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { AdvisorySchema, advisoryJsonSchema, getProvider, loadAdvisories } from "@shapi/core";
+import Ajv2020 from "ajv/dist/2020.js";
+import addFormats from "ajv-formats";
+import { ADVISORY_SCHEMA_URL, AdvisorySchema, advisoryJsonSchema, getProvider, loadAdvisories, publishedAdvisoryJsonSchema } from "@shapi/core";
 
 const advisoriesDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "advisories");
 
@@ -84,6 +86,33 @@ describe("advisory JSON Schema", () => {
     const generated = JSON.stringify(advisoryJsonSchema(), null, 2) + "\n";
     if (process.env.UPDATE_SCHEMA || !existsSync(file)) writeFileSync(file, generated);
     expect(readFileSync(file, "utf8")).toBe(generated);
+  });
+
+  it("publishes it at shapi.dev/schema/advisory.json, in sync (S-01; UPDATE_SCHEMA=1 rewrites it)", () => {
+    const file = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "site", "public", "schema", "advisory.json");
+    const generated = JSON.stringify(publishedAdvisoryJsonSchema(), null, 2) + "\n";
+    if (process.env.UPDATE_SCHEMA || !existsSync(file)) {
+      mkdirSync(path.dirname(file), { recursive: true });
+      writeFileSync(file, generated);
+    }
+    expect(readFileSync(file, "utf8")).toBe(generated);
+    expect(JSON.parse(generated)).toMatchObject({ $id: ADVISORY_SCHEMA_URL, $schema: "https://json-schema.org/draft/2020-12/schema" });
+  });
+
+  it("every advisory validates against the published schema with a standard validator (Ajv, draft 2020-12, formats checked)", () => {
+    // Strict, except strictRequired: the "at least one" rules list `required` keys that the parent schema defines.
+    const ajv = new Ajv2020({ strict: true, strictRequired: false, allErrors: true });
+    addFormats.default(ajv);
+    const check = ajv.compile(publishedAdvisoryJsonSchema());
+    const files = readdirSync(advisoriesDir).filter((f) => f.endsWith(".json"));
+    expect(files.length).toBeGreaterThanOrEqual(64);
+    const invalid = files.filter((f) => !check(JSON.parse(readFileSync(path.join(advisoriesDir, f), "utf8")))).map((f) => `${f}: ${ajv.errorsText(check.errors)}`);
+    expect(invalid).toEqual([]);
+    // It rejects what zod rejects.
+    const github = JSON.parse(readFileSync(path.join(advisoriesDir, "github-workflow-dispatch-204-to-200.json"), "utf8")) as Record<string, unknown>;
+    expect(check({ ...github, trigger: {} })).toBe(false);
+    expect(check({ ...github, severity: "huge" })).toBe(false);
+    expect(check({ ...github, effectiveDate: "next week" })).toBe(false);
   });
 
   const schema = advisoryJsonSchema() as Json;

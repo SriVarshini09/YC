@@ -146,6 +146,9 @@ export function loadAdvisories(dir: string): Advisory[] {
 
 export const SEVERITY_RANK: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
 
+/** Where the advisory JSON Schema is published (execution plan S-01): site/public/schema/advisory.json, served by shapi.dev. */
+export const ADVISORY_SCHEMA_URL = "https://shapi.dev/schema/advisory.json";
+
 /**
  * The JSON Schema for advisory files. Input mode leaves unknown keys allowed, as zod strips them, and the
  * two "at least one" refinements, which JSON Schema cannot derive from zod, are spelled out.
@@ -164,6 +167,18 @@ export function advisoryJsonSchema(): unknown {
       }
     },
   });
+}
+
+/** advisoryJsonSchema() as published at ADVISORY_SCHEMA_URL: the same rules, with its $id, a title and a description. */
+export function publishedAdvisoryJsonSchema(): Record<string, unknown> {
+  const { $schema, ...rules } = advisoryJsonSchema() as Record<string, unknown>;
+  return {
+    $schema,
+    $id: ADVISORY_SCHEMA_URL,
+    title: "SHAPI advisory",
+    description: "One third-party API change SHAPI checks code against: the endpoint, what changed, what code it breaks, and when. Advisories live at https://github.com/SriVarshini09/shapi-advisories.",
+    ...rules,
+  };
 }
 
 /**

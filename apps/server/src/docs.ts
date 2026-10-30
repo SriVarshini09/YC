@@ -57,6 +57,8 @@ async function serve(req: FastifyRequest, reply: FastifyReply, root: string): Pr
     .header("x-content-type-options", "nosniff")
     .header("referrer-policy", "strict-origin-when-cross-origin");
   if (ext === ".html") reply.header("content-security-policy", DOCS_CSP).header("x-frame-options", "DENY");
+  // Published JSON Schemas (/schema/advisory.json): editors and online validators load them from any origin.
+  if (found.startsWith(path.join(root, "schema") + path.sep)) reply.header("access-control-allow-origin", "*");
   return reply.send(await readFile(found));
 }
 
