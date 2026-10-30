@@ -4,6 +4,8 @@ import { createOctokit } from "@shapi/github-app";
 
 export const SESSION_COOKIE = "shapi_session";
 export const STATE_COOKIE = "shapi_oauth_state";
+/** The installation a person just set up, carried through sign-in so they land on its dashboard. */
+export const SETUP_COOKIE = "shapi_setup_installation";
 /** Matches the lifetime of a GitHub App user token: sign in again to pick up new installations. */
 export const SESSION_HOURS = 8;
 
