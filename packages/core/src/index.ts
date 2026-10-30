@@ -4,3 +4,4 @@ export * from "./advisory";
 export * from "./matcher";
 export * from "./cyclonedx";
 export * from "./lint";
+export * from "./graphql";
