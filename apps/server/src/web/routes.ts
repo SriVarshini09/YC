@@ -6,6 +6,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { sql } from "kysely";
 import { z } from "zod";
 import { withService, withTenant, type Db } from "@shapi/db";
+import { readFeedbackToken } from "@shapi/github-app";
 import {
   SESSION_COOKIE,
   SESSION_HOURS,
@@ -31,6 +32,7 @@ import {
   accountsPage,
   advisoriesPage,
   billingPage,
+  feedbackPage,
   findingPage,
   fixesPage,
   messagePage,
@@ -64,6 +66,8 @@ export interface WebDeps {
   enqueueFix?: (scanId: string, repositoryId: string) => Promise<void>;
   /** The worker can ask Claude (ANTHROPIC_API_KEY is set): only then does Settings offer it. */
   llmAvailable?: boolean;
+  /** Verifies the signed 👍/👎 links in fix PRs (SHAPI_SHAPE_SECRET); unset, the feedback page is not served. */
+  feedbackSecret?: string;
 }
 
 // form-action also governs where a submitted form may redirect: the billing buttons go on to Stripe.
@@ -228,6 +232,36 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
     scope.get("/setup", async (req, reply) => {
       const { session } = await sessionOf(req);
       return reply.redirect(session ? "/" : "/login");
+    });
+
+    // A fix PR's 👍/👎 link (D-01). The link opens a page with one button; only that button's post is stored, so link
+    // previews and prefetchers do not vote. The signed token is the authority: no sign-in is needed.
+    const feedbackTarget = (token: unknown, vote: unknown) => {
+      if (!deps.feedbackSecret || typeof token !== "string" || (vote !== "up" && vote !== "down")) return undefined;
+      const target = readFeedbackToken(deps.feedbackSecret, token);
+      return target ? { ...target, token, vote: vote as "up" | "down" } : undefined;
+    };
+    const invalidFeedback = (req: FastifyRequest, reply: FastifyReply) =>
+      send(reply, page("Feedback", messagePage("This feedback link is not valid", "Open it again from the pull request.", { href: "https://shapi.dev", label: "About SHAPI" }), bare(req)), 400);
+    scope.get("/feedback", async (req, reply) => {
+      const q = req.query as { t?: string; v?: string };
+      const target = feedbackTarget(q.t, q.v);
+      if (!target) return invalidFeedback(req, reply);
+      return send(reply, page("Feedback", feedbackPage(target.token, target.vote), bare(req)));
+    });
+    scope.post("/feedback", async (req, reply) => {
+      const body = (req.body ?? {}) as { t?: string; v?: string };
+      const target = feedbackTarget(body.t, body.v);
+      if (!target) return invalidFeedback(req, reply);
+      const stored = await withService(deps.db, async (tx) => {
+        const repo = await tx.selectFrom("repositories").select("account_id").where("id", "=", target.repositoryId).executeTakeFirst();
+        if (!repo) return false;
+        await tx.insertInto("pr_feedback").values({ account_id: repo.account_id, repository_id: target.repositoryId, advisory_id: target.advisoryId, vote: target.vote }).execute();
+        return true;
+      });
+      if (!stored) return invalidFeedback(req, reply);
+      const text = target.vote === "up" ? "Recorded: this pull request was useful." : "Recorded: this pull request was not useful. SHAPI uses these answers to decide which fixes to trust.";
+      return send(reply, page("Feedback", messagePage("Thanks", text, { href: "https://shapi.dev", label: "About SHAPI" }), bare(req)));
     });
 
     scope.get("/auth/github/callback", async (req, reply) => {

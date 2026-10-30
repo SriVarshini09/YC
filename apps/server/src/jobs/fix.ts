@@ -1,7 +1,7 @@
 import { matchAdvisories, type Advisory, type LockedCallSite } from "@shapi/core";
 import { sql } from "kysely";
 import { withService, type Db } from "@shapi/db";
-import { fetchRepoSnapshot, prTitle, renderPrBody } from "@shapi/github-app";
+import { feedbackLinks, fetchRepoSnapshot, prTitle, renderPrBody } from "@shapi/github-app";
 import { RECIPES, repairAdvisory, withCallBudget, withSandboxWorkspace, type InstallReport, type AdvisoryRepair, type LlmFixer, type RepairResult, type Workspace } from "@shapi/repair";
 import { SandboxLifetimeError, type SandboxProvider, type SnapshotFile } from "@shapi/sandbox";
 import type { GitHubClients } from "../github/clients";
@@ -94,7 +94,13 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
 
   const advisories = new Map((await reviewedAdvisories(deps.db)).map((a) => [a.advisory.id, a.advisory]));
   const lock = storedLock(scan.api_lock);
-  const { upcoming } = matchAdvisories(lock, [...advisories.values()], { now: now() });
+  const match = matchAdvisories(lock, [...advisories.values()], { now: now() });
+  const { upcoming } = match;
+  /** The advisory's call sites SHAPI inspected and left alone, with why: the PR's "Not changed" (D-01). */
+  const notChangedFor = (advisoryId: string) =>
+    [...match.exposed, ...match.possible]
+      .filter((f) => f.advisory.id === advisoryId)
+      .map((f) => ({ file: f.callSite.file, line: f.callSite.line, method: f.callSite.method, endpoint: f.callSite.endpoint, reason: f.reasons.join("; ") }));
 
   // Every affected call site, grouped by advisory: one repair (and one PR) per advisory.
   const byAdvisory = new Map<string, { advisory: Advisory; callSites: LockedCallSite[] }>();
@@ -179,6 +185,9 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
                 shapeSource: t.shapes.source,
                 witnesses: t.shapes.witnesses,
                 dashboardUrl: repoPageUrl(deps.publicUrl, scan.account_id, scan.repository_id),
+                now: now(),
+                notChanged: notChangedFor(t.advisory.id),
+                ...(deps.publicUrl ? { feedback: feedbackLinks(deps.publicUrl, deps.shapeSecret, { repositoryId: scan.repository_id, advisoryId: t.advisory.id }) } : {}),
               }),
               commitMessage: `fix: ${t.advisory.title}\n\nAdvisory ${t.advisory.id}, ${fixedSites.length} of ${repair.sites.length} call sites. Contract tests ${testFiles} fail before this change and pass after, verified in ${repair.sandbox}.`,
               files: repair.changes.map((c) => ({ path: c.file, content: c.after })),

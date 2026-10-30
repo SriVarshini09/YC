@@ -20,6 +20,7 @@ npx shapi-cli scan .
 - **Affected call sites**: code that depends on exactly what an API changed, with the file and line, the reason, and how to fix it.
 - **Possibly affected** (when there are any): calls whose path, HTTP method, host or model is only known at runtime, which an API change may reach. Check these by hand.
 - **Exposed, not affected** (when there are any): calls to an endpoint that changed, which don't depend on what changed. Nothing to fix.
+- **Could not tell, check these by hand** (when there are any): calls to a known provider whose whole path is built at runtime, so SHAPI can't tell which endpoint they call. They aren't counted as clear.
 - **Deadlines in the next 90 days**: announced changes, such as a version sunset, for the providers this repository uses (through a call site or a declared SDK), with how many call sites each one hits.
 
 For example, against SHAPI's demo service:

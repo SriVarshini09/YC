@@ -1,9 +1,66 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadAdvisories, type LockedCallSite } from "@shapi/core";
 import { swap, type AdvisoryRepair, type FileChange, type RepairResult } from "@shapi/repair";
-import { codeSpan, renderPrBody, scopeLine, suiteLine, undoLine } from "@shapi/github-app";
+import { codeSpan, feedbackLinks, renderPrBody, scopeLine, suiteLine, undoLine } from "@shapi/github-app";
+
+describe("the PR description (D-01)", () => {
+  it("matches the golden file (UPDATE_GOLDEN=1 rewrites it)", () => {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const advisories = loadAdvisories(path.join(here, "..", "..", "..", "advisories"));
+    const advisory = advisories.find((a) => a.id === "github-workflow-dispatch-204-to-200")!;
+    const site = { file: "src/deploy.ts", line: 13, column: 15, method: "POST", endpoint: "/repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches" } as LockedCallSite;
+    const before = 'export async function triggerDeploy(req: DeployRequest, token: string) {\n  const res = await fetch(url, { method: "POST" });\n  if (res.status !== 204) {\n    throw new Error(`deploy failed with ${res.status}`);\n  }\n}\n';
+    const change: FileChange = { file: "src/deploy.ts", before, after: before.replace("res.status !== 204", "![200, 204].includes(res.status)"), notes: ["`src/deploy.ts:3` accepts 200 as well as 204"] };
+    const test = { file: "test/shapi/github-workflow-dispatch-204-to-200.test.ts", content: "test", kind: "recorded" as const };
+    const passed = { passed: true, exitCode: 0, output: "Tests  2 passed (2)" };
+    const repair: AdvisoryRepair = {
+      status: "fixed",
+      method: "recipe",
+      sandbox: "e2b:sbx_1",
+      sites: [
+        {
+          callSite: site,
+          result: {
+            status: "fixed",
+            method: "recipe",
+            changes: [change, { file: test.file, before: "", after: "test", notes: ["generated contract test"] }],
+            test,
+            baseline: { passed: false, exitCode: 1, output: "Tests  1 failed | 1 passed (2)" },
+            attempts: [{ method: "recipe", outcome: "passed", detail: "status-code-accept-set", run: passed }],
+            typecheck: { status: "passed", detail: "tsc --noEmit -p tsconfig.json: no new errors" },
+            keep: { status: "kept", detail: "kept" },
+            undo: { status: "passed", killed: 1, total: 1, detail: "undoing any part of the change makes the contract test fail" },
+            scope: { status: "in-scope", detail: "a deterministic recipe edits only the code it names" },
+          },
+        },
+      ],
+      changes: [change, { file: test.file, before: "", after: "test", notes: ["generated contract test"] }],
+      suite: { status: "passed", command: "npm test", before: "12 passed", after: "12 passed", runs: 1, detail: "passed" },
+    };
+    const body = renderPrBody({
+      advisory,
+      repair,
+      shapeSource: "recording github-workflow-dispatch-204-to-200.json",
+      witnesses: { before: "c3e1".repeat(16), after: "2e7b".repeat(16) },
+      dashboardUrl: "https://app.shapi.dev/a/1/r/2",
+      now: new Date("2026-10-30T12:00:00Z"),
+      notChanged: [{ file: "src/status.ts", line: 8, method: "GET", endpoint: "/repos/{owner}/{repo}/actions/runs", reason: "calls GET /repos/{owner}/{repo}/actions/runs but does not depend on the changed behavior" }],
+      feedback: feedbackLinks("https://app.shapi.dev", "golden-secret", { repositoryId: "2", advisoryId: advisory.id }),
+    });
+    const file = path.join(here, "golden", "pr-body.md");
+    if (process.env.UPDATE_GOLDEN || !existsSync(file)) {
+      mkdirSync(path.dirname(file), { recursive: true });
+      writeFileSync(file, body);
+    }
+    expect(body).toBe(readFileSync(file, "utf8"));
+    // The parts D-01 asks for, in order.
+    const order = ["**GitHub: ", "| Call | Before | After | Where |", "Size: +1 −1 in 1 file · Tier: Review · Confidence: high", "**Checked:** ✅ contract test", "**Could change:**", "What GitHub announced", "Not changed (1)", "Was this pull request useful? [👍 Yes]"];
+    expect(order.map((s) => body.indexOf(s)).every((i, n, all) => i >= 0 && (n === 0 || i > all[n - 1]!))).toBe(true);
+  });
+});
 
 describe("scope check line (V-05)", () => {
   it("says the edits stay in the calling function, or names the ones outside it", () => {

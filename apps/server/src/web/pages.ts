@@ -89,6 +89,15 @@ export function messagePage(title: string, text: string, link?: { href: string; 
   return html`<div class="card"><span class="mark">${MARK}</span><h1>${title}</h1><p class="lead">${text}</p>${link ? html`<a class="button" href="${link.href}">${link.label}</a>` : EMPTY}</div>`;
 }
 
+/**
+ * The page a fix PR's 👍/👎 link opens (D-01): one button that sends the vote. A link alone is not counted, because
+ * link previews and prefetchers open links nobody clicked.
+ */
+export function feedbackPage(token: string, vote: "up" | "down"): Html {
+  const label = vote === "up" ? "👍 Yes, it was useful" : "👎 No, it was not useful";
+  return html`<div class="card"><span class="mark">${MARK}</span><h1>Was this pull request useful?</h1><p class="lead">SHAPI keeps the answer with the pull request's repository and advisory, not who sent it.</p><form method="post" action="/feedback"><input type="hidden" name="t" value="${token}"><input type="hidden" name="v" value="${vote}"><button class="button" type="submit">${label}</button></form></div>`;
+}
+
 /* ---------- repositories ---------- */
 
 export function repositoriesPage(data: AccountData, billingEnabled: boolean): Html {

@@ -31,6 +31,27 @@ Events: `push`, `pull_request`, `issues`, `repository` (SHAPI stops on an archiv
 
 Paste a Slack [incoming webhook](https://api.slack.com/messaging/webhooks) link under **Settings** in the web app, and SHAPI posts to that channel when a repository gets a **new** affected call site. That happens after a push, or when a new advisory hits code SHAPI already mapped. Each message lists the advisories with their severity, links to the exact lines, and the deadlines. A call site that was already affected isn't announced again. Use **Send a test message** to check the link.
 
+## What a fix PR shows
+
+- **The top:**
+  - a lead line with the change and its deadline;
+  - a table of each call site's line before and after the fix, and where it is;
+  - the size of the change and how much to trust it.
+- **One line with the five checks:**
+  - the contract test (fails before the fix, passes after);
+  - your own tests;
+  - the undo check: undoing each part of the fix must make its test fail;
+  - the scope check: every edit is inside the function that makes the call;
+  - the type check.
+- **Collapsible sections:**
+  - what the provider announced;
+  - every affected call site;
+  - the checks in detail;
+  - the evidence;
+  - the call sites SHAPI looked at and left alone, with why.
+- **A PR labelled `needs-human`** has a part its test doesn't cover. When a Claude fix also edits code outside the function that makes the call, the PR opens as a draft. Read those parts before merging.
+- **👍/👎 links** ask whether the PR was useful. SHAPI stores the answer with the repository and the advisory, never who sent it.
+
 ## Noise controls
 
 - At most **2 new PRs per hour** and **10 open at once** per repository, most urgent first. Both are configurable in the web app.

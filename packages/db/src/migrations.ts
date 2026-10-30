@@ -338,6 +338,28 @@ const migrations: Record<string, Migration> = {
       await sql`alter table repositories drop column if exists last_pushed_at`.execute(db);
     },
   },
+  "0016_pr_feedback": {
+    async up(db: Kysely<unknown>) {
+      // The 👍/👎 links in fix PRs (D-01): one row per click, from a signed link. Who clicked is not known or kept.
+      await sql`
+        create table pr_feedback (
+          id bigserial primary key,
+          account_id bigint not null references accounts on delete cascade,
+          repository_id bigint not null references repositories on delete cascade,
+          advisory_id text not null,
+          vote text not null check (vote in ('up', 'down')),
+          created_at timestamptz not null default now()
+        );
+        create index pr_feedback_repository on pr_feedback (repository_id, advisory_id);
+      `.execute(db);
+      await sql`alter table pr_feedback enable row level security`.execute(db);
+      await sql`alter table pr_feedback force row level security`.execute(db);
+      await sql`create policy tenant_isolation on pr_feedback using (${tenantPredicate("account_id")}) with check (${tenantPredicate("account_id")})`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`drop table if exists pr_feedback`.execute(db);
+    },
+  },
 };
 
 /**
