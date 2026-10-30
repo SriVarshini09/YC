@@ -1,0 +1,32 @@
+[
+  {
+    "id": "openai-deprecations",
+    "provider": "openai",
+    "url": "https://developers.openai.com/api/docs/deprecations.md",
+    "markers": ["## Upcoming deprecations", "Shutdown date"]
+  },
+  {
+    "id": "anthropic-model-deprecations",
+    "provider": "anthropic",
+    "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+    "markers": ["Model deprecations"]
+  },
+  {
+    "id": "github-rest-breaking-changes",
+    "provider": "github",
+    "url": "https://docs.github.com/api/article/body?pathname=/en/rest/about-the-rest-api/breaking-changes",
+    "markers": ["# Breaking changes", "## Version"]
+  },
+  {
+    "id": "stripe-changelog",
+    "provider": "stripe",
+    "url": "https://docs.stripe.com/changelog.md",
+    "markers": ["# Changelog", "Breaking change"]
+  },
+  {
+    "id": "gemini-deprecations",
+    "provider": "google-gemini",
+    "url": "https://ai.google.dev/gemini-api/docs/deprecations?hl=en",
+    "markers": ["Gemini deprecations"]
+  }
+]

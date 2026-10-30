@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Command, CommanderError } from "commander";
 import { ShapeStore } from "@shapi/shapes";
@@ -6,12 +6,17 @@ import { draftAdvisory, writeDraft } from "./draft";
 import { MODELS_DEV_URL, modelsDevDrafts, type ModelsDevApi } from "./models-dev";
 import { loadRecording, replay } from "./replay";
 import { DEFAULT_DB, DEV_SECRET, WORKERS, runEvery, runOnce, type RunReport } from "./scheduler";
+import { WatchSourceSchema, runWatch } from "./watch";
 
 /** Where machine-drafted advisories go for review (advisories/ itself holds reviewed ones). */
 export const DEFAULT_DRAFTS = "advisories/drafts";
+/** The provider pages the watcher checks (C-01), and their committed snapshots. */
+export const DEFAULT_WATCH_SOURCES = "advisories/watch/sources.json";
+export const DEFAULT_WATCH_SNAPSHOTS = "advisories/watch/snapshots";
 
 export { probeSource, type Env, type Probe, type Worker } from "./probe";
 export { draftAdvisory, writeDraft, type DraftInput } from "./draft";
+export { MAX_SHRINK, WatchSourceSchema, checkSource, pageText, runWatch, type WatchIssue, type WatchOutcome, type WatchResult, type WatchRun, type WatchSource } from "./watch";
 export { MODELS_DEV_URL, modelsDevDrafts, modelsDevHost, type ModelsDevApi, type ModelsDevDraft } from "./models-dev";
 export { githubWorker } from "./workers/github";
 export { stripeWorker } from "./workers/stripe";
@@ -144,6 +149,24 @@ export async function run(argv: string[], io: Io = processIo, env = process.env)
         io.stdout(`${earlier ? "kept " : "new  "} ${advisory.id}\n`);
       }
       io.stdout(`${added} new drafts in ${opts.drafts}\n`);
+    });
+
+  program
+    .command("watch")
+    .description("fetch the watched provider pages through the fetch guards and compare each with its snapshot")
+    .option("--sources <file>", "watch sources", DEFAULT_WATCH_SOURCES)
+    .option("--snapshots <dir>", "committed snapshots", DEFAULT_WATCH_SNAPSHOTS)
+    .option("--drafts <dir>", "where drafts for changed pages go", `${DEFAULT_DRAFTS}/watch`)
+    .option("--issues <file>", "write the issues (one per failing source) here as JSON")
+    .action(async (opts: { sources: string; snapshots: string; drafts: string; issues?: string }) => {
+      const sources = WatchSourceSchema.array().parse(JSON.parse(readFileSync(opts.sources, "utf8")));
+      const run = await runWatch(sources, { snapshots: opts.snapshots, drafts: opts.drafts });
+      for (const r of run.results) io.stdout(`${r.outcome.padEnd(9)} ${r.id}${r.reason ? `: ${r.reason}` : ""}${r.added ? `  (+${r.added.length} −${r.removed?.length ?? 0} lines)` : ""}\n`);
+      for (const d of run.drafts) io.stdout(`draft: ${d}\n`);
+      if (opts.issues) writeFileSync(opts.issues, `${JSON.stringify(run.issues, null, 2)}\n`);
+      io.stdout(`${run.results.length} pages, ${run.drafts.length} changed, ${run.issues.length} failed\n`);
+      // A failing source should fail a scheduled run, so someone looks.
+      if (run.issues.length) exitCode = 1;
     });
 
   program

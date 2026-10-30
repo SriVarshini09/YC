@@ -113,3 +113,4 @@ One line per task: task, summary file, PR, status.
 - PB-64 recordings expire (expiresIn, 90 days by default) and are re-checked against the latest canary shape; stale ones are flagged on the API changes page (A-02): [summary](PB-64-recording-expiry.md) · PR: open
 - PB-65 the Wayback Machine's first capture of every advisory source: 61 of 63 verified advisories have one, all 63 have every source accounted for (P-13): [summary](PB-65-wayback-captures.md) · PR: open
 - PB-66 canary back-test: GitHub workflow_dispatch caught in one cycle, Reddit classified, and the two gaps documented (QuickBooks old-minorversion probe, Slack burst probe plus a rate-limit class) (P-11): [summary](PB-66-canary-backtest.md) · PR: open
+- PB-67 page watchers behind fetch guards: a page that fails a guard (404, redirect, size, marker, >40% shrink) opens an issue and never a draft; five provider pages snapshotted (C-01): [summary](PB-67-page-watchers.md) · PR: open
