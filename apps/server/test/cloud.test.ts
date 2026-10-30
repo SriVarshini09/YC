@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { sql } from "kysely";
 import { createDb, migrateToLatest, upsertAdvisories, withService, type Db } from "@shapi/db";
-import { loadAdvisories } from "@shapi/core";
+import { loadAdvisories, matchAdvisories } from "@shapi/core";
 import { localWorkspace } from "@shapi/repair";
 import { SandboxLifetimeError } from "@shapi/sandbox";
 import { fakeRepoGitHub } from "../../../test-utils/fake-github";
@@ -30,6 +30,7 @@ import {
   type WorkspaceRunner,
 } from "../src/index";
 import { latestScanId } from "../src/github/events";
+import { reviewedAdvisories, storedLock } from "../src/jobs/scan";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const ADVISORIES = path.join(root, "advisories");
@@ -90,8 +91,8 @@ beforeEach(async () => {
   repositoryId = repo.id;
 });
 
-function setup() {
-  const fake = fakeRepoGitHub("acme/demo", demoFiles(), { repoId: REPO_ID });
+function setup(extra: Record<string, string> = {}) {
+  const fake = fakeRepoGitHub("acme/demo", { ...demoFiles(), ...extra }, { repoId: REPO_ID });
   const github = githubClients({ appId: githubApp.appId, privateKey }, { fetch: fake.fetch, resilient: false });
   /** Fixes are verified in a local copy here; production runs the same steps in an E2B sandbox. */
   const runs: string[] = [];
@@ -377,6 +378,40 @@ describe("cloud fix", () => {
     expect(again.delivery!.outcomes.find((o) => o.advisoryId === "github-workflow-dispatch-204-to-200")!.action).toBe("unchanged");
     const writes = t.github.calls.filter((c) => c.method !== "GET").slice(before).filter((c) => !c.path.endsWith("/access_tokens"));
     expect(writes).toEqual([]);
+  }, 120_000);
+
+  it("lists every inspected call site SHAPI left alone under Not changed, with its reason: exposed plus possible (D-02)", async () => {
+    // A second dispatch call that never reads the status: exposed to the change, not affected by it.
+    const t = setup({
+      "src/redeploy.ts": [
+        'const API = "https://api.github.com";',
+        "export async function redeploy(owner: string, repo: string, token: string): Promise<void> {",
+        "  await fetch(`${API}/repos/${owner}/${repo}/actions/workflows/deploy.yml/dispatches`, {",
+        '    method: "POST",',
+        '    headers: { Authorization: `Bearer ${token}`, "X-GitHub-Api-Version": "2022-11-28" },',
+        '    body: JSON.stringify({ ref: "main" }),',
+        "  });",
+        "}",
+        "",
+      ].join("\n"),
+    });
+    const scanId = await queueScan(t.github.refs.get("main")!);
+    await runScanJob({ db, github: t.githubClients }, { scanId });
+    await runFixJob(t.fixDeps, { scanId });
+
+    const scan = await withService(db, (tx) => tx.selectFrom("scans").select("api_lock").where("id", "=", scanId).executeTakeFirstOrThrow());
+    const match = matchAdvisories(storedLock(scan.api_lock), (await reviewedAdvisories(db)).map((a) => a.advisory), { now: new Date() });
+    const inspectedFor = (advisoryId: string) => [...match.exposed, ...match.possible].filter((f) => f.advisory.id === advisoryId);
+    expect(inspectedFor("github-workflow-dispatch-204-to-200").map((f) => f.callSite.file)).toContain("src/redeploy.ts");
+    expect(t.github.pulls.length).toBeGreaterThan(0);
+    for (const pr of t.github.pulls) {
+      const inspected = inspectedFor(pr.head.ref.replace("shapi/", ""));
+      const section = /<summary>Not changed \((\d+)\)<\/summary>\n\n([\s\S]*?)\n\n<\/details>/.exec(pr.body ?? "");
+      expect(Number(section?.[1])).toBe(inspected.length);
+      const listed = section![2]!.split("\n").filter((l) => l.startsWith("- "));
+      expect(listed).toHaveLength(inspected.length);
+      for (const f of inspected) expect(listed.some((l) => l.includes(`${f.callSite.file}:${f.callSite.line}`) && l.includes(f.reasons[0]!.slice(0, 30)))).toBe(true);
+    }
   }, 120_000);
 
   it("builds each fix PR on the scanned commit, so a push to main while the fix job waited is not reverted", async () => {

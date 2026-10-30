@@ -94,5 +94,16 @@ describe("metrics", () => {
     expect(s.flagRecallWithPossible).toMatchObject({ k: 3, n: 4 });
     expect(s.fixedStatePrecision).toMatchObject({ k: 3, n: 4 });
     expect(s.flagRecallScannedFiles).toMatchObject({ k: 2, n: 3 });
+    // Fixes did not run: no fix rate.
+    expect(s).toMatchObject({ fixRate: null, fixErrors: 0 });
+  });
+
+  it("count the fix rate over the fixes tried, leaving sandbox failures out (P-02)", () => {
+    const r = (id: string, fixOutcome: InstanceResult["fixOutcome"]): InstanceResult => ({
+      id, incident: "x", advisoryId: "a", inScope: true, language: "TypeScript", evidenceFile: "src/a.ts", base: fixOutcome ? "affected" : "none", fix: "none", fixOutcome,
+    });
+    const s = summarize([r("1", "fixed"), r("2", "partial"), r("3", "not-fixed"), r("4", "error"), r("5", undefined)]);
+    expect(s.fixRate).toMatchObject({ k: 1, n: 3 });
+    expect(s.fixErrors).toBe(1);
   });
 });
