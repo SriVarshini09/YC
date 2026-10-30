@@ -1,0 +1,6438 @@
+{
+  "directory": {
+    "repo": "https://github.com/APIs-guru/openapi-directory",
+    "commit": "f04b8d0bcd39c52e1cf3ad7a5fe744709832ae49",
+    "committedAt": "2026-04-20T15:54:01+03:00",
+    "license": "CC0-1.0"
+  },
+  "minPairs": 10,
+  "maxBytes": 3000000,
+  "totals": {
+    "edits": 103799,
+    "specs": 5818,
+    "pairs": 102455,
+    "breakingPairs": 7714,
+    "skipped": {
+      "tooLarge": 601,
+      "unreadable": 445
+    }
+  },
+  "providers": [
+    {
+      "provider": "rebilly.com",
+      "apis": 1,
+      "pairs": 65,
+      "breakingPairs": 41,
+      "breakingChanges": 928,
+      "rate": {
+        "k": 41,
+        "n": 65,
+        "rate": 0.631,
+        "low": 0.509,
+        "high": 0.738
+      },
+      "first": "2016-07-14",
+      "last": "2021-06-07"
+    },
+    {
+      "provider": "beezup.com",
+      "apis": 1,
+      "pairs": 48,
+      "breakingPairs": 28,
+      "breakingChanges": 461,
+      "rate": {
+        "k": 28,
+        "n": 48,
+        "rate": 0.583,
+        "low": 0.443,
+        "high": 0.712
+      },
+      "first": "2017-05-19",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "just-eat.co.uk",
+      "apis": 1,
+      "pairs": 39,
+      "breakingPairs": 22,
+      "breakingChanges": 395,
+      "rate": {
+        "k": 22,
+        "n": 39,
+        "rate": 0.564,
+        "low": 0.41,
+        "high": 0.707
+      },
+      "first": "2018-03-21",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "telnyx.com",
+      "apis": 1,
+      "pairs": 37,
+      "breakingPairs": 21,
+      "breakingChanges": 300,
+      "rate": {
+        "k": 21,
+        "n": 37,
+        "rate": 0.568,
+        "low": 0.409,
+        "high": 0.713
+      },
+      "first": "2020-11-16",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "redirection.io",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 9,
+      "breakingChanges": 313,
+      "rate": {
+        "k": 9,
+        "n": 14,
+        "rate": 0.643,
+        "low": 0.388,
+        "high": 0.837
+      },
+      "first": "2018-08-24",
+      "last": "2021-02-01"
+    },
+    {
+      "provider": "stripe.com",
+      "apis": 1,
+      "pairs": 50,
+      "breakingPairs": 23,
+      "breakingChanges": 140,
+      "rate": {
+        "k": 23,
+        "n": 50,
+        "rate": 0.46,
+        "low": 0.33,
+        "high": 0.596
+      },
+      "first": "2017-12-11",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "portfoliooptimizer.io",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 8,
+      "breakingChanges": 161,
+      "rate": {
+        "k": 8,
+        "n": 14,
+        "rate": 0.571,
+        "low": 0.326,
+        "high": 0.786
+      },
+      "first": "2020-12-30",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "atlassian.com",
+      "apis": 1,
+      "pairs": 54,
+      "breakingPairs": 24,
+      "breakingChanges": 86,
+      "rate": {
+        "k": 24,
+        "n": 54,
+        "rate": 0.444,
+        "low": 0.32,
+        "high": 0.576
+      },
+      "first": "2020-07-10",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "adyen.com",
+      "apis": 25,
+      "pairs": 2098,
+      "breakingPairs": 711,
+      "breakingChanges": 5225,
+      "rate": {
+        "k": 711,
+        "n": 2098,
+        "rate": 0.339,
+        "low": 0.319,
+        "high": 0.359
+      },
+      "first": "2019-04-15",
+      "last": "2024-03-01"
+    },
+    {
+      "provider": "storecove.com",
+      "apis": 1,
+      "pairs": 38,
+      "breakingPairs": 17,
+      "breakingChanges": 107,
+      "rate": {
+        "k": 17,
+        "n": 38,
+        "rate": 0.447,
+        "low": 0.301,
+        "high": 0.603
+      },
+      "first": "2017-08-21",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "callfire.com",
+      "apis": 1,
+      "pairs": 55,
+      "breakingPairs": 22,
+      "breakingChanges": 152,
+      "rate": {
+        "k": 22,
+        "n": 55,
+        "rate": 0.4,
+        "low": 0.281,
+        "high": 0.532
+      },
+      "first": "2017-09-20",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "botify.com",
+      "apis": 1,
+      "pairs": 53,
+      "breakingPairs": 21,
+      "breakingChanges": 135,
+      "rate": {
+        "k": 21,
+        "n": 53,
+        "rate": 0.396,
+        "low": 0.276,
+        "high": 0.531
+      },
+      "first": "2016-02-25",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "github.com",
+      "apis": 8,
+      "pairs": 30,
+      "breakingPairs": 13,
+      "breakingChanges": 2567,
+      "rate": {
+        "k": 13,
+        "n": 30,
+        "rate": 0.433,
+        "low": 0.274,
+        "high": 0.608
+      },
+      "first": "2015-12-04",
+      "last": "2023-02-15"
+    },
+    {
+      "provider": "jumpseller.com",
+      "apis": 1,
+      "pairs": 40,
+      "breakingPairs": 15,
+      "breakingChanges": 144,
+      "rate": {
+        "k": 15,
+        "n": 40,
+        "rate": 0.375,
+        "low": 0.242,
+        "high": 0.53
+      },
+      "first": "2017-12-11",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "gettyimages.com",
+      "apis": 1,
+      "pairs": 94,
+      "breakingPairs": 29,
+      "breakingChanges": 456,
+      "rate": {
+        "k": 29,
+        "n": 94,
+        "rate": 0.309,
+        "low": 0.224,
+        "high": 0.408
+      },
+      "first": "2015-11-15",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "visualstudio.com",
+      "apis": 1,
+      "pairs": 33,
+      "breakingPairs": 12,
+      "breakingChanges": 77,
+      "rate": {
+        "k": 12,
+        "n": 33,
+        "rate": 0.364,
+        "low": 0.222,
+        "high": 0.534
+      },
+      "first": "2020-09-28",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "payments.service.gov.uk",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 8,
+      "breakingChanges": 37,
+      "rate": {
+        "k": 8,
+        "n": 20,
+        "rate": 0.4,
+        "low": 0.219,
+        "high": 0.613
+      },
+      "first": "2018-03-21",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "weatherbit.io",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 7,
+      "breakingChanges": 45,
+      "rate": {
+        "k": 7,
+        "n": 17,
+        "rate": 0.412,
+        "low": 0.216,
+        "high": 0.64
+      },
+      "first": "2018-03-21",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "iqualify.com",
+      "apis": 1,
+      "pairs": 26,
+      "breakingPairs": 9,
+      "breakingChanges": 50,
+      "rate": {
+        "k": 9,
+        "n": 26,
+        "rate": 0.346,
+        "low": 0.194,
+        "high": 0.538
+      },
+      "first": "2017-12-11",
+      "last": "2021-08-02"
+    },
+    {
+      "provider": "snyk.io",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 6,
+      "breakingChanges": 39,
+      "rate": {
+        "k": 6,
+        "n": 16,
+        "rate": 0.375,
+        "low": 0.185,
+        "high": 0.614
+      },
+      "first": "2021-01-25",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "amazonaws.com",
+      "apis": 330,
+      "pairs": 8965,
+      "breakingPairs": 1721,
+      "breakingChanges": 175190,
+      "rate": {
+        "k": 1721,
+        "n": 8965,
+        "rate": 0.192,
+        "low": 0.184,
+        "high": 0.2
+      },
+      "first": "2017-05-02",
+      "last": "2023-08-07"
+    },
+    {
+      "provider": "api2cart.com",
+      "apis": 1,
+      "pairs": 48,
+      "breakingPairs": 14,
+      "breakingChanges": 198,
+      "rate": {
+        "k": 14,
+        "n": 48,
+        "rate": 0.292,
+        "low": 0.182,
+        "high": 0.432
+      },
+      "first": "2018-03-21",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "iva-api.com",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 7,
+      "breakingChanges": 864,
+      "rate": {
+        "k": 7,
+        "n": 20,
+        "rate": 0.35,
+        "low": 0.181,
+        "high": 0.567
+      },
+      "first": "2017-11-30",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "redhat.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 5,
+      "breakingChanges": 23,
+      "rate": {
+        "k": 5,
+        "n": 13,
+        "rate": 0.385,
+        "low": 0.177,
+        "high": 0.645
+      },
+      "first": "2021-02-08",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "epa.gov",
+      "apis": 8,
+      "pairs": 173,
+      "breakingPairs": 40,
+      "breakingChanges": 550,
+      "rate": {
+        "k": 40,
+        "n": 173,
+        "rate": 0.231,
+        "low": 0.175,
+        "high": 0.299
+      },
+      "first": "2017-03-30",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "onsched.com",
+      "apis": 3,
+      "pairs": 46,
+      "breakingPairs": 13,
+      "breakingChanges": 1362,
+      "rate": {
+        "k": 13,
+        "n": 46,
+        "rate": 0.283,
+        "low": 0.173,
+        "high": 0.425
+      },
+      "first": "2021-02-10",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "wikimedia.org",
+      "apis": 1,
+      "pairs": 25,
+      "breakingPairs": 8,
+      "breakingChanges": 66,
+      "rate": {
+        "k": 8,
+        "n": 25,
+        "rate": 0.32,
+        "low": 0.172,
+        "high": 0.516
+      },
+      "first": "2015-12-15",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "files.com",
+      "apis": 1,
+      "pairs": 26,
+      "breakingPairs": 8,
+      "breakingChanges": 174,
+      "rate": {
+        "k": 8,
+        "n": 26,
+        "rate": 0.308,
+        "low": 0.165,
+        "high": 0.5
+      },
+      "first": "2020-11-09",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "appcenter.ms",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 7,
+      "breakingChanges": 62,
+      "rate": {
+        "k": 7,
+        "n": 22,
+        "rate": 0.318,
+        "low": 0.164,
+        "high": 0.527
+      },
+      "first": "2020-07-13",
+      "last": "2021-08-02"
+    },
+    {
+      "provider": "box.com",
+      "apis": 5,
+      "pairs": 44,
+      "breakingPairs": 12,
+      "breakingChanges": 116,
+      "rate": {
+        "k": 12,
+        "n": 44,
+        "rate": 0.273,
+        "low": 0.163,
+        "high": 0.418
+      },
+      "first": "2017-06-27",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "digitalocean.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 5,
+      "breakingChanges": 560,
+      "rate": {
+        "k": 5,
+        "n": 14,
+        "rate": 0.357,
+        "low": 0.163,
+        "high": 0.612
+      },
+      "first": "2021-01-18",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "hetras-certification.net",
+      "apis": 2,
+      "pairs": 83,
+      "breakingPairs": 20,
+      "breakingChanges": 66,
+      "rate": {
+        "k": 20,
+        "n": 83,
+        "rate": 0.241,
+        "low": 0.162,
+        "high": 0.343
+      },
+      "first": "2015-11-16",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "listennotes.com",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 6,
+      "breakingChanges": 37,
+      "rate": {
+        "k": 6,
+        "n": 19,
+        "rate": 0.316,
+        "low": 0.154,
+        "high": 0.54
+      },
+      "first": "2020-07-13",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "trashnothing.com",
+      "apis": 1,
+      "pairs": 28,
+      "breakingPairs": 8,
+      "breakingChanges": 104,
+      "rate": {
+        "k": 8,
+        "n": 28,
+        "rate": 0.286,
+        "low": 0.153,
+        "high": 0.471
+      },
+      "first": "2019-01-03",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "plenigo.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 4,
+      "breakingChanges": 19,
+      "rate": {
+        "k": 4,
+        "n": 11,
+        "rate": 0.364,
+        "low": 0.152,
+        "high": 0.646
+      },
+      "first": "2015-11-24",
+      "last": "2016-09-02"
+    },
+    {
+      "provider": "vimeo.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 4,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 4,
+        "n": 11,
+        "rate": 0.364,
+        "low": 0.152,
+        "high": 0.646
+      },
+      "first": "2019-01-03",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "airbyte.local",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 6,
+      "breakingChanges": 56,
+      "rate": {
+        "k": 6,
+        "n": 20,
+        "rate": 0.3,
+        "low": 0.145,
+        "high": 0.519
+      },
+      "first": "2021-02-22",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "squareup.com",
+      "apis": 1,
+      "pairs": 25,
+      "breakingPairs": 7,
+      "breakingChanges": 66,
+      "rate": {
+        "k": 7,
+        "n": 25,
+        "rate": 0.28,
+        "low": 0.143,
+        "high": 0.476
+      },
+      "first": "2017-02-01",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "bunq.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 5,
+      "breakingChanges": 318,
+      "rate": {
+        "k": 5,
+        "n": 16,
+        "rate": 0.313,
+        "low": 0.142,
+        "high": 0.556
+      },
+      "first": "2019-07-22",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "ptv.vic.gov.au",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 5,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 5,
+        "n": 16,
+        "rate": 0.313,
+        "low": 0.142,
+        "high": 0.556
+      },
+      "first": "2017-08-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "visagecloud.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 5,
+      "breakingChanges": 41,
+      "rate": {
+        "k": 5,
+        "n": 16,
+        "rate": 0.313,
+        "low": 0.142,
+        "high": 0.556
+      },
+      "first": "2017-02-26",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "contract-p.fit",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 4,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 4,
+        "n": 12,
+        "rate": 0.333,
+        "low": 0.138,
+        "high": 0.609
+      },
+      "first": "2020-11-09",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "apideck.com",
+      "apis": 16,
+      "pairs": 450,
+      "breakingPairs": 76,
+      "breakingChanges": 661,
+      "rate": {
+        "k": 76,
+        "n": 450,
+        "rate": 0.169,
+        "low": 0.137,
+        "high": 0.206
+      },
+      "first": "2021-05-04",
+      "last": "2023-09-22"
+    },
+    {
+      "provider": "waterlinked.com",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 5,
+      "breakingChanges": 13,
+      "rate": {
+        "k": 5,
+        "n": 17,
+        "rate": 0.294,
+        "low": 0.133,
+        "high": 0.531
+      },
+      "first": "2018-08-24",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "fec.gov",
+      "apis": 1,
+      "pairs": 55,
+      "breakingPairs": 12,
+      "breakingChanges": 65,
+      "rate": {
+        "k": 12,
+        "n": 55,
+        "rate": 0.218,
+        "low": 0.129,
+        "high": 0.344
+      },
+      "first": "2019-01-03",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "mashape.com",
+      "apis": 2,
+      "pairs": 33,
+      "breakingPairs": 8,
+      "breakingChanges": 99,
+      "rate": {
+        "k": 8,
+        "n": 33,
+        "rate": 0.242,
+        "low": 0.128,
+        "high": 0.41
+      },
+      "first": "2017-11-30",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "simplyrets.com",
+      "apis": 1,
+      "pairs": 39,
+      "breakingPairs": 9,
+      "breakingChanges": 13,
+      "rate": {
+        "k": 9,
+        "n": 39,
+        "rate": 0.231,
+        "low": 0.126,
+        "high": 0.383
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "nfusionsolutions.biz",
+      "apis": 1,
+      "pairs": 23,
+      "breakingPairs": 6,
+      "breakingChanges": 55,
+      "rate": {
+        "k": 6,
+        "n": 23,
+        "rate": 0.261,
+        "low": 0.125,
+        "high": 0.465
+      },
+      "first": "2018-01-22",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "infermedica.com",
+      "apis": 1,
+      "pairs": 29,
+      "breakingPairs": 7,
+      "breakingChanges": 41,
+      "rate": {
+        "k": 7,
+        "n": 29,
+        "rate": 0.241,
+        "low": 0.122,
+        "high": 0.421
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "sendgrid.com",
+      "apis": 1,
+      "pairs": 35,
+      "breakingPairs": 8,
+      "breakingChanges": 96,
+      "rate": {
+        "k": 8,
+        "n": 35,
+        "rate": 0.229,
+        "low": 0.121,
+        "high": 0.39
+      },
+      "first": "2016-03-25",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "tfl.gov.uk",
+      "apis": 1,
+      "pairs": 41,
+      "breakingPairs": 9,
+      "breakingChanges": 128,
+      "rate": {
+        "k": 9,
+        "n": 41,
+        "rate": 0.22,
+        "low": 0.12,
+        "high": 0.367
+      },
+      "first": "2017-05-11",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "smart-me.com",
+      "apis": 1,
+      "pairs": 49,
+      "breakingPairs": 10,
+      "breakingChanges": 19,
+      "rate": {
+        "k": 10,
+        "n": 49,
+        "rate": 0.204,
+        "low": 0.115,
+        "high": 0.336
+      },
+      "first": "2015-11-24",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "mcw.edu",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 5,
+      "breakingChanges": 7,
+      "rate": {
+        "k": 5,
+        "n": 20,
+        "rate": 0.25,
+        "low": 0.112,
+        "high": 0.469
+      },
+      "first": "2018-01-04",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bbc.com",
+      "apis": 1,
+      "pairs": 39,
+      "breakingPairs": 8,
+      "breakingChanges": 26,
+      "rate": {
+        "k": 8,
+        "n": 39,
+        "rate": 0.205,
+        "low": 0.108,
+        "high": 0.355
+      },
+      "first": "2016-01-25",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "gitea.io",
+      "apis": 1,
+      "pairs": 34,
+      "breakingPairs": 7,
+      "breakingChanges": 14,
+      "rate": {
+        "k": 7,
+        "n": 34,
+        "rate": 0.206,
+        "low": 0.103,
+        "high": 0.368
+      },
+      "first": "2019-01-03",
+      "last": "2021-02-08"
+    },
+    {
+      "provider": "versioneye.com",
+      "apis": 1,
+      "pairs": 28,
+      "breakingPairs": 6,
+      "breakingChanges": 24,
+      "rate": {
+        "k": 6,
+        "n": 28,
+        "rate": 0.214,
+        "low": 0.102,
+        "high": 0.395
+      },
+      "first": "2016-04-04",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "figshare.com",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 5,
+      "breakingChanges": 37,
+      "rate": {
+        "k": 5,
+        "n": 22,
+        "rate": 0.227,
+        "low": 0.101,
+        "high": 0.434
+      },
+      "first": "2017-07-31",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "reverb.com",
+      "apis": 1,
+      "pairs": 49,
+      "breakingPairs": 9,
+      "breakingChanges": 63,
+      "rate": {
+        "k": 9,
+        "n": 49,
+        "rate": 0.184,
+        "low": 0.1,
+        "high": 0.314
+      },
+      "first": "2015-11-15",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "citrixonline.com",
+      "apis": 5,
+      "pairs": 50,
+      "breakingPairs": 9,
+      "breakingChanges": 40,
+      "rate": {
+        "k": 9,
+        "n": 50,
+        "rate": 0.18,
+        "low": 0.098,
+        "high": 0.308
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "semantria.com",
+      "apis": 1,
+      "pairs": 29,
+      "breakingPairs": 6,
+      "breakingChanges": 265,
+      "rate": {
+        "k": 6,
+        "n": 29,
+        "rate": 0.207,
+        "low": 0.098,
+        "high": 0.384
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "avaza.com",
+      "apis": 1,
+      "pairs": 43,
+      "breakingPairs": 8,
+      "breakingChanges": 21,
+      "rate": {
+        "k": 8,
+        "n": 43,
+        "rate": 0.186,
+        "low": 0.097,
+        "high": 0.326
+      },
+      "first": "2017-11-30",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "qualpay.com",
+      "apis": 1,
+      "pairs": 24,
+      "breakingPairs": 5,
+      "breakingChanges": 58,
+      "rate": {
+        "k": 5,
+        "n": 24,
+        "rate": 0.208,
+        "low": 0.092,
+        "high": 0.405
+      },
+      "first": "2018-01-29",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "azure.com",
+      "apis": 641,
+      "pairs": 12055,
+      "breakingPairs": 1154,
+      "breakingChanges": 9063,
+      "rate": {
+        "k": 1154,
+        "n": 12055,
+        "rate": 0.096,
+        "low": 0.091,
+        "high": 0.101
+      },
+      "first": "2016-04-11",
+      "last": "2020-07-31"
+    },
+    {
+      "provider": "traccar.org",
+      "apis": 1,
+      "pairs": 18,
+      "breakingPairs": 4,
+      "breakingChanges": 24,
+      "rate": {
+        "k": 4,
+        "n": 18,
+        "rate": 0.222,
+        "low": 0.09,
+        "high": 0.452
+      },
+      "first": "2017-03-16",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "configcat.com",
+      "apis": 1,
+      "pairs": 26,
+      "breakingPairs": 5,
+      "breakingChanges": 51,
+      "rate": {
+        "k": 5,
+        "n": 26,
+        "rate": 0.192,
+        "low": 0.085,
+        "high": 0.379
+      },
+      "first": "2020-03-27",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "edrv.io",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 4,
+      "breakingChanges": 29,
+      "rate": {
+        "k": 4,
+        "n": 19,
+        "rate": 0.211,
+        "low": 0.085,
+        "high": 0.433
+      },
+      "first": "2020-08-10",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "npr.org",
+      "apis": 6,
+      "pairs": 75,
+      "breakingPairs": 11,
+      "breakingChanges": 16,
+      "rate": {
+        "k": 11,
+        "n": 75,
+        "rate": 0.147,
+        "low": 0.084,
+        "high": 0.244
+      },
+      "first": "2017-11-30",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "biapi.pro",
+      "apis": 1,
+      "pairs": 50,
+      "breakingPairs": 8,
+      "breakingChanges": 24,
+      "rate": {
+        "k": 8,
+        "n": 50,
+        "rate": 0.16,
+        "low": 0.083,
+        "high": 0.285
+      },
+      "first": "2020-09-01",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "brex.io",
+      "apis": 1,
+      "pairs": 27,
+      "breakingPairs": 5,
+      "breakingChanges": 12,
+      "rate": {
+        "k": 5,
+        "n": 27,
+        "rate": 0.185,
+        "low": 0.082,
+        "high": 0.367
+      },
+      "first": "2018-03-02",
+      "last": "2021-08-09"
+    },
+    {
+      "provider": "clever-cloud.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 3,
+      "breakingChanges": 17,
+      "rate": {
+        "k": 3,
+        "n": 13,
+        "rate": 0.231,
+        "low": 0.082,
+        "high": 0.503
+      },
+      "first": "2017-12-11",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "osf.io",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 4,
+      "breakingChanges": 105,
+      "rate": {
+        "k": 4,
+        "n": 20,
+        "rate": 0.2,
+        "low": 0.081,
+        "high": 0.416
+      },
+      "first": "2018-01-04",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "oxforddictionaries.com",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 4,
+      "breakingChanges": 53,
+      "rate": {
+        "k": 4,
+        "n": 20,
+        "rate": 0.2,
+        "low": 0.081,
+        "high": 0.416
+      },
+      "first": "2016-11-08",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "data2crm.com",
+      "apis": 1,
+      "pairs": 28,
+      "breakingPairs": 5,
+      "breakingChanges": 966,
+      "rate": {
+        "k": 5,
+        "n": 28,
+        "rate": 0.179,
+        "low": 0.079,
+        "high": 0.356
+      },
+      "first": "2015-11-25",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "postmarkapp.com",
+      "apis": 2,
+      "pairs": 28,
+      "breakingPairs": 5,
+      "breakingChanges": 19,
+      "rate": {
+        "k": 5,
+        "n": 28,
+        "rate": 0.179,
+        "low": 0.079,
+        "high": 0.356
+      },
+      "first": "2017-10-30",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bigoven.com",
+      "apis": 1,
+      "pairs": 37,
+      "breakingPairs": 6,
+      "breakingChanges": 15,
+      "rate": {
+        "k": 6,
+        "n": 37,
+        "rate": 0.162,
+        "low": 0.077,
+        "high": 0.311
+      },
+      "first": "2016-04-06",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "motaword.com",
+      "apis": 1,
+      "pairs": 37,
+      "breakingPairs": 6,
+      "breakingChanges": 16,
+      "rate": {
+        "k": 6,
+        "n": 37,
+        "rate": 0.162,
+        "low": 0.077,
+        "high": 0.311
+      },
+      "first": "2015-11-23",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "twinehealth.com",
+      "apis": 1,
+      "pairs": 21,
+      "breakingPairs": 4,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 4,
+        "n": 21,
+        "rate": 0.19,
+        "low": 0.077,
+        "high": 0.4
+      },
+      "first": "2017-09-06",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "core.ac.uk",
+      "apis": 1,
+      "pairs": 29,
+      "breakingPairs": 5,
+      "breakingChanges": 44,
+      "rate": {
+        "k": 5,
+        "n": 29,
+        "rate": 0.172,
+        "low": 0.076,
+        "high": 0.345
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "mozilla.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 3,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 3,
+        "n": 14,
+        "rate": 0.214,
+        "low": 0.076,
+        "high": 0.476
+      },
+      "first": "2017-04-04",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "ontraport.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 3,
+      "breakingChanges": 8,
+      "rate": {
+        "k": 3,
+        "n": 14,
+        "rate": 0.214,
+        "low": 0.076,
+        "high": 0.476
+      },
+      "first": "2015-11-24",
+      "last": "2017-01-15"
+    },
+    {
+      "provider": "bitbucket.org",
+      "apis": 1,
+      "pairs": 31,
+      "breakingPairs": 5,
+      "breakingChanges": 139,
+      "rate": {
+        "k": 5,
+        "n": 31,
+        "rate": 0.161,
+        "low": 0.071,
+        "high": 0.326
+      },
+      "first": "2016-09-09",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "asana.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 3,
+      "breakingChanges": 39,
+      "rate": {
+        "k": 3,
+        "n": 15,
+        "rate": 0.2,
+        "low": 0.07,
+        "high": 0.452
+      },
+      "first": "2021-04-19",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "fulfillment.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 3,
+      "breakingChanges": 47,
+      "rate": {
+        "k": 3,
+        "n": 15,
+        "rate": 0.2,
+        "low": 0.07,
+        "high": 0.452
+      },
+      "first": "2020-07-13",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "taxrates.io",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 3,
+      "breakingChanges": 8,
+      "rate": {
+        "k": 3,
+        "n": 15,
+        "rate": 0.2,
+        "low": 0.07,
+        "high": 0.452
+      },
+      "first": "2019-02-04",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "uebermaps.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 3,
+      "breakingChanges": 10,
+      "rate": {
+        "k": 3,
+        "n": 15,
+        "rate": 0.2,
+        "low": 0.07,
+        "high": 0.452
+      },
+      "first": "2017-02-12",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "geodesystems.com",
+      "apis": 1,
+      "pairs": 52,
+      "breakingPairs": 7,
+      "breakingChanges": 10,
+      "rate": {
+        "k": 7,
+        "n": 52,
+        "rate": 0.135,
+        "low": 0.067,
+        "high": 0.253
+      },
+      "first": "2015-11-15",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "apicurio.local",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 3,
+      "breakingChanges": 50,
+      "rate": {
+        "k": 3,
+        "n": 16,
+        "rate": 0.188,
+        "low": 0.066,
+        "high": 0.43
+      },
+      "first": "2021-02-08",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "learnifier.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 3,
+      "breakingChanges": 6,
+      "rate": {
+        "k": 3,
+        "n": 16,
+        "rate": 0.188,
+        "low": 0.066,
+        "high": 0.43
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "anchore.io",
+      "apis": 1,
+      "pairs": 25,
+      "breakingPairs": 4,
+      "breakingChanges": 8,
+      "rate": {
+        "k": 4,
+        "n": 25,
+        "rate": 0.16,
+        "low": 0.064,
+        "high": 0.347
+      },
+      "first": "2018-03-21",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "netatmo.net",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 3,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 3,
+        "n": 17,
+        "rate": 0.176,
+        "low": 0.062,
+        "high": 0.41
+      },
+      "first": "2016-05-31",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "netlicensing.io",
+      "apis": 1,
+      "pairs": 27,
+      "breakingPairs": 4,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 4,
+        "n": 27,
+        "rate": 0.148,
+        "low": 0.059,
+        "high": 0.325
+      },
+      "first": "2016-03-27",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "va.gov",
+      "apis": 4,
+      "pairs": 27,
+      "breakingPairs": 4,
+      "breakingChanges": 128,
+      "rate": {
+        "k": 4,
+        "n": 27,
+        "rate": 0.148,
+        "low": 0.059,
+        "high": 0.325
+      },
+      "first": "2021-04-07",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "victorops.com",
+      "apis": 1,
+      "pairs": 18,
+      "breakingPairs": 3,
+      "breakingChanges": 23,
+      "rate": {
+        "k": 3,
+        "n": 18,
+        "rate": 0.167,
+        "low": 0.058,
+        "high": 0.392
+      },
+      "first": "2017-06-27",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "art19.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 2,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 2,
+        "n": 10,
+        "rate": 0.2,
+        "low": 0.057,
+        "high": 0.51
+      },
+      "first": "2020-11-09",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "bbc.co.uk",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 2,
+      "breakingChanges": 37,
+      "rate": {
+        "k": 2,
+        "n": 10,
+        "rate": 0.2,
+        "low": 0.057,
+        "high": 0.51
+      },
+      "first": "2017-07-31",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "clearblade.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 2,
+      "breakingChanges": 16,
+      "rate": {
+        "k": 2,
+        "n": 10,
+        "rate": 0.2,
+        "low": 0.057,
+        "high": 0.51
+      },
+      "first": "2021-01-18",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "randommer.io",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 2,
+      "breakingChanges": 7,
+      "rate": {
+        "k": 2,
+        "n": 10,
+        "rate": 0.2,
+        "low": 0.057,
+        "high": 0.51
+      },
+      "first": "2020-07-13",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "zoom.us",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 2,
+      "breakingChanges": 8,
+      "rate": {
+        "k": 2,
+        "n": 10,
+        "rate": 0.2,
+        "low": 0.057,
+        "high": 0.51
+      },
+      "first": "2018-02-05",
+      "last": "2021-04-07"
+    },
+    {
+      "provider": "hubapi.com",
+      "apis": 12,
+      "pairs": 253,
+      "breakingPairs": 21,
+      "breakingChanges": 159,
+      "rate": {
+        "k": 21,
+        "n": 253,
+        "rate": 0.083,
+        "low": 0.055,
+        "high": 0.124
+      },
+      "first": "2021-05-04",
+      "last": "2024-02-16"
+    },
+    {
+      "provider": "bbci.co.uk",
+      "apis": 1,
+      "pairs": 51,
+      "breakingPairs": 6,
+      "breakingChanges": 17,
+      "rate": {
+        "k": 6,
+        "n": 51,
+        "rate": 0.118,
+        "low": 0.055,
+        "high": 0.234
+      },
+      "first": "2015-12-21",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "billbee.io",
+      "apis": 1,
+      "pairs": 40,
+      "breakingPairs": 5,
+      "breakingChanges": 33,
+      "rate": {
+        "k": 5,
+        "n": 40,
+        "rate": 0.125,
+        "low": 0.055,
+        "high": 0.261
+      },
+      "first": "2018-08-24",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "meraki.com",
+      "apis": 1,
+      "pairs": 29,
+      "breakingPairs": 4,
+      "breakingChanges": 715,
+      "rate": {
+        "k": 4,
+        "n": 29,
+        "rate": 0.138,
+        "low": 0.055,
+        "high": 0.306
+      },
+      "first": "2020-09-14",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "schooldigger.com",
+      "apis": 1,
+      "pairs": 29,
+      "breakingPairs": 4,
+      "breakingChanges": 23,
+      "rate": {
+        "k": 4,
+        "n": 29,
+        "rate": 0.138,
+        "low": 0.055,
+        "high": 0.306
+      },
+      "first": "2017-03-16",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "formapi.io",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 3,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 3,
+        "n": 19,
+        "rate": 0.158,
+        "low": 0.055,
+        "high": 0.376
+      },
+      "first": "2019-06-11",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "youneedabudget.com",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 3,
+      "breakingChanges": 66,
+      "rate": {
+        "k": 3,
+        "n": 19,
+        "rate": 0.158,
+        "low": 0.055,
+        "high": 0.376
+      },
+      "first": "2019-03-17",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "envoice.in",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 3,
+      "breakingChanges": 36,
+      "rate": {
+        "k": 3,
+        "n": 20,
+        "rate": 0.15,
+        "low": 0.052,
+        "high": 0.36
+      },
+      "first": "2018-03-21",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "shipstation.com",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 3,
+      "breakingChanges": 23,
+      "rate": {
+        "k": 3,
+        "n": 20,
+        "rate": 0.15,
+        "low": 0.052,
+        "high": 0.36
+      },
+      "first": "2017-10-13",
+      "last": "2021-04-07"
+    },
+    {
+      "provider": "twilio.com",
+      "apis": 46,
+      "pairs": 387,
+      "breakingPairs": 28,
+      "breakingChanges": 196,
+      "rate": {
+        "k": 28,
+        "n": 387,
+        "rate": 0.072,
+        "low": 0.051,
+        "high": 0.103
+      },
+      "first": "2016-03-20",
+      "last": "2023-08-28"
+    },
+    {
+      "provider": "nebl.io",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 2,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 2,
+        "n": 11,
+        "rate": 0.182,
+        "low": 0.051,
+        "high": 0.477
+      },
+      "first": "2018-08-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "cpy.re",
+      "apis": 1,
+      "pairs": 21,
+      "breakingPairs": 3,
+      "breakingChanges": 38,
+      "rate": {
+        "k": 3,
+        "n": 21,
+        "rate": 0.143,
+        "low": 0.05,
+        "high": 0.346
+      },
+      "first": "2019-07-22",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "elmah.io",
+      "apis": 1,
+      "pairs": 21,
+      "breakingPairs": 3,
+      "breakingChanges": 133,
+      "rate": {
+        "k": 3,
+        "n": 21,
+        "rate": 0.143,
+        "low": 0.05,
+        "high": 0.346
+      },
+      "first": "2019-09-09",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "apigee.net",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 3,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 3,
+        "n": 22,
+        "rate": 0.136,
+        "low": 0.047,
+        "high": 0.333
+      },
+      "first": "2018-02-05",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "thesmsworks.co.uk",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 3,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 3,
+        "n": 22,
+        "rate": 0.136,
+        "low": 0.047,
+        "high": 0.333
+      },
+      "first": "2018-01-02",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "opensuse.org",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 2,
+      "breakingChanges": 46,
+      "rate": {
+        "k": 2,
+        "n": 12,
+        "rate": 0.167,
+        "low": 0.047,
+        "high": 0.448
+      },
+      "first": "2021-02-01",
+      "last": "2021-08-02"
+    },
+    {
+      "provider": "reloadly.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 2,
+      "breakingChanges": 12,
+      "rate": {
+        "k": 2,
+        "n": 12,
+        "rate": 0.167,
+        "low": 0.047,
+        "high": 0.448
+      },
+      "first": "2018-10-24",
+      "last": "2021-04-07"
+    },
+    {
+      "provider": "vestorly.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 2,
+      "breakingChanges": 154,
+      "rate": {
+        "k": 2,
+        "n": 12,
+        "rate": 0.167,
+        "low": 0.047,
+        "high": 0.448
+      },
+      "first": "2015-11-24",
+      "last": "2021-02-01"
+    },
+    {
+      "provider": "personio.de",
+      "apis": 2,
+      "pairs": 23,
+      "breakingPairs": 3,
+      "breakingChanges": 14,
+      "rate": {
+        "k": 3,
+        "n": 23,
+        "rate": 0.13,
+        "low": 0.045,
+        "high": 0.321
+      },
+      "first": "2018-08-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "import.io",
+      "apis": 6,
+      "pairs": 51,
+      "breakingPairs": 5,
+      "breakingChanges": 87,
+      "rate": {
+        "k": 5,
+        "n": 51,
+        "rate": 0.098,
+        "low": 0.043,
+        "high": 0.21
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "ritekit.com",
+      "apis": 1,
+      "pairs": 24,
+      "breakingPairs": 3,
+      "breakingChanges": 5,
+      "rate": {
+        "k": 3,
+        "n": 24,
+        "rate": 0.125,
+        "low": 0.043,
+        "high": 0.31
+      },
+      "first": "2017-09-20",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "rudder.example.local",
+      "apis": 1,
+      "pairs": 24,
+      "breakingPairs": 3,
+      "breakingChanges": 8,
+      "rate": {
+        "k": 3,
+        "n": 24,
+        "rate": 0.125,
+        "low": 0.043,
+        "high": 0.31
+      },
+      "first": "2020-10-05",
+      "last": "2021-07-26"
+    },
+    {
+      "provider": "stoplight.io",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 2,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 2,
+        "n": 13,
+        "rate": 0.154,
+        "low": 0.043,
+        "high": 0.422
+      },
+      "first": "2018-04-19",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "zenoti.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 2,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 2,
+        "n": 13,
+        "rate": 0.154,
+        "low": 0.043,
+        "high": 0.422
+      },
+      "first": "2018-08-24",
+      "last": "2021-06-30"
+    },
+    {
+      "provider": "appveyor.com",
+      "apis": 1,
+      "pairs": 25,
+      "breakingPairs": 3,
+      "breakingChanges": 8,
+      "rate": {
+        "k": 3,
+        "n": 25,
+        "rate": 0.12,
+        "low": 0.042,
+        "high": 0.3
+      },
+      "first": "2017-02-01",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "googleapis.com",
+      "apis": 322,
+      "pairs": 66470,
+      "breakingPairs": 2811,
+      "breakingChanges": 21213,
+      "rate": {
+        "k": 2811,
+        "n": 66470,
+        "rate": 0.042,
+        "low": 0.041,
+        "high": 0.044
+      },
+      "first": "2015-11-15",
+      "last": "2024-03-01"
+    },
+    {
+      "provider": "microsoft.com",
+      "apis": 15,
+      "pairs": 100,
+      "breakingPairs": 8,
+      "breakingChanges": 20,
+      "rate": {
+        "k": 8,
+        "n": 100,
+        "rate": 0.08,
+        "low": 0.041,
+        "high": 0.15
+      },
+      "first": "2017-12-11",
+      "last": "2023-02-15"
+    },
+    {
+      "provider": "vocadb.net",
+      "apis": 1,
+      "pairs": 26,
+      "breakingPairs": 3,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 3,
+        "n": 26,
+        "rate": 0.115,
+        "low": 0.04,
+        "high": 0.29
+      },
+      "first": "2017-12-11",
+      "last": "2023-03-08"
+    },
+    {
+      "provider": "apigee.local",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 2,
+      "breakingChanges": 98,
+      "rate": {
+        "k": 2,
+        "n": 15,
+        "rate": 0.133,
+        "low": 0.037,
+        "high": 0.379
+      },
+      "first": "2020-11-02",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "hillbillysoftware.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 2,
+      "breakingChanges": 31,
+      "rate": {
+        "k": 2,
+        "n": 15,
+        "rate": 0.133,
+        "low": 0.037,
+        "high": 0.379
+      },
+      "first": "2018-05-29",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "isbndb.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 2,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 2,
+        "n": 15,
+        "rate": 0.133,
+        "low": 0.037,
+        "high": 0.379
+      },
+      "first": "2019-01-03",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "pdfbroker.io",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 2,
+      "breakingChanges": 129,
+      "rate": {
+        "k": 2,
+        "n": 15,
+        "rate": 0.133,
+        "low": 0.037,
+        "high": 0.379
+      },
+      "first": "2020-07-13",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "shutterstock.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 2,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 2,
+        "n": 15,
+        "rate": 0.133,
+        "low": 0.037,
+        "high": 0.379
+      },
+      "first": "2020-11-09",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "statsocial.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 2,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 2,
+        "n": 15,
+        "rate": 0.133,
+        "low": 0.037,
+        "high": 0.379
+      },
+      "first": "2015-11-15",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "turbinelabs.io",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 2,
+      "breakingChanges": 53,
+      "rate": {
+        "k": 2,
+        "n": 15,
+        "rate": 0.133,
+        "low": 0.037,
+        "high": 0.379
+      },
+      "first": "2018-03-21",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "akeneo.com",
+      "apis": 1,
+      "pairs": 29,
+      "breakingPairs": 3,
+      "breakingChanges": 11,
+      "rate": {
+        "k": 3,
+        "n": 29,
+        "rate": 0.103,
+        "low": 0.036,
+        "high": 0.264
+      },
+      "first": "2019-09-09",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "hhs.gov",
+      "apis": 1,
+      "pairs": 29,
+      "breakingPairs": 3,
+      "breakingChanges": 8,
+      "rate": {
+        "k": 3,
+        "n": 29,
+        "rate": 0.103,
+        "low": 0.036,
+        "high": 0.264
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "naviplancentral.com",
+      "apis": 2,
+      "pairs": 29,
+      "breakingPairs": 3,
+      "breakingChanges": 415,
+      "rate": {
+        "k": 3,
+        "n": 29,
+        "rate": 0.103,
+        "low": 0.036,
+        "high": 0.264
+      },
+      "first": "2017-12-11",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "slideroom.com",
+      "apis": 1,
+      "pairs": 30,
+      "breakingPairs": 3,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 3,
+        "n": 30,
+        "rate": 0.1,
+        "low": 0.035,
+        "high": 0.256
+      },
+      "first": "2015-11-15",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "beanstream.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 2,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 2,
+        "n": 16,
+        "rate": 0.125,
+        "low": 0.035,
+        "high": 0.36
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "pdfgeneratorapi.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 2,
+      "breakingChanges": 12,
+      "rate": {
+        "k": 2,
+        "n": 16,
+        "rate": 0.125,
+        "low": 0.035,
+        "high": 0.36
+      },
+      "first": "2020-07-13",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "walmart.com",
+      "apis": 4,
+      "pairs": 46,
+      "breakingPairs": 4,
+      "breakingChanges": 24,
+      "rate": {
+        "k": 4,
+        "n": 46,
+        "rate": 0.087,
+        "low": 0.034,
+        "high": 0.203
+      },
+      "first": "2018-05-29",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "sportsdata.io",
+      "apis": 35,
+      "pairs": 542,
+      "breakingPairs": 26,
+      "breakingChanges": 45,
+      "rate": {
+        "k": 26,
+        "n": 542,
+        "rate": 0.048,
+        "low": 0.033,
+        "high": 0.069
+      },
+      "first": "2019-09-09",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "audiosear.ch",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 2,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 2,
+        "n": 17,
+        "rate": 0.118,
+        "low": 0.033,
+        "high": 0.343
+      },
+      "first": "2015-11-24",
+      "last": "2016-08-16"
+    },
+    {
+      "provider": "authentiq.io",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 2,
+      "breakingChanges": 10,
+      "rate": {
+        "k": 2,
+        "n": 17,
+        "rate": 0.118,
+        "low": 0.033,
+        "high": 0.343
+      },
+      "first": "2017-03-20",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "contribly.com",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 2,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 2,
+        "n": 17,
+        "rate": 0.118,
+        "low": 0.033,
+        "high": 0.343
+      },
+      "first": "2019-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "winsms.co.za",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 2,
+      "breakingChanges": 34,
+      "rate": {
+        "k": 2,
+        "n": 17,
+        "rate": 0.118,
+        "low": 0.033,
+        "high": 0.343
+      },
+      "first": "2018-05-29",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "whapi.com",
+      "apis": 6,
+      "pairs": 67,
+      "breakingPairs": 5,
+      "breakingChanges": 20,
+      "rate": {
+        "k": 5,
+        "n": 67,
+        "rate": 0.075,
+        "low": 0.032,
+        "high": 0.163
+      },
+      "first": "2018-01-17",
+      "last": "2023-03-03"
+    },
+    {
+      "provider": "geneea.com",
+      "apis": 1,
+      "pairs": 35,
+      "breakingPairs": 3,
+      "breakingChanges": 10,
+      "rate": {
+        "k": 3,
+        "n": 35,
+        "rate": 0.086,
+        "low": 0.03,
+        "high": 0.224
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "zoomconnect.com",
+      "apis": 1,
+      "pairs": 34,
+      "breakingPairs": 3,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 3,
+        "n": 34,
+        "rate": 0.088,
+        "low": 0.03,
+        "high": 0.23
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "exavault.com",
+      "apis": 1,
+      "pairs": 36,
+      "breakingPairs": 3,
+      "breakingChanges": 36,
+      "rate": {
+        "k": 3,
+        "n": 36,
+        "rate": 0.083,
+        "low": 0.029,
+        "high": 0.218
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-26"
+    },
+    {
+      "provider": "channel4.com",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 2,
+      "breakingChanges": 154,
+      "rate": {
+        "k": 2,
+        "n": 20,
+        "rate": 0.1,
+        "low": 0.028,
+        "high": 0.301
+      },
+      "first": "2016-07-01",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "nrel.gov",
+      "apis": 2,
+      "pairs": 38,
+      "breakingPairs": 3,
+      "breakingChanges": 8,
+      "rate": {
+        "k": 3,
+        "n": 38,
+        "rate": 0.079,
+        "low": 0.027,
+        "high": 0.208
+      },
+      "first": "2015-11-24",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "citycontext.com",
+      "apis": 1,
+      "pairs": 21,
+      "breakingPairs": 2,
+      "breakingChanges": 5,
+      "rate": {
+        "k": 2,
+        "n": 21,
+        "rate": 0.095,
+        "low": 0.027,
+        "high": 0.289
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "instagram.com",
+      "apis": 1,
+      "pairs": 23,
+      "breakingPairs": 2,
+      "breakingChanges": 30,
+      "rate": {
+        "k": 2,
+        "n": 23,
+        "rate": 0.087,
+        "low": 0.024,
+        "high": 0.268
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "parliament.uk",
+      "apis": 11,
+      "pairs": 67,
+      "breakingPairs": 4,
+      "breakingChanges": 261,
+      "rate": {
+        "k": 4,
+        "n": 67,
+        "rate": 0.06,
+        "low": 0.023,
+        "high": 0.144
+      },
+      "first": "2020-07-13",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "dracoon.team",
+      "apis": 1,
+      "pairs": 24,
+      "breakingPairs": 2,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 2,
+        "n": 24,
+        "rate": 0.083,
+        "low": 0.023,
+        "high": 0.258
+      },
+      "first": "2020-09-28",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "jirafe.com",
+      "apis": 1,
+      "pairs": 24,
+      "breakingPairs": 2,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 2,
+        "n": 24,
+        "rate": 0.083,
+        "low": 0.023,
+        "high": 0.258
+      },
+      "first": "2015-11-24",
+      "last": "2021-02-01"
+    },
+    {
+      "provider": "paylocity.com",
+      "apis": 1,
+      "pairs": 24,
+      "breakingPairs": 2,
+      "breakingChanges": 30,
+      "rate": {
+        "k": 2,
+        "n": 24,
+        "rate": 0.083,
+        "low": 0.023,
+        "high": 0.258
+      },
+      "first": "2018-08-24",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "wordnik.com",
+      "apis": 1,
+      "pairs": 24,
+      "breakingPairs": 2,
+      "breakingChanges": 19,
+      "rate": {
+        "k": 2,
+        "n": 24,
+        "rate": 0.083,
+        "low": 0.023,
+        "high": 0.258
+      },
+      "first": "2016-04-04",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "apitore.com",
+      "apis": 39,
+      "pairs": 98,
+      "breakingPairs": 5,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 5,
+        "n": 98,
+        "rate": 0.051,
+        "low": 0.022,
+        "high": 0.114
+      },
+      "first": "2017-04-18",
+      "last": "2019-02-26"
+    },
+    {
+      "provider": "letmc.com",
+      "apis": 6,
+      "pairs": 70,
+      "breakingPairs": 4,
+      "breakingChanges": 11,
+      "rate": {
+        "k": 4,
+        "n": 70,
+        "rate": 0.057,
+        "low": 0.022,
+        "high": 0.138
+      },
+      "first": "2018-04-19",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "neowsapp.com",
+      "apis": 1,
+      "pairs": 25,
+      "breakingPairs": 2,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 2,
+        "n": 25,
+        "rate": 0.08,
+        "low": 0.022,
+        "high": 0.25
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "firebrowse.org",
+      "apis": 1,
+      "pairs": 26,
+      "breakingPairs": 2,
+      "breakingChanges": 5,
+      "rate": {
+        "k": 2,
+        "n": 26,
+        "rate": 0.077,
+        "low": 0.021,
+        "high": 0.241
+      },
+      "first": "2015-11-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "spotify.com",
+      "apis": 2,
+      "pairs": 26,
+      "breakingPairs": 2,
+      "breakingChanges": 7,
+      "rate": {
+        "k": 2,
+        "n": 26,
+        "rate": 0.077,
+        "low": 0.021,
+        "high": 0.241
+      },
+      "first": "2015-11-15",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "twitter.com",
+      "apis": 4,
+      "pairs": 26,
+      "breakingPairs": 2,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 2,
+        "n": 26,
+        "rate": 0.077,
+        "low": 0.021,
+        "high": 0.241
+      },
+      "first": "2017-11-20",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "presalytics.io",
+      "apis": 3,
+      "pairs": 28,
+      "breakingPairs": 2,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 2,
+        "n": 28,
+        "rate": 0.071,
+        "low": 0.02,
+        "high": 0.226
+      },
+      "first": "2020-09-01",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "patientview.org",
+      "apis": 1,
+      "pairs": 31,
+      "breakingPairs": 2,
+      "breakingChanges": 5,
+      "rate": {
+        "k": 2,
+        "n": 31,
+        "rate": 0.065,
+        "low": 0.018,
+        "high": 0.207
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bulksms.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 10,
+        "rate": 0.1,
+        "low": 0.018,
+        "high": 0.404
+      },
+      "first": "2018-08-24",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "flat.io",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 10,
+        "rate": 0.1,
+        "low": 0.018,
+        "high": 0.404
+      },
+      "first": "2017-04-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "logoraisr.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 1,
+      "breakingChanges": 5,
+      "rate": {
+        "k": 1,
+        "n": 10,
+        "rate": 0.1,
+        "low": 0.018,
+        "high": 0.404
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "openfigi.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 1,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 1,
+        "n": 10,
+        "rate": 0.1,
+        "low": 0.018,
+        "high": 0.404
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "opentargets.io",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 10,
+        "rate": 0.1,
+        "low": 0.018,
+        "high": 0.404
+      },
+      "first": "2018-02-20",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "salesloft.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 1,
+      "breakingChanges": 5,
+      "rate": {
+        "k": 1,
+        "n": 10,
+        "rate": 0.1,
+        "low": 0.018,
+        "high": 0.404
+      },
+      "first": "2017-11-30",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "gov.bc.ca",
+      "apis": 9,
+      "pairs": 130,
+      "breakingPairs": 5,
+      "breakingChanges": 20,
+      "rate": {
+        "k": 5,
+        "n": 130,
+        "rate": 0.038,
+        "low": 0.017,
+        "high": 0.087
+      },
+      "first": "2017-06-27",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "clarify.io",
+      "apis": 1,
+      "pairs": 32,
+      "breakingPairs": 2,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 2,
+        "n": 32,
+        "rate": 0.063,
+        "low": 0.017,
+        "high": 0.201
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "api.video",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 1,
+      "breakingChanges": 49,
+      "rate": {
+        "k": 1,
+        "n": 11,
+        "rate": 0.091,
+        "low": 0.016,
+        "high": 0.377
+      },
+      "first": "2021-01-18",
+      "last": "2021-08-16"
+    },
+    {
+      "provider": "bhagavadgita.io",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 11,
+        "rate": 0.091,
+        "low": 0.016,
+        "high": 0.377
+      },
+      "first": "2018-08-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "daniweb.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 1,
+      "breakingChanges": 6,
+      "rate": {
+        "k": 1,
+        "n": 11,
+        "rate": 0.091,
+        "low": 0.016,
+        "high": 0.377
+      },
+      "first": "2020-07-13",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "gamesparks.net",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 1,
+      "breakingChanges": 14,
+      "rate": {
+        "k": 1,
+        "n": 11,
+        "rate": 0.091,
+        "low": 0.016,
+        "high": 0.377
+      },
+      "first": "2019-02-04",
+      "last": "2021-04-19"
+    },
+    {
+      "provider": "globalwinescore.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 11,
+        "rate": 0.091,
+        "low": 0.016,
+        "high": 0.377
+      },
+      "first": "2019-02-04",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "ijenko.net",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 1,
+      "breakingChanges": 56,
+      "rate": {
+        "k": 1,
+        "n": 11,
+        "rate": 0.091,
+        "low": 0.016,
+        "high": 0.377
+      },
+      "first": "2017-02-02",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "whatsapp.local",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 1,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 1,
+        "n": 11,
+        "rate": 0.091,
+        "low": 0.016,
+        "high": 0.377
+      },
+      "first": "2020-01-07",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "nytimes.com",
+      "apis": 13,
+      "pairs": 102,
+      "breakingPairs": 4,
+      "breakingChanges": 5,
+      "rate": {
+        "k": 4,
+        "n": 102,
+        "rate": 0.039,
+        "low": 0.015,
+        "high": 0.097
+      },
+      "first": "2016-09-02",
+      "last": "2023-08-28"
+    },
+    {
+      "provider": "intellifi.nl",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2020-08-25",
+      "last": "2021-07-26"
+    },
+    {
+      "provider": "jokes.one",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2019-09-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "launchdarkly.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 16,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2017-11-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "lumminary.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2019-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "moderatecontent.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2019-01-19",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "orghunter.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 6,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "runscope.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 8,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2017-05-30",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "slack.com",
+      "apis": 2,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 42,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2016-03-04",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "solarvps.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "tvmaze.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 12,
+        "rate": 0.083,
+        "low": 0.015,
+        "high": 0.354
+      },
+      "first": "2018-08-16",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "openbankingproject.ch",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 1,
+      "breakingChanges": 12,
+      "rate": {
+        "k": 1,
+        "n": 13,
+        "rate": 0.077,
+        "low": 0.014,
+        "high": 0.333
+      },
+      "first": "2020-09-01",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "pendo.io",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 13,
+        "rate": 0.077,
+        "low": 0.014,
+        "high": 0.333
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "clickmeter.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 1,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 1,
+        "n": 14,
+        "rate": 0.071,
+        "low": 0.013,
+        "high": 0.315
+      },
+      "first": "2015-11-24",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "data.gov",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 1,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 1,
+        "n": 14,
+        "rate": 0.071,
+        "low": 0.013,
+        "high": 0.315
+      },
+      "first": "2016-03-16",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "ornl.gov",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 1,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 1,
+        "n": 14,
+        "rate": 0.071,
+        "low": 0.013,
+        "high": 0.315
+      },
+      "first": "2019-02-04",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "rawg.io",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 14,
+        "rate": 0.071,
+        "low": 0.013,
+        "high": 0.315
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "apacta.com",
+      "apis": 1,
+      "pairs": 45,
+      "breakingPairs": 2,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 2,
+        "n": 45,
+        "rate": 0.044,
+        "low": 0.012,
+        "high": 0.148
+      },
+      "first": "2017-03-21",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "openapi-converter.herokuapp.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 15,
+        "rate": 0.067,
+        "low": 0.012,
+        "high": 0.298
+      },
+      "first": "2017-04-04",
+      "last": "2021-06-07"
+    },
+    {
+      "provider": "weber-gesamtausgabe.de",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 15,
+        "rate": 0.067,
+        "low": 0.012,
+        "high": 0.298
+      },
+      "first": "2019-02-09",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "windows.net",
+      "apis": 4,
+      "pairs": 190,
+      "breakingPairs": 5,
+      "breakingChanges": 58,
+      "rate": {
+        "k": 5,
+        "n": 190,
+        "rate": 0.026,
+        "low": 0.011,
+        "high": 0.06
+      },
+      "first": "2016-04-11",
+      "last": "2021-06-07"
+    },
+    {
+      "provider": "wmata.com",
+      "apis": 5,
+      "pairs": 95,
+      "breakingPairs": 3,
+      "breakingChanges": 12,
+      "rate": {
+        "k": 3,
+        "n": 95,
+        "rate": 0.032,
+        "low": 0.011,
+        "high": 0.089
+      },
+      "first": "2017-08-30",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "spectrocoin.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 1,
+      "breakingChanges": 3,
+      "rate": {
+        "k": 1,
+        "n": 16,
+        "rate": 0.063,
+        "low": 0.011,
+        "high": 0.283
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "credas.co.uk",
+      "apis": 1,
+      "pairs": 18,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 18,
+        "rate": 0.056,
+        "low": 0.01,
+        "high": 0.258
+      },
+      "first": "2021-05-04",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "netlify.com",
+      "apis": 1,
+      "pairs": 18,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 18,
+        "rate": 0.056,
+        "low": 0.01,
+        "high": 0.258
+      },
+      "first": "2016-10-02",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "walletobjects.googleapis.com",
+      "apis": 1,
+      "pairs": 18,
+      "breakingPairs": 1,
+      "breakingChanges": 6,
+      "rate": {
+        "k": 1,
+        "n": 18,
+        "rate": 0.056,
+        "low": 0.01,
+        "high": 0.258
+      },
+      "first": "2020-07-22",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "getsandbox.com",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 17,
+        "rate": 0.059,
+        "low": 0.01,
+        "high": 0.27
+      },
+      "first": "2016-11-08",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "tisane.ai",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 20,
+        "rate": 0.05,
+        "low": 0.009,
+        "high": 0.236
+      },
+      "first": "2019-02-18",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "mercure.local",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 19,
+        "rate": 0.053,
+        "low": 0.009,
+        "high": 0.246
+      },
+      "first": "2020-03-27",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "opendatasoft.com",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 1,
+      "breakingChanges": 32,
+      "rate": {
+        "k": 1,
+        "n": 19,
+        "rate": 0.053,
+        "low": 0.009,
+        "high": 0.246
+      },
+      "first": "2017-11-27",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "vatapi.com",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 1,
+      "breakingChanges": 10,
+      "rate": {
+        "k": 1,
+        "n": 19,
+        "rate": 0.053,
+        "low": 0.009,
+        "high": 0.246
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bigredcloud.com",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 22,
+        "rate": 0.045,
+        "low": 0.008,
+        "high": 0.218
+      },
+      "first": "2021-02-22",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "pandorabots.com",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 1,
+      "breakingChanges": 13,
+      "rate": {
+        "k": 1,
+        "n": 22,
+        "rate": 0.045,
+        "low": 0.008,
+        "high": 0.218
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "taxamo.com",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 22,
+        "rate": 0.045,
+        "low": 0.008,
+        "high": 0.218
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "thetvdb.com",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 22,
+        "rate": 0.045,
+        "low": 0.008,
+        "high": 0.218
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "watchful.li",
+      "apis": 1,
+      "pairs": 21,
+      "breakingPairs": 1,
+      "breakingChanges": 6,
+      "rate": {
+        "k": 1,
+        "n": 21,
+        "rate": 0.048,
+        "low": 0.008,
+        "high": 0.227
+      },
+      "first": "2015-11-24",
+      "last": "2023-03-21"
+    },
+    {
+      "provider": "owler.com",
+      "apis": 1,
+      "pairs": 27,
+      "breakingPairs": 1,
+      "breakingChanges": 7,
+      "rate": {
+        "k": 1,
+        "n": 27,
+        "rate": 0.037,
+        "low": 0.007,
+        "high": 0.183
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "hetzner.cloud",
+      "apis": 1,
+      "pairs": 26,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 26,
+        "rate": 0.038,
+        "low": 0.007,
+        "high": 0.189
+      },
+      "first": "2021-02-01",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "magick.nu",
+      "apis": 1,
+      "pairs": 25,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 25,
+        "rate": 0.04,
+        "low": 0.007,
+        "high": 0.195
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "oceandrivers.com",
+      "apis": 1,
+      "pairs": 32,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 32,
+        "rate": 0.031,
+        "low": 0.006,
+        "high": 0.157
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "rapidapi.com",
+      "apis": 6,
+      "pairs": 32,
+      "breakingPairs": 1,
+      "breakingChanges": 4,
+      "rate": {
+        "k": 1,
+        "n": 32,
+        "rate": 0.031,
+        "low": 0.006,
+        "high": 0.157
+      },
+      "first": "2020-07-13",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "yunbi.com",
+      "apis": 1,
+      "pairs": 30,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 30,
+        "rate": 0.033,
+        "low": 0.006,
+        "high": 0.167
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "graphhopper.com",
+      "apis": 1,
+      "pairs": 37,
+      "breakingPairs": 1,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 1,
+        "n": 37,
+        "rate": 0.027,
+        "low": 0.005,
+        "high": 0.138
+      },
+      "first": "2015-11-20",
+      "last": "2021-07-19"
+    },
+    {
+      "provider": "europeana.eu",
+      "apis": 1,
+      "pairs": 33,
+      "breakingPairs": 1,
+      "breakingChanges": 17,
+      "rate": {
+        "k": 1,
+        "n": 33,
+        "rate": 0.03,
+        "low": 0.005,
+        "high": 0.153
+      },
+      "first": "2016-11-08",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "ote-godaddy.com",
+      "apis": 9,
+      "pairs": 61,
+      "breakingPairs": 1,
+      "breakingChanges": 1,
+      "rate": {
+        "k": 1,
+        "n": 61,
+        "rate": 0.016,
+        "low": 0.003,
+        "high": 0.087
+      },
+      "first": "2021-01-18",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "ebay.com",
+      "apis": 20,
+      "pairs": 268,
+      "breakingPairs": 2,
+      "breakingChanges": 9,
+      "rate": {
+        "k": 2,
+        "n": 268,
+        "rate": 0.007,
+        "low": 0.002,
+        "high": 0.027
+      },
+      "first": "2017-10-19",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "fantasydata.net",
+      "apis": 32,
+      "pairs": 228,
+      "breakingPairs": 2,
+      "breakingChanges": 2,
+      "rate": {
+        "k": 2,
+        "n": 228,
+        "rate": 0.009,
+        "low": 0.002,
+        "high": 0.031
+      },
+      "first": "2018-03-21",
+      "last": "2019-03-25"
+    },
+    {
+      "provider": "nexmo.com",
+      "apis": 20,
+      "pairs": 249,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 249,
+        "rate": 0,
+        "low": 0,
+        "high": 0.015
+      },
+      "first": "2020-11-09",
+      "last": "2023-08-28"
+    },
+    {
+      "provider": "fungenerators.com",
+      "apis": 12,
+      "pairs": 89,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 89,
+        "rate": 0,
+        "low": 0,
+        "high": 0.041
+      },
+      "first": "2019-09-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "ndhm.gov.in",
+      "apis": 5,
+      "pairs": 82,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 82,
+        "rate": 0,
+        "low": 0,
+        "high": 0.045
+      },
+      "first": "2021-02-08",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "interzoid.com",
+      "apis": 20,
+      "pairs": 81,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 81,
+        "rate": 0,
+        "low": 0,
+        "high": 0.045
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-13"
+    },
+    {
+      "provider": "haloapi.com",
+      "apis": 4,
+      "pairs": 79,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 79,
+        "rate": 0,
+        "low": 0,
+        "high": 0.046
+      },
+      "first": "2018-01-04",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "amadeus.com",
+      "apis": 32,
+      "pairs": 74,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 74,
+        "rate": 0,
+        "low": 0,
+        "high": 0.049
+      },
+      "first": "2017-03-16",
+      "last": "2023-03-24"
+    },
+    {
+      "provider": "deutschebahn.com",
+      "apis": 6,
+      "pairs": 62,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 62,
+        "rate": 0,
+        "low": 0,
+        "high": 0.058
+      },
+      "first": "2017-07-31",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "tomtom.com",
+      "apis": 3,
+      "pairs": 52,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 52,
+        "rate": 0,
+        "low": 0,
+        "high": 0.069
+      },
+      "first": "2019-01-03",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "amentum.space",
+      "apis": 6,
+      "pairs": 49,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 49,
+        "rate": 0,
+        "low": 0,
+        "high": 0.073
+      },
+      "first": "2020-07-22",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "mercedes-benz.com",
+      "apis": 4,
+      "pairs": 47,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 47,
+        "rate": 0,
+        "low": 0,
+        "high": 0.076
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "mailboxvalidator.com",
+      "apis": 3,
+      "pairs": 39,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 39,
+        "rate": 0,
+        "low": 0,
+        "high": 0.09
+      },
+      "first": "2019-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "funtranslations.com",
+      "apis": 3,
+      "pairs": 34,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 34,
+        "rate": 0,
+        "low": 0,
+        "high": 0.102
+      },
+      "first": "2019-08-06",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "hsbc.com",
+      "apis": 3,
+      "pairs": 29,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 29,
+        "rate": 0,
+        "low": 0,
+        "high": 0.117
+      },
+      "first": "2020-08-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "mastercard.com",
+      "apis": 14,
+      "pairs": 28,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 28,
+        "rate": 0,
+        "low": 0,
+        "high": 0.121
+      },
+      "first": "2021-04-15",
+      "last": "2023-03-24"
+    },
+    {
+      "provider": "openaq.local",
+      "apis": 1,
+      "pairs": 28,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 28,
+        "rate": 0,
+        "low": 0,
+        "high": 0.121
+      },
+      "first": "2021-02-08",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "refugerestrooms.org",
+      "apis": 1,
+      "pairs": 26,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 26,
+        "rate": 0,
+        "low": 0,
+        "high": 0.129
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "ticketmaster.com",
+      "apis": 3,
+      "pairs": 25,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 25,
+        "rate": 0,
+        "low": 0,
+        "high": 0.133
+      },
+      "first": "2020-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "archive.org",
+      "apis": 2,
+      "pairs": 24,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 24,
+        "rate": 0,
+        "low": 0,
+        "high": 0.138
+      },
+      "first": "2019-02-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "sheetlabs.com",
+      "apis": 2,
+      "pairs": 24,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 24,
+        "rate": 0,
+        "low": 0,
+        "high": 0.138
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "apiz.ebay.com",
+      "apis": 2,
+      "pairs": 23,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 23,
+        "rate": 0,
+        "low": 0,
+        "high": 0.143
+      },
+      "first": "2020-07-18",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "dweet.io",
+      "apis": 1,
+      "pairs": 23,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 23,
+        "rate": 0,
+        "low": 0,
+        "high": 0.143
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bikewise.org",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 22,
+        "rate": 0,
+        "low": 0,
+        "high": 0.149
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "cybertaxonomy.eu",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 22,
+        "rate": 0,
+        "low": 0,
+        "high": 0.149
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "fraudlabspro.com",
+      "apis": 3,
+      "pairs": 22,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 22,
+        "rate": 0,
+        "low": 0,
+        "high": 0.149
+      },
+      "first": "2019-01-03",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "ideaconsult.net",
+      "apis": 2,
+      "pairs": 22,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 22,
+        "rate": 0,
+        "low": 0,
+        "high": 0.149
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "lufthansa.com",
+      "apis": 2,
+      "pairs": 22,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 22,
+        "rate": 0,
+        "low": 0,
+        "high": 0.149
+      },
+      "first": "2018-01-04",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "o2.cz",
+      "apis": 2,
+      "pairs": 22,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 22,
+        "rate": 0,
+        "low": 0,
+        "high": 0.149
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "opencagedata.com",
+      "apis": 1,
+      "pairs": 22,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 22,
+        "rate": 0,
+        "low": 0,
+        "high": 0.149
+      },
+      "first": "2016-06-03",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "autodealerdata.com",
+      "apis": 1,
+      "pairs": 21,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 21,
+        "rate": 0,
+        "low": 0,
+        "high": 0.155
+      },
+      "first": "2020-07-13",
+      "last": "2021-08-23"
+    },
+    {
+      "provider": "apis.guru",
+      "apis": 1,
+      "pairs": 20,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 20,
+        "rate": 0,
+        "low": 0,
+        "high": 0.161
+      },
+      "first": "2016-07-01",
+      "last": "2023-02-22"
+    },
+    {
+      "provider": "moonmoonmoonmoon.com",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 19,
+        "rate": 0,
+        "low": 0,
+        "high": 0.168
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "nsidc.org",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 19,
+        "rate": 0,
+        "low": 0,
+        "high": 0.168
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "rbaskets.in",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 19,
+        "rate": 0,
+        "low": 0,
+        "high": 0.168
+      },
+      "first": "2016-04-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "shorten.rest",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 19,
+        "rate": 0,
+        "low": 0,
+        "high": 0.168
+      },
+      "first": "2020-07-13",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "waag.org",
+      "apis": 1,
+      "pairs": 19,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 19,
+        "rate": 0,
+        "low": 0,
+        "high": 0.168
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "here.com",
+      "apis": 2,
+      "pairs": 18,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 18,
+        "rate": 0,
+        "low": 0,
+        "high": 0.176
+      },
+      "first": "2019-03-17",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "opto22.com",
+      "apis": 2,
+      "pairs": 18,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 18,
+        "rate": 0,
+        "low": 0,
+        "high": 0.176
+      },
+      "first": "2020-08-10",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "peel-ci.com",
+      "apis": 1,
+      "pairs": 18,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 18,
+        "rate": 0,
+        "low": 0,
+        "high": 0.176
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "posty-api.herokuapp.com",
+      "apis": 1,
+      "pairs": 18,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 18,
+        "rate": 0,
+        "low": 0,
+        "high": 0.176
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "scrapewebsite.email",
+      "apis": 1,
+      "pairs": 18,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 18,
+        "rate": 0,
+        "low": 0,
+        "high": 0.176
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "surrey.ca",
+      "apis": 2,
+      "pairs": 18,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 18,
+        "rate": 0,
+        "low": 0,
+        "high": 0.176
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "adafruit.com",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 17,
+        "rate": 0,
+        "low": 0,
+        "high": 0.184
+      },
+      "first": "2018-03-21",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "mandrillapp.com",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 17,
+        "rate": 0,
+        "low": 0,
+        "high": 0.184
+      },
+      "first": "2016-04-29",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "nativeads.com",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 17,
+        "rate": 0,
+        "low": 0,
+        "high": 0.184
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "stackexchange.com",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 17,
+        "rate": 0,
+        "low": 0,
+        "high": 0.184
+      },
+      "first": "2016-04-29",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "swagger.io",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 17,
+        "rate": 0,
+        "low": 0,
+        "high": 0.184
+      },
+      "first": "2017-01-15",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "trello.com",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 17,
+        "rate": 0,
+        "low": 0,
+        "high": 0.184
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "wavecell.com",
+      "apis": 1,
+      "pairs": 17,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 17,
+        "rate": 0,
+        "low": 0,
+        "high": 0.184
+      },
+      "first": "2017-02-12",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "brainbi.net",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 16,
+        "rate": 0,
+        "low": 0,
+        "high": 0.194
+      },
+      "first": "2020-09-01",
+      "last": "2021-07-19"
+    },
+    {
+      "provider": "brandlovers.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 16,
+        "rate": 0,
+        "low": 0,
+        "high": 0.194
+      },
+      "first": "2016-10-02",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "datumbox.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 16,
+        "rate": 0,
+        "low": 0,
+        "high": 0.194
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "ip2location.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 16,
+        "rate": 0,
+        "low": 0,
+        "high": 0.194
+      },
+      "first": "2019-07-22",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "ip2proxy.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 16,
+        "rate": 0,
+        "low": 0,
+        "high": 0.194
+      },
+      "first": "2019-07-22",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "medium.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 16,
+        "rate": 0,
+        "low": 0,
+        "high": 0.194
+      },
+      "first": "2016-08-29",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "thenounproject.com",
+      "apis": 1,
+      "pairs": 16,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 16,
+        "rate": 0,
+        "low": 0,
+        "high": 0.194
+      },
+      "first": "2015-11-24",
+      "last": "2021-02-01"
+    },
+    {
+      "provider": "bclaws.ca",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2017-06-27",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bufferapp.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2016-06-17",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "cambase.io",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "cenit.io",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2016-10-19",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "cloudmersive.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2018-08-24",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "corrently.io",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2021-01-18",
+      "last": "2021-08-02"
+    },
+    {
+      "provider": "icons8.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2017-10-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "languagetool.org",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2019-01-03",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "link.fish",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2017-12-11",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "opendatanetwork.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2018-08-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "rottentomatoes.com",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2017-03-16",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "slicebox.local",
+      "apis": 1,
+      "pairs": 15,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 15,
+        "rate": 0,
+        "low": 0,
+        "high": 0.204
+      },
+      "first": "2018-03-07",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "betfair.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 14,
+        "rate": 0,
+        "low": 0,
+        "high": 0.215
+      },
+      "first": "2017-11-27",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "cisco.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 14,
+        "rate": 0,
+        "low": 0,
+        "high": 0.215
+      },
+      "first": "2017-01-15",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "etmdb.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 14,
+        "rate": 0,
+        "low": 0,
+        "high": 0.215
+      },
+      "first": "2017-11-14",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "inboxroute.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 14,
+        "rate": 0,
+        "low": 0,
+        "high": 0.215
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "isendpro.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 14,
+        "rate": 0,
+        "low": 0,
+        "high": 0.215
+      },
+      "first": "2017-11-27",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "namsor.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 14,
+        "rate": 0,
+        "low": 0,
+        "high": 0.215
+      },
+      "first": "2019-03-05",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "omdbapi.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 14,
+        "rate": 0,
+        "low": 0,
+        "high": 0.215
+      },
+      "first": "2016-10-02",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "openlinksw.com",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 14,
+        "rate": 0,
+        "low": 0,
+        "high": 0.215
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "spinbot.net",
+      "apis": 1,
+      "pairs": 14,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 14,
+        "rate": 0,
+        "low": 0,
+        "high": 0.215
+      },
+      "first": "2018-11-20",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "afterbanks.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2017-09-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "airport-web.appspot.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2018-03-27",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "apimatic.io",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2017-03-16",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "aucklandmuseum.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2018-07-31",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bandsintown.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2019-01-03",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bluemix.net",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2017-04-04",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "browshot.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2017-03-16",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "callcontrol.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2019-01-03",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "circuitsandbox.net",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2017-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "docker.com",
+      "apis": 3,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2019-07-22",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "exchangerate-api.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2019-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "ip2whois.com",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2020-07-13",
+      "last": "2021-08-02"
+    },
+    {
+      "provider": "math.tools",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2019-09-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "rev.ai",
+      "apis": 1,
+      "pairs": 13,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 13,
+        "rate": 0,
+        "low": 0,
+        "high": 0.228
+      },
+      "first": "2021-02-01",
+      "last": "2021-08-02"
+    },
+    {
+      "provider": "ably.io",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-08-17",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "agco-ats.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-11-09",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "byautomata.io",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "deeparteffects.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "extpose.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "freesound.org",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2018-07-31",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "getthedata.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "giphy.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2017-09-20",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "gisgraphy.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2017-09-05",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "idtbeyond.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2015-11-24",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "image-charts.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "koomalooma.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2018-05-29",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "lyft.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2017-05-11",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "nic.at",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "paccurate.io",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2018-02-05",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "prss.org",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-07-13",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "sheerseo.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2019-09-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "signl4.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2020-06-02",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "staging-ecotaco.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2017-10-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "swaggerhub.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2018-12-19",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "warwick.ac.uk",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2019-02-04",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "xero.com",
+      "apis": 7,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2017-12-11",
+      "last": "2021-06-07"
+    },
+    {
+      "provider": "xkcd.com",
+      "apis": 1,
+      "pairs": 12,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 12,
+        "rate": 0,
+        "low": 0,
+        "high": 0.243
+      },
+      "first": "2015-11-27",
+      "last": "2021-04-07"
+    },
+    {
+      "provider": "6-dot-authentiqio.appspot.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2017-03-20",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "adobe.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "api.gov.uk",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-10",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bintable.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "bridgedb.org",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-22",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "c19qrserver.local",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "canada-holidays.ca",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "chompthis.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "circleci.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2017-03-16",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "cnab-online.herokuapp.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "code-scan.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "consumerfinance.gov",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2017-04-04",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "crossbrowsertesting.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "dataatwork.org",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "digitallinguistics.io",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "ebi.ac.uk",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "evemarketer.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "exude-api.herokuapp.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "faretrotter.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "geodatasource.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2019-01-04",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "greenpeace.org",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "handwrytten.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "id4i.de",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-08-25",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "landregistry.gov.uk",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "miataru.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "mon-voyage-pas-cher.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "musixmatch.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "openstf.io",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "opentrials.local",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "phila.gov",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "quarantine.country",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-10",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "regcheck.org.uk",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "rummblelabs.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2015-11-24",
+      "last": "2021-04-07"
+    },
+    {
+      "provider": "selectpdf.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "setlist.fm",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-08-10",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "symanto.net",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "transitfeeds.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2019-01-11",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "tyk.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2018-03-02",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "vonage.com",
+      "apis": 5,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2020-01-07",
+      "last": "2020-07-22"
+    },
+    {
+      "provider": "zappiti.com",
+      "apis": 1,
+      "pairs": 11,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 11,
+        "rate": 0,
+        "low": 0,
+        "high": 0.259
+      },
+      "first": "2017-04-04",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "chaingateway.io",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-11-09",
+      "last": "2023-04-23"
+    },
+    {
+      "provider": "codesearch.debian.net",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "covid19-api.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "d7networks.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "dataflowkit.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-07-13",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "furkot.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2016-09-14",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "getgo.com",
+      "apis": 2,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "gitlab.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2017-04-11",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "goog.io",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-10-05",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "gsa.gov",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2015-11-23",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "lambdatest.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "monarchinitiative.org",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "openchannel.io",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "openuv.io",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "phantauth.net",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "pressassociation.io",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-11-09",
+      "last": "2023-03-06"
+    },
+    {
+      "provider": "probely.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-11-09",
+      "last": "2021-07-19"
+    },
+    {
+      "provider": "quotes.rest",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2018-04-19",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "spinitron.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2020-07-22",
+      "last": "2021-07-12"
+    },
+    {
+      "provider": "transavia.com",
+      "apis": 1,
+      "pairs": 10,
+      "breakingPairs": 0,
+      "breakingChanges": 0,
+      "rate": {
+        "k": 0,
+        "n": 10,
+        "rate": 0,
+        "low": 0,
+        "high": 0.278
+      },
+      "first": "2018-03-21",
+      "last": "2021-07-12"
+    }
+  ]
+}
