@@ -372,6 +372,19 @@ describe("web pages", () => {
     await app.close();
   });
 
+  it("says when SHAPI paused a repository itself, and why (U-05)", async () => {
+    await owner.updateTable("repositories").set({ settings: JSON.stringify({ paused: true, autoPaused: { at: "2026-10-30T12:00:00.000Z", prs: [9, 8, 7] } }) }).where("id", "=", mine.repo).execute();
+    const app = buildApp({ db, config, fetch: fakeGitHub().fetch });
+    const { cookie } = await signIn(app);
+    const page = (await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } })).body;
+    expect(page).toContain('<span class="tag warn">paused by SHAPI</span>');
+    expect(page).toContain("SHAPI paused itself on 2026-10-30: its last 3 fix PRs here were closed without merging.");
+    // Resumed: no note, even with the old record left in settings.
+    await owner.updateTable("repositories").set({ settings: JSON.stringify({ paused: false, autoPaused: null }) }).where("id", "=", mine.repo).execute();
+    expect((await app.inject({ url: `/a/${mine.account}/r/${mine.repo}`, headers: { cookie } })).body).not.toContain("paused by SHAPI");
+    await app.close();
+  });
+
   it("serves each repository's latest api.lock as a CycloneDX SaaSBOM, to people who can open it (S-02)", async () => {
     const lock = createApiLock(
       {

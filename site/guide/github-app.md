@@ -13,7 +13,7 @@ Anyone can [install the GitHub App](https://github.com/apps/shapi-by-srivarshini
 - **On every push to your default branch**, SHAPI downloads that commit with a short-lived token that can only read that one repository. It builds the api.lock and posts a **`SHAPI` check** on the commit: neutral by default, with an annotation on each affected line. A push that GitHub delivers late, after a newer one (for example after an outage), is not scanned: the newer push's commit is the branch as it is now.
 - **For each affected call site with a fix recipe**, it verifies the fix in an isolated sandbox and opens a **pull request** with the fix and its contract test.
 - **When an advisory is added or changed**, it re-matches every installed repository's stored api.lock and opens PRs where the new advisory hits.
-- **A `SHAPI Dashboard` issue** in each repository lists open fix PRs, fixes waiting for a limit, fixes whose branch you pushed to (SHAPI never overwrites it; delete the branch to let it open the fix), fixes you closed, changes that need a manual fix, and upcoming deadlines.
+- **A `SHAPI Dashboard` issue** in each repository lists open fix PRs (grouped by when their change takes effect: already in effect, in the next 30 days, later), fixes waiting for a limit, fixes whose branch you pushed to (SHAPI never overwrites it; delete the branch to let it open the fix), fixes you closed, changes that need a manual fix, and upcoming deadlines.
 
 ## Permissions
 
@@ -58,6 +58,7 @@ Paste a Slack [incoming webhook](https://api.slack.com/messaging/webhooks) link 
 - **One PR per advisory:** it fixes every affected call site in the repository, with a contract test for each, and reruns update the same PR instead of opening duplicates. A call site SHAPI can't fix is listed in the PR and on the dashboard.
 - **A PR you close without merging stays closed.** Tick "open it again" on the dashboard if you change your mind.
 - **The `shapi:stop` label** freezes a PR. Pausing a repository, from the dashboard or the web app, stops all changes.
+- **Three closed in a row pauses it.** When the last three SHAPI PRs in a repository were closed without merging, SHAPI pauses itself there, ticks the pause box on the dashboard and says why. Untick it to resume; only PRs closed after that count toward the next pause.
 - **The check is neutral by default** and never blocks a merge, unless you turn on *Fail the SHAPI check*.
 
 ## The web app
