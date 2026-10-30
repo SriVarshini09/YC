@@ -1,0 +1,67 @@
+{
+  "provider": "salesforce",
+  "name": "Salesforce",
+  "count": 3,
+  "advisories": [
+    {
+      "id": "salesforce-soap-login-use-any-api-auth-required",
+      "title": "SOAP login() requires the Use Any API Auth permission from 2026-12-01",
+      "endpoint": {
+        "method": "POST",
+        "path": "/services/Soap/*/*",
+        "hosts": [
+          "login.salesforce.com",
+          "test.salesforce.com"
+        ]
+      },
+      "changeClass": "auth",
+      "effectiveDate": "2026-12-01",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/salesforce-soap-login-use-any-api-auth-required",
+      "markdown": "https://shapi.dev/advisories/salesforce-soap-login-use-any-api-auth-required.md",
+      "osv": "https://shapi.dev/osv/salesforce-soap-login-use-any-api-auth-required.json"
+    },
+    {
+      "id": "salesforce-soap-login-broad-ip-range-token-required",
+      "title": "SOAP login() from a broad IP range needs a security token from 2026-12-15",
+      "endpoint": {
+        "method": "POST",
+        "path": "/services/Soap/*/*",
+        "hosts": [
+          "login.salesforce.com",
+          "test.salesforce.com"
+        ]
+      },
+      "changeClass": "auth",
+      "effectiveDate": "2026-12-15",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/salesforce-soap-login-broad-ip-range-token-required",
+      "markdown": "https://shapi.dev/advisories/salesforce-soap-login-broad-ip-range-token-required.md",
+      "osv": "https://shapi.dev/osv/salesforce-soap-login-broad-ip-range-token-required.json"
+    },
+    {
+      "id": "salesforce-soap-login-disabled-when-unused",
+      "title": "SOAP login() turned off in orgs with no use in six months, from 2026-12-15",
+      "endpoint": {
+        "method": "POST",
+        "path": "/services/Soap/*/*",
+        "hosts": [
+          "login.salesforce.com",
+          "test.salesforce.com"
+        ]
+      },
+      "changeClass": "auth",
+      "effectiveDate": "2026-12-15",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/salesforce-soap-login-disabled-when-unused",
+      "markdown": "https://shapi.dev/advisories/salesforce-soap-login-disabled-when-unused.md",
+      "osv": "https://shapi.dev/osv/salesforce-soap-login-disabled-when-unused.json"
+    }
+  ]
+}

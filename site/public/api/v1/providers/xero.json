@@ -1,0 +1,135 @@
+{
+  "provider": "xero",
+  "name": "Xero",
+  "count": 8,
+  "advisories": [
+    {
+      "id": "xero-finance-accounting-activities-decommissioned",
+      "title": "Finance API Accounting Activities endpoints decommissioned",
+      "endpoint": {
+        "method": "GET",
+        "path": "/finance.xro/1.0/AccountingActivities/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-05-04",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/xero-finance-accounting-activities-decommissioned",
+      "markdown": "https://shapi.dev/advisories/xero-finance-accounting-activities-decommissioned.md",
+      "osv": "https://shapi.dev/osv/xero-finance-accounting-activities-decommissioned.json"
+    },
+    {
+      "id": "xero-organisation-class-ultra-enum",
+      "title": "Organisation Class enum gains ULTRA",
+      "endpoint": {
+        "method": "GET",
+        "path": "/api.xro/2.0/Organisation"
+      },
+      "changeClass": "enum-added",
+      "effectiveDate": "2026-06-30",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/xero-organisation-class-ultra-enum",
+      "markdown": "https://shapi.dev/advisories/xero-organisation-class-ultra-enum.md",
+      "osv": "https://shapi.dev/osv/xero-organisation-class-ultra-enum.json"
+    },
+    {
+      "id": "xero-au-payroll-isqualifyingearnings-required",
+      "title": "AU Payroll pay item and earnings rate writes require IsQualifyingEarnings",
+      "endpoint": {
+        "method": "POST",
+        "path": "/payroll.xro/1.0/PayItems"
+      },
+      "changeClass": "required-field",
+      "effectiveDate": "2026-09-10",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/xero-au-payroll-isqualifyingearnings-required",
+      "markdown": "https://shapi.dev/advisories/xero-au-payroll-isqualifyingearnings-required.md",
+      "osv": "https://shapi.dev/osv/xero-au-payroll-isqualifyingearnings-required.json"
+    },
+    {
+      "id": "xero-au-payroll-isqualifyingearnings-required-earningsrates",
+      "title": "AU Payroll pay item and earnings rate writes require IsQualifyingEarnings (v2 earningsRates)",
+      "endpoint": {
+        "method": "POST",
+        "path": "/payroll.xro/2.0/earningsRates"
+      },
+      "changeClass": "required-field",
+      "effectiveDate": "2026-09-10",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/xero-au-payroll-isqualifyingearnings-required-earningsrates",
+      "markdown": "https://shapi.dev/advisories/xero-au-payroll-isqualifyingearnings-required-earningsrates.md",
+      "osv": "https://shapi.dev/osv/xero-au-payroll-isqualifyingearnings-required-earningsrates.json"
+    },
+    {
+      "id": "xero-allocations-contact-mismatch-rejected",
+      "title": "Allocations between documents of different contacts are rejected",
+      "endpoint": {
+        "method": "PUT",
+        "path": "/api.xro/2.0/*/{id}/Allocations"
+      },
+      "changeClass": "status-code",
+      "effectiveDate": "2026-10-08",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/xero-allocations-contact-mismatch-rejected",
+      "markdown": "https://shapi.dev/advisories/xero-allocations-contact-mismatch-rejected.md",
+      "osv": "https://shapi.dev/osv/xero-allocations-contact-mismatch-rejected.json"
+    },
+    {
+      "id": "xero-nz-payroll-employee-tax-kiwisaverstatus-required",
+      "title": "NZ Payroll employee tax requests without KiwiSaverStatus return 400 from 2026-11-05",
+      "endpoint": {
+        "method": "POST",
+        "path": "/payroll.xro/2.0/Employees/{EmployeeID}/Tax"
+      },
+      "changeClass": "required-field",
+      "effectiveDate": "2026-11-05",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/xero-nz-payroll-employee-tax-kiwisaverstatus-required",
+      "markdown": "https://shapi.dev/advisories/xero-nz-payroll-employee-tax-kiwisaverstatus-required.md",
+      "osv": "https://shapi.dev/osv/xero-nz-payroll-employee-tax-kiwisaverstatus-required.json"
+    },
+    {
+      "id": "xero-invoices-email-daily-limit-429",
+      "title": "Invoice email daily limit returns 429 instead of 500 from 2027-01-14",
+      "endpoint": {
+        "method": "POST",
+        "path": "/api.xro/2.0/Invoices/{InvoiceID}/Email"
+      },
+      "changeClass": "status-code",
+      "effectiveDate": "2027-01-14",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/xero-invoices-email-daily-limit-429",
+      "markdown": "https://shapi.dev/advisories/xero-invoices-email-daily-limit-429.md",
+      "osv": "https://shapi.dev/osv/xero-invoices-email-daily-limit-429.json"
+    },
+    {
+      "id": "xero-accounting-transactions-scope-split",
+      "title": "Broad accounting.transactions scope replaced by granular scopes",
+      "endpoint": {
+        "method": "*",
+        "path": "/api.xro/2.0/**"
+      },
+      "changeClass": "scope-change",
+      "effectiveDate": "2027-09-13",
+      "severity": "medium",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/xero-accounting-transactions-scope-split",
+      "markdown": "https://shapi.dev/advisories/xero-accounting-transactions-scope-split.md",
+      "osv": "https://shapi.dev/osv/xero-accounting-transactions-scope-split.json"
+    }
+  ]
+}

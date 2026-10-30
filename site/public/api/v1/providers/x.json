@@ -1,0 +1,55 @@
+{
+  "provider": "x",
+  "name": "X (Twitter)",
+  "count": 3,
+  "advisories": [
+    {
+      "id": "x-activity-api-pascalcase-event-types-removed",
+      "title": "X Activity API event types renamed from PascalCase to dot-separated lowercase",
+      "endpoint": {
+        "method": "*",
+        "path": "/2/activity/**"
+      },
+      "changeClass": "enum-added",
+      "effectiveDate": "2026-03-18",
+      "severity": "high",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/x-activity-api-pascalcase-event-types-removed",
+      "markdown": "https://shapi.dev/advisories/x-activity-api-pascalcase-event-types-removed.md",
+      "osv": "https://shapi.dev/osv/x-activity-api-pascalcase-event-types-removed.json"
+    },
+    {
+      "id": "x-self-serve-follow-writes-removed",
+      "title": "Following users removed from X API self-serve tiers",
+      "endpoint": {
+        "method": "POST",
+        "path": "/2/users/{id}/following"
+      },
+      "changeClass": "scope-change",
+      "effectiveDate": "2026-04-16",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/x-self-serve-follow-writes-removed",
+      "markdown": "https://shapi.dev/advisories/x-self-serve-follow-writes-removed.md",
+      "osv": "https://shapi.dev/osv/x-self-serve-follow-writes-removed.json"
+    },
+    {
+      "id": "x-self-serve-like-writes-removed",
+      "title": "Liking Posts removed from X API self-serve tiers",
+      "endpoint": {
+        "method": "POST",
+        "path": "/2/users/{id}/likes"
+      },
+      "changeClass": "scope-change",
+      "effectiveDate": "2026-04-16",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/x-self-serve-like-writes-removed",
+      "markdown": "https://shapi.dev/advisories/x-self-serve-like-writes-removed.md",
+      "osv": "https://shapi.dev/osv/x-self-serve-like-writes-removed.json"
+    }
+  ]
+}

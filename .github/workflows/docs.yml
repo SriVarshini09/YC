@@ -31,6 +31,8 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      # Only the site's dependencies; the root prepare script would build every package.
-      - run: pnpm install --frozen-lockfile --filter @shapi/site --ignore-scripts
+      # No root prepare script (it would build every package): only @shapi/core, which the advisory pages' Markdown
+      # twins are written with (site/scripts/advisory-twins.ts).
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm --filter @shapi/core build
       - run: pnpm --filter @shapi/site docs:build

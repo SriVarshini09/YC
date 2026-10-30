@@ -1,0 +1,183 @@
+{
+  "provider": "meta-graph",
+  "name": "Meta Graph API",
+  "count": 11,
+  "advisories": [
+    {
+      "id": "meta-graph-instagram-oembed-fields-removed",
+      "title": "oEmbed responses no longer return author and thumbnail fields",
+      "endpoint": {
+        "method": "GET",
+        "path": "/**/instagram_oembed"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2025-11-03",
+      "severity": "high",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/meta-graph-instagram-oembed-fields-removed",
+      "markdown": "https://shapi.dev/advisories/meta-graph-instagram-oembed-fields-removed.md",
+      "osv": "https://shapi.dev/osv/meta-graph-instagram-oembed-fields-removed.json"
+    },
+    {
+      "id": "meta-graph-page-insights-impressions-fans-removed",
+      "title": "Page Insights impressions and page fans metrics removed on 2025-11-15",
+      "endpoint": {
+        "method": "GET",
+        "path": "/**/insights"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2025-11-15",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/meta-graph-page-insights-impressions-fans-removed",
+      "markdown": "https://shapi.dev/advisories/meta-graph-page-insights-impressions-fans-removed.md",
+      "osv": "https://shapi.dev/osv/meta-graph-page-insights-impressions-fans-removed.json"
+    },
+    {
+      "id": "meta-graph-page-insights-reach-video-views-removed",
+      "title": "Page Insights reach and 3-second video viewer metrics removed on 2026-06-15",
+      "endpoint": {
+        "method": "GET",
+        "path": "/**/insights"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-06-15",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/meta-graph-page-insights-reach-video-views-removed",
+      "markdown": "https://shapi.dev/advisories/meta-graph-page-insights-reach-video-views-removed.md",
+      "osv": "https://shapi.dev/osv/meta-graph-page-insights-reach-video-views-removed.json"
+    },
+    {
+      "id": "meta-graph-v20-sunset",
+      "title": "Graph API v20.0 removed; calls fall forward to the next version",
+      "endpoint": {
+        "method": "*",
+        "path": "/v20.0/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-09-24",
+      "severity": "high",
+      "status": "verified",
+      "fix": "apply-fix",
+      "url": "https://shapi.dev/advisories/meta-graph-v20-sunset",
+      "markdown": "https://shapi.dev/advisories/meta-graph-v20-sunset.md",
+      "osv": "https://shapi.dev/osv/meta-graph-v20-sunset.json"
+    },
+    {
+      "id": "meta-graph-commerce-order-management-removed",
+      "title": "Commerce Order Management API removed on all versions on 2026-10-27",
+      "endpoint": {
+        "method": "GET",
+        "path": "/**/commerce_orders"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-27",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/meta-graph-commerce-order-management-removed",
+      "markdown": "https://shapi.dev/advisories/meta-graph-commerce-order-management-removed.md",
+      "osv": "https://shapi.dev/osv/meta-graph-commerce-order-management-removed.json"
+    },
+    {
+      "id": "meta-graph-date-format-param-removed",
+      "title": "date_format query parameter returns an error from 2026-10-27",
+      "endpoint": {
+        "method": "*",
+        "path": "/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-27",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/meta-graph-date-format-param-removed",
+      "markdown": "https://shapi.dev/advisories/meta-graph-date-format-param-removed.md",
+      "osv": "https://shapi.dev/osv/meta-graph-date-format-param-removed.json"
+    },
+    {
+      "id": "meta-graph-delivery-estimate-fields-removed",
+      "title": "Delivery Estimate drops daily_outcomes_curve, budget_guardrail and estimate_dau",
+      "endpoint": {
+        "method": "GET",
+        "path": "/**/delivery_estimate"
+      },
+      "changeClass": "field-rename",
+      "effectiveDate": "2026-10-27",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/meta-graph-delivery-estimate-fields-removed",
+      "markdown": "https://shapi.dev/advisories/meta-graph-delivery-estimate-fields-removed.md",
+      "osv": "https://shapi.dev/osv/meta-graph-delivery-estimate-fields-removed.json"
+    },
+    {
+      "id": "meta-graph-root-ids-lookup-removed",
+      "title": "Root GET /?ids= multi-object lookup returns an error from 2026-10-27",
+      "endpoint": {
+        "method": "GET",
+        "path": "/*"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-10-27",
+      "severity": "critical",
+      "status": "verified",
+      "fix": null,
+      "url": "https://shapi.dev/advisories/meta-graph-root-ids-lookup-removed",
+      "markdown": "https://shapi.dev/advisories/meta-graph-root-ids-lookup-removed.md",
+      "osv": "https://shapi.dev/osv/meta-graph-root-ids-lookup-removed.json"
+    },
+    {
+      "id": "meta-graph-marketing-api-v24-sunset",
+      "title": "Marketing API v24.0 available until 2026-11-10",
+      "endpoint": {
+        "method": "*",
+        "path": "/v24.0/act_*/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2026-11-10",
+      "severity": "critical",
+      "status": "verified",
+      "fix": "apply-fix",
+      "url": "https://shapi.dev/advisories/meta-graph-marketing-api-v24-sunset",
+      "markdown": "https://shapi.dev/advisories/meta-graph-marketing-api-v24-sunset.md",
+      "osv": "https://shapi.dev/osv/meta-graph-marketing-api-v24-sunset.json"
+    },
+    {
+      "id": "meta-graph-v21-sunset",
+      "title": "Graph API v21.0 removed on 2027-01-21",
+      "endpoint": {
+        "method": "*",
+        "path": "/v21.0/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-01-21",
+      "severity": "high",
+      "status": "verified",
+      "fix": "apply-fix",
+      "url": "https://shapi.dev/advisories/meta-graph-v21-sunset",
+      "markdown": "https://shapi.dev/advisories/meta-graph-v21-sunset.md",
+      "osv": "https://shapi.dev/osv/meta-graph-v21-sunset.json"
+    },
+    {
+      "id": "meta-graph-marketing-api-v25-sunset",
+      "title": "Marketing API v25.0 available until 2027-02-23",
+      "endpoint": {
+        "method": "*",
+        "path": "/v25.0/act_*/**"
+      },
+      "changeClass": "version-sunset",
+      "effectiveDate": "2027-02-23",
+      "severity": "high",
+      "status": "verified",
+      "fix": "apply-fix",
+      "url": "https://shapi.dev/advisories/meta-graph-marketing-api-v25-sunset",
+      "markdown": "https://shapi.dev/advisories/meta-graph-marketing-api-v25-sunset.md",
+      "osv": "https://shapi.dev/osv/meta-graph-marketing-api-v25-sunset.json"
+    }
+  ]
+}

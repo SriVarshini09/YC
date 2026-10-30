@@ -1,1 +1,3 @@
 * text=auto eol=lf
+# iCalendar lines end in CRLF (RFC 5545): keep the bytes as written.
+*.ics -text
