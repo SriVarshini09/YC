@@ -1,0 +1,19 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory openai-legacy-gpt-o-series-shutdown-2026-10-23: gpt-3.5-turbo, gpt-4, gpt-4-turbo, o1, o3-mini and o4-mini shut down on 2026-10-23",
+    "version": "2026-10-23"
+  },
+  "extends": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+  "actions": [
+    {
+      "target": "$.paths['/chat/completions'].post",
+      "description": "gpt-3.5-turbo, gpt-4, gpt-4-turbo, o1, o3-mini and o4-mini shut down on 2026-10-23",
+      "update": {
+        "x-shapi-advisory": "openai-legacy-gpt-o-series-shutdown-2026-10-23",
+        "x-shapi-change-class": "version-sunset",
+        "x-shapi-effective-date": "2026-10-23"
+      }
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory stripe-endive-payment-intent-payment-method-types-removed: Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+    "version": "2026-09-30"
+  },
+  "extends": "https://raw.githubusercontent.com/stripe/openapi/51610f5f061c9723730582a7638b8cc0e646640d/openapi/spec3.json",
+  "actions": [
+    {
+      "target": "$.paths['/v1/payment_intents'].post",
+      "description": "Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-payment-intent-payment-method-types-removed",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/payment_intents/{intent}'].post",
+      "description": "Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-payment-intent-payment-method-types-removed",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/payment_intents/{intent}/apply_customer_balance'].post",
+      "description": "Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-payment-intent-payment-method-types-removed",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/payment_intents/{intent}/cancel'].post",
+      "description": "Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-payment-intent-payment-method-types-removed",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/payment_intents/{intent}/capture'].post",
+      "description": "Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-payment-intent-payment-method-types-removed",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/payment_intents/{intent}/confirm'].post",
+      "description": "Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-payment-intent-payment-method-types-removed",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/payment_intents/{intent}/increment_authorization'].post",
+      "description": "Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-payment-intent-payment-method-types-removed",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    },
+    {
+      "target": "$.paths['/v1/payment_intents/{intent}/verify_microdeposits'].post",
+      "description": "Stripe 2026-09-30.endive removes payment_method_types from Payment Intent create, update and confirm",
+      "update": {
+        "x-shapi-advisory": "stripe-endive-payment-intent-payment-method-types-removed",
+        "x-shapi-change-class": "required-field",
+        "x-shapi-effective-date": "2026-09-30"
+      }
+    }
+  ]
+}

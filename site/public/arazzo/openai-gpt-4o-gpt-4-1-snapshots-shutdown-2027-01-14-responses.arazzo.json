@@ -1,0 +1,39 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses",
+    "summary": "gpt-4o, gpt-4o-mini, gpt-4.1 and gpt-4.1-mini snapshots shut down on 2027-01-14 (Responses API)",
+    "version": "2027-01-14"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "openai-openapi",
+      "url": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14-responses",
+      "summary": "Shows the change: OpenAI shuts down gpt-4o-2024-08-06, gpt-4o-2024-11-20, gpt-4o-mini-2024-07-18, gpt-4.1-2025-04-14 and gpt-4.1-mini-2025-04-14 on 2027-01-14, and fine-tunes of these models follow the same date. This advisory covers calls to the Responses API (POST /v1/responses) that send one of these models; openai-gpt-4o-gpt-4-1-snapshots-shutdown-2027-01-14 covers chat completions. The notice lists dated snapshots and does not say what happens to the undated gpt-4o or gpt-4o-mini aliases.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "POST /v1/responses fails from 2027-01-14 when the body sends model = gpt-4o-2024-08-06",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1responses/post",
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "model": "gpt-4o-2024-08-06"
+            }
+          },
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

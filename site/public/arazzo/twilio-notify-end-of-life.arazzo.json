@@ -1,0 +1,33 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory twilio-notify-end-of-life",
+    "summary": "Twilio Notify reaches end of life on 2027-01-31",
+    "version": "2027-01-31"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "twilio-twilio_notify_v1",
+      "url": "https://raw.githubusercontent.com/twilio/twilio-oai/d9775142962ea67d5f3d50c5021a23ae6d330c5b/spec/json/twilio_notify_v1.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "twilio-notify-end-of-life",
+      "summary": "Shows the change: Twilio Notify (notify.twilio.com, e.g. POST /v1/Services/{ServiceSid}/Notifications) has been unsupported and closed to new customers since October 2022 and reaches end of life for existing customers on 2027-01-31, per Twilio's Help Center (superseding the 2025-12-31 date in the January 2024 changelog). Push sent through Verify, Voice, Conversations or Engage is not affected.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "POST /v1/Services/{ServiceSid}/Notifications fails from 2027-01-31: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.twilio-twilio_notify_v1.url}#/paths/~1v1~1Services~1{ServiceSid}~1Notifications/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

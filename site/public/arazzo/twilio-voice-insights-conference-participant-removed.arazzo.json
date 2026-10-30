@@ -1,0 +1,33 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory twilio-voice-insights-conference-participant-removed",
+    "summary": "Twilio Voice Insights Call Summary drops attributes.conference_participant on 2026-08-01",
+    "version": "2026-08-01"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "twilio-twilio_insights_v1",
+      "url": "https://raw.githubusercontent.com/twilio/twilio-oai/d9775142962ea67d5f3d50c5021a23ae6d330c5b/spec/json/twilio_insights_v1.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "twilio-voice-insights-conference-participant-removed",
+      "summary": "Shows the change: On August 1, 2026 Twilio removed the conference_participant attribute from the Voice Insights Call Summary (GET /v1/Voice/{CallSid}/Summary on insights.twilio.com) and the matching Event Streams event; attributes now returns null for every call. Code that reads attributes.conference_participant gets nothing, and code that dereferences attributes can throw.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "GET /v1/Voice/{CallSid}/Summary succeeds, with the changed response the advisory describes (field-rename)",
+          "operationPath": "{$sourceDescriptions.twilio-twilio_insights_v1.url}#/paths/~1v1~1Voice~1{CallSid}~1Summary/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "github": { "repo": "github/rest-api-description", "commit": "066b825d08409eb6c48ddfdd7547c0b70a72dfaf", "files": ["descriptions/api.github.com/api.github.com.json"] },
+  "openai": { "repo": "openai/openai-openapi", "commit": "2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce", "files": ["openapi.json"] },
+  "stripe": { "repo": "stripe/openapi", "commit": "51610f5f061c9723730582a7638b8cc0e646640d", "files": ["openapi/spec3.json"] },
+  "twilio": { "repo": "twilio/twilio-oai", "commit": "d9775142962ea67d5f3d50c5021a23ae6d330c5b", "files": ["spec/json/twilio_api_v2010.json", "spec/json/twilio_insights_v1.json", "spec/json/twilio_notify_v1.json"] }
+}

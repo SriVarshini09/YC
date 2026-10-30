@@ -1,0 +1,73 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory stripe-endive-setup-intent-payment-method-types-removed",
+    "summary": "Stripe 2026-09-30.endive removes payment_method_types from Setup Intent create and update",
+    "version": "2026-09-30"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "stripe-spec3",
+      "url": "https://raw.githubusercontent.com/stripe/openapi/51610f5f061c9723730582a7638b8cc0e646640d/openapi/spec3.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "stripe-endive-setup-intent-payment-method-types-removed",
+      "summary": "Shows the change: From API version 2026-09-30.endive, payment_method_types is no longer writable on Setup Intents: create and update requests that send it return a 400 error. It stays a read-only property on the Setup Intent.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "POST /v1/setup_intents succeeds, with the changed response the advisory describes (required-field)",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1setup_intents/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        },
+        {
+          "stepId": "call-2",
+          "description": "POST /v1/setup_intents/{intent} succeeds, with the changed response the advisory describes (required-field)",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1setup_intents~1{intent}/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        },
+        {
+          "stepId": "call-3",
+          "description": "POST /v1/setup_intents/{intent}/cancel succeeds, with the changed response the advisory describes (required-field)",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1setup_intents~1{intent}~1cancel/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        },
+        {
+          "stepId": "call-4",
+          "description": "POST /v1/setup_intents/{intent}/confirm succeeds, with the changed response the advisory describes (required-field)",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1setup_intents~1{intent}~1confirm/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        },
+        {
+          "stepId": "call-5",
+          "description": "POST /v1/setup_intents/{intent}/verify_microdeposits succeeds, with the changed response the advisory describes (required-field)",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1setup_intents~1{intent}~1verify_microdeposits/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode == 200"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

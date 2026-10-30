@@ -1,0 +1,64 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory stripe-checkout-session-ui-mode-values-renamed: Stripe 2026-03-25.dahlia renames Checkout Session ui_mode values",
+    "version": "2026-03-25"
+  },
+  "extends": "https://raw.githubusercontent.com/stripe/openapi/51610f5f061c9723730582a7638b8cc0e646640d/openapi/spec3.json",
+  "actions": [
+    {
+      "target": "$.paths['/v1/checkout/sessions'].get",
+      "description": "Stripe 2026-03-25.dahlia renames Checkout Session ui_mode values",
+      "update": {
+        "x-shapi-advisory": "stripe-checkout-session-ui-mode-values-renamed",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-03-25"
+      }
+    },
+    {
+      "target": "$.paths['/v1/checkout/sessions'].post",
+      "description": "Stripe 2026-03-25.dahlia renames Checkout Session ui_mode values",
+      "update": {
+        "x-shapi-advisory": "stripe-checkout-session-ui-mode-values-renamed",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-03-25"
+      }
+    },
+    {
+      "target": "$.paths['/v1/checkout/sessions/{session}'].get",
+      "description": "Stripe 2026-03-25.dahlia renames Checkout Session ui_mode values",
+      "update": {
+        "x-shapi-advisory": "stripe-checkout-session-ui-mode-values-renamed",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-03-25"
+      }
+    },
+    {
+      "target": "$.paths['/v1/checkout/sessions/{session}'].post",
+      "description": "Stripe 2026-03-25.dahlia renames Checkout Session ui_mode values",
+      "update": {
+        "x-shapi-advisory": "stripe-checkout-session-ui-mode-values-renamed",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-03-25"
+      }
+    },
+    {
+      "target": "$.paths['/v1/checkout/sessions/{session}/expire'].post",
+      "description": "Stripe 2026-03-25.dahlia renames Checkout Session ui_mode values",
+      "update": {
+        "x-shapi-advisory": "stripe-checkout-session-ui-mode-values-renamed",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-03-25"
+      }
+    },
+    {
+      "target": "$.paths['/v1/checkout/sessions/{session}/line_items'].get",
+      "description": "Stripe 2026-03-25.dahlia renames Checkout Session ui_mode values",
+      "update": {
+        "x-shapi-advisory": "stripe-checkout-session-ui-mode-values-renamed",
+        "x-shapi-change-class": "enum-added",
+        "x-shapi-effective-date": "2026-03-25"
+      }
+    }
+  ]
+}

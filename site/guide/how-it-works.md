@@ -48,7 +48,7 @@ The [GitHub App](/guide/github-app) runs all of this on every push to your defau
 
 ## Where the knowledge comes from
 
-- **Advisories:** reviewed entries in the open [advisory database](/advisories).
+- **Advisories:** reviewed entries in the open [advisory database](/advisories). Each is also published as an [OSV](https://ossf.github.io/osv-schema/) record (`/osv/<id>.json`), and, where the provider publishes its OpenAPI spec (GitHub, OpenAI, Stripe, Twilio), as an [OpenAPI Overlay](https://spec.openapis.org/overlay/v1.0.0.html) of the spec after the change (`/overlays/<id>.overlay.json`) and an [Arazzo](https://spec.openapis.org/arazzo/latest.html) workflow that shows it (`/arazzo/<id>.arazzo.json`). Each overlay names the spec commit it applies to.
 - **Canaries:** SHAPI probes the provider APIs it holds its own test accounts for (never with your keys) and records the *shape* of each response (status, field names and types; never the values), so it notices a silent change and can draft a new advisory for review.
 - **Spec history:** SHAPI diffs providers' published OpenAPI specs across releases to draft advisories, and measures how often each provider's spec breaks clients in the [spec churn index](./spec-churn).
 - **Recordings:** before and after response shapes for an endpoint, used to build a contract test when the advisory's fix doesn't describe the change by itself.

@@ -1,0 +1,70 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory openai-evals-api-shutdown: Evals API shuts down on 2026-11-30",
+    "version": "2026-11-30"
+  },
+  "extends": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+  "actions": [
+    {
+      "target": "$.paths['/evals'].get",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals'].post",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}'].delete",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}'].get",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}'].post",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}/runs'].get",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}/runs'].post",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}/runs/{run_id}'].delete",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}/runs/{run_id}'].get",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}/runs/{run_id}/cancel'].post",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}/runs/{run_id}/output_items'].get",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/evals/{eval_id}/runs/{run_id}/output_items/{output_item_id}'].get",
+      "description": "Shut down on 2026-11-30",
+      "remove": true
+    }
+  ]
+}

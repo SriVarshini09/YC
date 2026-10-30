@@ -1,0 +1,123 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory openai-evals-api-shutdown",
+    "summary": "Evals API shuts down on 2026-11-30",
+    "version": "2026-11-30"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "openai-openapi",
+      "url": "https://raw.githubusercontent.com/openai/openai-openapi/2e9ebb365c2e8332c73f3ee8b562dca8dc0047ce/openapi.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "openai-evals-api-shutdown",
+      "summary": "Shows the change: OpenAI is retiring the Evals platform: existing evals become read-only on 2026-10-31, and the Evals dashboard and API shut down on 2026-11-30. After that, calls to /v1/evals and its runs fail.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "GET /v1/evals fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-2",
+          "description": "POST /v1/evals fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-3",
+          "description": "DELETE /v1/evals/{eval_id} fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals~1{eval_id}/delete",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-4",
+          "description": "GET /v1/evals/{eval_id} fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals~1{eval_id}/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-5",
+          "description": "POST /v1/evals/{eval_id} fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals~1{eval_id}/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-6",
+          "description": "GET /v1/evals/{eval_id}/runs fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals~1{eval_id}~1runs/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-7",
+          "description": "POST /v1/evals/{eval_id}/runs fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals~1{eval_id}~1runs/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-8",
+          "description": "DELETE /v1/evals/{eval_id}/runs/{run_id} fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals~1{eval_id}~1runs~1{run_id}/delete",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-9",
+          "description": "GET /v1/evals/{eval_id}/runs/{run_id} fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals~1{eval_id}~1runs~1{run_id}/get",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-10",
+          "description": "POST /v1/evals/{eval_id}/runs/{run_id}/cancel fails from 2026-11-30: the operation is shut down",
+          "operationPath": "{$sourceDescriptions.openai-openapi.url}#/paths/~1evals~1{eval_id}~1runs~1{run_id}~1cancel/post",
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

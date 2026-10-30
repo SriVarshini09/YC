@@ -1,0 +1,24 @@
+{
+  "overlay": "1.0.0",
+  "info": {
+    "title": "SHAPI advisory github-workflow-dispatch-204-to-200: workflow_dispatch returns 200 with a body instead of 204",
+    "version": "2025-12-19"
+  },
+  "extends": "https://raw.githubusercontent.com/github/rest-api-description/066b825d08409eb6c48ddfdd7547c0b70a72dfaf/descriptions/api.github.com/api.github.com.json",
+  "actions": [
+    {
+      "target": "$.paths['/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches'].post.responses['204']",
+      "description": "No longer answers 204",
+      "remove": true
+    },
+    {
+      "target": "$.paths['/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches'].post",
+      "description": "workflow_dispatch returns 200 with a body instead of 204",
+      "update": {
+        "x-shapi-advisory": "github-workflow-dispatch-204-to-200",
+        "x-shapi-change-class": "status-code",
+        "x-shapi-effective-date": "2025-12-19"
+      }
+    }
+  ]
+}

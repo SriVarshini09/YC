@@ -1,0 +1,87 @@
+{
+  "arazzo": "1.0.1",
+  "info": {
+    "title": "SHAPI advisory stripe-endive-billing-cycle-anchor-object",
+    "summary": "Stripe 2026-09-30.endive requires an object for billing_cycle_anchor on subscription updates",
+    "version": "2026-09-30"
+  },
+  "sourceDescriptions": [
+    {
+      "name": "stripe-spec3",
+      "url": "https://raw.githubusercontent.com/stripe/openapi/51610f5f061c9723730582a7638b8cc0e646640d/openapi/spec3.json",
+      "type": "openapi"
+    }
+  ],
+  "workflows": [
+    {
+      "workflowId": "stripe-endive-billing-cycle-anchor-object",
+      "summary": "Shows the change: From API version 2026-09-30.endive, billing_cycle_anchor on Subscription update and resume (and subscription_details.billing_cycle_anchor on Invoice create_preview) takes an object with a type instead of the strings now and unchanged, so requests sending the old string form fail.",
+      "steps": [
+        {
+          "stepId": "call-1",
+          "description": "POST /v1/subscriptions/{subscription_exposed_id} fails from 2026-09-30 when the body sends billing_cycle_anchor = now",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1subscriptions~1{subscription_exposed_id}/post",
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "billing_cycle_anchor": "now"
+            }
+          },
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-2",
+          "description": "POST /v1/subscriptions/{subscription}/migrate fails from 2026-09-30 when the body sends billing_cycle_anchor = now",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1subscriptions~1{subscription}~1migrate/post",
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "billing_cycle_anchor": "now"
+            }
+          },
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-3",
+          "description": "POST /v1/subscriptions/{subscription}/pause fails from 2026-09-30 when the body sends billing_cycle_anchor = now",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1subscriptions~1{subscription}~1pause/post",
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "billing_cycle_anchor": "now"
+            }
+          },
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        },
+        {
+          "stepId": "call-4",
+          "description": "POST /v1/subscriptions/{subscription}/resume fails from 2026-09-30 when the body sends billing_cycle_anchor = now",
+          "operationPath": "{$sourceDescriptions.stripe-spec3.url}#/paths/~1v1~1subscriptions~1{subscription}~1resume/post",
+          "requestBody": {
+            "contentType": "application/json",
+            "payload": {
+              "billing_cycle_anchor": "now"
+            }
+          },
+          "successCriteria": [
+            {
+              "condition": "$statusCode >= 400"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
