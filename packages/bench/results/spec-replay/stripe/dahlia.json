@@ -1,0 +1,957 @@
+{
+  "score": {
+    "release": "dahlia",
+    "version": "2026-03-25.dahlia",
+    "before": {
+      "sha": "da3eadb239b437b59cdf3459768bc2a6672165f6",
+      "version": "2026-02-25.clover"
+    },
+    "after": {
+      "sha": "cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3",
+      "version": "2026-03-25.dahlia"
+    },
+    "candidates": 26,
+    "candidatesByKind": {
+      "parameter-removed": 2,
+      "enum-value-added": 7,
+      "schema-removed": 2,
+      "property-type-changed": 14,
+      "property-removed": 1
+    },
+    "breakingEntries": 8,
+    "clientOnly": 6,
+    "breakingFound": 3,
+    "behaviorOnly": 2,
+    "outsideSpec": 1,
+    "previewOnly": 2,
+    "breakingMissed": 0,
+    "candidatesMatchingBreaking": 3,
+    "candidatesMatchingNonBreaking": 8,
+    "nonBreakingEntriesMatched": 4,
+    "missed": [
+      {
+        "title": "Adds risk requirements to the Capabilities API",
+        "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/capabilities-api-risk-requirements.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Updates the events_from parameter on event destinations to accept string values",
+        "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/updates-eventsfrom-parameter-on-event-destinations.md",
+        "reason": "a v2 API, which stripe/openapi does not publish"
+      },
+      {
+        "title": "Removes the source type property from Stripe balance payment methods",
+        "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/stripe-balance-payment-method-source-type.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Adds multicurrency support for v2 payout methods",
+        "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/multicurrency-v2-payout-methods.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Restricts Accounts v2 identity properties for some Global Payouts use cases",
+        "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/accounts-identity-fields-global-payouts.md",
+        "reason": "no REST field change listed: a behavior change"
+      }
+    ]
+  },
+  "changes": [
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/test_helpers/issuing/authorizations",
+      "field": "risk_assessment.card_testing_risk.risk_level",
+      "detail": "POST /v1/test_helpers/issuing/authorizations no longer takes risk_assessment.card_testing_risk.risk_level"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/test_helpers/issuing/authorizations",
+      "field": "risk_assessment.merchant_dispute_risk.risk_level",
+      "detail": "POST /v1/test_helpers/issuing/authorizations no longer takes risk_assessment.merchant_dispute_risk.risk_level"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "cancellation_details",
+      "field": "reason",
+      "values": [
+        "canceled_by_retention_policy"
+      ],
+      "detail": "cancellation_details.reason can now return canceled_by_retention_policy"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "checkout.session",
+      "field": "ui_mode",
+      "values": [
+        "elements",
+        "embedded_page",
+        "form",
+        "hosted_page"
+      ],
+      "detail": "checkout.session.ui_mode can now return elements, embedded_page, form, hosted_page"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "climate.supplier",
+      "field": "removal_pathway",
+      "values": [
+        "marine_carbon_removal"
+      ],
+      "detail": "climate.supplier.removal_pathway can now return marine_carbon_removal"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "confirmation_tokens_resource_payment_method_preview",
+      "field": "type",
+      "values": [
+        "upi"
+      ],
+      "detail": "confirmation_tokens_resource_payment_method_preview.type can now return upi"
+    },
+    {
+      "kind": "schema-removed",
+      "changeClass": "field-rename",
+      "schema": "insights_resources_payment_evaluation_insights",
+      "detail": "the insights_resources_payment_evaluation_insights object is gone"
+    },
+    {
+      "kind": "schema-removed",
+      "changeClass": "field-rename",
+      "schema": "insights_resources_payment_evaluation_scorer",
+      "detail": "the insights_resources_payment_evaluation_scorer object is gone"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "issuing_network_token_visa",
+      "field": "card_reference_id",
+      "detail": "issuing_network_token_visa.card_reference_id changed from string to string|null"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payment_method",
+      "field": "type",
+      "values": [
+        "upi"
+      ],
+      "detail": "payment_method.type can now return upi"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payment_method_details_crypto",
+      "field": "network",
+      "values": [
+        "tempo"
+      ],
+      "detail": "payment_method_details_crypto.network can now return tempo"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_card_details",
+      "field": "brand",
+      "detail": "payments_primitives_payment_records_resource_payment_method_card_details.brand changed from string to string|null"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_card_details",
+      "field": "exp_month",
+      "detail": "payments_primitives_payment_records_resource_payment_method_card_details.exp_month changed from integer to integer|null"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_card_details",
+      "field": "exp_year",
+      "detail": "payments_primitives_payment_records_resource_payment_method_card_details.exp_year changed from integer to integer|null"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_card_details",
+      "field": "funding",
+      "detail": "payments_primitives_payment_records_resource_payment_method_card_details.funding changed from string to string|null"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_card_details",
+      "field": "last4",
+      "detail": "payments_primitives_payment_records_resource_payment_method_card_details.last4 changed from string to string|null"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_details",
+      "field": "ideal",
+      "detail": "payments_primitives_payment_records_resource_payment_method_details.ideal changed from ref:payment_method_details_ideal to ref:payment_method_details_payment_record_ideal"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_details",
+      "field": "mobilepay",
+      "detail": "payments_primitives_payment_records_resource_payment_method_details.mobilepay changed from ref:payment_method_details_mobilepay to ref:payment_method_details_payment_record_mobilepay"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_details",
+      "field": "payco",
+      "detail": "payments_primitives_payment_records_resource_payment_method_details.payco changed from ref:payment_method_details_payco to ref:payment_method_details_payment_record_payco"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_details",
+      "field": "pix",
+      "detail": "payments_primitives_payment_records_resource_payment_method_details.pix changed from ref:payment_method_details_pix to ref:payment_method_details_payment_record_pix"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_details",
+      "field": "samsung_pay",
+      "detail": "payments_primitives_payment_records_resource_payment_method_details.samsung_pay changed from ref:payment_method_details_samsung_pay to ref:payment_method_details_payment_record_samsung_pay"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_details",
+      "field": "sofort",
+      "detail": "payments_primitives_payment_records_resource_payment_method_details.sofort changed from ref:payment_method_details_sofort to ref:payment_method_details_payment_record_sofort"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_details",
+      "field": "swish",
+      "detail": "payments_primitives_payment_records_resource_payment_method_details.swish changed from ref:payment_method_details_swish to ref:payment_method_details_payment_record_swish"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payments_primitives_payment_records_resource_payment_method_details",
+      "field": "twint",
+      "detail": "payments_primitives_payment_records_resource_payment_method_details.twint changed from ref:payment_method_details_twint to ref:payment_method_details_payment_record_twint"
+    },
+    {
+      "kind": "property-removed",
+      "changeClass": "field-rename",
+      "schema": "radar.payment_evaluation",
+      "field": "insights",
+      "detail": "radar.payment_evaluation.insights is gone"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "radar.value_list",
+      "field": "item_type",
+      "values": [
+        "crypto_fingerprint"
+      ],
+      "detail": "radar.value_list.item_type can now return crypto_fingerprint"
+    }
+  ],
+  "drafts": [
+    {
+      "id": "stripe-dahlia-parameter-removed-post-v1-test-helpers-issuing-authorizations-risk-assessment-card-testing-risk-risk-level",
+      "provider": "stripe",
+      "title": "POST /v1/test_helpers/issuing/authorizations no longer takes risk_assessment.card_testing_risk.risk_level in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: POST /v1/test_helpers/issuing/authorizations no longer takes risk_assessment.card_testing_risk.risk_level. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/test_helpers/issuing/authorizations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "risk_assessment.card_testing_risk.risk_level"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends risk_assessment.card_testing_risk.risk_level before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-parameter-removed-post-v1-test-helpers-issuing-authorizations-risk-assessment-merchant-dispute-risk-risk-l",
+      "provider": "stripe",
+      "title": "POST /v1/test_helpers/issuing/authorizations no longer takes risk_assessment.merchant_dispute_risk.risk_level in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: POST /v1/test_helpers/issuing/authorizations no longer takes risk_assessment.merchant_dispute_risk.risk_level. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/test_helpers/issuing/authorizations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "risk_assessment.merchant_dispute_risk.risk_level"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends risk_assessment.merchant_dispute_risk.risk_level before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-enum-value-added-cancellation-details-reason",
+      "provider": "stripe",
+      "title": "cancellation_details.reason can now return canceled_by_retention_policy in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: cancellation_details.reason can now return canceled_by_retention_policy. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "reason"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads reason before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-enum-value-added-checkout-session-ui-mode",
+      "provider": "stripe",
+      "title": "checkout.session.ui_mode can now return elements, embedded_page, form, hosted_page in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: checkout.session.ui_mode can now return elements, embedded_page, form, hosted_page. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/checkout/sessions/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "ui_mode"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads ui_mode before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-enum-value-added-climate-supplier-removal-pathway",
+      "provider": "stripe",
+      "title": "climate.supplier.removal_pathway can now return marine_carbon_removal in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: climate.supplier.removal_pathway can now return marine_carbon_removal. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/climate/suppliers/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "removal_pathway"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads removal_pathway before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-enum-value-added-confirmation-tokens-resource-payment-method-preview-type",
+      "provider": "stripe",
+      "title": "confirmation_tokens_resource_payment_method_preview.type can now return upi in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: confirmation_tokens_resource_payment_method_preview.type can now return upi. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-schema-removed-insights-resources-payment-evaluation-insights",
+      "provider": "stripe",
+      "title": "the insights_resources_payment_evaluation_insights object is gone in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: the insights_resources_payment_evaluation_insights object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads insights_resources_payment_evaluation_insights before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-schema-removed-insights-resources-payment-evaluation-scorer",
+      "provider": "stripe",
+      "title": "the insights_resources_payment_evaluation_scorer object is gone in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: the insights_resources_payment_evaluation_scorer object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads insights_resources_payment_evaluation_scorer before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-issuing-network-token-visa-card-reference-id",
+      "provider": "stripe",
+      "title": "issuing_network_token_visa.card_reference_id changed from string to string|null in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: issuing_network_token_visa.card_reference_id changed from string to string|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "card_reference_id"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads card_reference_id before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-enum-value-added-payment-method-type",
+      "provider": "stripe",
+      "title": "payment_method.type can now return upi in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payment_method.type can now return upi. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-enum-value-added-payment-method-details-crypto-network",
+      "provider": "stripe",
+      "title": "payment_method_details_crypto.network can now return tempo in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payment_method_details_crypto.network can now return tempo. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "network"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads network before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-card-details-brand",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_card_details.brand changed from string to string|null in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_card_details.brand changed from string to string|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "brand"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads brand before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-card-details-exp-month",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_card_details.exp_month changed from integer to integer|null in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_card_details.exp_month changed from integer to integer|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "exp_month"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads exp_month before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-card-details-exp-year",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_card_details.exp_year changed from integer to integer|null in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_card_details.exp_year changed from integer to integer|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "exp_year"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads exp_year before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-card-details-funding",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_card_details.funding changed from string to string|null in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_card_details.funding changed from string to string|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "funding"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads funding before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-card-details-last4",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_card_details.last4 changed from string to string|null in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_card_details.last4 changed from string to string|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "last4"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads last4 before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-details-ideal",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_details.ideal changed from ref:payment_method_details_ideal to ref:payment_method_details_payment_record_ideal in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_details.ideal changed from ref:payment_method_details_ideal to ref:payment_method_details_payment_record_ideal. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "ideal"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads ideal before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-details-mobilepay",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_details.mobilepay changed from ref:payment_method_details_mobilepay to ref:payment_method_details_payment_record_mobilepay in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_details.mobilepay changed from ref:payment_method_details_mobilepay to ref:payment_method_details_payment_record_mobilepay. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "mobilepay"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads mobilepay before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-details-payco",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_details.payco changed from ref:payment_method_details_payco to ref:payment_method_details_payment_record_payco in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_details.payco changed from ref:payment_method_details_payco to ref:payment_method_details_payment_record_payco. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "payco"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads payco before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-details-pix",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_details.pix changed from ref:payment_method_details_pix to ref:payment_method_details_payment_record_pix in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_details.pix changed from ref:payment_method_details_pix to ref:payment_method_details_payment_record_pix. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "pix"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads pix before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-details-samsung-pay",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_details.samsung_pay changed from ref:payment_method_details_samsung_pay to ref:payment_method_details_payment_record_samsung_pay in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_details.samsung_pay changed from ref:payment_method_details_samsung_pay to ref:payment_method_details_payment_record_samsung_pay. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "samsung_pay"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads samsung_pay before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-details-sofort",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_details.sofort changed from ref:payment_method_details_sofort to ref:payment_method_details_payment_record_sofort in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_details.sofort changed from ref:payment_method_details_sofort to ref:payment_method_details_payment_record_sofort. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "sofort"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads sofort before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-details-swish",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_details.swish changed from ref:payment_method_details_swish to ref:payment_method_details_payment_record_swish in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_details.swish changed from ref:payment_method_details_swish to ref:payment_method_details_payment_record_swish. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "swish"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads swish before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-type-changed-payments-primitives-payment-records-resource-payment-method-details-twint",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_details.twint changed from ref:payment_method_details_twint to ref:payment_method_details_payment_record_twint in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: payments_primitives_payment_records_resource_payment_method_details.twint changed from ref:payment_method_details_twint to ref:payment_method_details_payment_record_twint. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "twint"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads twint before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-property-removed-radar-payment-evaluation-insights",
+      "provider": "stripe",
+      "title": "radar.payment_evaluation.insights is gone in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: radar.payment_evaluation.insights is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/radar/payment_evaluations"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "insights"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads insights before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-dahlia-enum-value-added-radar-value-list-item-type",
+      "provider": "stripe",
+      "title": "radar.value_list.item_type can now return crypto_fingerprint in 2026-03-25.dahlia",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-03-25.dahlia: radar.value_list.item_type can now return crypto_fingerprint. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/radar/value_lists/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "item_type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-03-25",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads item_type before moving to 2026-03-25.dahlia.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/cfe95bf4b8074b8d8957b8ed9b10988e4fa0d9c3/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/da3eadb239b437b59cdf3459768bc2a6672165f6/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    }
+  ]
+}

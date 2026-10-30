@@ -1,0 +1,2280 @@
+{
+  "score": {
+    "release": "endive",
+    "version": "2026-09-30.endive",
+    "before": {
+      "sha": "30d3391cc09a0f67ad29bee002f570811b19e1da",
+      "version": "2026-08-26.dahlia"
+    },
+    "after": {
+      "sha": "c8faccbde66b784ea916d3c28f5790d7a9c9aee2",
+      "version": "2026-09-30.endive"
+    },
+    "candidates": 58,
+    "candidatesByKind": {
+      "parameter-removed": 36,
+      "enum-value-added": 16,
+      "property-removed": 2,
+      "property-type-changed": 3,
+      "schema-removed": 1
+    },
+    "breakingEntries": 34,
+    "clientOnly": 6,
+    "breakingFound": 5,
+    "behaviorOnly": 6,
+    "outsideSpec": 5,
+    "previewOnly": 8,
+    "breakingMissed": 10,
+    "candidatesMatchingBreaking": 10,
+    "candidatesMatchingNonBreaking": 8,
+    "nonBreakingEntriesMatched": 6,
+    "missed": [
+      {
+        "title": "Unifies the billing cycle anchor format across Subscriptions and Invoices",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/polymorphic-billing-cycle-anchor.md",
+        "reason": "no spec change matches subscription_details.billing_cycle_anchor (Changed), billing_cycle_anchor (Changed), billing_cycle_anchor (Changed)"
+      },
+      {
+        "title": "Adds address validation errors for CMRAs and registered agents to Accounts v1 and Accounts v2",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/address-validation-cmra-registered-agents-accounts-v2.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Adds rejected status for Accounts v2 capabilities",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/rejected-accounts-v2-capabilities.md",
+        "reason": "a v2 API, which stripe/openapi does not publish"
+      },
+      {
+        "title": "Replaces the generic fraud rejection reason with specific fraud reasons",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/updated-reject-reason-codes.md",
+        "reason": "no spec change matches reason (Removed), reason (Added), reason (Changed)"
+      },
+      {
+        "title": "Removes the configurations parameter from the Account Links v2 API",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/removes-configurations-parameter-from-v2-core-account-links-api.md",
+        "reason": "a v2 API, which stripe/openapi does not publish"
+      },
+      {
+        "title": "Standardizes SEPA Direct Debit payment settings in the Accounts API",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/sepa-debit-settings-accounts.md",
+        "reason": "no spec change matches sepa_debit_payments (Added)"
+      },
+      {
+        "title": "Shows errors for eventually due requirements",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/shows-errors-for-eventually-due-requirements.md",
+        "reason": "no spec change matches requirements.errors (Changed), future_requirements.errors (Changed), account.updated (Changed)"
+      },
+      {
+        "title": "Distinguishes platform-initiated account rejections from Stripe rejections",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/platform-rejection-reasons.md",
+        "reason": "no spec change matches requirements.disabled_reason (Changed), future_requirements.disabled_reason (Changed), account.updated (Changed)"
+      },
+      {
+        "title": "Updates Financial Connections Session defaults",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/financial-connections-session-defaults.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Adds support for Data Share Only for 3D Secure authentication",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/data-share-only.md",
+        "reason": "no spec change matches result (Added)"
+      },
+      {
+        "title": "Returns specific decline codes for BLIK payment failures",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/blik-granular-decline-codes.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Adds Failed Tax Calculation error",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/failed-tax-calculation-error.md",
+        "reason": "no spec change matches failed_tax_calculation (Added)"
+      },
+      {
+        "title": "Renames the Reserve Release reason enum value",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/reserve-release-reason.md",
+        "reason": "no spec change matches reason (Added), reason (Removed)"
+      },
+      {
+        "title": "Adds destination property and new enum values to Reserve Plans, Holds and Releases",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/settlement-reserve-api.md",
+        "reason": "no spec change matches destination (Added), destination (Added), manual_release (Added)"
+      },
+      {
+        "title": "Adds page limit validation for dispute evidence",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/page-limit-validation-dispute-evidence.md",
+        "reason": "no spec change matches dispute_evidence_page_limit_exceeded (Added)"
+      },
+      {
+        "title": "Rejects duplicate references for pending India card mandates",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/duplicate-reference-validation-for-india-pending-mandates.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Surfaces India card mandates on Charges and SetupIntents even when inactive",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/surface-india-card-mandate-even-when-inactive.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Adds archiving and trial end behavior settings to Trial Offers",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/trial-offers-archiving-and-trial-end-behavior-settings.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Upgrades fields and refines error contracts for Payout Methods",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/pre-ga-upgrades-v2-poms.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Adds rejected status for Accounts v2 capabilities",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/rejected-accounts-v2-capabilities-preview.md",
+        "reason": "a v2 API, which stripe/openapi does not publish"
+      },
+      {
+        "title": "Adds page limit validation for dispute evidence",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/page-limit-validation-for-dispute-evidence.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Removes the capture method parameter for PayPay payments",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/removes-capture-method-parameter-for-paypay-payments.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Updates the shapes of v2 Financial Address and v2 Received Credit objects",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/financial-address-and-received-credit-shape-updates.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Removes level property from inbound transfer history and changes date filtering syntax for list endpoints",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/removes-level-property-from-inbound-transfer-history-and-changes-date-filtering-syntax-for-list-endpoints.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Moves Financial Address test helper endpoints to the money management namespace",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/moves-financial-address-test-helper-endpoints-to-the-money-management-namespace.md",
+        "reason": "a v2 API, which stripe/openapi does not publish"
+      },
+      {
+        "title": "Opens the adjusted flow type enum and changes the list filters for v2 Adjustments and v2 Transactions",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/opens-adjusted-flow-type-enum-and-changes-date-filtering-syntax.md",
+        "reason": "a v2 API, which stripe/openapi does not publish"
+      },
+      {
+        "title": "Updates Financial Address request and response structure",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/updating-financial-address-request-and-response-structure.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Expands Reserve Plan listing access and adds filters",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/expands-reserve-plan-listing-access.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Adds fraudulent merchant and fraudulent website account signals to the Signals API",
+        "url": "https://docs.stripe.com/changelog/endive/2026-09-30/fraudulent-merchant-and-fraudulent-website-account-signals.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      }
+    ]
+  },
+  "changes": [
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/checkout/sessions",
+      "field": "payment_method_types",
+      "detail": "POST /v1/checkout/sessions no longer takes payment_method_types"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/financial_connections/sessions",
+      "field": "filters.countries",
+      "detail": "POST /v1/financial_connections/sessions no longer takes filters.countries"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/link_account_sessions",
+      "field": "filters.countries",
+      "detail": "POST /v1/link_account_sessions no longer takes filters.countries"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/payment_intents",
+      "field": "payment_method_types",
+      "detail": "POST /v1/payment_intents no longer takes payment_method_types"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/payment_intents/{intent}",
+      "field": "payment_method_types",
+      "detail": "POST /v1/payment_intents/{intent} no longer takes payment_method_types"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/payment_intents/{intent}/confirm",
+      "field": "payment_method_types",
+      "detail": "POST /v1/payment_intents/{intent}/confirm no longer takes payment_method_types"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/payment_methods/{payment_method}",
+      "field": "payto",
+      "detail": "POST /v1/payment_methods/{payment_method} no longer takes payto"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/setup_intents",
+      "field": "payment_method_types",
+      "detail": "POST /v1/setup_intents no longer takes payment_method_types"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/setup_intents/{intent}",
+      "field": "payment_method_types",
+      "detail": "POST /v1/setup_intents/{intent} no longer takes payment_method_types"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.at.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.at.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.be.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.be.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.bg.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.bg.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.cy.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.cy.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.cz.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.cz.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.de.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.de.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.dk.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.dk.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.ee.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.ee.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.es.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.es.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.fi.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.fi.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.fr.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.fr.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.gr.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.gr.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.hr.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.hr.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.hu.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.hu.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.ie.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.ie.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.it.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.it.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.lt.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.lt.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.lu.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.lu.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.lv.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.lv.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.mt.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.mt.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.nl.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.nl.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.pl.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.pl.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.pt.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.pt.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.ro.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.ro.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.se.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.se.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.si.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.si.igic"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/tax/registrations",
+      "field": "country_options.sk.igic",
+      "detail": "POST /v1/tax/registrations no longer takes country_options.sk.igic"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "account_requirements_error",
+      "field": "code",
+      "values": [
+        "invalid_address_cmra_address",
+        "invalid_address_registered_agent_address"
+      ],
+      "detail": "account_requirements_error.code can now return invalid_address_cmra_address, invalid_address_registered_agent_address"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "balance_transaction",
+      "field": "type",
+      "values": [
+        "issuing_dispute_provisional_credit",
+        "issuing_dispute_provisional_credit_reversal"
+      ],
+      "detail": "balance_transaction.type can now return issuing_dispute_provisional_credit, issuing_dispute_provisional_credit_reversal"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "bank_connections_resource_account_number_details",
+      "field": "status",
+      "values": [
+        "expired",
+        "pending"
+      ],
+      "detail": "bank_connections_resource_account_number_details.status can now return expired, pending"
+    },
+    {
+      "kind": "property-removed",
+      "changeClass": "field-rename",
+      "schema": "bank_connections_resource_link_account_session_filters",
+      "field": "countries",
+      "detail": "bank_connections_resource_link_account_session_filters.countries is gone"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "checkout.session",
+      "field": "ui_mode",
+      "values": [
+        "form"
+      ],
+      "detail": "checkout.session.ui_mode can now return form"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "checkout_bancontact_payment_method_options",
+      "field": "setup_future_usage",
+      "values": [
+        "off_session"
+      ],
+      "detail": "checkout_bancontact_payment_method_options.setup_future_usage can now return off_session"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "confirmation_tokens_resource_payment_method_preview",
+      "field": "type",
+      "values": [
+        "paypay",
+        "sequra"
+      ],
+      "detail": "confirmation_tokens_resource_payment_method_preview.type can now return paypay, sequra"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "insights_resources_payment_evaluation_outcome",
+      "field": "type",
+      "values": [
+        "rerouted"
+      ],
+      "detail": "insights_resources_payment_evaluation_outcome.type can now return rerouted"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "insights_resources_payment_evaluation_signal_v2",
+      "field": "score",
+      "detail": "insights_resources_payment_evaluation_signal_v2.score changed from number to number|null"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payment_intent_payment_method_options_blik",
+      "field": "setup_future_usage",
+      "values": [
+        "off_session"
+      ],
+      "detail": "payment_intent_payment_method_options_blik.setup_future_usage can now return off_session"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payment_method",
+      "field": "type",
+      "values": [
+        "paypay",
+        "sequra"
+      ],
+      "detail": "payment_method.type can now return paypay, sequra"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "payment_method_details_card",
+      "field": "mandate",
+      "detail": "payment_method_details_card.mandate changed from string|null to ref:mandate|string|null"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payments_primitives_payment_records_resource_payment_method_card_details_resource_three_d_secure",
+      "field": "version",
+      "values": [
+        "2.3.0",
+        "2.3.1"
+      ],
+      "detail": "payments_primitives_payment_records_resource_payment_method_card_details_resource_three_d_secure.version can now return 2.3.0, 2.3.1"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "tax_product_registrations_resource_country_options",
+      "field": "es",
+      "detail": "tax_product_registrations_resource_country_options.es changed from ref:tax_product_registrations_resource_country_options_europe to ref:tax_product_registrations_resource_country_options_spain"
+    },
+    {
+      "kind": "property-removed",
+      "changeClass": "field-rename",
+      "schema": "tax_product_registrations_resource_country_options_europe",
+      "field": "igic",
+      "detail": "tax_product_registrations_resource_country_options_europe.igic is gone"
+    },
+    {
+      "kind": "schema-removed",
+      "changeClass": "field-rename",
+      "schema": "tax_product_registrations_resource_country_options_igic",
+      "detail": "the tax_product_registrations_resource_country_options_igic object is gone"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "tax_product_registrations_resource_country_options_united_states",
+      "field": "type",
+      "values": [
+        "admissions_tax",
+        "attendance_tax",
+        "entertainment_tax",
+        "gross_receipts_tax",
+        "hospitality_tax",
+        "luxury_tax",
+        "resort_tax",
+        "tourism_tax"
+      ],
+      "detail": "tax_product_registrations_resource_country_options_united_states.type can now return admissions_tax, attendance_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, resort_tax, tourism_tax"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "tax_product_resource_line_item_tax_breakdown",
+      "field": "sourcing",
+      "values": [
+        "performance"
+      ],
+      "detail": "tax_product_resource_line_item_tax_breakdown.sourcing can now return performance"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "tax_product_resource_line_item_tax_rate_details",
+      "field": "tax_type",
+      "values": [
+        "admissions_tax",
+        "attendance_tax",
+        "digital_excise_tax",
+        "entertainment_tax",
+        "gross_receipts_tax",
+        "hospitality_tax",
+        "luxury_tax",
+        "recycling_fee",
+        "resort_tax",
+        "tourism_tax",
+        "utility_users_tax"
+      ],
+      "detail": "tax_product_resource_line_item_tax_rate_details.tax_type can now return admissions_tax, attendance_tax, digital_excise_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, recycling_fee, resort_tax, tourism_tax, utility_users_tax"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "tax_product_resource_tax_rate_details",
+      "field": "tax_type",
+      "values": [
+        "admissions_tax",
+        "attendance_tax",
+        "digital_excise_tax",
+        "entertainment_tax",
+        "gross_receipts_tax",
+        "hospitality_tax",
+        "luxury_tax",
+        "recycling_fee",
+        "resort_tax",
+        "tourism_tax",
+        "utility_users_tax"
+      ],
+      "detail": "tax_product_resource_tax_rate_details.tax_type can now return admissions_tax, attendance_tax, digital_excise_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, recycling_fee, resort_tax, tourism_tax, utility_users_tax"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "tax_rate",
+      "field": "tax_type",
+      "values": [
+        "digital_excise_tax",
+        "utility_users_tax"
+      ],
+      "detail": "tax_rate.tax_type can now return digital_excise_tax, utility_users_tax"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "treasury.received_credit",
+      "field": "network",
+      "values": [
+        "rtp"
+      ],
+      "detail": "treasury.received_credit.network can now return rtp"
+    }
+  ],
+  "drafts": [
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-checkout-sessions-payment-method-types",
+      "provider": "stripe",
+      "title": "POST /v1/checkout/sessions no longer takes payment_method_types in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/checkout/sessions no longer takes payment_method_types. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/checkout/sessions"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-financial-connections-sessions-filters-countries",
+      "provider": "stripe",
+      "title": "POST /v1/financial_connections/sessions no longer takes filters.countries in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/financial_connections/sessions no longer takes filters.countries. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/financial_connections/sessions"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "filters.countries"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends filters.countries before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-link-account-sessions-filters-countries",
+      "provider": "stripe",
+      "title": "POST /v1/link_account_sessions no longer takes filters.countries in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/link_account_sessions no longer takes filters.countries. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/link_account_sessions"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "filters.countries"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends filters.countries before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-payment-intents-payment-method-types",
+      "provider": "stripe",
+      "title": "POST /v1/payment_intents no longer takes payment_method_types in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/payment_intents no longer takes payment_method_types. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/payment_intents"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-payment-intents-intent-payment-method-types",
+      "provider": "stripe",
+      "title": "POST /v1/payment_intents/{intent} no longer takes payment_method_types in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/payment_intents/{intent} no longer takes payment_method_types. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/payment_intents/{intent}"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-payment-intents-intent-confirm-payment-method-types",
+      "provider": "stripe",
+      "title": "POST /v1/payment_intents/{intent}/confirm no longer takes payment_method_types in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/payment_intents/{intent}/confirm no longer takes payment_method_types. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/payment_intents/{intent}/confirm"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-payment-methods-payment-method-payto",
+      "provider": "stripe",
+      "title": "POST /v1/payment_methods/{payment_method} no longer takes payto in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/payment_methods/{payment_method} no longer takes payto. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/payment_methods/{payment_method}"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "payto"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends payto before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-setup-intents-payment-method-types",
+      "provider": "stripe",
+      "title": "POST /v1/setup_intents no longer takes payment_method_types in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/setup_intents no longer takes payment_method_types. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/setup_intents"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-setup-intents-intent-payment-method-types",
+      "provider": "stripe",
+      "title": "POST /v1/setup_intents/{intent} no longer takes payment_method_types in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/setup_intents/{intent} no longer takes payment_method_types. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/setup_intents/{intent}"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "payment_method_types"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends payment_method_types before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-at-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.at.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.at.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.at.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.at.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-be-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.be.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.be.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.be.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.be.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-bg-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.bg.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.bg.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.bg.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.bg.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-cy-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.cy.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.cy.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.cy.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.cy.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-cz-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.cz.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.cz.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.cz.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.cz.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-de-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.de.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.de.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.de.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.de.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-dk-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.dk.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.dk.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.dk.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.dk.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-ee-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.ee.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.ee.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.ee.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.ee.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-es-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.es.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.es.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.es.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.es.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-fi-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.fi.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.fi.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.fi.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.fi.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-fr-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.fr.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.fr.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.fr.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.fr.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-gr-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.gr.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.gr.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.gr.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.gr.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-hr-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.hr.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.hr.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.hr.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.hr.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-hu-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.hu.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.hu.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.hu.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.hu.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-ie-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.ie.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.ie.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.ie.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.ie.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-it-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.it.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.it.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.it.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.it.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-lt-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.lt.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.lt.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.lt.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.lt.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-lu-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.lu.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.lu.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.lu.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.lu.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-lv-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.lv.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.lv.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.lv.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.lv.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-mt-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.mt.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.mt.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.mt.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.mt.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-nl-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.nl.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.nl.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.nl.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.nl.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-pl-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.pl.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.pl.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.pl.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.pl.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-pt-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.pt.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.pt.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.pt.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.pt.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-ro-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.ro.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.ro.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.ro.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.ro.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-se-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.se.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.se.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.se.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.se.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-si-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.si.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.si.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.si.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.si.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-parameter-removed-post-v1-tax-registrations-country-options-sk-igic",
+      "provider": "stripe",
+      "title": "POST /v1/tax/registrations no longer takes country_options.sk.igic in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: POST /v1/tax/registrations no longer takes country_options.sk.igic. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/tax/registrations"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "country_options.sk.igic"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends country_options.sk.igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-account-requirements-error-code",
+      "provider": "stripe",
+      "title": "account_requirements_error.code can now return invalid_address_cmra_address, invalid_address_registered_agent_address in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: account_requirements_error.code can now return invalid_address_cmra_address, invalid_address_registered_agent_address. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "code"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads code before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-balance-transaction-type",
+      "provider": "stripe",
+      "title": "balance_transaction.type can now return issuing_dispute_provisional_credit, issuing_dispute_provisional_credit_reversal in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: balance_transaction.type can now return issuing_dispute_provisional_credit, issuing_dispute_provisional_credit_reversal. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-bank-connections-resource-account-number-details-status",
+      "provider": "stripe",
+      "title": "bank_connections_resource_account_number_details.status can now return expired, pending in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: bank_connections_resource_account_number_details.status can now return expired, pending. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "status"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads status before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-property-removed-bank-connections-resource-link-account-session-filters-countries",
+      "provider": "stripe",
+      "title": "bank_connections_resource_link_account_session_filters.countries is gone in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: bank_connections_resource_link_account_session_filters.countries is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "countries"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads countries before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-checkout-session-ui-mode",
+      "provider": "stripe",
+      "title": "checkout.session.ui_mode can now return form in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: checkout.session.ui_mode can now return form. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/checkout/sessions/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "ui_mode"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads ui_mode before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-checkout-bancontact-payment-method-options-setup-future-usage",
+      "provider": "stripe",
+      "title": "checkout_bancontact_payment_method_options.setup_future_usage can now return off_session in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: checkout_bancontact_payment_method_options.setup_future_usage can now return off_session. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "setup_future_usage"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads setup_future_usage before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-confirmation-tokens-resource-payment-method-preview-type",
+      "provider": "stripe",
+      "title": "confirmation_tokens_resource_payment_method_preview.type can now return paypay, sequra in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: confirmation_tokens_resource_payment_method_preview.type can now return paypay, sequra. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-insights-resources-payment-evaluation-outcome-type",
+      "provider": "stripe",
+      "title": "insights_resources_payment_evaluation_outcome.type can now return rerouted in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: insights_resources_payment_evaluation_outcome.type can now return rerouted. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-property-type-changed-insights-resources-payment-evaluation-signal-v2-score",
+      "provider": "stripe",
+      "title": "insights_resources_payment_evaluation_signal_v2.score changed from number to number|null in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: insights_resources_payment_evaluation_signal_v2.score changed from number to number|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "score"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads score before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-payment-intent-payment-method-options-blik-setup-future-usage",
+      "provider": "stripe",
+      "title": "payment_intent_payment_method_options_blik.setup_future_usage can now return off_session in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payment_intent_payment_method_options_blik.setup_future_usage can now return off_session. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "setup_future_usage"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads setup_future_usage before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-payment-method-type",
+      "provider": "stripe",
+      "title": "payment_method.type can now return paypay, sequra in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payment_method.type can now return paypay, sequra. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-property-type-changed-payment-method-details-card-mandate",
+      "provider": "stripe",
+      "title": "payment_method_details_card.mandate changed from string|null to ref:mandate|string|null in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payment_method_details_card.mandate changed from string|null to ref:mandate|string|null. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "mandate"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads mandate before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-payments-primitives-payment-records-resource-payment-method-card-details-resource-three-d",
+      "provider": "stripe",
+      "title": "payments_primitives_payment_records_resource_payment_method_card_details_resource_three_d_secure.version can now return 2.3.0, 2.3.1 in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: payments_primitives_payment_records_resource_payment_method_card_details_resource_three_d_secure.version can now return 2.3.0, 2.3.1. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "version"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads version before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-property-type-changed-tax-product-registrations-resource-country-options-es",
+      "provider": "stripe",
+      "title": "tax_product_registrations_resource_country_options.es changed from ref:tax_product_registrations_resource_country_options_europe to ref:tax_product_registrations_resource_country_options_spain in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_registrations_resource_country_options.es changed from ref:tax_product_registrations_resource_country_options_europe to ref:tax_product_registrations_resource_country_options_spain. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "es"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads es before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-property-removed-tax-product-registrations-resource-country-options-europe-igic",
+      "provider": "stripe",
+      "title": "tax_product_registrations_resource_country_options_europe.igic is gone in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_registrations_resource_country_options_europe.igic is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "igic"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-schema-removed-tax-product-registrations-resource-country-options-igic",
+      "provider": "stripe",
+      "title": "the tax_product_registrations_resource_country_options_igic object is gone in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: the tax_product_registrations_resource_country_options_igic object is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "any": true
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads tax_product_registrations_resource_country_options_igic before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-tax-product-registrations-resource-country-options-united-states-type",
+      "provider": "stripe",
+      "title": "tax_product_registrations_resource_country_options_united_states.type can now return admissions_tax, attendance_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, resort_tax, tourism_tax in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_registrations_resource_country_options_united_states.type can now return admissions_tax, attendance_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, resort_tax, tourism_tax. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-tax-product-resource-line-item-tax-breakdown-sourcing",
+      "provider": "stripe",
+      "title": "tax_product_resource_line_item_tax_breakdown.sourcing can now return performance in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_resource_line_item_tax_breakdown.sourcing can now return performance. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "sourcing"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads sourcing before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-tax-product-resource-line-item-tax-rate-details-tax-type",
+      "provider": "stripe",
+      "title": "tax_product_resource_line_item_tax_rate_details.tax_type can now return admissions_tax, attendance_tax, digital_excise_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, recycling_fee, resort_tax, tourism_tax, utility_users_tax in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_resource_line_item_tax_rate_details.tax_type can now return admissions_tax, attendance_tax, digital_excise_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, recycling_fee, resort_tax, tourism_tax, utility_users_tax. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "tax_type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads tax_type before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-tax-product-resource-tax-rate-details-tax-type",
+      "provider": "stripe",
+      "title": "tax_product_resource_tax_rate_details.tax_type can now return admissions_tax, attendance_tax, digital_excise_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, recycling_fee, resort_tax, tourism_tax, utility_users_tax in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_product_resource_tax_rate_details.tax_type can now return admissions_tax, attendance_tax, digital_excise_tax, entertainment_tax, gross_receipts_tax, hospitality_tax, luxury_tax, recycling_fee, resort_tax, tourism_tax, utility_users_tax. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "tax_type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads tax_type before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-tax-rate-tax-type",
+      "provider": "stripe",
+      "title": "tax_rate.tax_type can now return digital_excise_tax, utility_users_tax in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: tax_rate.tax_type can now return digital_excise_tax, utility_users_tax. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/tax_rates/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "tax_type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads tax_type before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-endive-enum-value-added-treasury-received-credit-network",
+      "provider": "stripe",
+      "title": "treasury.received_credit.network can now return rtp in 2026-09-30.endive",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2026-09-30.endive: treasury.received_credit.network can now return rtp. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "network"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2026-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads network before moving to 2026-09-30.endive.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/c8faccbde66b784ea916d3c28f5790d7a9c9aee2/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/30d3391cc09a0f67ad29bee002f570811b19e1da/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    }
+  ]
+}

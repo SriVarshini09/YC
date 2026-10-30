@@ -1,0 +1,636 @@
+{
+  "score": {
+    "release": "clover",
+    "version": "2025-09-30.clover",
+    "before": {
+      "sha": "62fbe0713198e910b8843f70fdcd351be3ec979c",
+      "version": "2025-08-27.basil"
+    },
+    "after": {
+      "sha": "7861d4985575906da4c2c8eafd8572e3bf0a3adf",
+      "version": "2025-09-30.clover"
+    },
+    "candidates": 15,
+    "candidatesByKind": {
+      "parameter-removed": 6,
+      "parameter-required": 1,
+      "enum-value-added": 4,
+      "property-removed": 3,
+      "property-type-changed": 1
+    },
+    "breakingEntries": 15,
+    "clientOnly": 6,
+    "breakingFound": 2,
+    "behaviorOnly": 6,
+    "outsideSpec": 1,
+    "previewOnly": 2,
+    "breakingMissed": 4,
+    "candidatesMatchingBreaking": 5,
+    "candidatesMatchingNonBreaking": 2,
+    "nonBreakingEntriesMatched": 2,
+    "missed": [
+      {
+        "title": "Removes iterations parameter for subscription schedules",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/remove-iterations.md",
+        "reason": "no spec change matches iterations (Removed)"
+      },
+      {
+        "title": "Makes flexible billing mode the default for new subscriptions",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/billing-mode-default-flexible.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Updates computation of subscription schedule phase end date to consider billing cycle anchor changes",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/billing-cycle-anchor-resets-during-phase-computation.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Removes currency conversion field from Checkout Sessions",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/remove-checkout-session-currency-conversion-field.md",
+        "reason": "no spec change matches currency_conversion (Changed)"
+      },
+      {
+        "title": "Adds specific descriptions for risk requirements during legal, PEP, and sanctions review",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/expanded-risk-requirement-descriptions.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Adds a new error code for business type validations",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/business-type-error-code.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Changes the set of decline codes used for Alma, Amazon Pay, Billie, Satispay, and South Korean payment methods",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/lpm-descriptive-decline-codes.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Adds a processing status to submitted stablecoin payments",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/stablecoin-payments-processing-status.md",
+        "reason": "no REST field change listed: a behavior change"
+      },
+      {
+        "title": "Adds additional enum values for Radar manual reviews",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/radar-manual-review-enum.md",
+        "reason": "no spec change matches closed_reason (Added)"
+      },
+      {
+        "title": "Updates risk levels for Issuing Authorizations to use standard values",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/risk-levels-issuing-authorizations.md",
+        "reason": "no spec change matches fraud_disputability_likelihood (Added), risk_assessment (Added)"
+      },
+      {
+        "title": "Adds pagination and updates fields for aggregrated Billing meter usage data",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/update-meter-usage-fields.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      },
+      {
+        "title": "Moves platform-specific identity fields to a default profile for Accounts",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/moving-identity-fields.md",
+        "reason": "a v2 API, which stripe/openapi does not publish"
+      },
+      {
+        "title": "Restructures Smart Disputes recommended evidence field",
+        "url": "https://docs.stripe.com/changelog/clover/2025-09-30/restructure-smart-disputes-recommended-evidence.md",
+        "reason": "a preview API, which the GA spec does not carry"
+      }
+    ]
+  },
+  "changes": [
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/invoices/create_preview",
+      "field": "schedule_details.phases.iterations",
+      "detail": "POST /v1/invoices/create_preview no longer takes schedule_details.phases.iterations"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/payment_methods/{payment_method}",
+      "field": "link",
+      "detail": "POST /v1/payment_methods/{payment_method} no longer takes link"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/payment_methods/{payment_method}",
+      "field": "pay_by_bank",
+      "detail": "POST /v1/payment_methods/{payment_method} no longer takes pay_by_bank"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/promotion_codes",
+      "field": "coupon",
+      "detail": "POST /v1/promotion_codes no longer takes coupon"
+    },
+    {
+      "kind": "parameter-required",
+      "changeClass": "required-field",
+      "operation": "POST /v1/promotion_codes",
+      "field": "promotion",
+      "detail": "POST /v1/promotion_codes now requires promotion"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/subscription_schedules",
+      "field": "phases.iterations",
+      "detail": "POST /v1/subscription_schedules no longer takes phases.iterations"
+    },
+    {
+      "kind": "parameter-removed",
+      "changeClass": "required-field",
+      "operation": "POST /v1/subscription_schedules/{schedule}",
+      "field": "phases.iterations",
+      "detail": "POST /v1/subscription_schedules/{schedule} no longer takes phases.iterations"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "account_requirements_error",
+      "field": "code",
+      "values": [
+        "external_request",
+        "unsupported_business_type"
+      ],
+      "detail": "account_requirements_error.code can now return external_request, unsupported_business_type"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "confirmation_tokens_resource_payment_method_preview",
+      "field": "type",
+      "values": [
+        "mb_way",
+        "paypay"
+      ],
+      "detail": "confirmation_tokens_resource_payment_method_preview.type can now return mb_way, paypay"
+    },
+    {
+      "kind": "property-removed",
+      "changeClass": "field-rename",
+      "schema": "deleted_discount",
+      "field": "coupon",
+      "detail": "deleted_discount.coupon is gone"
+    },
+    {
+      "kind": "property-removed",
+      "changeClass": "field-rename",
+      "schema": "discount",
+      "field": "coupon",
+      "detail": "discount.coupon is gone"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "payment_method",
+      "field": "type",
+      "values": [
+        "mb_way",
+        "paypay"
+      ],
+      "detail": "payment_method.type can now return mb_way, paypay"
+    },
+    {
+      "kind": "property-removed",
+      "changeClass": "field-rename",
+      "schema": "promotion_code",
+      "field": "coupon",
+      "detail": "promotion_code.coupon is gone"
+    },
+    {
+      "kind": "enum-value-added",
+      "changeClass": "enum-added",
+      "schema": "review",
+      "field": "closed_reason",
+      "values": [
+        "acknowledged",
+        "payment_never_settled"
+      ],
+      "detail": "review.closed_reason can now return acknowledged, payment_never_settled"
+    },
+    {
+      "kind": "property-type-changed",
+      "changeClass": "field-rename",
+      "schema": "tax_product_registrations_resource_country_options",
+      "field": "th",
+      "detail": "tax_product_registrations_resource_country_options.th changed from ref:tax_product_registrations_resource_country_options_simplified to ref:tax_product_registrations_resource_country_options_thailand"
+    }
+  ],
+  "drafts": [
+    {
+      "id": "stripe-clover-parameter-removed-post-v1-invoices-create-preview-schedule-details-phases-iterations",
+      "provider": "stripe",
+      "title": "POST /v1/invoices/create_preview no longer takes schedule_details.phases.iterations in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: POST /v1/invoices/create_preview no longer takes schedule_details.phases.iterations. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/invoices/create_preview"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "schedule_details.phases.iterations"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends schedule_details.phases.iterations before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-parameter-removed-post-v1-payment-methods-payment-method-link",
+      "provider": "stripe",
+      "title": "POST /v1/payment_methods/{payment_method} no longer takes link in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: POST /v1/payment_methods/{payment_method} no longer takes link. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/payment_methods/{payment_method}"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "link"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends link before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-parameter-removed-post-v1-payment-methods-payment-method-pay-by-bank",
+      "provider": "stripe",
+      "title": "POST /v1/payment_methods/{payment_method} no longer takes pay_by_bank in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: POST /v1/payment_methods/{payment_method} no longer takes pay_by_bank. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/payment_methods/{payment_method}"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "pay_by_bank"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends pay_by_bank before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-parameter-removed-post-v1-promotion-codes-coupon",
+      "provider": "stripe",
+      "title": "POST /v1/promotion_codes no longer takes coupon in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: POST /v1/promotion_codes no longer takes coupon. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/promotion_codes"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "coupon"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends coupon before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-parameter-required-post-v1-promotion-codes-promotion",
+      "provider": "stripe",
+      "title": "POST /v1/promotion_codes now requires promotion in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: POST /v1/promotion_codes now requires promotion. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/promotion_codes"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "promotion"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends promotion before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-parameter-removed-post-v1-subscription-schedules-phases-iterations",
+      "provider": "stripe",
+      "title": "POST /v1/subscription_schedules no longer takes phases.iterations in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: POST /v1/subscription_schedules no longer takes phases.iterations. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/subscription_schedules"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "phases.iterations"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends phases.iterations before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-parameter-removed-post-v1-subscription-schedules-schedule-phases-iterations",
+      "provider": "stripe",
+      "title": "POST /v1/subscription_schedules/{schedule} no longer takes phases.iterations in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: POST /v1/subscription_schedules/{schedule} no longer takes phases.iterations. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "POST",
+        "path": "/v1/subscription_schedules/{schedule}"
+      },
+      "changeClass": "required-field",
+      "trigger": {
+        "body": [
+          {
+            "field": "phases.iterations"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that sends phases.iterations before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-enum-value-added-account-requirements-error-code",
+      "provider": "stripe",
+      "title": "account_requirements_error.code can now return external_request, unsupported_business_type in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: account_requirements_error.code can now return external_request, unsupported_business_type. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "code"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads code before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-enum-value-added-confirmation-tokens-resource-payment-method-preview-type",
+      "provider": "stripe",
+      "title": "confirmation_tokens_resource_payment_method_preview.type can now return mb_way, paypay in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: confirmation_tokens_resource_payment_method_preview.type can now return mb_way, paypay. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-property-removed-deleted-discount-coupon",
+      "provider": "stripe",
+      "title": "deleted_discount.coupon is gone in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: deleted_discount.coupon is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "coupon"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads coupon before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-property-removed-discount-coupon",
+      "provider": "stripe",
+      "title": "discount.coupon is gone in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: discount.coupon is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/customers/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "coupon"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads coupon before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-enum-value-added-payment-method-type",
+      "provider": "stripe",
+      "title": "payment_method.type can now return mb_way, paypay in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: payment_method.type can now return mb_way, paypay. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "type"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads type before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-property-removed-promotion-code-coupon",
+      "provider": "stripe",
+      "title": "promotion_code.coupon is gone in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: promotion_code.coupon is gone. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/promotion_codes/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "coupon"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads coupon before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-enum-value-added-review-closed-reason",
+      "provider": "stripe",
+      "title": "review.closed_reason can now return acknowledged, payment_never_settled in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: review.closed_reason can now return acknowledged, payment_never_settled. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/reviews/**"
+      },
+      "changeClass": "enum-added",
+      "trigger": {
+        "enums": [
+          {
+            "field": "closed_reason"
+          }
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads closed_reason before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    },
+    {
+      "id": "stripe-clover-property-type-changed-tax-product-registrations-resource-country-options-th",
+      "provider": "stripe",
+      "title": "tax_product_registrations_resource_country_options.th changed from ref:tax_product_registrations_resource_country_options_simplified to ref:tax_product_registrations_resource_country_options_thailand in 2025-09-30.clover",
+      "summary": "Spec-history replay found this change between Stripe's published specs for the previous version and 2025-09-30.clover: tax_product_registrations_resource_country_options.th changed from ref:tax_product_registrations_resource_country_options_simplified to ref:tax_product_registrations_resource_country_options_thailand. Unverified: drafted from the spec alone, not yet checked against Stripe's changelog or a live response.",
+      "endpoint": {
+        "method": "*",
+        "path": "/v1/**"
+      },
+      "changeClass": "field-rename",
+      "trigger": {
+        "fields": [
+          "th"
+        ]
+      },
+      "firstObserved": null,
+      "publishedNotice": null,
+      "effectiveDate": "2025-09-30",
+      "severity": "medium",
+      "migrationNote": "Check the code that reads th before moving to 2025-09-30.clover.",
+      "sources": [
+        "https://github.com/stripe/openapi/blob/7861d4985575906da4c2c8eafd8572e3bf0a3adf/openapi/spec3.json",
+        "https://github.com/stripe/openapi/blob/62fbe0713198e910b8843f70fdcd351be3ec979c/openapi/spec3.json"
+      ],
+      "status": "unverified"
+    }
+  ]
+}

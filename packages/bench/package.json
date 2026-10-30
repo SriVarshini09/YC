@@ -20,7 +20,8 @@
     "bench:build": "node ../../scripts/run-ts.mjs scripts/build.ts",
     "bench:run": "node ../../scripts/run-ts.mjs scripts/run.ts",
     "bench:okapi": "node ../../scripts/run-ts.mjs scripts/okapi.ts",
-    "bench:archive": "node ../../scripts/run-ts.mjs scripts/archive.ts"
+    "bench:archive": "node ../../scripts/run-ts.mjs scripts/archive.ts",
+    "bench:spec-replay": "node ../../scripts/run-ts.mjs scripts/spec-replay.ts"
   },
   "dependencies": {
     "@shapi/core": "workspace:*",

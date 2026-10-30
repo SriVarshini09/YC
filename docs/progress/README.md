@@ -102,3 +102,4 @@ One line per task: task, summary file, PR, status.
 - PB-53 the undo check: each part of a fix is undone alone and must make its contract test fail; a part it survives labels the PR needs-human (V-04): [summary](PB-53-undo-check.md) · PR: open
 - PB-54 the scope check: an LLM fix that edits outside the function making the call opens as a draft labelled needs-human (V-05): [summary](PB-54-scope-check.md) · PR: open
 - PB-55 the new PR description (deadline, Before/After/Where, size, tier, confidence, the five checks, residual risk, provider notice, evidence, not changed) and stored 👍/👎 feedback (D-01): [summary](PB-55-pr-description.md) · PR: open
+- PB-56 spec-history replay for Stripe: what the published spec shows of four breaking releases, drafted as unverified advisories and scored against the changelog (P-08): [summary](PB-56-spec-replay.md) · PR: open
