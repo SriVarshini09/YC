@@ -1,0 +1,576 @@
+{
+  "dataset": "APIBreak-Replay v0",
+  "archive": "Software Heritage (https://archive.softwareheritage.org). A commit's SWHID is swh:1:rev:<sha>.",
+  "checkedAt": "2026-10-30",
+  "archived": 13,
+  "instances": [
+    {
+      "id": "github-workflow-dispatch-204-to-200__vincentng295__gemini_fbchat",
+      "repo": "vincentng295/gemini_fbchat",
+      "fixCommit": "36b228686f2eafcda0da2bcc148e69853f368e9a",
+      "baseCommit": "aa085530dd8805769b7a032b4e3d9114ded9dd06",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:36b228686f2eafcda0da2bcc148e69853f368e9a;origin=https://github.com/vincentng295/gemini_fbchat",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__stategraph__stategraph",
+      "repo": "stategraph/stategraph",
+      "fixCommit": "e34b4c3a8559dfae667e28cab1863763880e8296",
+      "baseCommit": "96c33d428959607ea07f74df4ac6fd67f4f63f0a",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:e34b4c3a8559dfae667e28cab1863763880e8296;origin=https://github.com/stategraph/stategraph",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__refracta__df-translations",
+      "repo": "refracta/df-translations",
+      "fixCommit": "6b9b5fcececcb019d895c103ce0f0642f6d6cea0",
+      "baseCommit": "6702b8297c5940074404111b622fb5ecead567b4",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:6b9b5fcececcb019d895c103ce0f0642f6d6cea0;origin=https://github.com/refracta/df-translations",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mend__docker-base-images",
+      "repo": "mend/docker-base-images",
+      "fixCommit": "7b355e03b9a03e8ceef62ddf97a5431f63b4114b",
+      "baseCommit": "10f895cb5b7fa6f90ad512df27a990baf131f4f5",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:7b355e03b9a03e8ceef62ddf97a5431f63b4114b;origin=https://github.com/mend/docker-base-images",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kikujizo__ai-harness",
+      "repo": "kikujizo/ai-harness",
+      "fixCommit": "20aff69bd37ac0c6f190899dd288cd9fe2917224",
+      "baseCommit": "7b1e36ce2852a282cf5548dbeb9a3a56c2ab3343",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:20aff69bd37ac0c6f190899dd288cd9fe2917224;origin=https://github.com/kikujizo/ai-harness",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__dlstupka__hth",
+      "repo": "dlstupka/hth",
+      "fixCommit": "0ccc635b9a943e9d1b51eebf1d64706001971da3",
+      "baseCommit": "650cc24923691a3423eba18e11808024c21bddf3",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:0ccc635b9a943e9d1b51eebf1d64706001971da3;origin=https://github.com/dlstupka/hth",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__opaque-dev__opaque",
+      "repo": "opaque-dev/opaque",
+      "fixCommit": "2109af7ffdb2c7bd414d7f6b107109e3134dd045",
+      "baseCommit": "56126cfa0e491535e3dbc98f3047caa11fc61e51",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:2109af7ffdb2c7bd414d7f6b107109e3134dd045;origin=https://github.com/opaque-dev/opaque",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__voilalz__frontier-pulse",
+      "repo": "voilalz/frontier-pulse",
+      "fixCommit": "c68119c564198e9453e919f135af6835ba4861b2",
+      "baseCommit": null,
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:c68119c564198e9453e919f135af6835ba4861b2;origin=https://github.com/voilalz/frontier-pulse",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__pyzz58__gpt-recommendations",
+      "repo": "pyzz58/gpt-recommendations",
+      "fixCommit": "909a85f8238dc1d038f353c76789b212ed23af16",
+      "baseCommit": "c88b2feef6a47b98c62127037942edc5590d2880",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:909a85f8238dc1d038f353c76789b212ed23af16;origin=https://github.com/pyzz58/gpt-recommendations",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__oliverwirthsalpine__planner-delta-tracker",
+      "repo": "oliverwirthsalpine/planner-delta-tracker",
+      "fixCommit": "0c9cdb4041783bf3fec10abac98efe626c586be7",
+      "baseCommit": "b4674036508986d170b55f4b871fc7a403bedca7",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:0c9cdb4041783bf3fec10abac98efe626c586be7;origin=https://github.com/oliverwirthsalpine/planner-delta-tracker",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__fullsend-ai__fullsend",
+      "repo": "fullsend-ai/fullsend",
+      "fixCommit": "ec166bf79e58b4030b790c2210250b222883c060",
+      "baseCommit": "2cd0ac02e265ea8042c898296c8deaffe7421067",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:ec166bf79e58b4030b790c2210250b222883c060;origin=https://github.com/fullsend-ai/fullsend",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mmtm-studios__twinfang",
+      "repo": "mmtm-studios/twinfang",
+      "fixCommit": "48f3e086872086b03f33430194624f30188f6018",
+      "baseCommit": "9e078a4f2066533837a84a50fb0eda1b3afaf4b5",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:48f3e086872086b03f33430194624f30188f6018;origin=https://github.com/mmtm-studios/twinfang",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__TITANICBHAI__3gpTube",
+      "repo": "TITANICBHAI/3gpTube",
+      "fixCommit": "7720e6e4019486c0be8227c60d0ac69265cd6034",
+      "baseCommit": "4afc08912eebe008bb4d4b0c00d4064f96963eb9",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:7720e6e4019486c0be8227c60d0ac69265cd6034;origin=https://github.com/TITANICBHAI/3gpTube",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__augustintiberghien__five-lundi",
+      "repo": "augustintiberghien/five-lundi",
+      "fixCommit": "f648152295e78361aaff5fa47e62065987d2d19e",
+      "baseCommit": "ab4e241a141da5fdddb5117c7aead65b7b31c13f",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:f648152295e78361aaff5fa47e62065987d2d19e;origin=https://github.com/augustintiberghien/five-lundi",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__Shebovich__business-sites-bot",
+      "repo": "Shebovich/business-sites-bot",
+      "fixCommit": "bf9100baa3ac1e711ffd9dbe1da38c07af9874bf",
+      "baseCommit": "b7693f9ff399960a8d70a08f5db48d6c051f109e",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:bf9100baa3ac1e711ffd9dbe1da38c07af9874bf;origin=https://github.com/Shebovich/business-sites-bot",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__unfoldingWord__bible-editor",
+      "repo": "unfoldingWord/bible-editor",
+      "fixCommit": "9f5608ed7910b00deda4e64a53b2c76768cb4e65",
+      "baseCommit": "baefc17081b0a4225fa3d713b89d16ae9d803374",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:9f5608ed7910b00deda4e64a53b2c76768cb4e65;origin=https://github.com/unfoldingWord/bible-editor",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__ruslankanat-sdet__sdet-portfolio",
+      "repo": "ruslankanat-sdet/sdet-portfolio",
+      "fixCommit": "87cd5b6bd17afe73834b9559913f989305d61a9a",
+      "baseCommit": "31bffb4b4b565e6723d9967192b40823f86a37bb",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:87cd5b6bd17afe73834b9559913f989305d61a9a;origin=https://github.com/ruslankanat-sdet/sdet-portfolio",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__emrevegas__flipbot",
+      "repo": "emrevegas/flipbot",
+      "fixCommit": "f4155f382e99915d4d0101d6e8ec54b12b48d96e",
+      "baseCommit": "3d886b71377f12925e4e37e57bbf8ceb50ca14f5",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:f4155f382e99915d4d0101d6e8ec54b12b48d96e;origin=https://github.com/emrevegas/flipbot",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__fischervincent__webwatch",
+      "repo": "fischervincent/webwatch",
+      "fixCommit": "ec9d25f0f18ea7cf86bba0b2ea579305c2cd4ccb",
+      "baseCommit": "cd1657a0c3bc67f9e61897e9c32fdb0fc412c5a7",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:ec9d25f0f18ea7cf86bba0b2ea579305c2cd4ccb;origin=https://github.com/fischervincent/webwatch",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mlender-ai__fomo-club",
+      "repo": "mlender-ai/fomo-club",
+      "fixCommit": "866174ee10178aed61ab631bf8d35085f9b99770",
+      "baseCommit": "4cef8bcc41ee70683ec5a4e857ae1032f339e77e",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:866174ee10178aed61ab631bf8d35085f9b99770;origin=https://github.com/mlender-ai/fomo-club",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__PoojaJeeva__marketing-dashboard",
+      "repo": "PoojaJeeva/marketing-dashboard",
+      "fixCommit": "82a334e3dbfe47b361b7b64b63f0ef1ff1673aed",
+      "baseCommit": "fc43395fbe4197228215867b2bff9f5d76f00463",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:82a334e3dbfe47b361b7b64b63f0ef1ff1673aed;origin=https://github.com/PoojaJeeva/marketing-dashboard",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__B3B3097__VIBE-CODE",
+      "repo": "B3B3097/VIBE-CODE",
+      "fixCommit": "9f55166336d19f826abead74bed91517d62ac5c4",
+      "baseCommit": "c445beb995d4b13700317042e7f23ad1b5f9b20d",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:9f55166336d19f826abead74bed91517d62ac5c4;origin=https://github.com/B3B3097/VIBE-CODE",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__lenaxia__talos-ops-prod",
+      "repo": "lenaxia/talos-ops-prod",
+      "fixCommit": "8a663ab7d60272851ef238baedadf732ff96faaf",
+      "baseCommit": "09b5c71b33f3527bb11d9ec75389a5673c5a8527",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:8a663ab7d60272851ef238baedadf732ff96faaf;origin=https://github.com/lenaxia/talos-ops-prod",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__lenaxia__LLMSafeSpaces",
+      "repo": "lenaxia/LLMSafeSpaces",
+      "fixCommit": "8752da41f8357831cb74dac142cb56d2eb2ce070",
+      "baseCommit": "80af3fb071cbe1b4b2c35cab393c8b7fb026531b",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:8752da41f8357831cb74dac142cb56d2eb2ce070;origin=https://github.com/lenaxia/LLMSafeSpaces",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__noencke__agentic-emojis",
+      "repo": "noencke/agentic-emojis",
+      "fixCommit": "03460cbf91009500fe0668295b8966ba750f054e",
+      "baseCommit": "14c429ccb6da0cac3ebda0cfa53fce9a1c3eaeb8",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:03460cbf91009500fe0668295b8966ba750f054e;origin=https://github.com/noencke/agentic-emojis",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__HereLiesAz__aive",
+      "repo": "HereLiesAz/aive",
+      "fixCommit": "ec7e96816d6cc1097321c36d792b31029c41b90b",
+      "baseCommit": "afa2e9ef4d1cd3fb6dceef19de12a91b4ddbc094",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:ec7e96816d6cc1097321c36d792b31029c41b90b;origin=https://github.com/HereLiesAz/aive",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__icandoitccc-jpg__chenstricks-motion",
+      "repo": "icandoitccc-jpg/chenstricks-motion",
+      "fixCommit": "398385fc8b040773c318f5303e85d4ab4030b3d0",
+      "baseCommit": "a0306d0822974755426cafd691af361d3d1c1401",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:398385fc8b040773c318f5303e85d4ab4030b3d0;origin=https://github.com/icandoitccc-jpg/chenstricks-motion",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__onlykappa__KappaForge",
+      "repo": "onlykappa/KappaForge",
+      "fixCommit": "a1b82ed21e362ff68e9bb0d04e967f271a445fa4",
+      "baseCommit": "9f724921f511f6cef382fe934cbd06df8797dd90",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:a1b82ed21e362ff68e9bb0d04e967f271a445fa4;origin=https://github.com/onlykappa/KappaForge",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__craigoley__remudero",
+      "repo": "craigoley/remudero",
+      "fixCommit": "75de061fd677770d058d6f52588d2cbad5f7e927",
+      "baseCommit": "ad43c7f4cf477e1e99c3ed396fb28e8e6f7387c7",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:75de061fd677770d058d6f52588d2cbad5f7e927;origin=https://github.com/craigoley/remudero",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__jairdiazrios95-web__sunset-world-data-platform",
+      "repo": "jairdiazrios95-web/sunset-world-data-platform",
+      "fixCommit": "b293f990134e2856de50f8d208160e9ea8f63ab2",
+      "baseCommit": "79be412b0a4f075f3d96618e83bf46ef8c82849d",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:b293f990134e2856de50f8d208160e9ea8f63ab2;origin=https://github.com/jairdiazrios95-web/sunset-world-data-platform",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__irilminakhai-rgb__main",
+      "repo": "irilminakhai-rgb/main",
+      "fixCommit": "a86e657586e4ac5f549a790628971ec02f6a4a8f",
+      "baseCommit": "31dc15fbae1fd84dd01f944892dd037a04fc9646",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:a86e657586e4ac5f549a790628971ec02f6a4a8f;origin=https://github.com/irilminakhai-rgb/main",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__git-for-windows__gfw-helper-github-app",
+      "repo": "git-for-windows/gfw-helper-github-app",
+      "fixCommit": "04ff26378942b344386fe6b2ceb3930667c06861",
+      "baseCommit": "fb14c06aa92e5e5616e3859c571f973a31cd7cab",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:04ff26378942b344386fe6b2ceb3930667c06861;origin=https://github.com/git-for-windows/gfw-helper-github-app",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__stefanpenner-cs__org-dispatch-test",
+      "repo": "stefanpenner-cs/org-dispatch-test",
+      "fixCommit": "0e0558963e9b98ef87bc7c4fcf3da60710504c7c",
+      "baseCommit": "a4b31d4641bb79d34deb4c98cb7688c9285e5683",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:0e0558963e9b98ef87bc7c4fcf3da60710504c7c;origin=https://github.com/stefanpenner-cs/org-dispatch-test",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__vinicius33__heimdall",
+      "repo": "vinicius33/heimdall",
+      "fixCommit": "0d0e1ba26cb9637324b7d0b050414d718823a1fb",
+      "baseCommit": "497fd69c5d3635e08f49db12dfa430a811458837",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:0d0e1ba26cb9637324b7d0b050414d718823a1fb;origin=https://github.com/vinicius33/heimdall",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__port-labs__ocean",
+      "repo": "port-labs/ocean",
+      "fixCommit": "4903af8d96b30887fbd18d355d31606a6a9e9727",
+      "baseCommit": "8e75efce2aaf57423dcea1f73b80d489d0980830",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:4903af8d96b30887fbd18d355d31606a6a9e9727;origin=https://github.com/port-labs/ocean",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__gitgitgadget__gitgitgadget-github-app",
+      "repo": "gitgitgadget/gitgitgadget-github-app",
+      "fixCommit": "5ca8cce1d3b84b9bed544b6fb74318c0ea438b6f",
+      "baseCommit": "fe0f8cb871300271808c4ac3b969b69514f0ba66",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:5ca8cce1d3b84b9bed544b6fb74318c0ea438b6f;origin=https://github.com/gitgitgadget/gitgitgadget-github-app",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__zetatech-a__finance-news-monitor",
+      "repo": "zetatech-a/finance-news-monitor",
+      "fixCommit": "7fb592edf2a5b4ab14ef9ba3e91e9d06c3f55da1",
+      "baseCommit": "307930d864ff48db72dd390a6c2ab6ab6546a479",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:7fb592edf2a5b4ab14ef9ba3e91e9d06c3f55da1;origin=https://github.com/zetatech-a/finance-news-monitor",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__PyGithub__PyGithub",
+      "repo": "PyGithub/PyGithub",
+      "fixCommit": "162ce9d0ed69b9e4950c92e1896ab3539a9cba1a",
+      "baseCommit": "b03e683661ba2f208225e3ab1d0cca17730f697b",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:162ce9d0ed69b9e4950c92e1896ab3539a9cba1a;origin=https://github.com/PyGithub/PyGithub",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__alwaysmeticulous__report-diffs-action",
+      "repo": "alwaysmeticulous/report-diffs-action",
+      "fixCommit": "cef5ac02664df35eb03cb39ddd2e935fe846ef3b",
+      "baseCommit": "60943b57d97c80b00e7dd2da97adde65d07b1b40",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:cef5ac02664df35eb03cb39ddd2e935fe846ef3b;origin=https://github.com/alwaysmeticulous/report-diffs-action",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__garden-co__jazz",
+      "repo": "garden-co/jazz",
+      "fixCommit": "507b6fcb8230d5ef802843f1eff6c1a253a84619",
+      "baseCommit": "2b36248304c7c9bafa3209b01bce3fd5f93e23fb",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:507b6fcb8230d5ef802843f1eff6c1a253a84619;origin=https://github.com/garden-co/jazz",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__lhpaul__ai-dev-framework-template",
+      "repo": "lhpaul/ai-dev-framework-template",
+      "fixCommit": "48a341d37ed7a2c677d049c48fcab005d98deb8e",
+      "baseCommit": "c92037cdb3b8fec922e9f2a1aa9785c7947fd6dd",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:48a341d37ed7a2c677d049c48fcab005d98deb8e;origin=https://github.com/lhpaul/ai-dev-framework-template",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__deepregatta__forecast-tiles",
+      "repo": "deepregatta/forecast-tiles",
+      "fixCommit": "8558386d9fdf9b85a46b26a941f349e324539edc",
+      "baseCommit": "eb39ef04ec526924381ac2ce5b88fc1fd58f9ce1",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:8558386d9fdf9b85a46b26a941f349e324539edc;origin=https://github.com/deepregatta/forecast-tiles",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__hoffresearch__urna",
+      "repo": "hoffresearch/urna",
+      "fixCommit": "fa0f97d36a1b3bd9d66af853d927f3a19cf05aa7",
+      "baseCommit": "53d34783fde13c4890b4dbd00ec55b106d5202f8",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:fa0f97d36a1b3bd9d66af853d927f3a19cf05aa7;origin=https://github.com/hoffresearch/urna",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__SylphxAI__.github",
+      "repo": "SylphxAI/.github",
+      "fixCommit": "5150f310639dac938ecbc6802bb9545e5ad5a626",
+      "baseCommit": "0d13f756c268a4c9bc4bfde870b7d0516d30e682",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:5150f310639dac938ecbc6802bb9545e5ad5a626;origin=https://github.com/SylphxAI/.github",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__armosec__helm-charts",
+      "repo": "armosec/helm-charts",
+      "fixCommit": "249e0679333f038c98416d4a28b4f1e01759bfb8",
+      "baseCommit": "63fe63ee8749e95c533b5e4591c17ccd503ff84d",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:249e0679333f038c98416d4a28b4f1e01759bfb8;origin=https://github.com/armosec/helm-charts",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__helm-charts",
+      "repo": "kubescape/helm-charts",
+      "fixCommit": "6459138afee203396f39e1dd6da9af8528126a7e",
+      "baseCommit": "64ff586f4b52ea6a3acd491f2a7eb2bf5c123e85",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:6459138afee203396f39e1dd6da9af8528126a7e;origin=https://github.com/kubescape/helm-charts",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__node-agent",
+      "repo": "kubescape/node-agent",
+      "fixCommit": "e33c1ff47693ccd41e633d4a69fdc15bd4629165",
+      "baseCommit": "ab74b6e7881892f5ae4ae617ea84dac41378900d",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:e33c1ff47693ccd41e633d4a69fdc15bd4629165;origin=https://github.com/kubescape/node-agent",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__kubescape",
+      "repo": "kubescape/kubescape",
+      "fixCommit": "3524f771b4255fbdae87c7dbff195f5eead2f0f1",
+      "baseCommit": "58b7c1e058380b919c3d8e93d33c538db8584a58",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:3524f771b4255fbdae87c7dbff195f5eead2f0f1;origin=https://github.com/kubescape/kubescape",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__workflows",
+      "repo": "kubescape/workflows",
+      "fixCommit": "607f92f4fd876856a25a1bd8e24bb51b64d70385",
+      "baseCommit": "e697027077be46d848d4a519179cef1f5bdb3672",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:607f92f4fd876856a25a1bd8e24bb51b64d70385;origin=https://github.com/kubescape/workflows",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__daniel-ospina__tortoise",
+      "repo": "daniel-ospina/tortoise",
+      "fixCommit": "1fe74a0b036a2827355fba9a185f5b59c5c98370",
+      "baseCommit": "ab6e5170222912e1e414baebc5c216f4fb39b6c2",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:1fe74a0b036a2827355fba9a185f5b59c5c98370;origin=https://github.com/daniel-ospina/tortoise",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kibertoad__cat-factory",
+      "repo": "kibertoad/cat-factory",
+      "fixCommit": "1a42f343bf38c970a0c3fde67029c70319305701",
+      "baseCommit": "87b113ebd924e6a17e9298c234ceb4c7b36e114c",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:1a42f343bf38c970a0c3fde67029c70319305701;origin=https://github.com/kibertoad/cat-factory",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__euvvel__veil",
+      "repo": "euvvel/veil",
+      "fixCommit": "bd04068f14d70ecd88076d348f7fafef0bb2ee63",
+      "baseCommit": "6bd6920f36060390651577353645044bdc27b351",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:bd04068f14d70ecd88076d348f7fafef0bb2ee63;origin=https://github.com/euvvel/veil",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__BestNathan__nession",
+      "repo": "BestNathan/nession",
+      "fixCommit": "23acb19032ef06ceac05575df7265a55b82815fe",
+      "baseCommit": "fc7c09f2433d9bc82f452df50b952d412e99b092",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:23acb19032ef06ceac05575df7265a55b82815fe;origin=https://github.com/BestNathan/nession",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__bashrusakh__DeskForge",
+      "repo": "bashrusakh/DeskForge",
+      "fixCommit": "685b59da3ebeeafe0ec6635319292d6fe1f54f71",
+      "baseCommit": "5dbdf255f4d78dc97be957e3450ebe11f4281a8b",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:685b59da3ebeeafe0ec6635319292d6fe1f54f71;origin=https://github.com/bashrusakh/DeskForge",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__compliance-framework__workflows",
+      "repo": "compliance-framework/workflows",
+      "fixCommit": "59867205d06be2e5b8a8cbcd0404293c620231fa",
+      "baseCommit": "9d2638893413c29013dcf79bf00499b1b5b60661",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:59867205d06be2e5b8a8cbcd0404293c620231fa;origin=https://github.com/compliance-framework/workflows",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__willemkokke__livery",
+      "repo": "willemkokke/livery",
+      "fixCommit": "1af0ccbd67f39987f47d930d9b62201a95ca0503",
+      "baseCommit": "3a33a22709ce7ae3f0dbac118825437e592359f9",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:1af0ccbd67f39987f47d930d9b62201a95ca0503;origin=https://github.com/willemkokke/livery",
+      "archived": false
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__HumblebragAB__computercat-api",
+      "repo": "HumblebragAB/computercat-api",
+      "fixCommit": "3142638c96bbb6b8a7f7c34d22156019bb89acaf",
+      "baseCommit": "889f425a0d63929db77501bb1c4726918f78d697",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:3142638c96bbb6b8a7f7c34d22156019bb89acaf;origin=https://github.com/HumblebragAB/computercat-api",
+      "archived": true
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__Keshaqaz__aures",
+      "repo": "Keshaqaz/aures",
+      "fixCommit": "e7941d3f6c7df316fbcba69d8bf22e6401f34958",
+      "baseCommit": "0759803076d6a473204cce8ecdbf3ebf589a0a2c",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:e7941d3f6c7df316fbcba69d8bf22e6401f34958;origin=https://github.com/Keshaqaz/aures",
+      "archived": true
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__primus-brennan__billing-automation",
+      "repo": "primus-brennan/billing-automation",
+      "fixCommit": "1c88725547586d36290216c40a1e196d9e07cb7c",
+      "baseCommit": "748a059f41f25ede4cb01868430d0a073e5a4db0",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:1c88725547586d36290216c40a1e196d9e07cb7c;origin=https://github.com/primus-brennan/billing-automation",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__yashjain5194-cpu__copy-yourlegal",
+      "repo": "yashjain5194-cpu/copy-yourlegal",
+      "fixCommit": "dd3d2677614ae8419a95d414655a0bdcd5ceeb1b",
+      "baseCommit": "3a8633481cb155efd4e5114d0945ac4977a21174",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:dd3d2677614ae8419a95d414655a0bdcd5ceeb1b;origin=https://github.com/yashjain5194-cpu/copy-yourlegal",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__VantaX-Org__Atheon",
+      "repo": "VantaX-Org/Atheon",
+      "fixCommit": "2fd9b39bccc3a67863400a24ac787db7c84fd055",
+      "baseCommit": "b6e282819d883b32f5df2e395858db4704aae00a",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:2fd9b39bccc3a67863400a24ac787db7c84fd055;origin=https://github.com/VantaX-Org/Atheon",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__ACIConst__cmbutchers",
+      "repo": "ACIConst/cmbutchers",
+      "fixCommit": "9379b4e03c5b88111fd7e93038090b00822896cd",
+      "baseCommit": "ab21a531f4eee0d5a1b0f54b52a5fba608a70cd5",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:9379b4e03c5b88111fd7e93038090b00822896cd;origin=https://github.com/ACIConst/cmbutchers",
+      "archived": true
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__excelle-insights__quickbooks",
+      "repo": "excelle-insights/quickbooks",
+      "fixCommit": "28de6ee50ee042061b9bd5d838880d6e1f4df15e",
+      "baseCommit": "8dbfce7139b407138cd9c812b3c506ff569b2d73",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:28de6ee50ee042061b9bd5d838880d6e1f4df15e;origin=https://github.com/excelle-insights/quickbooks",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__hfscdogg__outgrow",
+      "repo": "hfscdogg/outgrow",
+      "fixCommit": "fcdf2b798508c0a0af433a109dd615d3e81b9a58",
+      "baseCommit": "cbe5d7ed8f810822883fdd2615a23d3c5752e441",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:fcdf2b798508c0a0af433a109dd615d3e81b9a58;origin=https://github.com/hfscdogg/outgrow",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__RCOLKITT__AccountingQB-MCP",
+      "repo": "RCOLKITT/AccountingQB-MCP",
+      "fixCommit": "4f3afc60b3a0df20a8d5c2022a9c81a338d2ff61",
+      "baseCommit": "9cff1a121045050b9c56f56f4d1cd0560c0e1494",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:4f3afc60b3a0df20a8d5c2022a9c81a338d2ff61;origin=https://github.com/RCOLKITT/AccountingQB-MCP",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__tioperfumes07__IH35-TMS",
+      "repo": "tioperfumes07/IH35-TMS",
+      "fixCommit": "e80df5d4a1b82dcfd41f91820ae85c4706d8e559",
+      "baseCommit": "cccbaf338fb74c2d7b9ca21e4b2b051d61c3db80",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:e80df5d4a1b82dcfd41f91820ae85c4706d8e559;origin=https://github.com/tioperfumes07/IH35-TMS",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__mindstone__mcp-servers",
+      "repo": "mindstone/mcp-servers",
+      "fixCommit": "d676f1598ab541818a3bd9c09590bc22f4c94c64",
+      "baseCommit": "c115fae1ac99dda55a78912383ccbc857781a504",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:d676f1598ab541818a3bd9c09590bc22f4c94c64;origin=https://github.com/mindstone/mcp-servers",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__theomleslie-ops__bakery-dashboard-2",
+      "repo": "theomleslie-ops/bakery-dashboard-2",
+      "fixCommit": "7289bc2fa7afac239bf3b10a814ad64eba87e764",
+      "baseCommit": "1b5619c540e75bd64f318c84b3ba1adc01ff116d",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:7289bc2fa7afac239bf3b10a814ad64eba87e764;origin=https://github.com/theomleslie-ops/bakery-dashboard-2",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Chamfer-Consulting__gpc-purchase-order-hx",
+      "repo": "Chamfer-Consulting/gpc-purchase-order-hx",
+      "fixCommit": "f889abafd55c72b2f224028a91493b84d5681e9f",
+      "baseCommit": "984c8f159b343d62a23ae554bd7707a488a71c22",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:f889abafd55c72b2f224028a91493b84d5681e9f;origin=https://github.com/Chamfer-Consulting/gpc-purchase-order-hx",
+      "archived": true
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Tans2101__Trenston",
+      "repo": "Tans2101/Trenston",
+      "fixCommit": "4580415e4ecccdbeffd13eaf90235d0d263e61d0",
+      "baseCommit": "f31b0048b6a1e0b0e273b5620b1e9d96e9352230",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:4580415e4ecccdbeffd13eaf90235d0d263e61d0;origin=https://github.com/Tans2101/Trenston",
+      "archived": false
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__toyslatam__dl-qb-sync",
+      "repo": "toyslatam/dl-qb-sync",
+      "fixCommit": "be7f538aadb406bf0ddf1372b0682b758c2d2eaf",
+      "baseCommit": "d44ebc222fe7bc248f99688984a7a3fddd0fd179",
+      "mirror": "https://archive.softwareheritage.org/swh:1:rev:be7f538aadb406bf0ddf1372b0682b758c2d2eaf;origin=https://github.com/toyslatam/dl-qb-sync",
+      "archived": false
+    }
+  ]
+}

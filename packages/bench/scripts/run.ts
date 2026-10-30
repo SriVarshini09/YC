@@ -44,8 +44,8 @@ for (const instance of dataset.instances) {
   const result = unscanned(instance);
   if (instance.inScope && instance.advisoryId && instance.baseCommit) {
     try {
-      result.base = await scanCommit({ repo: instance.repo, sha: instance.baseCommit, advisoryId: instance.advisoryId, advisories, token, cacheDir: values.cache });
-      result.fix = await scanCommit({ repo: instance.repo, sha: instance.fixCommit, advisoryId: instance.advisoryId, advisories, token, cacheDir: values.cache });
+      result.base = await scanCommit({ repo: instance.repo, sha: instance.baseCommit, advisoryId: instance.advisoryId, advisories, token, cacheDir: values.cache, mirror: true });
+      result.fix = await scanCommit({ repo: instance.repo, sha: instance.fixCommit, advisoryId: instance.advisoryId, advisories, token, cacheDir: values.cache, mirror: true });
     } catch (err) {
       result.error = err instanceof Error ? err.message : String(err);
     }

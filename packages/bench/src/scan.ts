@@ -5,6 +5,7 @@ import path from "node:path";
 import { createApiLock, matchAdvisories, type Advisory, type MatchResult } from "@shapi/core";
 import { extractCallSites } from "@shapi/extractor";
 import { verdictFor, type Verdict } from "./metrics";
+import { swhHasCommit, swhTarball, type SwhOptions } from "./swh";
 
 export interface ScanCommitInput {
   /** `owner/name`. */
@@ -16,6 +17,8 @@ export interface ScanCommitInput {
   token?: string;
   /** A folder for downloaded archives, kept across runs (CI caches it): a commit's archive never changes. */
   cacheDir?: string;
+  /** When GitHub no longer has the commit (404), fetch it from Software Heritage, the benchmark's mirror (P-07). */
+  mirror?: boolean | SwhOptions;
   /** Larger archives are not scanned. */
   maxBytes?: number;
   now?: Date;
@@ -61,14 +64,26 @@ export async function scanRepo(input: Omit<ScanCommitInput, "advisoryId">): Prom
 
 /** The archive from cacheDir, or downloaded and stored there. Written to a temporary name first, so a partial file is never read. */
 async function cached(input: Omit<ScanCommitInput, "advisoryId">): Promise<Buffer> {
-  if (!input.cacheDir) return download(input);
+  if (!input.cacheDir) return downloadOrMirror(input);
   const file = path.join(input.cacheDir, `${input.repo.replace("/", "__")}@${input.sha}.tgz`);
   if (existsSync(file)) return readFileSync(file);
-  const body = await download(input);
+  const body = await downloadOrMirror(input);
   mkdirSync(input.cacheDir, { recursive: true });
   writeFileSync(`${file}.part`, body);
   renameSync(`${file}.part`, file);
   return body;
+}
+
+/** GitHub's archive, or Software Heritage's when GitHub answers 404 and the mirror is on. */
+async function downloadOrMirror(input: Omit<ScanCommitInput, "advisoryId">): Promise<Buffer> {
+  try {
+    return await download(input);
+  } catch (err) {
+    if (!input.mirror || !/download failed: 404/.test(String(err))) throw err;
+    const opts: SwhOptions = { fetch: input.fetch, ...(typeof input.mirror === "object" ? input.mirror : {}) };
+    if (!(await swhHasCommit(input.sha, opts))) throw new Error("download failed: 404, and Software Heritage does not hold the commit", { cause: err });
+    return swhTarball(input.sha, opts);
+  }
 }
 
 /** The repository archive at the commit, retried twice on network errors and 5xx answers. */

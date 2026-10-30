@@ -3,3 +3,4 @@ export { summarize, unscanned, verdictFor, wilson, type InstanceResult, type Rat
 export { baselineFrom, checkAgainstBaseline, gateReport, type Baseline, type GateResult } from "./gate";
 export { okapiRow, okapiTable, removedLines, type OkapiPr, type OkapiRow, type OkapiVerdict } from "./okapi";
 export { scanCommit, scanRepo } from "./scan";
+export { mirrorUrl, swhHasCommit, swhTarball, type SwhOptions } from "./swh";
