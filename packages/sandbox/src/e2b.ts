@@ -1,4 +1,5 @@
 import { CommandExitError, Sandbox as E2BSandbox, TimeoutError } from "e2b";
+import { assertNoSecrets } from "./secrets";
 import { SHAPI_TEMPLATE } from "./template";
 import { DEFAULT_SANDBOX_LIFETIME_MS, REGISTRY_HOSTS, lifetime, safeRelative, truncate, type ExecOptions, type ExecResult, type NetworkMode, type Sandbox, type SandboxOptions, type SandboxProvider, type SnapshotFile } from "./types";
 
@@ -39,8 +40,10 @@ export function e2bProvider(opts: E2BProviderOptions): SandboxProvider {
       let closed = false;
       const extend = lifetime(o, (ms) => vm.setTimeout(ms));
       const run = async (cmd: string, cwd: string, eo: ExecOptions): Promise<ExecResult> => {
+        const envs = { CI: "1", FORCE_COLOR: "0", ...eo.env };
+        assertNoSecrets(envs);
         try {
-          const r = await vm.commands.run(cmd, { cwd, timeoutMs: eo.timeoutMs ?? 120_000, envs: { CI: "1", FORCE_COLOR: "0", ...eo.env } });
+          const r = await vm.commands.run(cmd, { cwd, timeoutMs: eo.timeoutMs ?? 120_000, envs });
           return { exitCode: r.exitCode, stdout: truncate(r.stdout), stderr: truncate(r.stderr), timedOut: false };
         } catch (err) {
           if (err instanceof CommandExitError) return { exitCode: err.exitCode, stdout: truncate(err.stdout), stderr: truncate(err.stderr), timedOut: false };

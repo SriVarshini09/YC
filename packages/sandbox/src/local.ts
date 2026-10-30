@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { assertNoSecrets } from "./secrets";
 import { DEFAULT_SANDBOX_LIFETIME_MS, lifetime, safeRelative, truncate, type ExecOptions, type ExecResult, type Sandbox, type SandboxOptions, type SandboxProvider, type SnapshotFile } from "./types";
 
 /**
@@ -43,6 +44,11 @@ export function localProvider(): SandboxProvider {
           }
         },
         exec(command: string, args: string[], eo: ExecOptions = {}): Promise<ExecResult> {
+          try {
+            assertNoSecrets(eo.env);
+          } catch (err) {
+            return Promise.reject(err);
+          }
           return new Promise((resolve) => {
             const child = spawn(command, args, {
               cwd: eo.cwd ? path.join(root, safeRelative(eo.cwd)) : root,
