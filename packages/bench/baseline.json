@@ -1,8 +1,8 @@
 {
   "dataset": "APIBreak-Replay v0",
   "datasetHash": "37fa931e8278",
-  "gitSha": "4fb4c68643ca5aab2a276241cfa3fc17ac6c1a8c",
-  "flagRecall": "5 / 14",
+  "gitSha": "725e14d3ad2c8a6287aac1cf274143626adf6bf3",
+  "flagRecall": "9 / 14",
   "fixedStatePrecision": "13 / 14",
   "instances": [
     {
@@ -27,8 +27,8 @@
     },
     {
       "id": "github-workflow-dispatch-204-to-200__dlstupka__hth",
-      "base": "none",
-      "fix": "none"
+      "base": "affected",
+      "fix": "exposed"
     },
     {
       "id": "github-workflow-dispatch-204-to-200__opaque-dev__opaque",
@@ -62,18 +62,18 @@
     },
     {
       "id": "quickbooks-minorversion-below-75__theomleslie-ops__bakery-dashboard-2",
-      "base": "none",
-      "fix": "none"
+      "base": "affected",
+      "fix": "exposed"
     },
     {
       "id": "quickbooks-minorversion-below-75__Chamfer-Consulting__gpc-purchase-order-hx",
-      "base": "none",
-      "fix": "none"
+      "base": "affected",
+      "fix": "exposed"
     },
     {
       "id": "quickbooks-minorversion-below-75__Tans2101__Trenston",
-      "base": "none",
-      "fix": "none"
+      "base": "affected",
+      "fix": "exposed"
     }
   ]
 }

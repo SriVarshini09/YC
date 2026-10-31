@@ -52,9 +52,16 @@ jobs:
           path: packages/bench/.cache
           key: bench-archives-${{ hashFiles('packages/bench/datasets/apibreak-v0.json') }}
       # Read-only: the token only downloads public archives through GitHub's API (60 an hour without one).
-      - run: pnpm --filter @shapi/bench bench:run -- --cache .cache --check
+      - run: pnpm --filter @shapi/bench bench:run -- --cache .cache --check --results-out "${{ runner.temp }}/bench-results.json"
         env:
           GITHUB_TOKEN: ${{ github.token }}
+      # The run's per-instance results, so a change's new numbers can be committed (results/, baseline.json).
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench-results
+          path: ${{ runner.temp }}/bench-results.json
+          if-no-files-found: ignore
       # The leaderboard (P-15): every submission covers exactly the scored instances, and LEADERBOARD.md is current.
       - run: pnpm --filter @shapi/bench bench:leaderboard -- --check
 

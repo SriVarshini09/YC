@@ -239,4 +239,53 @@ describe("Python edge cases", () => {
     });
     expect(r.declared.map((d) => d.package)).toEqual(["anthropic", "hubspot-api-client", "openai", "slack-sdk", "twilio"]);
   });
+
+  // Patterns from real breakages SHAPI 0.3.1 missed on APIBreak-Replay (dlstupka/hth, Chamfer-Consulting, Tans2101).
+  it("reads urllib.request: urlopen of a Request in a variable, with its method, headers and the status checked", () => {
+    const r = scan({
+      "a.py":
+        "import urllib.request\nfrom urllib.request import Request, urlopen\n" +
+        'def dispatch(token):\n    req = urllib.request.Request("https://api.github.com/repos/a/b/actions/workflows/ci.yml/dispatches", data=b"{}", method="POST", headers={"Authorization": token})\n' +
+        "    with urllib.request.urlopen(req) as response:\n        if response.status != 204:\n            raise RuntimeError()\n" +
+        'def rate():\n    return urlopen("https://api.github.com/rate_limit").read()\n' +
+        'def posted():\n    urlopen(Request("https://api.github.com/repos/a/b/issues", data=b"{}"))\n',
+    });
+    expect(describeSites(r)).toEqual(["urllib github POST /repos/a/b/actions/workflows/ci.yml/dispatches", "urllib github GET /rate_limit", "urllib github POST /repos/a/b/issues"]);
+    expect(r.callSites[0]!.surface.statusCodes).toEqual([204]);
+    expect(r.callSites[0]!.surface.headers.map((h) => h.name)).toEqual(["authorization"]);
+  });
+
+  it("reads a request inside a helper once per caller, with the URL and query the caller passes", () => {
+    const r = scan({
+      "a.py":
+        'import requests\nimport urllib.request\nBASE = "https://quickbooks.api.intuit.com"\n' +
+        "def _qbo_get(url, headers, params):\n    resp = requests.get(url, headers=headers, params=params)\n    if resp.status_code == 200:\n        return resp.json()\n" +
+        'def invoices(realm):\n    _qbo_get(f"{BASE}/v3/company/{realm}/query", {}, {"query": "select", "minorversion": "65"})\n' +
+        'def items(realm):\n    params = {"minorversion": "65"}\n    _qbo_get(url=f"{BASE}/v3/company/{realm}/query", headers={}, params=params)\n' +
+        "class Dispatcher:\n    def _post(self, endpoint):\n        req = urllib.request.Request(endpoint, data=b'{}', method='POST')\n        with urllib.request.urlopen(req) as response:\n            return response.status == 204\n" +
+        '    def run(self, repo, workflow):\n        endpoint = f"https://api.github.com/repos/{repo}/actions/workflows/{workflow}/dispatches"\n        self._post(endpoint)\n',
+    });
+    expect(describeSites(r)).toEqual(["requests quickbooks GET /v3/company/{realm}/query", "urllib github POST /repos/{repo}/actions/workflows/{workflow}/dispatches"]);
+    // Both callers in one call site, with what each sends.
+    expect(r.callSites[0]!.surface.query).toEqual([
+      { name: "query", value: "select" },
+      { name: "minorversion", value: "65" },
+    ]);
+    expect(r.callSites[0]!.surface.statusCodes).toEqual([200]);
+  });
+
+  it("keeps a helper's request as it is when no caller in the file makes it resolvable", () => {
+    const r = scan({ "a.py": "import requests\ndef fetch(url):\n    return requests.get(url)\n" });
+    expect(r.callSites.map((s) => [s.client, s.endpoint, s.resolved])).toEqual([["requests", null, false]]);
+  });
+
+  it("evaluates a URL from a same-file helper's return value and a conditional expression", () => {
+    const r = scan({
+      "a.py":
+        'import os\nimport httpx\nAPI_BASE = (\n    "https://sandbox-quickbooks.api.intuit.com"\n    if os.environ.get("QB_ENV") == "sandbox"\n    else "https://quickbooks.api.intuit.com"\n)\n' +
+        "def _api_base() -> str:\n    return API_BASE\n" +
+        'async def query(realm):\n    async with httpx.AsyncClient() as hc:\n        await hc.get(f"{_api_base()}/v3/company/{realm}/query", params={"minorversion": "65"})\n',
+    });
+    expect(describeSites(r)).toEqual(["httpx quickbooks GET /v3/company/{realm}/query"]);
+  });
 });

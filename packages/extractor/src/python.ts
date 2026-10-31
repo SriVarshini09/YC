@@ -39,11 +39,17 @@ type Binding =
   | { kind: "http-module"; lib: Lib; name?: string }
   | { kind: "http-client"; lib: Lib; baseUrl?: string; headers: NameValue[] }
   | { kind: "sdk-module"; provider: Provider; module: string }
-  | { kind: "sdk-client"; provider: Provider; module: string };
+  | { kind: "sdk-client"; provider: Provider; module: string }
+  /** The standard library's urllib: `dotted` is what the name stands for ("urllib", "urllib.request.urlopen"). */
+  | { kind: "urllib"; dotted: string };
 
 interface FileContext {
   names: Map<string, Binding>;
   consts: Map<string, Node>;
+  /** Functions and methods defined in the file, by name: helpers whose return value is a URL. */
+  functions: Map<string, Node>;
+  /** While a helper's HTTP call is read for one of its callers: its parameters, bound to that caller's arguments. */
+  params?: Map<string, Node>;
 }
 
 /** Every call site in one Python file. */
@@ -53,22 +59,26 @@ export function extractPython(source: string, file: string): CallSite[] {
   if (!tree) return [];
   try {
     const root = tree.rootNode;
-    const ctx: FileContext = { names: new Map(), consts: new Map() };
+    const ctx: FileContext = { names: new Map(), consts: new Map(), functions: new Map() };
     collectImports(root, ctx);
     collectConsts(root, ctx);
+    collectFunctions(root, ctx);
     collectClients(root, ctx);
     const sites: CallSite[] = [];
     const calls: Node[] = [];
     for (const call of root.descendantsOfType("call")) {
       if (!call) continue;
-      const site = httpCall(ctx, call) ?? sdkCall(ctx, call);
+      const site = httpCall(ctx, call) ?? urllibCall(ctx, call) ?? sdkCall(ctx, call);
       if (!site) continue;
-      site.file = file;
-      site.line = call.startPosition.row + 1;
-      site.column = call.startPosition.column + 1;
-      addResponseSurface(call, site);
-      sites.push(site);
-      calls.push(call);
+      const expanded = site.kind === "http" ? throughCallers(ctx, root, call) : [];
+      for (const s of expanded.length ? expanded : [site]) {
+        s.file = file;
+        s.line = call.startPosition.row + 1;
+        s.column = call.startPosition.column + 1;
+        addResponseSurface(call, s);
+        sites.push(s);
+        calls.push(call);
+      }
     }
     return [...sites, ...looseUrls(ctx, root, file, sites, calls)];
   } finally {
@@ -107,6 +117,10 @@ function collectImports(root: Node, ctx: FileContext): void {
 
 function bindModule(ctx: FileContext, alias: string, dotted: string): void {
   const [top, ...rest] = dotted.split(".") as [string, ...string[]];
+  if (top === "urllib") {
+    ctx.names.set(alias, { kind: "urllib", dotted });
+    return;
+  }
   if (HTTP_LIBS.has(top)) {
     // aiohttp.web is the server side: web.get("/x", handler) defines a route, it sends nothing.
     if (top === "aiohttp" && rest[0] === "web") return;
@@ -125,6 +139,14 @@ function collectConsts(root: Node, ctx: FileContext): void {
     const left = assign.childForFieldName("left");
     const right = assign.childForFieldName("right");
     if (left?.type === "identifier" && right) ctx.consts.set(left.text, right);
+  }
+}
+
+/** Every `def` in the file by name (the first one wins): helpers a URL is built with, and wrappers around a request. */
+function collectFunctions(root: Node, ctx: FileContext): void {
+  for (const def of root.descendantsOfType("function_definition")) {
+    const name = def?.childForFieldName("name")?.text;
+    if (def && name && !ctx.functions.has(name)) ctx.functions.set(name, def);
   }
 }
 
@@ -204,6 +226,119 @@ function httpCall(ctx: FileContext, call: Node): CallSite | undefined {
   if (body.length) surface.body = body;
   const provider = providerOf(host, path, runtimeHost);
   return { file: "", line: 0, column: 0, provider, kind: "http", client: binding.lib, method, host, endpoint: path, resolved: Boolean(provider && path && method) && !pathUnresolved(path), surface };
+}
+
+const positionalArgs = (args: Node | null | undefined) => (args?.namedChildren ?? []).filter((a): a is Node => Boolean(a) && a!.type !== "keyword_argument");
+
+/** What a urllib name stands for, dotted: `urllib.request.urlopen`, `urllib.request.Request`. */
+function urllibName(ctx: FileContext, fn: Node | null | undefined): string | undefined {
+  const chain = fn ? chainOf(fn) : undefined;
+  const b = chain ? ctx.names.get(chain.root) : undefined;
+  return b?.kind === "urllib" ? [b.dotted, ...chain!.names].join(".") : undefined;
+}
+
+/** `urllib.request.urlopen(url)` and `urlopen(Request(url, data=…, method=…, headers=…))`, the Request inline or in a variable. */
+function urllibCall(ctx: FileContext, call: Node): CallSite | undefined {
+  if (urllibName(ctx, call.childForFieldName("function")) !== "urllib.request.urlopen") return undefined;
+  const args = call.childForFieldName("arguments");
+  const target = positionalArgs(args)[0] ?? keyword(args, "url");
+  if (!target) return undefined;
+  let req = unwrap(target);
+  if (req.type === "identifier") {
+    const init = localAssignment(req) ?? ctx.consts.get(req.text);
+    if (init && unwrap(init).type === "call") req = unwrap(init);
+  }
+  const reqArgs = req.type === "call" && urllibName(ctx, req.childForFieldName("function")) === "urllib.request.Request" ? req.childForFieldName("arguments") : undefined;
+  const urlNode = reqArgs ? (positionalArgs(reqArgs)[0] ?? keyword(reqArgs, "url")) : target;
+  const named = evalString(ctx, keyword(reqArgs, "method"))?.toUpperCase();
+  // A Request with data and no method is a POST, as urllib sends it.
+  const hasData = Boolean(keyword(reqArgs, "data") ?? positionalArgs(reqArgs)[1] ?? keyword(args, "data") ?? positionalArgs(args)[1]);
+  const method: HttpMethod = named && (HTTP_METHODS as readonly string[]).includes(named) ? (named as HttpMethod) : hasData ? "POST" : "GET";
+  const { host, path, query, runtimeHost } = parseUrl(evalString(ctx, urlNode));
+  const surface = emptySurface();
+  surface.headers = dictEntries(ctx, keyword(reqArgs, "headers")).map((h) => ({ ...h, name: h.name.toLowerCase() }));
+  surface.query = query;
+  const provider = providerOf(host, path, runtimeHost);
+  return { file: "", line: 0, column: 0, provider, kind: "http", client: "urllib", method, host, endpoint: path, resolved: Boolean(provider && path) && !pathUnresolved(path), surface };
+}
+
+/** A function's parameters in order, with their defaults; `self` and `cls` left out. */
+function parametersOf(def: Node): { name: string; default?: Node }[] {
+  const out: { name: string; default?: Node }[] = [];
+  for (const p of def.childForFieldName("parameters")?.namedChildren ?? []) {
+    if (!p) continue;
+    if (p.type === "identifier") out.push({ name: p.text });
+    else if (p.type === "typed_parameter" && p.namedChildren[0]?.type === "identifier") out.push({ name: p.namedChildren[0].text });
+    else if (p.type === "default_parameter" || p.type === "typed_default_parameter") {
+      const name = p.childForFieldName("name")?.text;
+      if (name) out.push({ name, default: p.childForFieldName("value") ?? undefined });
+    } else break; // *args, **kwargs, a bare * or /: what follows is keyword-only
+  }
+  return out[0] && (out[0].name === "self" || out[0].name === "cls") ? out.slice(1) : out;
+}
+
+/** Whether a call's arguments use one of `names`, directly or through a local variable they are built from. */
+function dependsOn(call: Node, names: Set<string>): boolean {
+  const seen = new Set<number>();
+  const visit = (node: Node, depth: number): boolean =>
+    node.descendantsOfType("identifier").some((id) => {
+      if (!id || seen.has(id.id)) return false;
+      seen.add(id.id);
+      if (names.has(id.text)) return true;
+      const init = depth < 3 ? localAssignment(id) : undefined;
+      return init ? visit(init, depth + 1) : false;
+    });
+  const args = call.childForFieldName("arguments");
+  return args ? visit(args, 0) : false;
+}
+
+/**
+ * A request inside a helper whose URL, query, headers or body come from the helper's parameters
+ * (`def _qbo_get(url, params): return requests.get(url, params=params)`): read once per caller in the file,
+ * with the caller's arguments, so `_qbo_get(f"{BASE}/v3/company/{realm}/query", {"minorversion": "65"})` is
+ * the call SHAPI reports. Distinct results only; none when no caller makes the call resolvable.
+ */
+function throughCallers(ctx: FileContext, root: Node, call: Node): CallSite[] {
+  let def: Node | null = call.parent;
+  while (def && def.type !== "function_definition") def = def.parent;
+  const name = def?.childForFieldName("name")?.text;
+  if (!def || !name || ctx.params) return [];
+  const params = parametersOf(def);
+  if (!params.length || !dependsOn(call, new Set(params.map((p) => p.name)))) return [];
+  const out: CallSite[] = [];
+  for (const caller of root.descendantsOfType("call")) {
+    if (!caller || (caller.startIndex >= def.startIndex && caller.endIndex <= def.endIndex)) continue;
+    const fn = caller.childForFieldName("function");
+    const viaSelf = fn?.type === "attribute" && fn.childForFieldName("attribute")?.text === name && ["self", "cls"].includes(fn.childForFieldName("object")?.text ?? "");
+    if (!(fn?.type === "identifier" && fn.text === name) && !viaSelf) continue;
+    const callerArgs = caller.childForFieldName("arguments");
+    const positional = positionalArgs(callerArgs).filter((a) => a.type !== "list_splat" && a.type !== "dictionary_splat");
+    const bound = new Map<string, Node>();
+    params.forEach((p, i) => {
+      const value = keyword(callerArgs, p.name) ?? positional[i] ?? p.default;
+      if (value) bound.set(p.name, value);
+    });
+    const inner: FileContext = { ...ctx, params: bound };
+    const site = httpCall(inner, call) ?? urllibCall(inner, call);
+    if (!site) continue;
+    // Callers of one endpoint are one call site, with every distinct value they send: one caller's old
+    // minorversion is enough to break it.
+    const same = out.find((s) => s.method === site.method && s.host === site.host && s.endpoint === site.endpoint);
+    if (same) {
+      same.surface.query = mergeEntries(same.surface.query, site.surface.query);
+      same.surface.headers = mergeEntries(same.surface.headers, site.surface.headers);
+      if (site.surface.body) same.surface.body = mergeEntries(same.surface.body ?? [], site.surface.body);
+      continue;
+    }
+    out.push(site);
+  }
+  return out.some((s) => s.resolved) ? out : [];
+}
+
+function mergeEntries(a: NameValue[], b: NameValue[]): NameValue[] {
+  const key = (e: NameValue) => `${e.name}\u0000${e.value ?? ""}`;
+  const seen = new Set(a.map(key));
+  return [...a, ...b.filter((e) => !seen.has(key(e)))];
 }
 
 function sdkCall(ctx: FileContext, call: Node): CallSite | undefined {
@@ -381,7 +516,7 @@ function interpret(loc: Loc, access: string[], top: Node, lib: string, c: Collec
   const [first, ...rest] = full;
   if (first === undefined) return;
   const isCall = top.parent?.type === "call" && top.parent.childForFieldName("function")?.id === top.id;
-  const statusKey = lib === "aiohttp" ? "status" : "status_code";
+  const statusKey = lib === "aiohttp" || lib === "urllib" ? "status" : "status_code";
   if (first === statusKey && rest.length === 0) {
     for (const n of comparedLiterals(top).nums) c.statusCodes.add(n);
     return;
@@ -552,8 +687,18 @@ function evalString(ctx: FileContext, node: Node | undefined, depth = 0): string
       return value ? formatted(ctx, value, depth) : `{${key ?? ""}}`;
     });
   }
+  // "https://sandbox-…" if SANDBOX else "https://…": both are the same API, so the first that evaluates.
+  if (n.type === "conditional_expression") {
+    const [whenTrue, , whenFalse] = n.namedChildren;
+    return evalString(ctx, whenTrue ?? undefined, depth + 1) ?? evalString(ctx, whenFalse ?? undefined, depth + 1);
+  }
   if (n.type === "identifier") {
-    const init = localAssignment(n) ?? ctx.consts.get(n.text);
+    const local = localAssignment(n);
+    if (local && local.id !== node.id) return evalString(ctx, local, depth + 1);
+    // A helper's parameter, read for one caller: that caller's argument, in the caller's own scope.
+    const bound = ctx.params?.get(n.text);
+    if (bound) return evalString({ ...ctx, params: undefined }, bound, depth + 1);
+    const init = ctx.consts.get(n.text);
     return init && init.id !== node.id ? evalString(ctx, init, depth + 1) : undefined;
   }
   // os.getenv("API_URL", "https://...") / os.environ.get("X", "https://...")
@@ -576,6 +721,19 @@ function evalString(ctx: FileContext, node: Node | undefined, depth = 0): string
         const value = key === "" ? positional[next++] : /^\d+$/.test(key) ? positional[Number(key)] : keyword(argList, key);
         return value ? formatted(ctx, value, depth) : `{${key}}`;
       });
+    }
+    // _api_base() / self._base_url(): a helper in this file, by what it returns.
+    const helper =
+      callee?.type === "identifier" ? callee.text : callee?.type === "attribute" && ["self", "cls"].includes(callee.childForFieldName("object")?.text ?? "") ? callee.childForFieldName("attribute")?.text : undefined;
+    const def = helper ? ctx.functions.get(helper) : undefined;
+    if (def) {
+      for (const ret of def.descendantsOfType("return_statement")) {
+        let owner: Node | null = ret?.parent ?? null;
+        while (owner && owner.type !== "function_definition") owner = owner.parent;
+        if (!ret || owner?.id !== def.id) continue;
+        const value = evalString({ ...ctx, params: undefined }, ret.namedChildren[0] ?? undefined, depth + 1);
+        if (value !== undefined) return value;
+      }
     }
   }
   return undefined;
@@ -667,6 +825,11 @@ function dictEntries(ctx: FileContext, node: Node | undefined, depth = 0): NameV
   if (!node || depth > 3) return [];
   const n = unwrap(node);
   if (n.type === "identifier") {
+    // params = {...} earlier in the function; a helper's parameter, from its caller; a module constant.
+    const local = localAssignment(n);
+    if (local) return dictEntries(ctx, local, depth + 1);
+    const bound = ctx.params?.get(n.text);
+    if (bound) return dictEntries({ ...ctx, params: undefined }, bound, depth + 1);
     const init = ctx.consts.get(n.text);
     return init ? dictEntries(ctx, init, depth + 1) : [];
   }
