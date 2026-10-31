@@ -1,8 +1,8 @@
 {
   "dataset": "APIBreak-Replay v0",
   "datasetHash": "37fa931e8278",
-  "gitSha": "725e14d3ad2c8a6287aac1cf274143626adf6bf3",
-  "flagRecall": "9 / 14",
+  "gitSha": "9a11fc2f8d15568989534dc5d017cb8b8b12b3eb",
+  "flagRecall": "11 / 14",
   "fixedStatePrecision": "13 / 14",
   "instances": [
     {
@@ -17,13 +17,13 @@
     },
     {
       "id": "github-workflow-dispatch-204-to-200__refracta__df-translations",
-      "base": "none",
-      "fix": "none"
+      "base": "affected",
+      "fix": "exposed"
     },
     {
       "id": "github-workflow-dispatch-204-to-200__kikujizo__ai-harness",
-      "base": "none",
-      "fix": "none"
+      "base": "affected",
+      "fix": "exposed"
     },
     {
       "id": "github-workflow-dispatch-204-to-200__dlstupka__hth",

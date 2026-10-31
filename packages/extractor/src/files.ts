@@ -1,6 +1,7 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { providerForPackage, providerForPythonPackage } from "@shapi/core";
+import { SHELL_FILE } from "./shell";
 
 const SOURCE_FILE = /\.(c|m)?[jt]sx?$/;
 const PYTHON_FILE = /\.py$/;
@@ -18,6 +19,8 @@ export interface RepoFiles {
   python: string[];
   pythonManifests: string[];
   go: string[];
+  /** Shell scripts, and the GitHub Actions workflows under `.github/workflows/` (their `run:` steps are shell). */
+  shell: string[];
 }
 
 /** Walk a repository for source files and package.json manifests, skipping dependencies and build output. */
@@ -27,6 +30,7 @@ export function listRepoFiles(root: string): RepoFiles {
   const python: string[] = [];
   const pythonManifests: string[] = [];
   const go: string[] = [];
+  const shell: string[] = [];
   const walk = (dir: string) => {
     const entries = readdirSync(dir, { withFileTypes: true });
     // Static files a framework serves as they are (Next.js, Vite, Laravel): public/ at the root or next to a package.json.
@@ -43,11 +47,17 @@ export function listRepoFiles(root: string): RepoFiles {
         else if (PYTHON_FILE.test(entry.name)) python.push(full);
         else if (PYTHON_MANIFEST.test(entry.name)) pythonManifests.push(full);
         else if (GO_FILE.test(entry.name)) go.push(full);
+        else if (SHELL_FILE.test(entry.name)) shell.push(full);
       }
     }
   };
   walk(root);
-  return { sources: sources.sort(), manifests: manifests.sort(), python: python.sort(), pythonManifests: pythonManifests.sort(), go: go.sort() };
+  // Dot folders are skipped above; the workflows folder is read on its own.
+  const workflows = path.join(root, ".github", "workflows");
+  if (existsSync(workflows)) {
+    for (const entry of readdirSync(workflows, { withFileTypes: true })) if (entry.isFile() && /\.ya?ml$/.test(entry.name)) shell.push(path.join(workflows, entry.name));
+  }
+  return { sources: sources.sort(), manifests: manifests.sort(), python: python.sort(), pythonManifests: pythonManifests.sort(), go: go.sort(), shell: shell.sort() };
 }
 
 export interface DeclaredProvider {
