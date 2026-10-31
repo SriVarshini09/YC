@@ -103,6 +103,23 @@ Each SHAPI change measured on dataset `37fa931e8278` (14 scored instances). Prec
 
 Each gap becomes a fix in SHAPI's extractor or matcher. Its acceptance test is that instance turning `affected`, with no new false positives on the fix commits.
 
+## v1 (execution plan P-14)
+
+`datasets/apibreak-v1.json` has 363 instances, 208 of them scored. It keeps v0, except voilalz/frontier-pulse: GitHub deleted that repository before Software Heritage could archive it (P-07). It adds 293 instances mined on 2026-10-31 by `scripts/mine.ts` (`bench:mine`) from public commit messages, each labeled from its own diff:
+
+| Incident | Added | Scored | Label rule |
+| --- | --- | --- | --- |
+| Meta Graph v21.0 sunset | 113 | 113 | A scanned source file drops `v21.0` next to Graph/Meta/version wording, for a newer version |
+| Meta Graph v20.0 sunset | 60 | 60 | The same for `v20.0` |
+| Meta Graph, older than v20.0 | 99 | 0 | No SHAPI advisory covers those versions |
+| QuickBooks minorversion | 14 | 14 | Removes a `minorversion` below 75 and adds one at 75 or more |
+| GitHub workflow_dispatch | 7 | 7 | Removes a check for `204` |
+
+- **Auto-classified.** Unlike v0, these labels are automatic. They wait for a hand review, and until then v1 results are reported apart from v0's.
+- **Left out.** Commits that only mention the dispatch call (143) are not in v1.
+- **The Meta incidents test a version sunset.** The code before the fix pins a Graph API version that Meta retires, and the fix moves it to a supported one.
+- **Where it runs.** v1 runs on demand in the `bench v1` workflow (`.github/workflows/bench-v1.yml`), which keeps its results as an artifact. CI's regression gate stays on v0.
+
 ## Limits
 
 - **Small, public, hobby-leaning repositories.** Public commit search skews toward small projects, so this is evidence of the pattern, not of market size.

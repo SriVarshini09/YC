@@ -43,6 +43,9 @@ export interface Instance {
 export const TRIGGER_EVIDENCE: Record<string, RegExp> = {
   "github-workflow-dispatch-204-to-200": /\b204\b/,
   "quickbooks-minorversion-below-75-ignored": /minor_?version["'\s]*[:=,]?\s*["'`]?(?:[0-9]|[1-6][0-9]|7[0-4])(?![0-9])/i,
+  // v1 (P-14): a Graph API version pinned in the code.
+  "meta-graph-v20-sunset": /\bv20\.0\b/,
+  "meta-graph-v21-sunset": /\bv21\.0\b/,
 };
 
 /** The first line the fix removed that matches the advisory's trigger, from GitHub's per-file patches. */
@@ -84,6 +87,19 @@ export const CLASS_RULES: Record<string, ClassRule> = {
   },
   "github-workflow-dispatch-204-to-200/run-details": { advisoryId: null, inScope: false, reason: "adopted the new run id: a feature, not a breakage" },
   "quickbooks-minorversion-below-75/moved-to-75": { advisoryId: "quickbooks-minorversion-below-75-ignored", inScope: true },
+  // v1 (P-14): labeled automatically by scripts/mine.ts from each commit's diff, pending a hand review.
+  "github-workflow-dispatch-204-to-200/auto-unverified": {
+    advisoryId: null,
+    inScope: false,
+    reason: "mined automatically: the commit mentions the dispatch call but removes no check for 204",
+  },
+  "meta-graph-v20-sunset/version-bump": { advisoryId: "meta-graph-v20-sunset", inScope: true },
+  "meta-graph-v21-sunset/version-bump": { advisoryId: "meta-graph-v21-sunset", inScope: true },
+  "meta-graph-older-version/older-version": {
+    advisoryId: null,
+    inScope: false,
+    reason: "moved off a Graph API version older than v20.0, which SHAPI has no advisory for",
+  },
   "quickbooks-minorversion-below-75/pinned-old": {
     advisoryId: "quickbooks-minorversion-below-75-ignored",
     inScope: false,

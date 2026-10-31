@@ -18,6 +18,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "bench:build": "node ../../scripts/run-ts.mjs scripts/build.ts",
+    "bench:mine": "node ../../scripts/run-ts.mjs scripts/mine.ts",
     "bench:run": "node ../../scripts/run-ts.mjs scripts/run.ts",
     "bench:okapi": "node ../../scripts/run-ts.mjs scripts/okapi.ts",
     "bench:archive": "node ../../scripts/run-ts.mjs scripts/archive.ts",

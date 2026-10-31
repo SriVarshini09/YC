@@ -1,0 +1,37 @@
+name: bench v1
+
+# APIBreak-Replay v1 (execution plan P-14): several hundred repositories, too many for every pull request, so it
+# runs on demand. CI's regression gate stays on v0. The run's per-instance results are kept as an artifact, to be
+# committed under packages/bench/results/ with the leaderboard.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: packages/bench/.cache
+          key: bench-v1-archives-${{ hashFiles('packages/bench/datasets/apibreak-v1.json') }}
+      # Read-only: the token only downloads public archives through GitHub's API.
+      - run: pnpm --filter @shapi/bench bench:run -- --dataset datasets/apibreak-v1.json --cache .cache --results-out "${{ runner.temp }}/bench-v1-results.json"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench-v1-results
+          path: ${{ runner.temp }}/bench-v1-results.json
+          if-no-files-found: ignore
