@@ -1,6 +1,6 @@
 {
   "lockfileVersion": 1,
-  "generator": "shapi 0.3.2",
+  "generator": "shapi 0.3.3",
   "providers": [
     {
       "id": "github",
