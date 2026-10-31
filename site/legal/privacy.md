@@ -5,7 +5,7 @@ description: "What data SHAPI collects, why, how long it is kept, and your right
 # Privacy policy
 
 ::: warning Draft
-This policy applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 29, 2026.
+This policy applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 30, 2026.
 :::
 
 SHAPI is operated by its founder and is not yet incorporated. In this policy, "SHAPI", "we" and "us" mean the SHAPI project and its operator. This policy covers the hosted GitHub App and web app, the `shapi-cli` command-line tool, and this documentation site.
@@ -22,6 +22,7 @@ When you install the GitHub App, GitHub sends SHAPI information about the instal
 |---|---|
 | Account: GitHub login, account type (user or organization), installation id, your SHAPI settings | To run the app for your account |
 | Repositories: name, default branch, public or private, last scanned commit | To scan the right repositories and enforce plan limits |
+| Active committers of private repositories: one hash per person who committed in the last 90 days, made from their GitHub login (or the commit's author email when the commit isn't linked to a GitHub account) and your account id | To count active committers for billing. SHAPI reads the repository's commit list with the scan's read-only token and doesn't store the logins, names or email addresses themselves. Anyone who knows a person's login or email and your account id could recompute the hash, so we treat it as personal data. |
 | The **api.lock** of each scanned commit: file paths and line numbers of third-party API calls, the endpoints called, and the status codes, fields, enums and headers the code relies on | To show findings and re-check them when an advisory is added |
 | Findings: which advisory affects which call site, and why | To show results and open fix pull requests |
 | Fix pull request records: branch, number, state, and each fix's diff and contract-test output | To update PRs in place and apply noise limits |
@@ -35,7 +36,7 @@ When you sign in with GitHub, SHAPI reads your GitHub user id, your login, the G
 
 ### Billing
 
-Paid plans are handled by Stripe. SHAPI creates a Stripe customer named after your GitHub account login. Stripe collects your payment details, email address and billing address directly, on its own pages. SHAPI never sees your card number. SHAPI stores the Stripe customer and subscription ids, the subscription status, how many private repositories are paid for, and when the current period ends.
+Paid plans are handled by Stripe. SHAPI creates a Stripe customer named after your GitHub account login. Stripe collects your payment details, email address and billing address directly, on its own pages. SHAPI never sees your card number. SHAPI stores the Stripe customer and subscription ids, the subscription status, how many seats (active committers beyond the free ones) are paid for, and when the current period ends.
 
 ### Slack alerts (opt-in)
 
@@ -70,6 +71,7 @@ The web app sets three cookies, none used for tracking:
 ## How long we keep data
 
 - **Account, repository, scan, findings and fix PR data:** while the GitHub App is installed. Uninstalling deletes it at once.
+- **Committer hashes:** replaced each time the private repository is scanned, and deleted with the repository's data.
 - **Webhook payloads:** 14 days.
 - **Sessions:** 8 hours, or until you sign out.
 - **Billing record:** deleted when you uninstall. Stripe keeps its own records as required by law.
