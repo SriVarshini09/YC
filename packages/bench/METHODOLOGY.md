@@ -120,6 +120,21 @@ Each gap becomes a fix in SHAPI's extractor or matcher. Its acceptance test is t
 - **The Meta incidents test a version sunset.** The code before the fix pins a Graph API version that Meta retires, and the fix moves it to a supported one.
 - **Where it runs.** v1 runs on demand in the `bench v1` workflow (`.github/workflows/bench-v1.yml`), which keeps its results as an artifact. CI's regression gate stays on v0.
 
+### v1 results (shapi-cli 0.3.5, dataset `ef24b946b806`, 2026-10-31)
+
+From the `bench v1` workflow run [41185568409](https://github.com/SriVarshini09/YC/actions/runs/41185568409). Per instance: `results/0.3.5/ef24b946b806.json`.
+
+| Incident | Scored | Flag recall | Fixed-state precision |
+| --- | --- | --- | --- |
+| Meta Graph v20.0 sunset | 60 | 98% (59/60, 95% CI 91–100%) | 92% (55/60, 95% CI 82–96%) |
+| Meta Graph v21.0 sunset | 108 | 80% (86/108, 95% CI 71–86%) | 82% (89/108, 95% CI 74–88%) |
+| QuickBooks minorversion | 21 | 67% (14/21, 95% CI 45–83%) | 71% (15/21, 95% CI 50–86%) |
+| GitHub workflow_dispatch | 14 | 50% (7/14, 95% CI 27–73%) | 100% (14/14, 95% CI 79–100%) |
+| **All** | **203** | **82% (166/203, 95% CI 76–86%)** | **85% (173/203, 95% CI 80–89%)** |
+
+- **Errors.** Five instances could not be scanned (unavailable archives) and count against SHAPI.
+- **Precision is not adjudicated.** On v0, every fix commit SHAPI still flagged turned out to have left an old value somewhere else. v1's 30 such commits have not been checked yet, so its precision is a lower bound until they are.
+
 ## Limits
 
 - **Small, public, hobby-leaning repositories.** Public commit search skews toward small projects, so this is evidence of the pattern, not of market size.
