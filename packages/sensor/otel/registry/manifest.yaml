@@ -1,0 +1,3 @@
+name: shapi
+description: "Telemetry of SHAPI's traffic sensor: value-free shapes of third-party API responses."
+schema_url: https://shapi.dev/schemas/sensor/1.0.0
