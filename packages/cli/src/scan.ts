@@ -21,7 +21,7 @@ import {
 import { extractCallSites, listRepoFiles, loadGoParser, loadPythonParser, toPosix } from "@shapi/extractor";
 import { bundledDir } from "./paths";
 
-export const VERSION = "0.3.4";
+export const VERSION = "0.3.5";
 
 /** Advisories shipped with SHAPI (the published package's advisories/, or the repository root's in the monorepo). */
 export const DEFAULT_ADVISORIES = bundledDir("advisories", "advisories");
