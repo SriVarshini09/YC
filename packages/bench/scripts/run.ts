@@ -83,6 +83,8 @@ for (const instance of dataset.instances) {
 const summary = summarize(results);
 const baselineFile = path.join(here, "..", "baseline.json");
 const meta = { dataset: `${dataset.name} ${dataset.version}`, datasetHash, gitSha };
+// The run's results, also outside results/ (CI keeps them as an artifact; see .github/workflows).
+if (values["results-out"]) writeFileSync(values["results-out"], `${JSON.stringify({ dataset: meta.dataset, datasetHash, shapiVersion: cliPackage.version, gitSha, runAt: new Date().toISOString(), summary, results }, null, 2)}\n`);
 
 if (values.check) {
   const baseline = JSON.parse(readFileSync(baselineFile, "utf8")) as Baseline;
@@ -90,7 +92,6 @@ if (values.check) {
   const report = gateReport(gate, baseline, summary);
   console.log(report);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${report}\n`);
-  if (values["results-out"]) writeFileSync(values["results-out"], `${JSON.stringify({ dataset: meta.dataset, datasetHash, shapiVersion: cliPackage.version, gitSha, runAt: new Date().toISOString(), summary, results }, null, 2)}\n`);
   process.exit(gate.passed ? 0 : 1);
 }
 if (values["update-baseline"]) {
