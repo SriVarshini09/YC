@@ -42,3 +42,14 @@ Run `pnpm --filter @shapi/bench bench:leaderboard`. It validates every submissio
 ## The grep baseline
 
 `submissions/grep-baseline.json` is what a regex search finds with no parsing: a `204` in a file that also says `dispatches`, or a `minorversion` below 75. It is written by `bench:baseline-grep` and goes through the same validation and scoring as any other submission, so a tool that can't beat it isn't reading the code.
+
+## Claude Code
+
+`submissions/claude-code.json` is a general coding agent with no SHAPI inside: Claude Code 2.1.316 on `claude-sonnet-5-5` (execution plan P-19). `bench:claude-code` runs it.
+
+- **The question:** Claude Code is given each advisory's public text (provider, title, what changed, endpoint, date, migration note) and asked whether the repository's code breaks because of that change. It must end with `VERDICT: FLAGGED` or `VERDICT: CLEAR`.
+- **Isolation:** the base and fix commits are judged separately. Each is a fresh copy without git history, in a throwaway E2B sandbox.
+- **Read-only:** Claude Code has Read, Grep and Glob only. It has no shell and no network tools, and nothing from the repository is run.
+- **Auditing:** every answer is in `runs/claude-code-<dataset hash>.json`, so any verdict can be checked.
+
+The 28 runs cost about $0.90.

@@ -300,6 +300,9 @@ importers:
       '@types/js-yaml':
         specifier: 4.0.9
         version: 4.0.9
+      e2b:
+        specifier: 2.52.1
+        version: 2.52.1
       js-yaml:
         specifier: 4.1.0
         version: 4.1.0
