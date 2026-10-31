@@ -1,0 +1,182 @@
+[
+  {
+    "id": "quickbooks-minorversion-below-75__hfscdogg__outgrow",
+    "repo": "hfscdogg/outgrow",
+    "fixCommit": "fcdf2b798508c0a0af433a109dd615d3e81b9a58",
+    "verdict": "left-old sync/qbo.py:69: # intermittently on minorversion=65. 75 is the terminal supported version."
+  },
+  {
+    "id": "quickbooks-minorversion-below-75__tioperfumes07__IH35-TMS",
+    "repo": "tioperfumes07/IH35-TMS",
+    "fixCommit": "e80df5d4a1b82dcfd41f91820ae85c4706d8e559",
+    "verdict": "unconfirmed (checked 40 of 5748 source files)"
+  },
+  {
+    "id": "quickbooks-minorversion-below-75__theomleslie-ops__bakery-dashboard-2",
+    "repo": "theomleslie-ops/bakery-dashboard-2",
+    "fixCommit": "7289bc2fa7afac239bf3b10a814ad64eba87e764",
+    "verdict": "left-old pipeline/qb-client.js:86: params: { query: sql, minorversion: 70 },"
+  },
+  {
+    "id": "quickbooks-minorversion-below-75__easytestdata__easytestdata",
+    "repo": "easytestdata/easytestdata",
+    "fixCommit": "1bb8f9064017f0b378ca48a0bd0c55039db72f32",
+    "verdict": "left-old packages/qbo-client/tests/exports-and-refresh.test.js:44: qboMinorVersion: \"65\","
+  },
+  {
+    "id": "quickbooks-minorversion-below-75__ikeyraymedia-netizen__nurseryos",
+    "repo": "ikeyraymedia-netizen/nurseryos",
+    "fixCommit": "340b73e9bb32d99bae2b2de4ec06cf88afeff2f8",
+    "verdict": "left-old server/quickbooks.ts:423: '/preferences?minorversion=65'"
+  },
+  {
+    "id": "quickbooks-minorversion-below-75__cyrusgilbertrolfe__back-bar",
+    "repo": "cyrusgilbertrolfe/back-bar",
+    "fixCommit": "1c40edfc3f8af54123003516857ea08429ceeb49",
+    "verdict": "left-old scripts/qb/pull-history.ts:62: const url = `${QB_BASE}/v3/company/${QB_REALM_ID}/query?query=${encodeURIComponent(query)}&minorversion=65`"
+  },
+  {
+    "id": "meta-graph-v20-sunset__jansiddiqui__courage-national-talent-search-app",
+    "repo": "jansiddiqui/courage-national-talent-search-app",
+    "fixCommit": "3968161e0264ba620b1ea057d4c283ff0ec251b8",
+    "verdict": "unconfirmed (checked 40 of 441 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__caiogn-dev__server",
+    "repo": "caiogn-dev/server",
+    "fixCommit": "e71f27529094339beadf7944fc278733239a52b4",
+    "verdict": "unconfirmed (checked 40 of 1419 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__TBROS68__genlab-platform",
+    "repo": "TBROS68/genlab-platform",
+    "fixCommit": "60f46450e7ef70bbad8728e5cc20ed34cbc044fc",
+    "verdict": "unconfirmed (checked 40 of 983 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__ntrofimov59-hash__smm-bot",
+    "repo": "ntrofimov59-hash/smm-bot",
+    "fixCommit": "ffbfd6d2200a55e5f53a7c5da82cdfceed48b10a",
+    "verdict": "left-old agent/sources/instagram-graph.js:9: const IG_GRAPH = 'https://graph.instagram.com/v21.0';"
+  },
+  {
+    "id": "meta-graph-v21-sunset__jadsajsdlkdqwioqodkwl__claudetarot",
+    "repo": "jadsajsdlkdqwioqodkwl/claudetarot",
+    "fixCommit": "f3973ad46da06172cc84f128d78793601abea8a7",
+    "verdict": "unconfirmed (checked 40 of 91 source files)"
+  },
+  {
+    "id": "meta-graph-v20-sunset__DayMoonDevelopment__post-for-me",
+    "repo": "DayMoonDevelopment/post-for-me",
+    "fixCommit": "9a1ae17a22393006bdc532a4fe709a01b682d6f3",
+    "verdict": "unconfirmed (checked 40 of 938 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__adapakse__CRMtree-backend",
+    "repo": "adapakse/CRMtree-backend",
+    "fixCommit": "b561baaea799b4bfbb551fe7b0bff994bc6118b8",
+    "verdict": "unconfirmed (checked 40 of 182 source files)"
+  },
+  {
+    "id": "meta-graph-v20-sunset__pptcwn__fb-ads-platform",
+    "repo": "pptcwn/fb-ads-platform",
+    "fixCommit": "b77285e96a5767ede7953314aa6b0e54cb6eec4a",
+    "verdict": "left-old apps/api/src/creatives/creatives.service.ts:212: const baseUrl = 'https://graph.facebook.com/v20.0';"
+  },
+  {
+    "id": "meta-graph-v21-sunset__Propyte-Team__propyte-crm",
+    "repo": "Propyte-Team/propyte-crm",
+    "fixCommit": "92c23b2e61010507d241d58444feb669a8b58751",
+    "verdict": "unconfirmed (checked 40 of 541 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__xDican__project-harmony",
+    "repo": "xDican/project-harmony",
+    "fixCommit": "7ad778c2b27ca0191466f60da40d0bc68797db44",
+    "verdict": "left-old src/components/whatsapp/MetaEmbeddedSignup.tsx:65: version: 'v21.0',"
+  },
+  {
+    "id": "meta-graph-v21-sunset__abdullohbohodirov96__Target-yordamchi",
+    "repo": "abdullohbohodirov96/Target-yordamchi",
+    "fixCommit": "e82b104bca370504aea751a874316f11db2158f7",
+    "verdict": "left-old app/meta_api.py:41: # 2026-09-30: v21.0 (2024-10) muddati tugayapti -> v25.0 (2026-02, amal"
+  },
+  {
+    "id": "meta-graph-v21-sunset__daemondevpub__vm-play-imformer",
+    "repo": "daemondevpub/vm-play-imformer",
+    "fixCommit": "6c5f3ebd7a320a382d9dbee847d51bcaa718291b",
+    "verdict": "left-old tests/whatsapp.test.js:41: apiVersion: 'v21.0',"
+  },
+  {
+    "id": "meta-graph-v21-sunset__martian3062__giani_reporter",
+    "repo": "martian3062/giani_reporter",
+    "fixCommit": "8169c992180ec1f0e4e2b0181d5c15706a871b07",
+    "verdict": "unconfirmed (checked 31 of 50 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__moti515__global-cms",
+    "repo": "moti515/global-cms",
+    "fixCommit": "71b36359039b82544d17fa5dae58b903ff94429b",
+    "verdict": "left-old mebli_instagram_story/delete_old_reels.py:47: url = f\"https://graph.facebook.com/v21.0/{page_id}/video_reels\""
+  },
+  {
+    "id": "meta-graph-v20-sunset__Tio-dev71__Topify",
+    "repo": "Tio-dev71/Topify",
+    "fixCommit": "ba5b4e90ff932bb08c3c6dc6f05896667e069060",
+    "verdict": "unconfirmed (checked 40 of 493 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__drax6055__Sendzyy-whatsapp-marketing",
+    "repo": "drax6055/Sendzyy-whatsapp-marketing",
+    "fixCommit": "862ec105386f172b695d25570028bb31a1333279",
+    "verdict": "unconfirmed (checked 40 of 56 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__HenriqueRJ-dev__adai-saas",
+    "repo": "HenriqueRJ-dev/adai-saas",
+    "fixCommit": "2fb5b67ab756b176c524f9890eeb52ae14c928af",
+    "verdict": "left-old app/api/instagram/analyze-brand/route.ts:22: const profileUrl = `https://graph.instagram.com/v21.0/${igUserId}?fields=biography,name,username,followers_count,website&access_token=${acce"
+  },
+  {
+    "id": "meta-graph-v21-sunset__lindltaylor7__avantage",
+    "repo": "lindltaylor7/avantage",
+    "fixCommit": "15a41512b18b33065f7cc099001dd5fc5c4d827f",
+    "verdict": "unconfirmed (checked 40 of 296 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__andresayac__botmesh",
+    "repo": "andresayac/botmesh",
+    "fixCommit": "d43e55c75670528e43fd04a9036c42c131ca83c9",
+    "verdict": "unconfirmed (checked 40 of 1085 source files)"
+  },
+  {
+    "id": "meta-graph-v20-sunset__MdAbdehakim__whatsapp-booking-crm.",
+    "repo": "MdAbdehakim/whatsapp-booking-crm.",
+    "fixCommit": "7813461c8f6c1ea7abc196449b5c0ba4bf3b792f",
+    "verdict": "left-old src/app/api/webhook/whatsapp/route.ts:155: `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,"
+  },
+  {
+    "id": "meta-graph-v21-sunset__wellsm__receivy",
+    "repo": "wellsm/receivy",
+    "fixCommit": "516809457af4f16d016d3c70332d237ea341e18b",
+    "verdict": "left-old packages/api/ez4.project.js:111: WHATSAPP_API_VERSION: process.env.WHATSAPP_API_VERSION ?? 'v21.0',"
+  },
+  {
+    "id": "meta-graph-v21-sunset__SonidoLiquidoGitHu__sonido-liquido-crew",
+    "repo": "SonidoLiquidoGitHu/sonido-liquido-crew",
+    "fixCommit": "0d40a351a01ecbdbd6b3a362b56dc686568a290c",
+    "verdict": "unconfirmed (checked 40 of 1051 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__stefbach__Scoial-Hub",
+    "repo": "stefbach/Scoial-Hub",
+    "fixCommit": "9c046a0ba4cc47aad42090ed5d252e1d7f5b14b6",
+    "verdict": "unconfirmed (checked 40 of 805 source files)"
+  },
+  {
+    "id": "meta-graph-v21-sunset__TKBSMarketing__MarketingAssetDevelopment",
+    "repo": "TKBSMarketing/MarketingAssetDevelopment",
+    "fixCommit": "5003aa66cca5066ff7034c6a52c5293749dbbf89",
+    "verdict": "left-old FoundationsTreeExperts/reporting/build_campaign.py:13: BASE = 'https://graph.facebook.com/v21.0'"
+  }
+]

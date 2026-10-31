@@ -133,7 +133,17 @@ From the `bench v1` workflow run [41185568409](https://github.com/SriVarshini09/
 | **All** | **203** | **82% (166/203, 95% CI 76–86%)** | **85% (173/203, 95% CI 80–89%)** |
 
 - **Errors.** Five instances could not be scanned (unavailable archives) and count against SHAPI.
-- **Precision is not adjudicated.** On v0, every fix commit SHAPI still flagged turned out to have left an old value somewhere else. v1's 30 such commits have not been checked yet, so its precision is a lower bound until they are.
+- **Precision is a lower bound.** On v0, every fix commit SHAPI still flagged turned out to have left an old value somewhere else.
+- **v1's 30 such commits were checked on 2026-10-31**, by reading up to 40 likely source files of each fix commit through GitHub's API.
+  - **15 are real leftovers, so SHAPI is right.** 13 still hold the old value in source, two of them in tests, for example:
+    - `agent/sources/instagram-graph.js:9` `https://graph.instagram.com/v21.0` (ntrofimov59-hash/smm-bot);
+    - `src/app/api/webhook/whatsapp/route.ts:155` `graph.facebook.com/v20.0` (MdAbdehakim/whatsapp-booking-crm.);
+    - `server/quickbooks.ts:423` `minorversion=65` (ikeyraymedia-netizen/nurseryos).
+
+    The other two, hfscdogg/outgrow and tioperfumes07/IH35-TMS, are adjudicated above.
+  - **14 are unconfirmed**, in large repositories where the search read only part of the code.
+  - **1 shows the old version only in a comment** (abdullohbohodirov96/Target-yordamchi).
+- **Adjudicated precision** is at least 93% (188/203). The 15 open cases need a hand check.
 
 ## Limits
 
