@@ -42,5 +42,13 @@
     "https://www.twilio.com/en-us/changelog/rcs-error-code-changing",
     "https://www.twilio.com/docs/messaging/api/message-resource"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://www.twilio.com/en-us/changelog/rcs-error-code-changing",
+      "quote": "Starting August 10, 2026, the error code returned when an RCS message cannot be delivered to an unreachable end-user device will change from 30036 to 30046.",
+      "sourceSha256": "5c0cd4818117e9dc01dece1734760ebda6f768375f20d3ad7ff840b1440c0b63",
+      "fetchedAt": "2026-10-31T01:34:46.946Z"
+    }
+  ]
 }

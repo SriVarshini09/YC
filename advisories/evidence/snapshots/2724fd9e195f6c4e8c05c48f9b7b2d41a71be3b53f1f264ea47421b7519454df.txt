@@ -1,0 +1,21 @@
+2026-10-14: GPT-4 series model deprecations
+On October 14, 2026, we notified developers using certain GPT-4 series models of their deprecation and removal from the API on January 14, 2027.
+Shutdown date
+...
+gpt-live-transcribe or gpt-transcribe
+Feb 26, 2027
+/v1/audio/translations
+v1/realtime/translations
+...
+Existing evals become read-only.
+Nov 30, 2026
+The Evals dashboard and API are scheduled to shut down.
+Graders documented for eval workflows are part of this transition. Fine-tuning-related timelines remain covered in the self-serve fine-tuning section below.
+...
+2026-04-22: Legacy GPT model snapshots
+On April 22, 2026, we announced the deprecation of the following older OpenAI models. Access to these models was shut down on October 23, 2026.
+Shutdown date
+...
+2025-08-20: Assistants API
+On August 26th, 2025, we notified developers using the Assistants API of its deprecation and removal from the API one year later, on August 26, 2026.
+When we released the Responses API in March 2025, we announced plans to bring all Assistants API features to the easier to use Responses API, with a sunset date in 2026.

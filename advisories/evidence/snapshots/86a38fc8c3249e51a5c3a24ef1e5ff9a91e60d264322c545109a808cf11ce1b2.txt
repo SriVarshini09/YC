@@ -1,0 +1,14 @@
+15 October 2026 by Xero Developer Relations
+Upcoming breaking change: When an organisation reaches its daily limit for sending invoice emails, POST Invoices/{InvoiceID}/Email will return a 429 Too Many Requests response instead of a generic 500 Internal Server Error. No Retry-After header is included.
+What you need to do: Handle 429 on this endpoint as a temporary, retriable condition, not a failure. The limit is daily, so don't retry immediately, queue the send for later or let your user know send
+...
+Xero will begin enforcing matching contacts when allocating credit notes, prepayments, and overpayments to invoices or bills through the Accounting API. The source document and the invoice or bill mus
+What you need to do: Before submitting an allocation, confirm that the contact IDs on both documents match. If the request returns a validation error, resolve the contact mismatch before retrying. Do not retry the unchanged request, as it will continue to fail while the contacts differ.
+Qualifying Earnings properties on Earnings Rates and Pay Items becoming mandatory
+10 September 2026 by Xero Developer Relations
+The IsQualifyingEarnings property is now required in all create and update requests for AU Earnings Rates and Pay Items. Requests that omit it will return a 400 validation error.
+If IsQualifyingEarnings is true: then Pay Items: IsExemptFromSuper must be false and Earnings Rates: IsSubjectToSuper must be true.
+...
+4 May 2026 by Xero Developer Relations
+Finance API - We decommissioned the Accounting Activities API. The Accounting Activities API—which included Account Usage, Lock History, Report History, and User Activities endpoints—was retired. For cash flow and financial analysis needs, we recommend using our Bank Statements API as an alternative solution. All Accounting Activities endpoints will now return errors.
+Added JSON support, field selection, and Job State endpoint for Practice Manager 3.1

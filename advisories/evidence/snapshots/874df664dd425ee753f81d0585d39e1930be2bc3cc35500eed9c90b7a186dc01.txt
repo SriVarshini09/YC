@@ -1,0 +1,3 @@
+Sampling parameters are removed
+Affects you if you send temperature, top_p, or top_k in Messages requests or Message Batch requests.
+In 2026-10-21, a request that sends temperature, top_p, or top_k returns a 400 error, even at the parameter’s default value.

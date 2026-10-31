@@ -1,0 +1,12 @@
+- The `debug` query parameter is ignored, and no debug response envelope is added. The `debug_token` endpoint is unaffected.
+- Requests that include `date_format` return an error. Use the default date format and convert values in client code if needed.
+- Root requests using `GET /?ids=...` return an error. Use per-object requests or supported batching.
+- The `If-None-Match` query parameter is ignored. Legacy `ETag` response headers and `304 Not Modified` behavior are removed, and requests return full responses.
+...
+_Applies to v26.0+. Applies to all remaining supported versions on October 27, 2026._
+The `daily_outcomes_curve`, `budget_guardrail`, and `estimate_dau` fields are removed from Delivery Estimate responses because the service powering these values has been deprecated. No replacement API is available. Remove usage of these fields before the applicable removal date.
+Affected endpoints:
+...
+The Meta Business SDK v26 release will be published shortly after the release of Graph API v26. This release will include dependency upgrades, [Conversions API Parameter Builder integration](https://d
+The Business SDK is now integrated with open sourced [Conversions API Parameter Builder](https://github.com/facebook/capi-param-builder/tree/main). You can leverage this new integration to improve the quality of your Conversions API integration. Key features: Auto-generates (gated by preference set by advertisers) and enhances parameters _fbc_, _fbp_, _event_source_url_, _referrer_url_, _client_ip_address_ and automatic PII normalization/hashing for supported languages, see more [here](https://developers.facebook.com/documentation/ads-commerce/conversions-api/guides/business-sdk-features#conversions-api-parameter-builder-integration). The Commerce Order Management API (47 endpoints) is fully deprecated with no replacement. The Instagram Explore Feed ad placement is removed and returns errors if specified. Messenger Stories placement is silently removed from _messenger_positions_. Ads in WhatsApp Status gain new capabilities including identity spec, carousel up to 10 cards, and offsite-conversion optimization.
+As part of our [2-year deprecation](https://developers.facebook.com/docs/graph-api/changelog) schedule for Platform SDKs, please note the upcoming deprecations and sunsets:

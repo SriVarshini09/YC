@@ -1,0 +1,3 @@
+- `post_impressions_nonviral_unique*`
+On November 15, 2025, the following Facebook Page Insights metrics were deprecated for all API versions. The API will return an invalid metric error when calling any of these metrics.
+- `page_fans (Alternative: page_follows)`

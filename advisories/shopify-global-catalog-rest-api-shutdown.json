@@ -20,5 +20,13 @@
   "severity": "critical",
   "migrationNote": "Switch to the Global Catalog MCP server at https://catalog.shopify.com/api/ucp/mcp: use the search_catalog tool instead of GET /global/v2/search, get_product instead of the single-product and by-variant lookups, and lookup_catalog (up to 50 items per request) instead of POST /global/v2/lookup.",
   "sources": ["https://shopify.dev/changelog/posts/global-catalog-rest-api-stops-serving-traffic-on-november-2-2026"],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://shopify.dev/changelog/posts/global-catalog-rest-api-stops-serving-traffic-on-november-2-2026",
+      "quote": "The Global Catalog REST API, which was deprecated in April 2026, stops serving traffic on November 2, 2026. If your app still calls it, you need to migrate to Global Catalog MCP, which implements the Universal Commerce Protocol (UCP), before that date.",
+      "sourceSha256": "02a1480cdc6ff2de32dd970d1c7ae6e474d5b009cda367755ae20cdc0539ec90",
+      "fetchedAt": "2026-10-31T01:30:24.951Z"
+    }
+  ]
 }

@@ -23,5 +23,13 @@
     "https://developers.openai.com/api/docs/deprecations",
     "https://developers.openai.com/api/docs/assistants/migration"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.openai.com/api/docs/assistants/migration",
+      "quote": "The Assistants API call that retrieves thread messages no longer works; use your stored messages instead.",
+      "sourceSha256": "de42c67a699ddbe6924fb9d693515faeb6bf0c8d12106b8302483400b5dedc15",
+      "fetchedAt": "2026-10-31T01:21:48.519Z"
+    }
+  ]
 }

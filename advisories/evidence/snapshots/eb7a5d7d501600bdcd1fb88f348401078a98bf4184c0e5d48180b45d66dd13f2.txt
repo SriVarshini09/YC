@@ -1,0 +1,7 @@
+Dec 1, 2026
+SOAP login() succeeds only if the user has Use Any API Auth user permission assigned. Without it, the request fails. Already default in new orgs; enforced in all orgs/environments on this date.
+...
+Starting December 15, 2026 in sandboxes and January 31, 2027 in production:
+SOAP API login() from a broad login IP range requires an API security token. A broad range exceeds /8 IPv4 (16,777,216 addresses) or /29 IPv6 (299 addresses) and can be set at the org (Network Access) or on a user profile (Login IP Ranges).
+SOAP API login() is disabled in orgs with no SOAP login() activity in the trailing 6 months. This is a one-time check during the rollout, not an ongoing sliding window.
+

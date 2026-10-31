@@ -1,0 +1,3 @@
+Call-flow specific details.
+The conference_participant attribute was removed on August 1, 2026; attributes now returns null. For conference data, use the Conference Insights API.
+To/From object

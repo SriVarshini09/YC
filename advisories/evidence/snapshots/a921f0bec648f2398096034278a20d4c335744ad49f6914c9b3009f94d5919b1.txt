@@ -1,0 +1,3 @@
+When is it happening?
+This change goes into effect on April 30, 2026. On that date, Contact Lists API (v1) endpoints excluding the exceptions listed above will be deprecated and return 404 responses, and the Contacts API (v1) read endpoints listed above will stop returning list memberships.
+Questions or comments? Join us in the developer forums.

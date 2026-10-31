@@ -1,7 +1,7 @@
 {
   "schema_version": "1.7.0",
   "id": "x_SHAPI-hubspot-contacts-v1-list-memberships-removed",
-  "modified": "2026-04-30T00:00:00Z",
+  "modified": "2026-10-31T01:21:01Z",
   "published": "2025-09-12T00:00:00Z",
   "summary": "v1 contact read endpoints stopped returning list memberships on 2026-04-30",
   "details": "With the Contact Lists v1 sunset, six v1 contact read endpoints (get by vid, email or utk, and their batch versions) keep working but, since 2026-04-30, no longer return list memberships. The field in the v1 response is list-memberships (requested with showListMemberships); code that reads it now gets no membership data, without an error.\n\nStop reading list-memberships from /contacts/v1/contact/... responses. Map stored legacy list ids to new list ids with /crm/lists/2026-03/idmapping, then read list members from GET /crm/lists/2026-03/{listId}/memberships (results ordered by record id) and build the contact-to-list mapping from that, or move contact reads to the current CRM objects API together with the Lists API.",

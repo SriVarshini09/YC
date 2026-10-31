@@ -1,0 +1,3 @@
+Why is this a breaking change?
+Attempting to set a Checkout Session’s ui _mode to hosted, embedded, or custom will fail. If your integration uses any of those values, you must update your code to use the new ui _mode values.
+Changes

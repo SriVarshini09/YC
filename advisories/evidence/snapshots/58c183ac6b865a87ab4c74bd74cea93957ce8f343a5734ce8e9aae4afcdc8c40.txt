@@ -1,0 +1,7 @@
+Impacted endpoints
+The following endpoints will return a 404 error as of April 30, 2026.
+Create, update, and delete contact list endpoints:
+...
+Get all contacts with list memberships: GET /contacts/v1/lists/all/contacts/all
+The following endpoints still function, but as of April 30, 2026, no longer return list memberships:
+Get a contact by visitor ID: GET /contacts/v1/contact/vid/{vid}/profile

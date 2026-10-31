@@ -1,0 +1,3 @@
+Fast mode for Claude Opus 4.8 is available as a research preview on the Claude API only.
+Setting the sampling parameters temperature, top_p, or top_k to a non-default value returns a 400 error on Claude Opus 4.8, same as on Claude Opus 4.7. See the migration guide for details.
+In Claude Code, we’ve expanded Auto mode to more users for long-running tasks. See the Claude Code documentation.

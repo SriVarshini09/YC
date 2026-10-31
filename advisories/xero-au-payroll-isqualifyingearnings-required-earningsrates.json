@@ -24,5 +24,13 @@
     "https://developer.xero.com/documentation/api/payrollau/payitems",
     "https://developer.xero.com/documentation/api/payrollau/earningsrates"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developer.xero.com/changelog",
+      "quote": "The IsQualifyingEarnings property is now required in all create and update requests for AU Earnings Rates and Pay Items.",
+      "sourceSha256": "86a38fc8c3249e51a5c3a24ef1e5ff9a91e60d264322c545109a808cf11ce1b2",
+      "fetchedAt": "2026-10-31T01:23:05.128Z"
+    }
+  ]
 }

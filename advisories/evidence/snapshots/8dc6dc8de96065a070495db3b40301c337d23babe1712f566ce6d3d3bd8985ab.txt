@@ -1,0 +1,3 @@
+If your app uses the com.intuit.quickbooks.accounting or the com.intuit.quickbooks.payments scope, the refresh tokens generated from October 2023 will have a validity of 5 years, and the first set of 
+If your app uses our restricted and granular scopes, the refresh tokens generated from February 2022 will have a validity of 5 years, and the first set of those tokens will start to expire in February 2027.
+

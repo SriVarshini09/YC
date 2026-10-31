@@ -23,5 +23,13 @@
     "https://docs.x.com/changelog",
     "https://opentweet.io/how-to/fix-x-api-like-follow-endpoint-removed"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://opentweet.io/how-to/fix-x-api-like-follow-endpoint-removed",
+      "quote": "Between April 16 and April 20, 2026, X removed like, follow, and quote-post writes from all self-serve API tiers.",
+      "sourceSha256": "ea4bbc3b0be9bfb88ab0fd9fd123b6f54d9baed6e3c720f67a86171314a03a3e",
+      "fetchedAt": "2026-10-31T01:22:59.152Z"
+    }
+  ]
 }

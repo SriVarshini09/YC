@@ -36,5 +36,13 @@
     "https://www.apideck.com/blog/ai-built-accounting-integrations-maintenance",
     "https://docs.codat.io/updates/250401-qbo-minor-versions-update"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://www.apideck.com/blog/ai-built-accounting-integrations-maintenance",
+      "quote": "Others fail silently: since 1 August 2025, QuickBooks Online ignores any minor version below 75 and answers in version 75 without an error.",
+      "sourceSha256": "d0b7dce60aa71fab28260a91aad4421804fa76a085cfca5bd5a4f27969abdf2a",
+      "fetchedAt": "2026-10-31T01:22:05.297Z"
+    }
+  ]
 }

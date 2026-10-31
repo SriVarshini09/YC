@@ -40,5 +40,13 @@
   "sources": [
     "https://developers.openai.com/api/docs/deprecations"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "quote": "On April 22, 2026, we announced the deprecation of the following older OpenAI models. Access to these models was shut down on October 23, 2026.",
+      "sourceSha256": "2724fd9e195f6c4e8c05c48f9b7b2d41a71be3b53f1f264ea47421b7519454df",
+      "fetchedAt": "2026-10-31T01:30:13.250Z"
+    }
+  ]
 }

@@ -1,0 +1,3 @@
+Voice Insights Call Summary: Removal of conference_participant field
+The conference_participant field in the Voice Insights Call Summary is being removed from the REST API and Event Streams August 1, 2026. This field pre-dated Conference Insights and had limited accuracy due to the complexity of conference call flows. It is currently only populated for calls eligible to participate in a Twilio conference; all others return attributes: null. After removal, all calls will uniformly return attributes: null. Use the Conference Insights API or Conference Insights Event Streams for conference data going forward.
+Voice API

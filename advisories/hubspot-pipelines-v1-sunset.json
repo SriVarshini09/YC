@@ -40,5 +40,13 @@
     "https://developers.hubspot.com/docs/api-reference/latest/crm/pipelines/guide",
     "https://github.com/HubSpot/HubSpot-public-api-spec-collection/blob/main/PublicApiSpecs/CRM/Pipelines/Rollouts/145896/2026-09/pipelines.json"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.hubspot.com/changelog/pipelines-api-v1-sunset",
+      "quote": "The Pipelines API V1 is being permanently retired. Any calls to V1 endpoints will stop working after December 4, 2026.",
+      "sourceSha256": "d6e2d8840104ac9efc8dc0eb0e67770305d8f4793a26d408883cce3629d45620",
+      "fetchedAt": "2026-10-31T01:37:39.998Z"
+    }
+  ]
 }

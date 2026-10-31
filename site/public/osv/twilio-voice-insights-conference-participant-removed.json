@@ -1,7 +1,7 @@
 {
   "schema_version": "1.7.0",
   "id": "x_SHAPI-twilio-voice-insights-conference-participant-removed",
-  "modified": "2026-08-01T00:00:00Z",
+  "modified": "2026-10-31T01:22:50Z",
   "published": "2026-07-01T00:00:00Z",
   "summary": "Twilio Voice Insights Call Summary drops attributes.conference_participant on 2026-08-01",
   "details": "On August 1, 2026 Twilio removed the conference_participant attribute from the Voice Insights Call Summary (GET /v1/Voice/{CallSid}/Summary on insights.twilio.com) and the matching Event Streams event; attributes now returns null for every call. Code that reads attributes.conference_participant gets nothing, and code that dereferences attributes can throw.\n\nStop reading attributes.conference_participant and treat attributes as nullable. Get conference data from the Conference Insights API or Conference Insights Event Streams instead.",

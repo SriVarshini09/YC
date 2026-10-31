@@ -23,5 +23,13 @@
     "https://developers.openai.com/api/docs/deprecations",
     "https://developers.openai.com/api/reference/resources/audio"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "quote": "Feb 26, 2027 /v1/audio/translations",
+      "sourceSha256": "2724fd9e195f6c4e8c05c48f9b7b2d41a71be3b53f1f264ea47421b7519454df",
+      "fetchedAt": "2026-10-31T01:34:41.107Z"
+    }
+  ]
 }

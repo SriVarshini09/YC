@@ -29,5 +29,13 @@
   "sources": [
     "https://developers.facebook.com/docs/graph-api/changelog/versions"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.facebook.com/docs/graph-api/changelog/versions",
+      "quote": "v20.0 May 21, 2024 September 24, 2026",
+      "sourceSha256": "fd279a75061f400ac1b6974431a546d08d5da54f9e0d3fee9689afae7e2869a8",
+      "fetchedAt": "2026-10-31T01:29:58.400Z"
+    }
+  ]
 }

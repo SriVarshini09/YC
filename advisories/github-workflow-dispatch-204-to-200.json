@@ -22,5 +22,19 @@
     "https://stategraph.com/blog/github-broke-the-contract",
     "https://github.blog/changelog/2026-02-19-workflow-dispatch-api-now-returns-run-ids"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://stategraph.com/blog/github-broke-the-contract",
+      "quote": "Now it returns 200 OK with a JSON body containing a workflow run ID.",
+      "sourceSha256": "21f64379ad9d97f25596fc85fd5c9e5236d618004177fea20674d728f76369e8",
+      "fetchedAt": "2026-10-31T01:20:26.371Z"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-02-19-workflow-dispatch-api-now-returns-run-ids",
+      "quote": "Now, you can pass in a new optional boolean parameter, return_run_details, which will return a 200 OK response containing the workflow ID, API URL, and workflow URL.",
+      "sourceSha256": "b8fae14bd04564ca89441d19f151044bdaefe4ed3c20491ba8efa9dda7a27de6",
+      "fetchedAt": "2026-10-31T01:20:28.098Z"
+    }
+  ]
 }

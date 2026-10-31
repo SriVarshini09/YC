@@ -1,0 +1,3 @@
+Install AI Toolkit Ask about this page Copy MD
+Public apps must use expiring offline access tokens for GraphQL Admin API requests. New public apps already can't use non-expiring tokens, and existing public apps can't after January 1, 2027. After that date, Shopify rejects a GraphQL Admin API request that presents a non-expiring offline token, and merchants lose access to your app until they re-authenticate.
+Shopify enforces this on GraphQL Admin API requests only. It doesn't apply to custom apps or apps created by merchants.

@@ -1,7 +1,7 @@
 {
   "schema_version": "1.7.0",
   "id": "x_SHAPI-meta-graph-v20-sunset",
-  "modified": "2026-09-24T00:00:00Z",
+  "modified": "2026-10-31T01:29:58Z",
   "published": "2026-09-24T00:00:00Z",
   "summary": "Graph API v20.0 removed; calls fall forward to the next version",
   "details": "Graph API v20.0 was deprecated and removed on 2026-09-24. Calls pinned to v20.0 do not fail: they are served by the next oldest usable version, so response shapes can change silently.\n\nMove the version segment to a supported version (v22.0 or later) and re-test the fields you read.",

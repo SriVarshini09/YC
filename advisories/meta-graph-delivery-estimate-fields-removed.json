@@ -29,5 +29,13 @@
   "sources": [
     "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0",
+      "quote": "The `daily_outcomes_curve`, `budget_guardrail`, and `estimate_dau` fields are removed from Delivery Estimate responses because the service powering these values has been deprecated.",
+      "sourceSha256": "4316c5e7224028cbca035d1e9f14aba002a51e5ca84d7e4465453b5d73a0c2ee",
+      "fetchedAt": "2026-10-31T01:21:15.992Z"
+    }
+  ]
 }

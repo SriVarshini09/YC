@@ -26,5 +26,13 @@
   "sources": [
     "https://developers.facebook.com/docs/graph-api/changelog/version26.0"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.facebook.com/docs/graph-api/changelog/version26.0",
+      "quote": "- Requests that include `date_format` return an error.",
+      "sourceSha256": "4316c5e7224028cbca035d1e9f14aba002a51e5ca84d7e4465453b5d73a0c2ee",
+      "fetchedAt": "2026-10-31T01:21:14.429Z"
+    }
+  ]
 }

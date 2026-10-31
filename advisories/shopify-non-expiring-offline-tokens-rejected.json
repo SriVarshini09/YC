@@ -23,5 +23,19 @@
     "https://shopify.dev/changelog/posts/expiring-offline-access-tokens-required-for-all-public-apps-as-of-january-1-2027",
     "https://shopify.dev/docs/apps/build/authentication-authorization/migrate-to-expiring-offline-access-tokens"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://shopify.dev/changelog/posts/expiring-offline-access-tokens-required-for-all-public-apps-as-of-january-1-2027",
+      "quote": "Public apps making Admin API requests using non-expiring offline access tokens, including apps created before April 1, 2026",
+      "sourceSha256": "0ce325265c673ddd63e3c97129c573d8cd96e7137e3b285208844eebce3c43ed",
+      "fetchedAt": "2026-10-31T01:22:25.190Z"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/build/authentication-authorization/migrate-to-expiring-offline-access-tokens",
+      "quote": "After that date, Shopify rejects a GraphQL Admin API request that presents a non-expiring offline token, and merchants lose access to your app until they re-authenticate.",
+      "sourceSha256": "00859c83055655868c08c0b69ece3b4c82871e389d713f6d71f63bdbbbaab250",
+      "fetchedAt": "2026-10-31T01:22:26.613Z"
+    }
+  ]
 }
