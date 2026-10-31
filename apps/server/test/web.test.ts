@@ -1067,6 +1067,21 @@ describe("web app review fixes", () => {
     expect((await app.inject({ url: `/a/${mine.account}/f/${f.id}`, headers: { cookie } })).body).toContain("The fix is on the way");
     expect((await app.inject({ url: `/a/${mine.account}/findings`, headers: { cookie } })).body).toContain("on the way");
 
+    // The fix job ran on this scan and made no fix: no PR is coming, so it is by hand, with the job's reason.
+    const setReport = (report: unknown) => owner.updateTable("scans").set({ fix_report: report === null ? null : JSON.stringify(report) }).where("id", "=", scan.id).execute();
+    await setReport([{ advisoryId: "google-custom-search-json-api-shutdown", status: "unsupported", reason: "the call site is not inside an exported function" }]);
+    const givenUp = (await app.inject({ url: `/a/${mine.account}`, headers: { cookie } })).body;
+    expect(givenUp).not.toContain("Fix on the way");
+    expect(givenUp).toContain("SHAPI could not fix it: the call site is not inside an exported function");
+    finding = (await app.inject({ url: `/a/${mine.account}/f/${f.id}`, headers: { cookie } })).body;
+    expect(finding).not.toContain("The fix is on the way");
+    expect(finding).toContain("SHAPI tried and made no fix for this code, so no PR is opened: the call site is not inside an exported function.");
+    expect((await app.inject({ url: `/a/${mine.account}/findings`, headers: { cookie } })).body).toContain("fix by hand");
+    // A run that did not reach this change (out of time) still leaves the fix on the way.
+    await setReport([{ advisoryId: "google-custom-search-json-api-shutdown", status: "not-attempted", reason: "out of time" }]);
+    expect((await app.inject({ url: `/a/${mine.account}/f/${f.id}`, headers: { cookie } })).body).toContain("The fix is on the way");
+    await setReport(null);
+
     // A key but no opt-in: by hand, with the way to turn Claude on.
     await setLlm(false);
     finding = (await app.inject({ url: `/a/${mine.account}/f/${f.id}`, headers: { cookie } })).body;

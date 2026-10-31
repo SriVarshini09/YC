@@ -1,6 +1,6 @@
 import { sql } from "kysely";
 import { AdvisorySchema, ApiLockSchema, SEVERITY_RANK, type Advisory, type ApiLock, type LockedCallSite } from "@shapi/core";
-import { withTenant, type Db, type FixRepair } from "@shapi/db";
+import { withTenant, type Db, type FixOutcome, type FixRepair } from "@shapi/db";
 import { RECIPES } from "@shapi/repair";
 import { plural } from "./html";
 import type { Health } from "./views";
@@ -61,6 +61,8 @@ export interface FindingRow {
   reasons: string[];
   created_at: Date;
   advisory?: Advisory;
+  /** What the last fix job on this scan did with this change, once one has run. */
+  fix?: FixOutcome;
 }
 
 export interface PrRow {
@@ -123,6 +125,14 @@ export const hasRecipe = (advisory: Advisory | undefined) => Boolean(advisory?.r
 /** The fix job makes a fix for this change by itself, as jobs/fix.ts decides: a recipe SHAPI has, or Claude. */
 export const autoFixable = (data: Pick<AccountData, "claudeFixes">, advisory: Advisory | undefined) => Boolean(advisory && (hasRecipe(advisory) || data.claudeFixes));
 
+/** Fix-job outcomes after which no PR comes for this scan: SHAPI tried and made no fix (the reason says why). */
+const NO_PR = new Set(["unsupported", "rejected", "already-handled", "no-fix", "no-shapes", "alert", "unverified"]);
+export const fixGivenUp = (fix: FixOutcome | undefined): fix is FixOutcome => Boolean(fix && NO_PR.has(fix.status));
+
+/** The fix job's outcome for `advisoryId` in a scan's stored report. */
+export const fixOutcome = (report: unknown, advisoryId: string): FixOutcome | undefined =>
+  Array.isArray(report) ? (report as FixOutcome[]).find((r) => r?.advisoryId === advisoryId) : undefined;
+
 /** Rows of the repositories in `ids` (SHAPI's ids); `= any` also takes an empty list. */
 const inRepos = (ids: string[]) => sql<boolean>`repository_id = any(${ids}::bigint[])`;
 
@@ -165,6 +175,7 @@ export async function loadAccount(db: Db, accountId: string, opts: { readable: r
             sql<unknown>`api_lock->'providers'`.as("providers"),
             sql<number | null>`jsonb_array_length(api_lock->'callSites')`.as("call_sites"),
             sql<unknown>`case when repository_id = ${opts.lockRepo ?? null} then api_lock end`.as("api_lock"),
+            "fix_report",
           ])
           .where("id", "in", goodIds.map((g) => g.id))
           .execute()
@@ -207,6 +218,7 @@ export async function loadAccount(db: Db, accountId: string, opts: { readable: r
         reasons: f.reasons,
         created_at: f.created_at,
         advisory: advisories.get(f.advisory_id),
+        fix: fixOutcome(lastGood.find((s) => s.id === f.scan_id)?.fix_report, f.advisory_id),
       }))
       .sort(byFinding);
     const prs: PrRow[] = prRows.map((p) => ({ ...p, repo: repoName.get(p.repository_id) ?? "", advisory: advisories.get(p.advisory_id), repair: p.repair }));
@@ -274,6 +286,7 @@ export async function loadFinding(db: Db, accountId: string, findingId: string, 
         "scans.sha",
         "scans.api_lock",
         "scans.finished_at",
+        "scans.fix_report",
         "repositories.id as repository_id",
         "repositories.full_name",
         "repositories.default_branch",
@@ -292,7 +305,8 @@ export async function loadFinding(db: Db, accountId: string, findingId: string, 
     const siblings = await tx.selectFrom("findings").select(["id", "kind", "call_site"]).where("scan_id", "=", f.scan_id).where("advisory_id", "=", f.advisory_id).where("id", "!=", f.id).orderBy("id").execute();
     const others = siblings.map((o) => ({ id: o.id, kind: o.kind, file: (o.call_site as FindingRow["site"]).file, line: (o.call_site as FindingRow["site"]).line }));
     const advisory = f.reviewed ? AdvisorySchema.safeParse(f.advisory) : undefined;
-    return { ...f, site, locked, others, advisory: advisory?.success ? advisory.data : undefined, pr: pr ? { ...pr, repair: pr.repair } : undefined };
+    const { fix_report, ...rest } = f;
+    return { ...rest, site, locked, others, advisory: advisory?.success ? advisory.data : undefined, fix: fixOutcome(fix_report, f.advisory_id), pr: pr ? { ...pr, repair: pr.repair } : undefined };
   });
 }
 
@@ -465,7 +479,7 @@ export function attentionOf(data: AccountData): AttentionItem[] {
     seen.add(key);
     const pr = data.prs.find((p) => pairKey(p.repository_id, p.advisory_id) === key);
     if (pr && pr.state !== "closed") continue;
-    items.push(pr ? { kind: "closed", finding: f, pr } : { kind: autoFixable(data, f.advisory) ? "pending" : "manual", finding: f });
+    items.push(pr ? { kind: "closed", finding: f, pr } : { kind: autoFixable(data, f.advisory) && !fixGivenUp(f.fix) ? "pending" : "manual", finding: f });
   }
   for (const repo of data.repos) if (repo.scan?.status === "failed") items.push({ kind: "scan-failed", repo });
   for (const deadline of deadlinesOf(data)) if (deadline.daysUntil >= 0 && deadline.daysUntil <= 30 && (deadline.breaking || deadline.working)) items.push({ kind: "deadline", deadline });

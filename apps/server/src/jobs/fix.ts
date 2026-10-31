@@ -250,7 +250,7 @@ export async function runFixJob(deps: FixDeps, job: { scanId: string; jobId?: st
     now: now(),
   });
   // Only a finished run counts: a failed one throws above, and the job (or the next build) tries again.
-  if (!outOfTime) await markEngine(deps, scan.id);
+  if (!outOfTime) await markEngine(deps, scan.id, report.repairs);
   return report;
 }
 
@@ -271,9 +271,11 @@ async function takeLlmCall(db: Db, jobId: string): Promise<number> {
   return row.calls;
 }
 
-async function markEngine(deps: Pick<FixDeps, "db" | "engine">, scanId: string): Promise<void> {
+/** Record the build that ran the fix job and, for a finished run, what it did with each advisory (shown in the web app). */
+async function markEngine(deps: Pick<FixDeps, "db" | "engine">, scanId: string, repairs?: FixReport["repairs"]): Promise<void> {
   const engine = deps.engine;
-  if (engine) await withService(deps.db, (tx) => tx.updateTable("scans").set({ fix_engine: engine }).where("id", "=", scanId).execute());
+  const fixReport = repairs ? JSON.stringify(repairs.map(({ advisoryId, status, reason }) => ({ advisoryId, status, reason }))) : undefined;
+  if (engine || fixReport) await withService(deps.db, (tx) => tx.updateTable("scans").set({ ...(engine ? { fix_engine: engine } : {}), ...(fixReport ? { fix_report: fixReport } : {}) }).where("id", "=", scanId).execute());
 }
 
 /**

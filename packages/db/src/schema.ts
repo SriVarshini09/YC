@@ -37,6 +37,13 @@ export interface RepositoriesTable {
   committers_at: Timestamp | null;
 }
 
+/** What the fix job did with one affected advisory of a scan ("fixed", "unsupported", "no-fix", …). */
+export interface FixOutcome {
+  advisoryId: string;
+  status: string;
+  reason?: string;
+}
+
 export interface ScansTable {
   id: Id;
   account_id: string;
@@ -50,6 +57,8 @@ export interface ScansTable {
   advisories: ColumnType<Record<string, string>, string | undefined, string>;
   /** The SHAPI build (git sha) that last ran the fix job on this scan; null before any fix job. */
   fix_engine: ColumnType<string | null, string | null | undefined, string | null>;
+  /** The last fix job's outcome per advisory: `{ advisoryId, status, reason? }[]`; null before any fix job. */
+  fix_report: ColumnType<FixOutcome[] | null, string | null | undefined, string | null>;
   /** Unused since 0015 (the budget is per fix job, see fix_job_llm_calls); kept while older machines may write it. */
   llm_calls: Generated<number>;
   created_at: CreatedAt;
