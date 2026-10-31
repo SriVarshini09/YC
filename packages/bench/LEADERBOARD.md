@@ -8,8 +8,8 @@ To add a tool, see [SUBMISSIONS.md](SUBMISSIONS.md).
 | Tool | Version | Flag recall | Fixed-state precision | Errors | Submitted by | Run |
 | --- | --- | --- | --- | --- | --- | --- |
 | [grep baseline](https://github.com/SriVarshini09/YC/blob/main/packages/bench/scripts/baseline-grep.ts) | 1 | 100% (14/14, 95% CI 79–100%) | 29% (4/14, 95% CI 12–55%) | 0 | SHAPI maintainers | 2026-10-31 |
+| [SHAPI](https://shapi.dev) | 0.3.3 | 64% (9/14, 95% CI 39–84%) | 93% (13/14, 95% CI 69–99%) | 0 | SHAPI maintainers | 2026-10-31 |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) | 2.1.316 (claude-sonnet-5-5, read-only) | 57% (8/14, 95% CI 33–79%) | 86% (12/14, 95% CI 60–96%) | 0 | SHAPI maintainers | 2026-10-31 |
-| [SHAPI](https://shapi.dev) | 0.3.1 | 36% (5/14, 95% CI 16–61%) | 93% (13/14, 95% CI 69–99%) | 0 | SHAPI maintainers | 2026-10-30 |
 <!-- leaderboard:end -->
 
 The table is written by `pnpm --filter @shapi/bench bench:leaderboard` from `submissions/*.json` and SHAPI's latest `bench:run` result, and CI fails when it is out of date or a submission doesn't cover exactly the scored instances.

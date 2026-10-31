@@ -1,0 +1,675 @@
+{
+  "dataset": "APIBreak-Replay v0",
+  "datasetHash": "37fa931e8278",
+  "shapiVersion": "0.3.3",
+  "gitSha": "725e14d3ad2c8a6287aac1cf274143626adf6bf3",
+  "runAt": "2026-10-31T06:06:21.597Z",
+  "summary": {
+    "instances": 71,
+    "inScope": 14,
+    "scored": 14,
+    "errors": 0,
+    "flagRecall": {
+      "k": 9,
+      "n": 14,
+      "rate": 0.643,
+      "low": 0.388,
+      "high": 0.837
+    },
+    "flagRecallWithPossible": {
+      "k": 9,
+      "n": 14,
+      "rate": 0.643,
+      "low": 0.388,
+      "high": 0.837
+    },
+    "fixedStatePrecision": {
+      "k": 13,
+      "n": 14,
+      "rate": 0.929,
+      "low": 0.685,
+      "high": 0.987
+    },
+    "flagRecallScannedFiles": {
+      "k": 9,
+      "n": 10,
+      "rate": 0.9,
+      "low": 0.596,
+      "high": 0.982
+    },
+    "byIncident": {
+      "github-workflow-dispatch-204-to-200": {
+        "flagRecall": {
+          "k": 3,
+          "n": 7,
+          "rate": 0.429,
+          "low": 0.158,
+          "high": 0.75
+        },
+        "fixedStatePrecision": {
+          "k": 7,
+          "n": 7,
+          "rate": 1,
+          "low": 0.646,
+          "high": 1
+        }
+      },
+      "quickbooks-minorversion-below-75": {
+        "flagRecall": {
+          "k": 6,
+          "n": 7,
+          "rate": 0.857,
+          "low": 0.487,
+          "high": 0.974
+        },
+        "fixedStatePrecision": {
+          "k": 6,
+          "n": 7,
+          "rate": 0.857,
+          "low": 0.487,
+          "high": 0.974
+        }
+      }
+    },
+    "fixRate": null,
+    "fixErrors": 0
+  },
+  "results": [
+    {
+      "id": "github-workflow-dispatch-204-to-200__vincentng295__gemini_fbchat",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "github_utils.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__stategraph__stategraph",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "OCaml",
+      "evidenceFile": "code/src/githubc2/githubc2_actions.ml",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__refracta__df-translations",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": null,
+      "evidenceFile": ".github/workflows/trigger-dfint-rust-cjk-ko.yml",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mend__docker-base-images",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": false,
+      "language": "Shell",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kikujizo__ai-harness",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": ".github/workflows/harness-dispatch.yml",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__dlstupka__hth",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "hth/optimizer_dispatch.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__opaque-dev__opaque",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Rust",
+      "evidenceFile": "crates/opaque-providers/src/github/release.rs",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__voilalz__frontier-pulse",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": false,
+      "language": null,
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__pyzz58__gpt-recommendations",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "newspaper/startup/worker.js",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__oliverwirthsalpine__planner-delta-tracker",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__fullsend-ai__fullsend",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mmtm-studios__twinfang",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__TITANICBHAI__3gpTube",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__augustintiberghien__five-lundi",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__Shebovich__business-sites-bot",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__unfoldingWord__bible-editor",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__ruslankanat-sdet__sdet-portfolio",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__emrevegas__flipbot",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__fischervincent__webwatch",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mlender-ai__fomo-club",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__PoojaJeeva__marketing-dashboard",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__B3B3097__VIBE-CODE",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__lenaxia__talos-ops-prod",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__lenaxia__LLMSafeSpaces",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__noencke__agentic-emojis",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__HereLiesAz__aive",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Kotlin",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__icandoitccc-jpg__chenstricks-motion",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__onlykappa__KappaForge",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__craigoley__remudero",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__jairdiazrios95-web__sunset-world-data-platform",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__irilminakhai-rgb__main",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__git-for-windows__gfw-helper-github-app",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__stefanpenner-cs__org-dispatch-test",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Shell",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__vinicius33__heimdall",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__port-labs__ocean",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__gitgitgadget__gitgitgadget-github-app",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__zetatech-a__finance-news-monitor",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__PyGithub__PyGithub",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__alwaysmeticulous__report-diffs-action",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__garden-co__jazz",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Rust",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__lhpaul__ai-dev-framework-template",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Shell",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__deepregatta__forecast-tiles",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__hoffresearch__urna",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Rust",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__SylphxAI__.github",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__armosec__helm-charts",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__helm-charts",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__node-agent",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__kubescape",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__workflows",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__daniel-ospina__tortoise",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kibertoad__cat-factory",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__euvvel__veil",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__BestNathan__nession",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__bashrusakh__DeskForge",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__compliance-framework__workflows",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__willemkokke__livery",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__HumblebragAB__computercat-api",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "PHP",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__Keshaqaz__aures",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__primus-brennan__billing-automation",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__yashjain5194-cpu__copy-yourlegal",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__VantaX-Org__Atheon",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__ACIConst__cmbutchers",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__excelle-insights__quickbooks",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "PHP",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__hfscdogg__outgrow",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "sync/qbo.py",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__RCOLKITT__AccountingQB-MCP",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "web/src/app/api/oauth/callback/route.ts",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__tioperfumes07__IH35-TMS",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "apps/backend/src/admin/health-deep.service.ts",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__mindstone__mcp-servers",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "connectors/quickbooks/src/tools/bills.ts",
+      "base": "exposed",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__theomleslie-ops__bakery-dashboard-2",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "pipeline/qb-pl-fetcher.js",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Chamfer-Consulting__gpc-purchase-order-hx",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "dashboard/qbo_client.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Tans2101__Trenston",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "backend/quickbooks.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__toyslatam__dl-qb-sync",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    }
+  ]
+}

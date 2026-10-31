@@ -34,4 +34,4 @@ SHAPI evaluated a call only where the HTTP library is called, so the URL stayed 
   - a TypeScript ternary base URL matched against the QuickBooks advisory.
 - All extractor tests pass (90).
 - Each missed case's evidence file, at its base and fix commits, scanned with this build: dlstupka, Chamfer-Consulting, Tans2101 and bakery-dashboard are now affected at base and only exposed at fix. mindstone's client is built in another file, which this doesn't reach.
-- The benchmark's new numbers come from this PR's CI run (see the PR).
+- **The benchmark (this PR's CI run, 0.3.3):** flag recall is 64% (9/14), up from 36% (5/14) in 0.3.1, and fixed-state precision is unchanged at 93% (13/14). SHAPI now leads Claude Code (57%, 86%) on both. `baseline.json` records the new catches, so CI guards them.
