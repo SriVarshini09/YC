@@ -8,6 +8,7 @@ Advisories are open data (CC BY 4.0). Each lists the endpoint, what changed, the
 
 - [FAQ](https://shapi.dev/faq): Common questions about SHAPI: languages, providers, pull request limits, AI and licensing.
 - [Coding agents (MCP)](https://shapi.dev/guide/agents): Use SHAPI from Claude Code, Cursor and other coding agents, through the CLI or the MCP server.
+- [Signed attestations](https://shapi.dev/guide/attestations): Signed attestations on SHAPI fix PRs: the test result and the fix, over the files the PR changes, made with actions/attest and checked with gh attestation verify.
 - [CLI reference](https://shapi.dev/guide/cli): Every shapi-cli command, option, exit code and environment variable.
 - [Fix tiers](https://shapi.dev/guide/fix-tiers): How far SHAPI trusts its fixes for each recipe, provider and kind of change, and the benchmark runs that earned it.
 - [How fixes are verified](https://shapi.dev/guide/fixes): How SHAPI proves a fix: a contract test that fails before the change and passes after it, run in a sandbox.

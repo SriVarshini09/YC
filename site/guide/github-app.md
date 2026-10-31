@@ -52,6 +52,8 @@ Paste a Slack [incoming webhook](https://api.slack.com/messaging/webhooks) link 
 - **A PR labelled `needs-human`** has a part its test doesn't cover. When a Claude fix also edits code outside the function that makes the call, the PR opens as a draft. Read those parts before merging.
 - **👍/👎 links** ask whether the PR was useful. SHAPI stores the answer with the repository and the advisory, never who sent it.
 
+A fix PR can also carry signed attestations of its test result and of the fix itself, made in your own Actions run and checked with `gh attestation verify`: see [Signed attestations](./attestations).
+
 ## Noise controls
 
 - At most **2 new PRs per hour** and **10 open at once** per repository, most urgent first. Both are configurable in the web app.
