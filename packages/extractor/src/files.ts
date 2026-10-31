@@ -21,6 +21,8 @@ export interface RepoFiles {
   go: string[];
   /** Shell scripts, and the GitHub Actions workflows under `.github/workflows/` (their `run:` steps are shell). */
   shell: string[];
+  /** `.env`, `.env.example`, `.env.production`…: read for API version pins only, never for secrets. */
+  env: string[];
 }
 
 /** Walk a repository for source files and package.json manifests, skipping dependencies and build output. */
@@ -31,13 +33,17 @@ export function listRepoFiles(root: string): RepoFiles {
   const pythonManifests: string[] = [];
   const go: string[] = [];
   const shell: string[] = [];
+  const env: string[] = [];
   const walk = (dir: string) => {
     const entries = readdirSync(dir, { withFileTypes: true });
     // Static files a framework serves as they are (Next.js, Vite, Laravel): public/ at the root or next to a package.json.
     // Elsewhere (src/public/, a Python package named public) it is source.
     const servesPublic = dir === root || entries.some((e) => e.isFile() && e.name === "package.json");
     for (const entry of entries) {
-      if (entry.name.startsWith(".")) continue;
+      if (entry.name.startsWith(".")) {
+        if (entry.isFile() && /^\.env(\.[\w.-]+)?$/.test(entry.name)) env.push(path.join(dir, entry.name));
+        continue;
+      }
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
         if (!SKIP_DIRS.has(entry.name) && !(entry.name === "public" && servesPublic)) walk(full);
@@ -57,7 +63,7 @@ export function listRepoFiles(root: string): RepoFiles {
   if (existsSync(workflows)) {
     for (const entry of readdirSync(workflows, { withFileTypes: true })) if (entry.isFile() && /\.ya?ml$/.test(entry.name)) shell.push(path.join(workflows, entry.name));
   }
-  return { sources: sources.sort(), manifests: manifests.sort(), python: python.sort(), pythonManifests: pythonManifests.sort(), go: go.sort(), shell: shell.sort() };
+  return { sources: sources.sort(), manifests: manifests.sort(), python: python.sort(), pythonManifests: pythonManifests.sort(), go: go.sort(), shell: shell.sort(), env: env.sort() };
 }
 
 export interface DeclaredProvider {
