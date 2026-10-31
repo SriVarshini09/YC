@@ -92,8 +92,11 @@ export function lifetime(o: SandboxOptions, set: (ms: number) => Promise<void> |
   };
 }
 
-/** Hosts reachable in "registry" mode: npm, Yarn, and the package-manager downloads Corepack makes. */
-export const REGISTRY_HOSTS = ["registry.npmjs.org", "registry.yarnpkg.com", "repo.yarnpkg.com"];
+/**
+ * Hosts reachable in "registry" mode: npm, Yarn and the package-manager downloads Corepack makes, and PyPI for Python
+ * projects (approved 2026-10-30; see the sandbox threat model).
+ */
+export const REGISTRY_HOSTS = ["registry.npmjs.org", "registry.yarnpkg.com", "repo.yarnpkg.com", "pypi.org", "files.pythonhosted.org"];
 
 /** Output kept per stream, so a noisy test run cannot blow up a job's memory or logs. */
 export const OUTPUT_LIMIT = 64 * 1024;

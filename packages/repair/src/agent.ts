@@ -369,12 +369,12 @@ export async function repairAdvisory(input: AdvisoryRepairInput): Promise<Adviso
   let suite: SuiteCheck | undefined;
   const passing = sites.filter((s) => s.result.status === "fixed");
   if (passing.length) {
-    // A Python repository's tests need its dependencies from PyPI, which the sandbox does not reach (see the sandbox threat model).
+    // A Python repository's suite is pytest, run in SHAPI's virtualenv; one with no tests pytest can collect has none.
     const python = !suiteBefore.run && passing.every((s) => s.callSite.file.endsWith(".py"));
     suite = suiteBefore.unavailable
       ? { status: "not-run", detail: suiteBefore.unavailable }
       : python
-        ? { status: "not-run", detail: "SHAPI does not run Python test suites yet: they need the repository's dependencies from PyPI, which the sandbox does not reach" }
+        ? { status: "not-run", detail: "the repository has no Python tests pytest can collect, or its dependencies did not install" }
         : await checkSuite(suiteBefore.run, async () => {
             const contract = passing.flatMap((s) => (s.result.test ? [s.result.test] : []));
             for (const t of contract) await ws.remove(t.file);
