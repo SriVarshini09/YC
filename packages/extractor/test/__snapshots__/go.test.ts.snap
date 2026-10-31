@@ -1,0 +1,199 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Go call sites (U-07) > finds net/http requests, with URLs from constants, fmt.Sprintf, + and locals 1`] = `
+[
+  "internal/github/client.go:30 github POST /repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches true",
+  "internal/github/client.go:48 github GET /repos/{owner}/{repo}/actions/workflows true",
+  "internal/github/client.go:72 github GET /user true",
+]
+`;
+
+exports[`Go call sites (U-07) > records what the code depends on in the response 1`] = `
+[
+  {
+    "checksOk": false,
+    "enums": [],
+    "fields": [],
+    "headers": [
+      {
+        "name": "authorization",
+        "value": "Bearer {GITHUB_TOKEN}",
+      },
+      {
+        "name": "x-github-api-version",
+        "value": "2022-11-28",
+      },
+    ],
+    "query": [],
+    "responseHeaders": [],
+    "statusCodes": [
+      204,
+    ],
+  },
+  {
+    "checksOk": false,
+    "enums": [
+      {
+        "field": "workflows[].state",
+        "values": [
+          "active",
+        ],
+      },
+    ],
+    "fields": [
+      "workflows",
+      "workflows[].state",
+    ],
+    "headers": [],
+    "query": [
+      {
+        "name": "per_page",
+        "value": "100",
+      },
+    ],
+    "responseHeaders": [
+      "x-ratelimit-remaining",
+    ],
+    "statusCodes": [
+      403,
+      404,
+    ],
+  },
+  {
+    "checksOk": false,
+    "enums": [],
+    "fields": [
+      "login",
+    ],
+    "headers": [
+      {
+        "name": "authorization",
+        "value": "Bearer {token}",
+      },
+    ],
+    "query": [],
+    "responseHeaders": [],
+    "statusCodes": [],
+  },
+]
+`;
+
+exports[`Go call sites (U-07) > writes an api.lock for a Go repository 1`] = `
+{
+  "callSites": [
+    {
+      "client": "net/http",
+      "column": 14,
+      "endpoint": "/repos/{owner}/{repo}/actions/workflows/{workflow}/dispatches",
+      "file": "internal/github/client.go",
+      "host": "api.github.com",
+      "id": "62edb52996a8",
+      "kind": "http",
+      "line": 30,
+      "method": "POST",
+      "provider": "github",
+      "resolved": true,
+      "surface": {
+        "checksOk": false,
+        "enums": [],
+        "fields": [],
+        "headers": [
+          {
+            "name": "authorization",
+            "value": "Bearer {GITHUB_TOKEN}",
+          },
+          {
+            "name": "x-github-api-version",
+            "value": "2022-11-28",
+          },
+        ],
+        "query": [],
+        "responseHeaders": [],
+        "statusCodes": [
+          204,
+        ],
+      },
+    },
+    {
+      "client": "net/http",
+      "column": 15,
+      "endpoint": "/repos/{owner}/{repo}/actions/workflows",
+      "file": "internal/github/client.go",
+      "host": "api.github.com",
+      "id": "a2da9b712f09",
+      "kind": "http",
+      "line": 48,
+      "method": "GET",
+      "provider": "github",
+      "resolved": true,
+      "surface": {
+        "checksOk": false,
+        "enums": [
+          {
+            "field": "workflows[].state",
+            "values": [
+              "active",
+            ],
+          },
+        ],
+        "fields": [
+          "workflows",
+          "workflows[].state",
+        ],
+        "headers": [],
+        "query": [
+          {
+            "name": "per_page",
+            "value": "100",
+          },
+        ],
+        "responseHeaders": [
+          "x-ratelimit-remaining",
+        ],
+        "statusCodes": [
+          403,
+          404,
+        ],
+      },
+    },
+    {
+      "client": "net/http",
+      "column": 12,
+      "endpoint": "/user",
+      "file": "internal/github/client.go",
+      "host": "api.github.com",
+      "id": "2aefb9bd89cf",
+      "kind": "http",
+      "line": 72,
+      "method": "GET",
+      "provider": "github",
+      "resolved": true,
+      "surface": {
+        "checksOk": false,
+        "enums": [],
+        "fields": [
+          "login",
+        ],
+        "headers": [
+          {
+            "name": "authorization",
+            "value": "Bearer {token}",
+          },
+        ],
+        "query": [],
+        "responseHeaders": [],
+        "statusCodes": [],
+      },
+    },
+  ],
+  "generator": "test",
+  "lockfileVersion": 1,
+  "providers": [
+    {
+      "callSites": 3,
+      "declaredBy": [],
+      "id": "github",
+    },
+  ],
+}
+`;

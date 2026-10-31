@@ -18,7 +18,7 @@ import {
   type MatchResult,
   type Severity,
 } from "@shapi/core";
-import { extractCallSites, listRepoFiles, loadPythonParser, toPosix } from "@shapi/extractor";
+import { extractCallSites, listRepoFiles, loadGoParser, loadPythonParser, toPosix } from "@shapi/extractor";
 import { bundledDir } from "./paths";
 
 export const VERSION = "0.3.1";
@@ -56,11 +56,11 @@ export interface ScanOutcome {
 }
 
 /**
- * Load the Python grammar so scans include Python files. Call once before scan() or fix(); when it
- * cannot load, TypeScript and JavaScript are still scanned and Python files are listed as skipped.
+ * Load the Python and Go grammars so scans include those files. Call once before scan() or fix(); when one
+ * cannot load, TypeScript and JavaScript are still scanned and its files are listed as skipped.
  */
 export async function preparePython(): Promise<void> {
-  await loadPythonParser().catch(() => undefined);
+  await Promise.all([loadPythonParser().catch(() => undefined), loadGoParser().catch(() => undefined)]);
 }
 
 export function scan(target: string | undefined, opts: ScanOptions): ScanOutcome {

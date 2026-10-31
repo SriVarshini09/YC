@@ -4,6 +4,8 @@ import { providerForPackage, providerForPythonPackage } from "@shapi/core";
 
 const SOURCE_FILE = /\.(c|m)?[jt]sx?$/;
 const PYTHON_FILE = /\.py$/;
+/** Go source, without its tests (`_test.go`). */
+const GO_FILE = /(?<!_test)\.go$/;
 const SKIP_DIRS = new Set(["node_modules", "dist", "build", "out", "coverage", "vendor", "bower_components", "venv", "__pycache__", "site-packages"]);
 /** Minified and bundled output committed next to the source: app.min.js, vendor.bundle.js. */
 const BUNDLE_FILE = /\.(min|bundle)\.(c|m)?js$/;
@@ -15,6 +17,7 @@ export interface RepoFiles {
   manifests: string[];
   python: string[];
   pythonManifests: string[];
+  go: string[];
 }
 
 /** Walk a repository for source files and package.json manifests, skipping dependencies and build output. */
@@ -23,6 +26,7 @@ export function listRepoFiles(root: string): RepoFiles {
   const manifests: string[] = [];
   const python: string[] = [];
   const pythonManifests: string[] = [];
+  const go: string[] = [];
   const walk = (dir: string) => {
     const entries = readdirSync(dir, { withFileTypes: true });
     // Static files a framework serves as they are (Next.js, Vite, Laravel): public/ at the root or next to a package.json.
@@ -38,11 +42,12 @@ export function listRepoFiles(root: string): RepoFiles {
         else if (SOURCE_FILE.test(entry.name) && !entry.name.endsWith(".d.ts") && !BUNDLE_FILE.test(entry.name)) sources.push(full);
         else if (PYTHON_FILE.test(entry.name)) python.push(full);
         else if (PYTHON_MANIFEST.test(entry.name)) pythonManifests.push(full);
+        else if (GO_FILE.test(entry.name)) go.push(full);
       }
     }
   };
   walk(root);
-  return { sources: sources.sort(), manifests: manifests.sort(), python: python.sort(), pythonManifests: pythonManifests.sort() };
+  return { sources: sources.sort(), manifests: manifests.sort(), python: python.sort(), pythonManifests: pythonManifests.sort(), go: go.sort() };
 }
 
 export interface DeclaredProvider {
