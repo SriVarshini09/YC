@@ -62,7 +62,7 @@ Canary probes call provider APIs, store response shapes in `.shapi/shapes.db` (P
 ## Layout
 
 - `packages/core`: provider registry, api.lock and advisory schemas, matcher
-- `packages/extractor`: call-site and dependency-surface extraction for TypeScript/JavaScript (ts-morph), Python and Go (tree-sitter)
+- `packages/extractor`: call-site and dependency-surface extraction for TypeScript/JavaScript (ts-morph), Python and Go (tree-sitter), and curl / gh api in shell scripts and GitHub Actions workflows
 - `packages/shapes`: response shape inference, shape store (SQLite for the CLI, Postgres for the hosted service), shape diff
 - `packages/canary`: canary workers, scheduler, replay, draft advisories
 - `packages/repair`: recipes, contract test generation, repair agent (Claude fallback)

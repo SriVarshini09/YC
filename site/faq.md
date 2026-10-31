@@ -8,7 +8,11 @@ description: "Common questions about SHAPI: languages, providers, pull request l
 
 TypeScript and JavaScript, with the usual HTTP clients (`fetch`, axios, got, undici, ky, node-fetch) and the official SDKs of the providers it knows.
 
-Python is scanned too: `requests`, `httpx`, `aiohttp`, and the OpenAI, Anthropic, Stripe, Slack, Twilio and HubSpot SDKs. SHAPI finds the affected call sites in Python and fixes the ones its `apply-fix` (a changed path, query value or header) and `status-code-accept-set` recipes cover, with a Python contract test; Claude is not asked to fix Python yet.
+Python is scanned too: `requests`, `httpx`, `aiohttp`, `urllib.request`, and the OpenAI, Anthropic, Stripe, Slack, Twilio and HubSpot SDKs. SHAPI finds the affected call sites in Python and fixes the ones its `apply-fix` (a changed path, query value or header) and `status-code-accept-set` recipes cover, with a Python contract test; Claude is not asked to fix Python yet.
+
+Go is scanned, not fixed yet: `net/http` requests. So are `curl` and `gh api` commands in shell scripts and in the `run:` steps of GitHub Actions workflows, with the status codes the script checks afterwards.
+
+A request inside your own helper (`qboFetch(path)`, `_get(url, params)`) is read once for each place that calls it, with what that caller passes, in the same file or, in TypeScript and JavaScript, in a file that imports the helper.
 
 ## Which APIs does it know?
 

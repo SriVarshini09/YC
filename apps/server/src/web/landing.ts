@@ -50,7 +50,7 @@ export function landingPage(opts: LandingOptions): Html {
 <section class="lp-stats"><div class="lp-inner">
   <div><b>${providers.length}</b><span>APIs recognized in your code</span></div>
   ${opts.advisories ? html`<div><b>${opts.advisories}</b><span>reviewed API changes</span></div>` : EMPTY}
-  <div><b>TS · JS · Python</b><span>scanned; fixes for TS and JS</span></div>
+  <div><b>TS · JS · Python · Go</b><span>scanned, plus curl and gh api in scripts and GitHub Actions; fixes for TS, JS and Python</span></div>
   <div><b>Every fix</b><span>proven by a contract test</span></div>
 </div></section>
 

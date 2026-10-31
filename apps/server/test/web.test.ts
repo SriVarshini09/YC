@@ -756,7 +756,7 @@ describe("account pages after review", () => {
     const free = String(landingPage({ configured: true, advisories: 54, withFix: 11 }));
     expect(free).not.toContain("fix most changes");
     expect(free).toContain("(11 of the 54 reviewed changes have one today)");
-    expect(free).toContain("scanned; fixes for TS and JS");
+    expect(free).toContain("fixes for TS, JS and Python");
     expect(free).toContain("For each affected TypeScript or JavaScript call with a fix recipe");
     expect(free).toContain("Free for everyone during early access.");
     const paid = String(landingPage({ configured: true, advisories: 54, withFix: 11, billingEnabled: true }));
