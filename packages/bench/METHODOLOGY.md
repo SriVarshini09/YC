@@ -85,6 +85,8 @@ Each SHAPI change measured on dataset `37fa931e8278` (14 scored instances). Prec
 ### Adjudications
 
 - **hfscdogg/outgrow** is still `affected` at its fix commit because the fix left `minorversion=65` in `scripts/smoke_creds.py` line 130. SHAPI's flag is correct. The metric still counts it as a false positive by the definition above.
+- **theomleslie-ops/bakery-dashboard-2** is `affected` at its fix commit from shapi-cli 0.3.5 on, which reads requests inside wrappers. The fix moved `pipeline/qb-pl-fetcher.js` to `minorversion: 75`, but `pipeline/qb-client.js` line 86 still sends `minorversion: 70` (checked on GitHub at the fix commit, 2026-10-31). SHAPI's flag is correct. It counts as a false positive by the definition above.
+- **tioperfumes07/IH35-TMS** is `affected` at its fix commit from shapi-cli 0.3.5 on, for the same reason. The fix moved most QuickBooks calls to `minorversion=75`, but `apps/backend/src/integrations/qbo/sync-outbound-accounting.ts` keeps `const MINOR_VERSION = 70` and sends it on lines 143 and 166 (checked on GitHub at the fix commit, 2026-10-31). SHAPI's flag is correct. It counts as a false positive by the definition above.
 
 ### What the misses show
 
