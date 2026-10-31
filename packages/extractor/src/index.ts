@@ -8,6 +8,7 @@ import { declaredProviders, declaredPythonProviders, listRepoFiles, toPosix, typ
 import { extractGo, goParserLoaded } from "./go";
 import { extractPython, pythonParserLoaded } from "./python";
 import { extractShell } from "./shell";
+import { applyVersionPins, versionPins } from "./versions";
 
 export type { CallKind, CallSite, NameValue, Surface } from "@shapi/core";
 export type { FoundCall } from "./callsites";
@@ -45,7 +46,7 @@ const SCRIPT_KINDS: Record<string, ScriptKind> = {
  */
 export function extractCallSites(rootDir: string): ExtractResult {
   const root = path.resolve(rootDir);
-  const { sources, manifests, python, pythonManifests, go, shell } = listRepoFiles(root);
+  const { sources, manifests, python, pythonManifests, go, shell, env } = listRepoFiles(root);
   const project = new Project({
     useInMemoryFileSystem: true,
     skipFileDependencyResolution: true,
@@ -138,6 +139,18 @@ export function extractCallSites(rootDir: string): ExtractResult {
     }
   }
   const callSites = [...found.map((f) => f.site), ...loose, ...pythonSites, ...goSites, ...shellSites].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column);
+  // An API version held in config (`{GRAPH_API_VERSION}` in a path): filled from the repository's pins, read only when needed.
+  if (callSites.some((s) => /\{[^}]*(version|ver)\}/i.test(s.endpoint ?? ""))) {
+    const texts: { path: string; text: string }[] = [];
+    for (const abs of [...sources, ...python, ...go, ...env]) {
+      try {
+        texts.push({ path: toPosix(path.relative(root, abs)), text: readFileSync(abs, "utf8") });
+      } catch {
+        // unreadable: no pins from it
+      }
+    }
+    applyVersionPins(callSites, versionPins(texts));
+  }
 
   return {
     root,
