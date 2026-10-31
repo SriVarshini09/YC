@@ -1,0 +1,3 @@
+Sending a text block with a non-empty citations array in a user message, directly or inside a search_result block, returns a 400 error.
+The temperature, top_p, and top_k request parameters are removed. A request that sends any of them returns a 400 error on every model.
+Admin API:

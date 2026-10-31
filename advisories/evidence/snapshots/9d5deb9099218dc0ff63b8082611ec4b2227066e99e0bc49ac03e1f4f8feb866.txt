@@ -1,0 +1,4 @@
+| [v26.0](https://developers.facebook.com/documentation/ads-commerce/marketing-api/marketing-api-changelog/version26.0) | July 29, 2026 | TBD |
+| [v25.0](https://developers.facebook.com/documentation/ads-commerce/marketing-api/marketing-api-changelog/version25.0) | February 18, 2026 | February 23, 2027 |
+| [v24.0](https://developers.facebook.com/documentation/ads-commerce/marketing-api/marketing-api-changelog/version24.0) | October 8, 2025 | November 10, 2026 |
+---

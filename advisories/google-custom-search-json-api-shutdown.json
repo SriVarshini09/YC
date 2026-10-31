@@ -23,5 +23,13 @@
     "https://developers.google.com/custom-search/v1/overview",
     "https://developers.google.com/custom-search/v1/using_rest"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.google.com/custom-search/v1/overview",
+      "quote": "Existing Custom Search JSON API customers have until January 1, 2027 to transition to an alternative solution.",
+      "sourceSha256": "a2961fdfae8d69ded5e08ef92935b51daf2ba50deb916fd54d0f79277e9a2b21",
+      "fetchedAt": "2026-10-31T01:29:07.073Z"
+    }
+  ]
 }

@@ -23,5 +23,13 @@
     "https://developer.xero.com/changelog",
     "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developer.xero.com/changelog",
+      "quote": "What you need to do: Before submitting an allocation, confirm that the contact IDs on both documents match. If the request returns a validation error, resolve the contact mismatch before retrying. Do not retry the unchanged request, as it will continue to fail while the contacts differ.",
+      "sourceSha256": "86a38fc8c3249e51a5c3a24ef1e5ff9a91e60d264322c545109a808cf11ce1b2",
+      "fetchedAt": "2026-10-31T01:34:50.097Z"
+    }
+  ]
 }

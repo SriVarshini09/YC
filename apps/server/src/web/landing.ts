@@ -11,7 +11,7 @@ interface LandingOptions {
   advisories?: number;
   /** How many of them SHAPI can fix automatically (they name a recipe). */
   withFix?: number;
-  /** Billing is configured: private repositories beyond the free one are paid, so "free during early access" no longer holds. */
+  /** Billing is configured: committers to private repositories beyond the free ones are paid, so "free during early access" no longer holds. */
   billingEnabled?: boolean;
 }
 
@@ -40,7 +40,7 @@ export function landingPage(opts: LandingOptions): Html {
     <h1>APIs change.<em>Your code keeps working.</em></h1>
     <p class="lp-lead">Stripe renames a value. GitHub answers 200 instead of 204. SHAPI recognizes calls to GitHub, Stripe, Slack, OpenAI and ${providers.length - 4} more APIs, finds the exact lines a change breaks, and where a fix recipe exists, sends a pull request that fixes them with a test that proves it.</p>
     <div class="btn-row">${ctas}</div>
-    <p class="lp-note">Free for public repositories and one private repository.${opts.billingEnabled ? "" : " Free for everyone during early access."}</p>
+    <p class="lp-note">Free for public repositories, and for private ones with up to 3 committers.${opts.billingEnabled ? "" : " Free for everyone during early access."}</p>
   </div>
   <div class="lp-shot rise d2">${storyCard()}</div>
 </div></section>
@@ -109,10 +109,10 @@ export function landingPage(opts: LandingOptions): Html {
 
 <section class="lp-section" id="pricing"><div class="lp-inner">
   <p class="eyebrow line">Pricing</p>
-  <h2>Start free. Pay for private repositories as you grow.</h2>
+  <h2>Start free. Pay per committer as your team grows.</h2>
   <div class="lp-pricing">
-    <div class="card price"><h3>Free</h3><p class="lead">For open source and trying SHAPI on real code.</p><ul>${["Every public repository", "One private repository", "Scans, alerts and fix pull requests", "Slack alerts"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Start free")}</div>
-    <div class="card price featured"><h3>Team</h3><p class="lead">For companies whose product runs on other people's APIs.</p><ul>${["Everything in Free", "Each private repository beyond the first", "A monthly price per repository, announced before anyone is charged", ...(opts.billingEnabled ? [] : ["Free during early access"]), "Cancel any time from the billing portal"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Sign in to upgrade", "")}</div>
+    <div class="card price"><h3>Free</h3><p class="lead">For open source and trying SHAPI on real code.</p><ul>${["Every public repository", "Private repositories with up to 3 committers", "Scans, alerts and fix pull requests", "Slack alerts"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Start free")}</div>
+    <div class="card price featured"><h3>Team</h3><p class="lead">For companies whose product runs on other people's APIs.</p><ul>${["Everything in Free", "Each active committer beyond the first 3: anyone who committed to a private repository in the last 90 days", "A monthly price per committer, announced before anyone is charged", ...(opts.billingEnabled ? [] : ["Free during early access"]), "Cancel any time from the billing portal"].map((x) => html`<li>${ICONS.check}${x}</li>`)}</ul>${signIn("Sign in to upgrade", "")}</div>
   </div>
 </div></section>
 

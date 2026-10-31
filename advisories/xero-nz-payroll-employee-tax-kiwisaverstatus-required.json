@@ -23,5 +23,19 @@
     "https://developer.xero.com/changelog",
     "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero-payroll-nz.yaml"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developer.xero.com/changelog",
+      "quote": "Upcoming breaking change: KiwiSaverStatus will be required when creating or updating employee tax details for all tax codes except WT and NSW.",
+      "sourceSha256": "4a3fdc84f94006056bc0dbd7c1730ff1311ab5d4f01fff5be9ebf73df67e74da",
+      "fetchedAt": "2026-10-31T01:23:20.291Z"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero-payroll-nz.yaml",
+      "quote": "Required in POST requests for all tax codes except WT and NSW.",
+      "sourceSha256": "b7d7baf62607c89e878217cbc924e67cad15dc75abc0ebb1ddc3d6aaf3f7b6d7",
+      "fetchedAt": "2026-10-31T01:23:21.382Z"
+    }
+  ]
 }

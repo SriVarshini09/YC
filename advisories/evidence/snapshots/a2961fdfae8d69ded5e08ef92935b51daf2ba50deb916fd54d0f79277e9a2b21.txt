@@ -1,0 +1,3 @@
+Note: The Custom Search JSON API is closed to new customers. Vertex AI Search is a favorable alternative for searching up to 50 domains. Alternatively, if your use case necessitates full web search, c
+Existing Custom Search JSON API customers have until January 1, 2027 to transition to an alternative solution.
+The Custom Search JSON API lets you develop websites and applications to retrieve and

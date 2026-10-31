@@ -37,5 +37,13 @@
     "https://ai.google.dev/gemini-api/docs/deprecations",
     "https://ai.google.dev/api/generate-content"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "quote": "gemini-2.0-flash February 5, 2025 June 1, 2026",
+      "sourceSha256": "f5fdd9762d2744e78e67b45e1f1272c53924ba0c58af28ef9619112562873133",
+      "fetchedAt": "2026-10-31T01:29:10.772Z"
+    }
+  ]
 }

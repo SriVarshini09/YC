@@ -1,0 +1,3 @@
+Updates to event types format in the X Activity API
+Today, we announced changes to event type naming in the X Activity API, effective March 18, 2026. PascalCase event types (e.g., ProfileBioUpdate) are being deprecated in favor of a dot-separated lowercase format (e.g., profile.update.bio). Update any filtering, switch statements, or deserialization logic that relies on the old values. Learn more here.
+​

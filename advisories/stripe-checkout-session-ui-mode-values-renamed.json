@@ -59,5 +59,13 @@
     "https://docs.stripe.com/changelog/dahlia/2026-03-25/updates-available-checkout-session-ui-modes",
     "https://docs.stripe.com/api/checkout/sessions/create"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://docs.stripe.com/changelog/dahlia/2026-03-25/updates-available-checkout-session-ui-modes",
+      "quote": "Attempting to set a Checkout Session's ui _mode to hosted, embedded, or custom will fail. If your integration uses any of those values, you must update your code to use the new ui _mode values.",
+      "sourceSha256": "9a9e2b3218481f714da3461222506c607e9210836f553a02dab2ea4182fbbe7f",
+      "fetchedAt": "2026-10-31T01:30:29.778Z"
+    }
+  ]
 }

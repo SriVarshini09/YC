@@ -5,7 +5,7 @@ import { loadPlan, requiredQuantity } from "./plan";
 export interface BillingConfig {
   secretKey: string;
   webhookSecret: string;
-  /** The Stripe Price for one private repository per month. Created in the Stripe dashboard; no amount lives in SHAPI. */
+  /** The Stripe Price for one active committer (seat) per month. Created in the Stripe dashboard; no amount lives in SHAPI. */
   priceId: string;
   publicUrl: string;
 }
@@ -43,7 +43,7 @@ async function customerFor(deps: BillingDeps, accountId: string, login: string):
 }
 
 /**
- * Stripe Checkout for the private repositories beyond the free one. Returns the page to send the user to:
+ * Stripe Checkout for the active committers beyond the free ones. Returns the page to send the user to:
  * the billing page instead when there is nothing to buy, or the account already has a subscription
  * (a stale tab or a double click would otherwise start a second one, billed alongside the first).
  */
@@ -90,8 +90,8 @@ export async function portalUrl(deps: BillingDeps, account: { id: string }): Pro
 }
 
 /**
- * Set the subscription to `quantity` paid repositories (prorated). Raising it happens only when a
- * user clicks to add repositories; lowering it happens automatically when private repositories go.
+ * Set the subscription to `quantity` paid seats (prorated). Raising it happens only when a
+ * user clicks to add seats; lowering it happens automatically when committers go.
  */
 export async function setQuantity(deps: BillingDeps, accountId: string, quantity: number): Promise<number | undefined> {
   const row = await withService(deps.db, (tx) => tx.selectFrom("billing").select(["stripe_subscription_id", "quantity", "status"]).where("account_id", "=", accountId).executeTakeFirst());
@@ -105,7 +105,7 @@ export async function setQuantity(deps: BillingDeps, accountId: string, quantity
   return quantity;
 }
 
-/** Lower the paid quantity when the account has fewer private repositories than it pays for (never raise it). */
+/** Lower the paid quantity when the account has fewer active committers than it pays for (never raise it). */
 export async function syncQuantity(deps: BillingDeps, accountId: string): Promise<{ from: number; to: number } | undefined> {
   const plan = await withService(deps.db, async (tx) => {
     const repos = await tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at", "committers"]).where("account_id", "=", accountId).execute();

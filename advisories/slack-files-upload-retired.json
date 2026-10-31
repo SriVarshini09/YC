@@ -24,5 +24,25 @@
     "https://docs.slack.dev/changelog/2025/03/17/files-upload-extension",
     "https://docs.slack.dev/changelog/2024-04-a-better-way-to-upload-files-is-here-to-stay"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://docs.slack.dev/reference/methods/files.upload",
+      "quote": "Existing apps and integrations should migrate away from files.upload and instead leverage a combination of two API methods: files.getUploadURLExternal and files.completeUploadExternal.",
+      "sourceSha256": "49f892ffaa69775fb9e510860502b5e52a145c137522e8c495cdca565da6e689",
+      "fetchedAt": "2026-10-31T01:22:30.999Z"
+    },
+    {
+      "url": "https://docs.slack.dev/changelog/2025/03/17/files-upload-extension",
+      "quote": "The files.upload method is retiring, to be replaced by sequenced Web API methods",
+      "sourceSha256": "541e0357fc640726f83898201b4936b709c1b381743e0bd2f1cde095f67481a1",
+      "fetchedAt": "2026-10-31T01:22:32.156Z"
+    },
+    {
+      "url": "https://docs.slack.dev/changelog/2024-04-a-better-way-to-upload-files-is-here-to-stay",
+      "quote": "The original web API method for uploading files to Slack, files.upload, is being sunset on March 11, 2025 November 12, 2025.",
+      "sourceSha256": "1d59d84f9538a5342a50cd04ea0c2b071e9b5fbf6b321fe472a6b1eac07b1440",
+      "fetchedAt": "2026-10-31T01:22:33.311Z"
+    }
+  ]
 }

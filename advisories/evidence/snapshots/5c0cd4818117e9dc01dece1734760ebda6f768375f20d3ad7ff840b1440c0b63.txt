@@ -1,0 +1,3 @@
+Edit: As of August 10, 2026, the following change was completed. RCS messages which cannot be confirmed to be delivered will have an error code of 30046.
+Starting August 10, 2026, the error code returned when an RCS message cannot be delivered to an unreachable end-user device will change from 30036 to 30046.
+Error code 30046 (Message delivery not confirmed) gives developers a more accurate signal when an RCS message cannot reach an end-user device. Previously, 30036 (Validity Period Expired) was returned 

@@ -1,0 +1,3 @@
+What's Changing
+The Pipelines API V1 is being permanently retired. Any calls to V1 endpoints will stop working after December 4, 2026.
+We recommend migrating to the Pipelines API 2026-09 version, which becomes generally available on September 9, 2026 and is the latest version of this API. Review the linked API reference to understand

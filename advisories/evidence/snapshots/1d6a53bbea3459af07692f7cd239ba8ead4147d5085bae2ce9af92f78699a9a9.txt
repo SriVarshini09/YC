@@ -1,0 +1,2 @@
+As of October 24, 2022, Twilio Notify will reach end of life on January 31, 2027 for existing customers. This EOL doesn’t affect other push notification use cases powered through other Twilio products such as Verify, Voice, Conversations or Engage.
+

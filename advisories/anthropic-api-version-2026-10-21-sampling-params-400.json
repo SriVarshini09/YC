@@ -31,5 +31,25 @@
     "https://platform.claude.com/docs/en/api/versioning",
     "https://platform.claude.com/docs/en/release-notes/overview"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://platform.claude.com/docs/en/api/migration-2026-10-21",
+      "quote": "Affects you if you send temperature, top_p, or top_k in Messages requests or Message Batch requests.",
+      "sourceSha256": "874df664dd425ee753f81d0585d39e1930be2bc3cc35500eed9c90b7a186dc01",
+      "fetchedAt": "2026-10-31T01:28:56.139Z"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/api/versioning",
+      "quote": "The temperature, top_p, and top_k request parameters are removed. A request that sends any of them returns a 400 error on every model.",
+      "sourceSha256": "a4ff8e316c7241fee52b6c55185fcb77894633c4a653b65628cc17bed77b386f",
+      "fetchedAt": "2026-10-31T01:28:57.524Z"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "quote": "Setting the sampling parameters temperature, top_p, or top_k to a non-default value returns a 400 error on Claude Opus 4.8, same as on Claude Opus 4.7. See the migration guide for details.",
+      "sourceSha256": "0e3b0f03e3be4bfb26010d40a6581543274ae7122672611f327d4ab0e508e588",
+      "fetchedAt": "2026-10-31T01:28:59.153Z"
+    }
+  ]
 }

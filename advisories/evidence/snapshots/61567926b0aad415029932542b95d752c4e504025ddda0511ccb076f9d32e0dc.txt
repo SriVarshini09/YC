@@ -1,0 +1,3 @@
+Live: Nov 1, 2025
+Note: The sunset for the v1 Marketing Email API has been delayed to November 1st, 2025. The post has been updated to reflect the new date.
+Today we're announcing changes for the two versions of the Marketing Emails API.

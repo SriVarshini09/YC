@@ -1,0 +1,3 @@
+Effective today (October 24, 2022), Twilio is ending the sale of Notify. New customers will be unable to use the product.
+We intend to end of life (deprecate) the Notify product on October 23, 2023. Existing customers will be supported up until this date, however, no new feature enhancements or rate limit increase requests will be granted.
+Other Twilio products that support push notification use cases such as Verify or Conversations are not impacted by this.

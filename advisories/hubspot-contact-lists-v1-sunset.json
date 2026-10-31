@@ -24,5 +24,19 @@
     "https://developers.hubspot.com/docs/api-reference/legacy/crm/lists/v1-list-api-migration-guide",
     "https://developers.hubspot.com/docs/api-reference/latest/deprecated-apis"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026",
+      "quote": "On that date, Contact Lists API (v1) endpoints excluding the exceptions listed above will be deprecated and return 404 responses, and the Contacts API (v1) read endpoints listed above will stop returning list memberships.",
+      "sourceSha256": "a921f0bec648f2398096034278a20d4c335744ad49f6914c9b3009f94d5919b1",
+      "fetchedAt": "2026-10-31T01:20:56.714Z"
+    },
+    {
+      "url": "https://developers.hubspot.com/docs/api-reference/legacy/crm/lists/v1-list-api-migration-guide",
+      "quote": "The following endpoints will return a 404 error as of April 30, 2026.",
+      "sourceSha256": "58c183ac6b865a87ab4c74bd74cea93957ce8f343a5734ce8e9aae4afcdc8c40",
+      "fetchedAt": "2026-10-31T01:20:57.827Z"
+    }
+  ]
 }

@@ -23,5 +23,13 @@
     "https://developers.openai.com/api/docs/deprecations",
     "https://developers.openai.com/api/reference/resources/evals"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "quote": "Nov 30, 2026 The Evals dashboard and API are scheduled to shut down.",
+      "sourceSha256": "2724fd9e195f6c4e8c05c48f9b7b2d41a71be3b53f1f264ea47421b7519454df",
+      "fetchedAt": "2026-10-31T01:37:41.092Z"
+    }
+  ]
 }

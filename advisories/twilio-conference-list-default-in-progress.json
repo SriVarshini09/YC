@@ -23,5 +23,19 @@
     "https://www.twilio.com/en-us/changelog/conference-list-endpoint-july-2026",
     "https://www.twilio.com/en-us/changelog/conference-list-endpoint-rollout-extended"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://www.twilio.com/en-us/changelog/conference-list-endpoint-july-2026",
+      "quote": "Starting September 30, 2026, the Conference list endpoint (GET /2010-04-01/Accounts/{AccountSid}/Conferences.json) will default to returning only in-progress conferences.",
+      "sourceSha256": "c7fbd96002b5092d498f333946401a902db20c241f7ddbf58dc846b2bb33141b",
+      "fetchedAt": "2026-10-31T01:22:38.629Z"
+    },
+    {
+      "url": "https://www.twilio.com/en-us/changelog/conference-list-endpoint-rollout-extended",
+      "quote": "On September 30, 2026, Twilio will begin rolling out the change to the Conference list endpoint (GET /2010-04-01/Accounts/{AccountSid}/Conferences.json) to default to returning in-progress conferences only.",
+      "sourceSha256": "6f77ad39f3d2282f67509c869fcccd87f91927fd00dc08144f4d4034959d8fdf",
+      "fetchedAt": "2026-10-31T01:22:40.027Z"
+    }
+  ]
 }

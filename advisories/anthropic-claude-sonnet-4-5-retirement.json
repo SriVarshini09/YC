@@ -31,5 +31,19 @@
     "https://platform.claude.com/docs/en/about-claude/model-deprecations",
     "https://platform.claude.com/docs/en/release-notes/overview"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+      "quote": "On September 30, 2026, Anthropic notified developers using Claude Sonnet 4.5 of its upcoming retirement on the Claude API.",
+      "sourceSha256": "24dae1d227ccc3b33ef121e38aa6ffb61251ac767f52578863533d18c439460c",
+      "fetchedAt": "2026-10-31T01:29:00.526Z"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/release-notes/overview",
+      "quote": "We announced the deprecation of the Claude Sonnet 4.5 model (claude-sonnet-4-5-20250929), with retirement on the Claude API scheduled for November 30, 2026. We recommend migrating to Claude Sonnet 5.5. Read more in Model deprecations.",
+      "sourceSha256": "8410b04ecc37094c757b5eca9316c630bb20ebb79f031ab2568303446d78204c",
+      "fetchedAt": "2026-10-31T01:29:01.985Z"
+    }
+  ]
 }

@@ -30,5 +30,13 @@
     "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/",
     "https://developers.facebook.com/documentation/ads-commerce/marketing-api/overview/versioning"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.facebook.com/docs/marketing-api/marketing-api-changelog/",
+      "quote": "| [v24.0](https://developers.facebook.com/documentation/ads-commerce/marketing-api/marketing-api-changelog/version24.0) | October 8, 2025 | November 10, 2026 |",
+      "sourceSha256": "9d5deb9099218dc0ff63b8082611ec4b2227066e99e0bc49ac03e1f4f8feb866",
+      "fetchedAt": "2026-10-31T01:21:20.327Z"
+    }
+  ]
 }

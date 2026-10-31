@@ -1,7 +1,7 @@
 {
   "schema_version": "1.7.0",
   "id": "x_SHAPI-meta-graph-root-ids-lookup-removed",
-  "modified": "2026-10-27T00:00:00Z",
+  "modified": "2026-10-31T01:21:40Z",
   "published": "2026-07-29T00:00:00Z",
   "summary": "Root GET /?ids= multi-object lookup returns an error from 2026-10-27",
   "details": "Graph API dropped legacy protocol features: root requests of the form GET /?ids=a,b (or /{version}/?ids=) return an error on v26.0+ since 2026-07-29 and on all supported versions from 2026-10-27. Meta does not state the error code.\n\nReplace each GET /?ids=... call with one request per object, or send the per-object requests in a single batch request (POST / with a batch parameter), and merge the results in your code.",

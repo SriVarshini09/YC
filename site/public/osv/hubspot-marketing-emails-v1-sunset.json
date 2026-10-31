@@ -1,7 +1,7 @@
 {
   "schema_version": "1.7.0",
   "id": "x_SHAPI-hubspot-marketing-emails-v1-sunset",
-  "modified": "2025-11-01T00:00:00Z",
+  "modified": "2026-10-31T01:29:35Z",
   "published": "2025-04-02T00:00:00Z",
   "summary": "Marketing Email API v1 sunset on 2025-11-01",
   "details": "HubSpot sunset the v1 Marketing Email API (/marketing-emails/v1/...) on 2025-11-01 in favour of the Marketing Email v3 API; requests to v1 after that date return an error. Other legacy email APIs, including email analytics, are not affected. HubSpot's changelog post is now a 404, so the source is its Wayback Machine copy.\n\nMove email calls from /marketing-emails/v1/emails to the Marketing Email v3 API (POST /marketing/v3/emails to create, GET /marketing/v3/emails to list, GET /marketing/v3/emails/{emailId} to read one) and read folders from folderIdV2: folderId was removed from v3 on 2026-01-28. Other legacy email APIs, such as email analytics, are not part of this sunset.",

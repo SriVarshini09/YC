@@ -49,7 +49,14 @@ export interface DeliveryReport {
   repository: string;
   outcomes: { advisoryId: string; action: string; reason?: string; url?: string }[];
   dashboard?: { number: number; action: string };
+  /** Why there is no dashboard: the repository has Issues turned off. The fix PRs still go out. */
+  noDashboard?: "issues-disabled";
   errors: string[];
+}
+
+/** GitHub answers 410 "Issues has been disabled in this repository" when a repository has Issues turned off. */
+function issuesDisabled(err: unknown): boolean {
+  return (err as { status?: number }).status === 410 && /issues has been disabled/i.test(err instanceof Error ? err.message : "");
 }
 
 /** Label put on every SHAPI fix PR. */
@@ -167,7 +174,9 @@ export async function deliverRepoFixes(deps: { db: Db; github: GitHubClients; pu
     const settings = mergeSettings({ paused: left.paused, createNow: [...left.createNow], retry: [...left.retry] });
     await withService(deps.db, (tx) => tx.updateTable("repositories").set({ dashboard_issue: issue.number, settings }).where("id", "=", repo.id).execute());
   } catch (err) {
-    report.errors.push(`dashboard: ${err instanceof Error ? err.message : String(err)}`);
+    // Not a failure: retrying can't create an issue there, and failing the job would retry the fix PRs too.
+    if (issuesDisabled(err)) report.noDashboard = "issues-disabled";
+    else report.errors.push(`dashboard: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   if (report.errors.length) throw Object.assign(new Error(`fix delivery for ${repo.full_name} failed: ${report.errors.join("; ")}`), { report });

@@ -38,5 +38,13 @@
     "https://docs.x.com/changelog",
     "https://docs.x.com/x-api/activity/introduction"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://docs.x.com/changelog",
+      "quote": "PascalCase event types (e.g., ProfileBioUpdate) are being deprecated in favor of a dot-separated lowercase format (e.g., profile.update.bio).",
+      "sourceSha256": "c91eba5f1ca89ea06f99012b2bb71003047d25cb28de4be61d7225bf4222fe95",
+      "fetchedAt": "2026-10-31T01:22:52.564Z"
+    }
+  ]
 }

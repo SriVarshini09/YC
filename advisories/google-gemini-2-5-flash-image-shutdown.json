@@ -23,5 +23,13 @@
     "https://ai.google.dev/gemini-api/docs/deprecations",
     "https://ai.google.dev/gemini-api/docs/image-generation"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "quote": "gemini-2.5-flash-image October 2, 2025 March 15, 2027",
+      "sourceSha256": "b54cd6c3da98e05aad019e34cdffa3f94611db4e500b2659572209f10e386178",
+      "fetchedAt": "2026-10-31T01:29:21.864Z"
+    }
+  ]
 }

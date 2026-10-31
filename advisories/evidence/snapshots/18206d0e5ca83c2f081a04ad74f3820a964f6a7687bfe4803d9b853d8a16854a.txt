@@ -1,0 +1,3 @@
+_Applies to all versions._
+The `author_name`, `author_url`, `thumbnail_url`, `thumbnail_width`, and `thumbnail_height` fields will be removed from the Facebook post, Facebook video, and Instagram post oEmbed response. The Facebook page post oEmbed endpoint will be deprecated. These changes will apply across all API versions on November 3, 2025.
+## March 24, 2025

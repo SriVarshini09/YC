@@ -29,5 +29,13 @@
     "https://developers.facebook.com/docs/instagram-platform/changelog",
     "https://developers.facebook.com/docs/instagram-platform/oembed"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.facebook.com/docs/instagram-platform/changelog",
+      "quote": "The `author_name`, `author_url`, `thumbnail_url`, `thumbnail_width`, and `thumbnail_height` fields will be removed from the Facebook post, Facebook video, and Instagram post oEmbed response.",
+      "sourceSha256": "18206d0e5ca83c2f081a04ad74f3820a964f6a7687bfe4803d9b853d8a16854a",
+      "fetchedAt": "2026-10-31T01:21:17.450Z"
+    }
+  ]
 }

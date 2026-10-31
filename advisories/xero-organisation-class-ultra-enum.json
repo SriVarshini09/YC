@@ -30,5 +30,13 @@
     "https://developer.xero.com/changelog",
     "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developer.xero.com/changelog",
+      "quote": "Accounting API: We’ve added ULTRA to the Class enum returned by the Organisation endpoint to cater for Australian organisations using the new Xero Ultra plan.",
+      "sourceSha256": "4a3fdc84f94006056bc0dbd7c1730ff1311ab5d4f01fff5be9ebf73df67e74da",
+      "fetchedAt": "2026-10-31T01:23:22.564Z"
+    }
+  ]
 }

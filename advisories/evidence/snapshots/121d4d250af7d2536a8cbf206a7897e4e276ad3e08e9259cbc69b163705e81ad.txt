@@ -1,0 +1,3 @@
+## Deprecated fields with replacements
+The following fields will be deprecated on June 15, 2026, and will no longer return results. We recommend you update your queries to use the replacements to continue to get data.
+| Field name - Field ID | Replacement | Notes |

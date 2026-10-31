@@ -47,5 +47,19 @@
     "https://developers.facebook.com/blog/post/2025/08/15/page-insights-api-updates/",
     "https://developers.facebook.com/docs/platforminsights/page/deprecated-metrics"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.facebook.com/blog/post/2025/08/15/page-insights-api-updates/",
+      "quote": "Beginning November 15, 2025, we’re deprecating the ‘impressions’ and ‘page fans’ metrics from the Page Insights API.",
+      "sourceSha256": "1f1b24897b7a40c65f31f7151cbd04555660b5343dff220863d1196bfd9f5809",
+      "fetchedAt": "2026-10-31T01:21:28.485Z"
+    },
+    {
+      "url": "https://developers.facebook.com/docs/platforminsights/page/deprecated-metrics",
+      "quote": "On November 15, 2025, the following Facebook Page Insights metrics were deprecated for all API versions.",
+      "sourceSha256": "82a4d6161fbd36cdd5df79c3c56c2ba0b3e0dfc56489b8b6ce9e4d44fe60e3f6",
+      "fetchedAt": "2026-10-31T01:21:29.974Z"
+    }
+  ]
 }

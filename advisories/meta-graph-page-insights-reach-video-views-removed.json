@@ -53,5 +53,19 @@
     "https://developers.facebook.com/docs/platforminsights/page/deprecated-metrics",
     "https://docs.supermetrics.com/docs/facebook-insights-field-changes-june-30-2026.md"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.facebook.com/docs/graph-api/reference/v22.0/insights",
+      "quote": "By June 15, 2026, a number of the Page Insights metrics will be deprecated for all API versions. The API returns an invalid metric error when calling any of these metrics. Read our blog to learn more.",
+      "sourceSha256": "96af892f5d4dd884df5b2b67193bb3b0a135cdbfeaa101a0ff7878543533a1cd",
+      "fetchedAt": "2026-10-31T01:29:48.811Z"
+    },
+    {
+      "url": "https://docs.supermetrics.com/docs/facebook-insights-field-changes-june-30-2026.md",
+      "quote": "The following fields will be deprecated on June 15, 2026, and will no longer return results. We recommend you update your queries to use the replacements to continue to get data.",
+      "sourceSha256": "121d4d250af7d2536a8cbf206a7897e4e276ad3e08e9259cbc69b163705e81ad",
+      "fetchedAt": "2026-10-31T01:29:56.420Z"
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": "1.7.0",
   "id": "x_SHAPI-quickbooks-minorversion-below-75-ignored",
-  "modified": "2025-08-01T00:00:00Z",
+  "modified": "2026-10-31T01:22:05Z",
   "published": "2025-08-01T00:00:00Z",
   "summary": "Minor versions below 75 are silently answered as minor version 75",
   "details": "Since 2025-08-01 the QuickBooks Online Accounting API ignores any minorversion below 75 and responds with minor version 75 data, without an error. Code pinned to an older minor version receives a different response shape with no signal.\n\nSet minorversion=75 (or remove it) and re-test parsing against minor version 75 responses.",
