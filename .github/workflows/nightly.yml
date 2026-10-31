@@ -1,0 +1,68 @@
+name: Nightly advisory drafts
+
+# Execution plan C-01 and C-04, approved by the founder on 2026-10-30: every night, draft version-sunset advisories
+# for models models.dev marks deprecated (C-04), and fetch the watched provider pages through the fetch guards (C-01).
+# New drafts and updated snapshots go to the nightly/advisory-drafts branch, with one open issue to review them; a
+# watched page that fails its guards gets an issue of its own. Nothing is merged or published from here: drafts are
+# unverified until someone reviews them (C-03).
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: nightly-drafts
+  cancel-in-progress: false
+
+jobs:
+  drafts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BRANCH: nightly/advisory-drafts
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: models.dev deprecations (C-04)
+        run: pnpm canary models-dev
+      - name: Watched provider pages (C-01)
+        id: watch
+        continue-on-error: true
+        run: pnpm canary watch --issues watch-issues.json
+      - name: Push new drafts to the review branch
+        run: |
+          git add advisories/drafts advisories/watch/snapshots
+          if git diff --cached --quiet; then
+            echo "no new drafts or snapshot changes"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "chore: nightly advisory drafts ($(date -u +%F))"
+          git push -q --force origin "HEAD:refs/heads/$BRANCH"
+          files=$(git show --name-only --format= HEAD | sed 's/^/- `/; s/$/`/')
+          body=$(printf 'New or changed drafts and snapshots from the nightly run on %s. They are unverified until reviewed.\n\nReview: https://github.com/%s/compare/main...%s\n\n%s\n' "$(date -u +%F)" "$GITHUB_REPOSITORY" "$BRANCH" "$files")
+          open=$(gh issue list --state open --search "Nightly advisory drafts in:title" --json number --jq '.[0].number')
+          if [ -n "$open" ]; then gh issue comment "$open" --body "$body"; else gh issue create --title "Nightly advisory drafts to review" --body "$body"; fi
+      - name: Issues for watched pages that failed their guards
+        if: steps.watch.outcome == 'failure' && hashFiles('watch-issues.json') != ''
+        run: |
+          node -e '
+            const issues = require("./watch-issues.json");
+            for (const i of issues) console.log(JSON.stringify(i));
+          ' | while read -r line; do
+            title=$(printf '%s' "$line" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).title))')
+            body=$(printf '%s' "$line" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).body))')
+            existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+            if [ -z "$existing" ]; then gh issue create --title "$title" --body "$body"; fi
+          done
