@@ -144,3 +144,4 @@ One line per task: task, summary file, PR, status.
 - PB-95 an opt-in traffic sensor for Node and Python: value-free shapes of watched endpoints, dry run, per-account tokens, a change counted at 3 accounts and confirmed by the canary (F-01): [summary](PB-95-traffic-sensor.md) · PR: open
 - PB-smoke rename contract tests give each field its own placeholder, so returning a different field counts as a change (found by the launch smoke test on the Stripe ui_mode advisory): [summary](PB-smoke-distinct-placeholders.md) · PR: open
 - PB-smoke fix delivery succeeds in repositories with Issues turned off: the fix PRs go out without a dashboard instead of the job dead-lettering (found in the live logs for SriVarshini09/Nori): [summary](PB-smoke-issues-disabled.md) · PR: open
+- PB-release-cli-0-3-2 shapi-cli 0.3.2: 87 advisories, Python fixes, Go scanning, the V-01 to V-06 checks, and the two smoke-test fixes: [notes](PB-release-cli-0-3-2.md) · PR: open
