@@ -41,4 +41,15 @@ describe("deprecated-shape lint (S-06)", () => {
     ].join("\n");
     expect(lintSource("src/a.ts", text, own).map((f) => `${f.line}:${f.column} ${f.name}`)).toEqual(["1:11 gpt-4", "3:11 gpt-4", "4:13 tax_exempt", "5:19 tax_exempt"]);
   });
+
+  it("counts an enum value only in a file that names its field: plain words like hosted are everywhere", () => {
+    const uiMode = rules.filter((r) => r.advisoryId === "stripe-checkout-session-ui-mode-values-renamed");
+    expect(uiMode.map((r) => [r.name, r.field])).toEqual(expect.arrayContaining([["hosted", "ui_mode"], ["custom", "ui_mode"]]));
+    // A credentials module whose own setting happens to be "hosted": not about Stripe Checkout (seen in a real repository).
+    expect(lintSource("src/credentials.ts", 'if (mode === "hosted") return key;\nconst kind = "custom";', uiMode)).toEqual([]);
+    const checkout = 'const session = await stripe.checkout.sessions.create({ ui_mode: "hosted" });\nif (session.ui_mode === "custom") {}';
+    expect(lintSource("src/checkout.ts", checkout, uiMode).map((f) => `${f.line} ${f.name}`)).toEqual(["1 hosted", "2 custom"]);
+    // camelCase code (uiMode) counts as naming the field too.
+    expect(lintSource("src/ui.tsx", 'const uiMode = props.embedded ? "embedded" : "hosted";', uiMode).map((f) => f.name)).toEqual(["embedded", "hosted"]);
+  });
 });

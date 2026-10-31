@@ -13,6 +13,8 @@ export interface LintRule {
   name: string;
   /** What replaces it, when the advisory says. */
   replacement?: string;
+  /** Enum rules: the field the value belongs to (`ui_mode`). */
+  field?: string;
   advisoryId: string;
   provider: string;
 }
@@ -40,16 +42,25 @@ export function deprecatedShapeRules(advisories: Advisory[]): LintRule[] {
       for (const b of a.trigger.body ?? []) if (b.field === "model") for (const name of b.values ?? []) add({ kind: "model", name, ...base });
     }
     for (const f of a.fix?.fields ?? []) if (distinctive(f.from)) add({ kind: "field", name: f.from, replacement: f.to, ...base });
-    for (const e of a.fix?.enums ?? []) for (const v of e.values) add({ kind: "enum", name: v.from, replacement: v.to, ...base });
+    for (const e of a.fix?.enums ?? []) for (const v of e.values) add({ kind: "enum", name: v.from, replacement: v.to, field: e.field, ...base });
   }
   return [...rules.values()].sort((x, y) => x.kind.localeCompare(y.kind) || x.name.localeCompare(y.name));
 }
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** Where a rule's name appears in one file: as a whole string literal (model, enum), or read as a property (field). */
+/** `ui_mode` and its camelCase form `uiMode`, as words. */
+const fieldMention = (field: string) => {
+  const camel = field.replace(/_([a-z0-9])/g, (_m, c: string) => c.toUpperCase());
+  return new RegExp(`\\b(?:${escape(field)}${camel === field ? "" : `|${escape(camel)}`})\\b`);
+};
+
+/**
+ * Where a rule's name appears in one file: as a whole string literal (model, enum), or read as a property (field).
+ * Enum values are plain words ("hosted", "custom"), so an enum rule counts only in a file that also names its field.
+ */
 export function lintSource(file: string, text: string, rules: LintRule[]): LintFinding[] {
-  const patterns = rules.map((r) => ({
+  const patterns = rules.filter((r) => r.kind !== "enum" || !r.field || fieldMention(r.field).test(text)).map((r) => ({
     rule: r,
     re:
       r.kind === "field"
