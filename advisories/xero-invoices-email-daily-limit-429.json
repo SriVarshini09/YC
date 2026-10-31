@@ -28,5 +28,13 @@
     "https://developer.xero.com/changelog",
     "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero_accounting.yaml"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developer.xero.com/changelog",
+      "quote": "Upcoming breaking change: When an organisation reaches its daily limit for sending invoice emails, POST Invoices/{InvoiceID}/Email will return a 429 Too Many Requests response instead of a generic 500 Internal Server Error.",
+      "sourceSha256": "86a38fc8c3249e51a5c3a24ef1e5ff9a91e60d264322c545109a808cf11ce1b2",
+      "fetchedAt": "2026-10-31T01:23:18.066Z"
+    }
+  ]
 }

@@ -1,6 +1,7 @@
 export * from "./providers";
 export * from "./lockfile";
 export * from "./advisory";
+export * from "./provenance";
 export * from "./matcher";
 export * from "./cyclonedx";
 export * from "./lint";

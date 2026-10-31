@@ -25,5 +25,31 @@
     "https://www.twilio.com/en-us/changelog/notify-api-end-of-life-further-extension-notice",
     "https://www.twilio.com/docs/notify/api/notification-resource"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://help.twilio.com/articles/9198083260571-How-to-transition-off-Notify",
+      "quote": "As of October 24, 2022, Twilio Notify will reach end of life on January 31, 2027 for existing customers.",
+      "sourceSha256": "1d6a53bbea3459af07692f7cd239ba8ead4147d5085bae2ce9af92f78699a9a9",
+      "fetchedAt": "2026-10-31T01:38:15.512Z"
+    },
+    {
+      "url": "https://www.twilio.com/en-us/changelog/notify-api-eol-notice",
+      "quote": "We intend to end of life (deprecate) the Notify product on October 23, 2023. Existing customers will be supported up until this date, however, no new feature enhancements or rate limit increase requests will be granted.",
+      "sourceSha256": "4151e92f755dba5748eb06fcbb7a9e95371a2c96d576dfe501bcc65c28dee879",
+      "fetchedAt": "2026-10-31T01:30:36.734Z"
+    },
+    {
+      "url": "https://www.twilio.com/en-us/changelog/notify-api-end-of-life-further-extension-notice",
+      "quote": "We previously announced that the Notify product would end of life (EOL) on April 25, 2024. Notify will now EOL on December 31, 2025, in order for Twilio to provide an alternative solution for the current Notify product. Note that this EOL doesn't affect other push notification use cases powered through other Twilio products such as Verify, Voice, Conversations or Engage.",
+      "sourceSha256": "d692a7799486e6c9e5251d5e747ff4fe0a426e8b4355ba449b59cdfa7bffbc25",
+      "fetchedAt": "2026-10-31T01:30:38.140Z"
+    },
+    {
+      "url": "https://www.twilio.com/docs/notify/api/notification-resource",
+      "quote": "Twilio stopped supporting Notify in October 2022.",
+      "sourceSha256": "1434cc84f77dfad8f0d590f73ee4ab01a853d1cee6f10e449c3410bd4d7f3e54",
+      "fetchedAt": "2026-10-31T01:30:39.205Z"
+    }
+  ]
 }

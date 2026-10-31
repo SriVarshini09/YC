@@ -35,5 +35,19 @@
     "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration",
     "https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/marketing-emails/get-marketing-v3-emails-"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration",
+      "quote": "Both ID fields will be returned together, until the folderId is removed on January 28, 2026. After this, only the folderIdV2 field will be returned.",
+      "sourceSha256": "cecdd3640adfb6efdc5ea0e9d3398e4361ae10410b76f3951f4dcbb07b1a483c",
+      "fetchedAt": "2026-10-31T01:29:32.695Z"
+    },
+    {
+      "url": "https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/marketing-emails/get-marketing-v3-emails-",
+      "quote": "Starting on January 28, 2025, as part of the Marketing Email API migration to use the folderIdV2 field, the folderId field is no longer supported. Instead, you should use folderIdV2 when fetching information about emails in folders. Learn more on the HubSpot Developer Changelog.",
+      "sourceSha256": "465e3eefa76fe668de0c507550e1163f8778dc4d40eb6e4577a3e0d8aaf9f851",
+      "fetchedAt": "2026-10-31T01:29:34.174Z"
+    }
+  ]
 }

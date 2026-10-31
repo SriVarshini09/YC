@@ -1,0 +1,7 @@
+6 August 2026 by Xero Developer Relations
+Upcoming breaking change: KiwiSaverStatus will be required when creating or updating employee tax details for all tax codes except WT and NSW.
+Requests to POST/payroll.xro/2.0/employees/{EmployeeID}/tax that omit KiwiSaverStatus for affected tax codes will return a 400 Bad Request.
+...
+30th June 2026
+Accounting API: We’ve added ULTRA to the Class enum returned by the Organisation endpoint to cater for Australian organisations using the new Xero Ultra plan.
+If your integration handles organisation plan types, update it to support ULTRA. Integrations that assume only existing values may fail to maintain their connection to Xero.

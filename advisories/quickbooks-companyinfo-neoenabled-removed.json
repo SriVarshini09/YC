@@ -30,5 +30,13 @@
     "https://medium.com/intuitdev/upcoming-changes-to-apis-and-tools-that-may-impact-your-application-df4680ae3535",
     "https://developer.intuit.com/app/developer/qbo/docs/api/accounting/most-commonly-used/companyinfo"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://medium.com/intuitdev/upcoming-changes-to-apis-and-tools-that-may-impact-your-application-df4680ae3535",
+      "quote": "The CompanyInfo entity includes a list of NameValue objects. The attribute called NeoEnabled will no longer be returned in the response.",
+      "sourceSha256": "3de8c57e9c2e237a66021caf40c951cbb6aeab09c91656b54fe29598d190a2fb",
+      "fetchedAt": "2026-10-31T01:34:40.397Z"
+    }
+  ]
 }

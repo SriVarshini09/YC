@@ -1,0 +1,3 @@
+kiwiSaverStatus:
+description: KiwiSaver eligibility. Required in POST requests for all tax codes except WT and NSW.
+type: string

@@ -29,5 +29,13 @@
   "sources": [
     "https://shopify.dev/docs/api/usage/versioning"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://shopify.dev/docs/api/usage/versioning",
+      "quote": "2026-01 January 1, 2026 January 16, 2027 15:00 UTC",
+      "sourceSha256": "59fcaa7a0bb432d522633a6f80967f234d953723a4cedf63be2900522da11dd4",
+      "fetchedAt": "2026-10-31T01:37:43.952Z"
+    }
+  ]
 }

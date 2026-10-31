@@ -1,0 +1,3 @@
+April 9, 2024
+The original web API method for uploading files to Slack, files.upload, is being sunset on March 11, 2025 November 12, 2025.
+As of May 16, 2024, newly-created apps are no longer able to use this API method.

@@ -23,5 +23,13 @@
     "https://shopify.dev/changelog/online-store-script-tags-deprecation",
     "https://shopify.dev/docs/api/admin-rest/latest/resources/scripttag"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://shopify.dev/changelog/online-store-script-tags-deprecation",
+      "quote": "Starting October 1, 2026, the scriptTagCreate and scriptTagUpdate mutations will return an user error, and the ScriptTag REST Admin API resource will reject POST and PUT. The deprecation applies to all API versions, including older ones, so pinning won't defer it.",
+      "sourceSha256": "e0e3e3139261f5db2505611115e6171fee7819959516058cd80dbb3f46804cae",
+      "fetchedAt": "2026-10-31T01:30:26.274Z"
+    }
+  ]
 }

@@ -1,0 +1,3 @@
+Represents insights for Facebook Pages and Page posts. Refer to our Pages API documentation.
+By June 15, 2026, a number of the Page Insights metrics will be deprecated for all API versions. The API returns an invalid metric error when calling any of these metrics. Read our blog to learn more.
+Reading

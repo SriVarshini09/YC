@@ -24,5 +24,13 @@
     "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/2.29.1/xero-finance.yaml",
     "https://raw.githubusercontent.com/XeroAPI/Xero-OpenAPI/master/xero-finance.yaml"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developer.xero.com/changelog",
+      "quote": "Finance API - We decommissioned the Accounting Activities API. The Accounting Activities API-which included Account Usage, Lock History, Report History, and User Activities endpoints-was retired. For cash flow and financial analysis needs, we recommend using our Bank Statements API as an alternative solution. All Accounting Activities endpoints will now return errors.",
+      "sourceSha256": "86a38fc8c3249e51a5c3a24ef1e5ff9a91e60d264322c545109a808cf11ce1b2",
+      "fetchedAt": "2026-10-31T01:34:53.409Z"
+    }
+  ]
 }

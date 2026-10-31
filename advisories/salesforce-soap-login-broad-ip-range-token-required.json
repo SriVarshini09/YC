@@ -26,5 +26,13 @@
   "sources": [
     "https://help.salesforce.com/s/articleView?id=005132110&type=1"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://help.salesforce.com/s/articleView?id=005132110&type=1",
+      "quote": "SOAP API login() from a broad login IP range requires an API security token.",
+      "sourceSha256": "eb7a5d7d501600bdcd1fb88f348401078a98bf4184c0e5d48180b45d66dd13f2",
+      "fetchedAt": "2026-10-31T01:34:40.397Z"
+    }
+  ]
 }

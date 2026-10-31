@@ -24,5 +24,13 @@
     "https://developers.hubspot.com/changelog/marketing-email-api-folder-id-migration",
     "https://developers.hubspot.com/docs/api-reference/marketing-marketing-emails-v3/guide"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://web.archive.org/web/20251114203334/https://developers.hubspot.com/changelog/marketing-email-api-v3-released-to-general-availability-and-upcoming-sunset-for-v1",
+      "quote": "Note: The sunset for the v1 Marketing Email API has been delayed to November 1st, 2025. The post has been updated to reflect the new date.",
+      "sourceSha256": "61567926b0aad415029932542b95d752c4e504025ddda0511ccb076f9d32e0dc",
+      "fetchedAt": "2026-10-31T01:29:35.634Z"
+    }
+  ]
 }

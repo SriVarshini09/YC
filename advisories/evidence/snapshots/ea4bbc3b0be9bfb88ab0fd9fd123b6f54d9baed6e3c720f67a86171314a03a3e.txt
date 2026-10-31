@@ -1,0 +1,3 @@
+Why does the X API like endpoint no longer work?
+Between April 16 and April 20, 2026, X removed like, follow, and quote-post writes from all self-serve API tiers. Those endpoints now exist only under Enterprise agreements, which start at roughly $42,000 a month. This is a tier change, not an outage. Rotating tokens, adding scopes, or retrying will not restore access.
+Do retweets still work through the X API?

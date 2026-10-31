@@ -1,0 +1,3 @@
+Read with Claude Read with ChatGPT
+Between August 2025 and October 2026, Intuit and Xero shipped more than a dozen changes that alter how an existing integration behaves. Some fail loudly with a 400 or a 401. Others fail silently: since 1 August 2025, QuickBooks Online ignores any minor version below 75 and answers in version 75 without an error. AI-built integrations, written once in a coding assistant and shipped, meet all of these changes the same way a hand-written one would, except that nobody on the team may remember how the code works.
+More of them are being written. In its June 2026 developer update, Xero said new app registrations were up fourfold since January, in a section about vibe coding. Our vibe coding guide covers how to b

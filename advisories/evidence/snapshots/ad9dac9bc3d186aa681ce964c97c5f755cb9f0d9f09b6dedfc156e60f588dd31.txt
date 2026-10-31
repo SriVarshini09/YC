@@ -1,0 +1,3 @@
+10 September 2026 by Xero Developer Relations
+The IsQualifyingEarnings property is now required in all create and update requests for AU Earnings Rates and Pay Items. Requests that omit it will return a 400 validation error.
+If IsQualifyingEarnings is true: then Pay Items: IsExemptFromSuper must be false and Earnings Rates: IsSubjectToSuper must be true.

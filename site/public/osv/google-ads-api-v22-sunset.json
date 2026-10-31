@@ -1,7 +1,7 @@
 {
   "schema_version": "1.7.0",
   "id": "x_SHAPI-google-ads-api-v22-sunset",
-  "modified": "2026-10-07T00:00:00Z",
+  "modified": "2026-10-31T01:34:40Z",
   "published": "2026-09-02T00:00:00Z",
   "summary": "Google Ads API v22 sunset on 2026-10-07",
   "details": "Google Ads API v22 was sunset on 2026-10-07; from that date all v22 requests fail. Code still pinned to /v22/ paths, or to client library versions that only speak v22, is broken.\n\nChange the version segment of googleads.googleapis.com paths to a supported version (v24 or later is safest, since v23 sunsets in February 2027), upgrade the client library, and work through each skipped version's breaking-changes list. The Google Ads API metrics page in the Cloud Console shows which versioned methods your project still calls.",

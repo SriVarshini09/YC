@@ -1,0 +1,3 @@
+The files.upload API method has been deprecated. It will stop functioning and be officially sunset on November 12, 2025.
+Existing apps and integrations should migrate away from files.upload and instead leverage a combination of two API methods: files.getUploadURLExternal and files.completeUploadExternal. See Uploading files for more details on the process, and read more about the change in this changelog article.
+Facts​

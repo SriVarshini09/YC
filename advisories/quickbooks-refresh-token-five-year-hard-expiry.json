@@ -25,5 +25,13 @@
     "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/faq",
     "https://developer.intuit.com/app/developer/qbo/docs/release-notes/general-release-notes"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://medium.com/intuitdev/important-changes-to-refresh-token-policy-8443779d40db",
+      "quote": "If your app uses our restricted and granular scopes, the refresh tokens generated from February 2022 will have a validity of 5 years, and the first set of those tokens will start to expire in February 2027.",
+      "sourceSha256": "8dc6dc8de96065a070495db3b40301c337d23babe1712f566ce6d3d3bd8985ab",
+      "fetchedAt": "2026-10-31T01:34:40.397Z"
+    }
+  ]
 }

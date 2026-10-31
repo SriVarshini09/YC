@@ -1,0 +1,5 @@
+Recommended replacement
+gemini-2.0-flash
+February 5, 2025
+June 1, 2026
+gemini-3.6-flash

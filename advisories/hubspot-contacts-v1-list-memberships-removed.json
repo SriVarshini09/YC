@@ -26,5 +26,19 @@
     "https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026",
     "https://developers.hubspot.com/docs/api-reference/legacy/crm/objects/contacts/v1/get-contacts-v1-contactvidvid-profile.md"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.hubspot.com/docs/api-reference/legacy/crm/lists/v1-list-api-migration-guide",
+      "quote": "The following endpoints still function, but as of April 30, 2026, no longer return list memberships:",
+      "sourceSha256": "58c183ac6b865a87ab4c74bd74cea93957ce8f343a5734ce8e9aae4afcdc8c40",
+      "fetchedAt": "2026-10-31T01:21:00.018Z"
+    },
+    {
+      "url": "https://developers.hubspot.com/changelog/extension-contact-lists-api-v1-sunset-moved-to-april-30-2026",
+      "quote": "On that date, Contact Lists API (v1) endpoints excluding the exceptions listed above will be deprecated and return 404 responses, and the Contacts API (v1) read endpoints listed above will stop returning list memberships.",
+      "sourceSha256": "b77aa85da8fbc0fe15e3df883fd553f428d3cee94e969dbd586a946870d033c7",
+      "fetchedAt": "2026-10-31T01:21:01.219Z"
+    }
+  ]
 }

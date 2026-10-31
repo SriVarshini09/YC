@@ -1,0 +1,3 @@
+4. CompanyInfo entity
+The CompanyInfo entity includes a list of NameValue objects. The attribute called NeoEnabled will no longer be returned in the response.
+These changes will be implemented in Sandbox on December 10, 2025 and in Production on January 27, 2026.

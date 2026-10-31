@@ -23,5 +23,13 @@
     "https://devblog.xero.com/upcoming-changes-to-xero-accounting-api-scopes-705c5a9621a0",
     "https://www.apideck.com/blog/xero-scopes"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://www.apideck.com/blog/xero-scopes",
+      "quote": "Xero replaced two broad OAuth 2.0 scopes with ten granular ones for all apps created after March 2, 2026.",
+      "sourceSha256": "b0f16e493cf971b9bc9f734af2fa6ee973289480f0866073a1c2ff77a777fb42",
+      "fetchedAt": "2026-10-31T01:23:01.394Z"
+    }
+  ]
 }

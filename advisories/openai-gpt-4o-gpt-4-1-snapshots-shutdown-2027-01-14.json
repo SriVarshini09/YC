@@ -33,5 +33,13 @@
   "sources": [
     "https://developers.openai.com/api/docs/deprecations"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "quote": "On October 14, 2026, we notified developers using certain GPT-4 series models of their deprecation and removal from the API on January 14, 2027.",
+      "sourceSha256": "2724fd9e195f6c4e8c05c48f9b7b2d41a71be3b53f1f264ea47421b7519454df",
+      "fetchedAt": "2026-10-31T01:30:11.168Z"
+    }
+  ]
 }

@@ -23,5 +23,13 @@
     "https://ads-developers.googleblog.com/2026/09/google-ads-api-v22-sunset-reminder.html",
     "https://developers.google.com/google-ads/api/docs/sunset-dates"
   ],
-  "status": "verified"
+  "status": "verified",
+  "provenance": [
+    {
+      "url": "https://ads-developers.googleblog.com/2026/09/google-ads-api-v22-sunset-reminder.html",
+      "quote": "Google Ads API v22 will sunset on October 7, 2026. Starting on this date, all v22 API requests will begin to fail.",
+      "sourceSha256": "b4b15e7c2d1f23899db34f690f69a5fe0ef39e63df3c8b4e57c981044b353c1f",
+      "fetchedAt": "2026-10-31T01:34:40.397Z"
+    }
+  ]
 }

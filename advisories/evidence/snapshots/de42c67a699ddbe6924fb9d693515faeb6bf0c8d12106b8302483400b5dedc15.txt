@@ -1,0 +1,7 @@
+The Assistants API was sunset on August 26, 2026.
+The Assistants API was officially sunset on August 26, 2026, and is no longer available. Use the Responses API for new integrations.
+Thank you to everyone who used the Assistants API. We appreciate everything you built and the feedback you shared along the way.
+...
+Start new chats with the Conversations API and Responses API. To preserve earlier conversation history, use messages already stored by your application.
+The example below shows how thread history could be migrated before the sunset. The Assistants API call that retrieves thread messages no longer works; use your stored messages instead.
+Python
