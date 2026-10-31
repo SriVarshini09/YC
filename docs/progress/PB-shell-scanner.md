@@ -29,4 +29,4 @@ The matcher also reads a role-prefixed repository parameter (`{target_repo}`, `{
   - comments, `gh api graphql`, and installer downloads left out.
 - The two benchmark evidence files at their base and fix commits, scanned with this build: refracta and kikujizo are affected at base and exposed at fix.
 - All extractor tests pass (95).
-- shapi-cli is 0.3.4; the benchmark's numbers come from this PR's CI run.
+- **The benchmark (this PR's CI run, shapi-cli 0.3.4):** flag recall is 79% (11/14), up from 64% in 0.3.3 and 36% in 0.3.1, and fixed-state precision is unchanged at 93% (13/14). The three left: OCaml (stategraph), Rust (opaque), and a client built in another file (mindstone).
