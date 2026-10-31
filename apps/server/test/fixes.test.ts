@@ -48,7 +48,7 @@ beforeEach(async () => {
   repositoryId = repo.id;
 });
 
-function setup(opts: { refuseDrafts?: boolean } = {}) {
+function setup(opts: { refuseDrafts?: boolean; issuesDisabled?: boolean } = {}) {
   const fake = fakeRepoGitHub("acme/demo", { "src/a.ts": "a\n", "src/b.ts": "b\n", "src/c.ts": "c\n" }, opts);
   const github = githubClients({ appId: "1", privateKey }, { fetch: fake.fetch, resilient: false });
   return { ...fake, deps: { db, github } };
@@ -112,6 +112,16 @@ describe("fix delivery", () => {
     expect(second.outcomes.map((o) => o.action)).toEqual(["unchanged", "unchanged", "wait"]);
     expect(second.dashboard!.action).toBe("unchanged");
     expect(t.github.pulls).toHaveLength(2);
+  });
+
+  it("still opens fix PRs, and succeeds, in a repository with Issues turned off (no dashboard there)", async () => {
+    const t = setup({ issuesDisabled: true });
+    const report = await deliverRepoFixes(t.deps, { repositoryId, fixes, now: new Date() });
+    expect(report.errors).toEqual([]);
+    expect(report.dashboard).toBeUndefined();
+    expect(report.noDashboard).toBe("issues-disabled");
+    expect(t.github.pulls.map((p) => p.head.ref)).toEqual(["shapi/crit", "shapi/high"]);
+    expect(t.github.issues).toEqual([]);
   });
 
   it("labels a new PR needs-human when its fix asks for it (V-04: an undo the contract test survived)", async () => {

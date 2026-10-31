@@ -141,3 +141,4 @@ One line per task: task, summary file, PR, status.
 - PB-92 a Go scanner, scan only: net/http requests with URLs, headers, status checks, read headers and the JSON fields of the struct the body decodes into (U-07): [summary](PB-92-go-scanner.md) · PR: open
 - PB-93 a leaderboard that accepts other tools' results: a submission format, the same scoring as SHAPI's run, a CI check, and a grep baseline as the first entry (P-15): [summary](PB-93-leaderboard.md) · PR: open
 - PB-smoke rename contract tests give each field its own placeholder, so returning a different field counts as a change (found by the launch smoke test on the Stripe ui_mode advisory): [summary](PB-smoke-distinct-placeholders.md) · PR: open
+- PB-smoke fix delivery succeeds in repositories with Issues turned off: the fix PRs go out without a dashboard instead of the job dead-lettering (found in the live logs for SriVarshini09/Nori): [summary](PB-smoke-issues-disabled.md) · PR: open
