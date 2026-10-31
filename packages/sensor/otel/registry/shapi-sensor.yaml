@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/open-telemetry/weaver/v0.27.0/schemas/semconv.schema.json
+# SHAPI's traffic sensor as OpenTelemetry telemetry (execution plan F-02): one event per distinct response shape,
+# with these attributes. Checked in CI with `weaver registry check`. The values are shapes, never payload values.
+groups:
+  - id: registry.shapi.sensor
+    type: attribute_group
+    brief: "Attributes of a value-free response shape recorded by SHAPI's traffic sensor."
+    attributes:
+      - id: shapi.sensor.provider
+        type: string
+        stability: development
+        brief: "The API provider, as SHAPI's advisory database names it."
+        examples: ["github", "stripe", "openai"]
+      - id: shapi.sensor.request.method
+        type: string
+        stability: development
+        brief: "The HTTP method of the request."
+        examples: ["GET", "POST"]
+      - id: shapi.sensor.endpoint
+        type: string
+        stability: development
+        brief: "The endpoint as the matching SHAPI advisory's path pattern, never the request's own path."
+        note: "Path parameters stay as placeholders, so no ids, names or other request values are recorded."
+        examples: ["/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches", "/v1/messages"]
+      - id: shapi.sensor.response.status_code
+        type: int
+        stability: development
+        brief: "The HTTP status code of the response."
+        examples: [200, 204]
+      - id: shapi.sensor.response.body_kind
+        type:
+          members:
+            - id: empty
+              value: "empty"
+              brief: "The response had no body."
+              stability: development
+            - id: json
+              value: "json"
+              brief: "The body was JSON."
+              stability: development
+            - id: text
+              value: "text"
+              brief: "The body was not JSON."
+              stability: development
+        stability: development
+        brief: "What kind of body the response had."
+      - id: shapi.sensor.response.fields
+        type: string[]
+        stability: development
+        brief: "The JSON body's fields, each as its path and the JSON types seen there: `path:type|type`."
+        note: "Paths use `[]` for array items. Values are never recorded."
+        examples: [["items[].id:integer", "name:string|null"]]
+      - id: shapi.sensor.response.headers
+        type: string[]
+        stability: development
+        brief: "Version and deprecation headers of the response, as `name=value`."
+        note: "Only headers that are contract signals: Sunset, Deprecation, Stripe-Version, X-GitHub-Api-Version-Selected and similar."
+        examples: [["sunset=Wed, 11 Nov 2026 23:59:59 GMT", "x-github-api-version-selected=2022-11-28"]]
+      - id: shapi.sensor.count
+        type: int
+        stability: development
+        brief: "How many responses had this shape since the last batch."
+        examples: [12]
+      - id: shapi.sensor.wire_version
+        type: int
+        stability: development
+        brief: "The version of the sensor's shape format."
+        examples: [1]
+
+  - id: event.shapi.sensor.observation
+    type: event
+    name: shapi.sensor.observation
+    stability: development
+    brief: "One distinct response shape from an endpoint SHAPI watches, seen `shapi.sensor.count` times."
+    attributes:
+      - ref: shapi.sensor.provider
+        requirement_level: required
+      - ref: shapi.sensor.request.method
+        requirement_level: required
+      - ref: shapi.sensor.endpoint
+        requirement_level: required
+      - ref: shapi.sensor.response.status_code
+        requirement_level: required
+      - ref: shapi.sensor.response.body_kind
+        requirement_level: required
+      - ref: shapi.sensor.response.fields
+        requirement_level: recommended
+      - ref: shapi.sensor.response.headers
+        requirement_level: recommended
+      - ref: shapi.sensor.count
+        requirement_level: required
+      - ref: shapi.sensor.wire_version
+        requirement_level: required

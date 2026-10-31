@@ -54,6 +54,35 @@ To turn it off, remove the call, or revoke the token in Settings: uploads with a
 
 The sensor isn't published to npm or PyPI yet. Until it is, it lives in SHAPI's repository (`packages/sensor` for Node, `packages/sensor/python/shapi_sensor` for Python).
 
+## Send it through OpenTelemetry instead
+
+If your app already exports OpenTelemetry logs, the sensor can hand each shape to your logger instead of uploading it. You then route it with your Collector like any other telemetry. Each distinct shape becomes one `shapi.sensor.observation` event with `shapi.sensor.*` attributes, defined in a [Weaver](https://github.com/open-telemetry/weaver) registry (`packages/sensor/otel/registry`) that CI checks with `weaver registry check`:
+
+| Attribute | Example |
+| --- | --- |
+| `shapi.sensor.provider` | `github` |
+| `shapi.sensor.request.method` | `POST` |
+| `shapi.sensor.endpoint` | `/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches` |
+| `shapi.sensor.response.status_code` | `204` |
+| `shapi.sensor.response.body_kind` | `empty`, `json` or `text` |
+| `shapi.sensor.response.fields` | `["items[].id:integer", "name:string|null"]` |
+| `shapi.sensor.response.headers` | `["sunset=Wed, 11 Nov 2026 23:59:59 GMT"]` |
+| `shapi.sensor.count` | `12` |
+| `shapi.sensor.wire_version` | `1` |
+
+```js
+import { logs } from "@opentelemetry/api-logs";
+import { installSensor, otelSink } from "@shapi/sensor";
+installSensor({ sink: otelSink(logs.getLogger("shapi-sensor")) });
+```
+
+```python
+import shapi_sensor
+shapi_sensor.install(sink=shapi_sensor.otel_sink(my_logger))  # anything with emit(event_name=..., attributes=...)
+```
+
+No token is needed in this mode, and nothing goes to SHAPI unless your Collector sends it there.
+
 ## What SHAPI does with it
 
 Each account's shapes are stored apart from every other account's. SHAPI compares each account's shapes over time per endpoint. A difference (a status code, a field gone or added, a type, a version header) counts as a change only when **at least three accounts** see the same change on the same endpoint. That way one customer's setup, an experiment or a flaky response is never reported as the provider's change.
