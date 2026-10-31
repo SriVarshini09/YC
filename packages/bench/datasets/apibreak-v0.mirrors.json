@@ -1,8 +1,8 @@
 {
   "dataset": "APIBreak-Replay v0",
   "archive": "Software Heritage (https://archive.softwareheritage.org). A commit's SWHID is swh:1:rev:<sha>.",
-  "checkedAt": "2026-10-30",
-  "archived": 65,
+  "checkedAt": "2026-10-31",
+  "archived": 70,
   "instances": [
     {
       "id": "github-workflow-dispatch-204-to-200__vincentng295__gemini_fbchat",
@@ -130,7 +130,7 @@
       "fixCommit": "9f5608ed7910b00deda4e64a53b2c76768cb4e65",
       "baseCommit": "baefc17081b0a4225fa3d713b89d16ae9d803374",
       "mirror": "https://archive.softwareheritage.org/swh:1:rev:9f5608ed7910b00deda4e64a53b2c76768cb4e65;origin=https://github.com/unfoldingWord/bible-editor",
-      "archived": false
+      "archived": true
     },
     {
       "id": "github-workflow-dispatch-204-to-200__ruslankanat-sdet__sdet-portfolio",
@@ -234,7 +234,7 @@
       "fixCommit": "75de061fd677770d058d6f52588d2cbad5f7e927",
       "baseCommit": "ad43c7f4cf477e1e99c3ed396fb28e8e6f7387c7",
       "mirror": "https://archive.softwareheritage.org/swh:1:rev:75de061fd677770d058d6f52588d2cbad5f7e927;origin=https://github.com/craigoley/remudero",
-      "archived": false
+      "archived": true
     },
     {
       "id": "github-workflow-dispatch-204-to-200__jairdiazrios95-web__sunset-world-data-platform",
@@ -298,7 +298,7 @@
       "fixCommit": "7fb592edf2a5b4ab14ef9ba3e91e9d06c3f55da1",
       "baseCommit": "307930d864ff48db72dd390a6c2ab6ab6546a479",
       "mirror": "https://archive.softwareheritage.org/swh:1:rev:7fb592edf2a5b4ab14ef9ba3e91e9d06c3f55da1;origin=https://github.com/zetatech-a/finance-news-monitor",
-      "archived": false
+      "archived": true
     },
     {
       "id": "github-workflow-dispatch-204-to-200__PyGithub__PyGithub",
@@ -450,7 +450,7 @@
       "fixCommit": "1af0ccbd67f39987f47d930d9b62201a95ca0503",
       "baseCommit": "3a33a22709ce7ae3f0dbac118825437e592359f9",
       "mirror": "https://archive.softwareheritage.org/swh:1:rev:1af0ccbd67f39987f47d930d9b62201a95ca0503;origin=https://github.com/willemkokke/livery",
-      "archived": false
+      "archived": true
     },
     {
       "id": "github-workflow-dispatch-204-to-200__HumblebragAB__computercat-api",
@@ -530,7 +530,7 @@
       "fixCommit": "e80df5d4a1b82dcfd41f91820ae85c4706d8e559",
       "baseCommit": "cccbaf338fb74c2d7b9ca21e4b2b051d61c3db80",
       "mirror": "https://archive.softwareheritage.org/swh:1:rev:e80df5d4a1b82dcfd41f91820ae85c4706d8e559;origin=https://github.com/tioperfumes07/IH35-TMS",
-      "archived": false
+      "archived": true
     },
     {
       "id": "quickbooks-minorversion-below-75__mindstone__mcp-servers",
