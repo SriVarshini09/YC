@@ -129,9 +129,10 @@ def _now() -> str:
 
 
 class Sensor:
-    def __init__(self, token=None, dry_run=False, endpoint=DEFAULT_ENDPOINT, flush_seconds=60.0, log=print, endpoints=None):
-        if not dry_run and not token:
-            raise ValueError("shapi_sensor: pass a token, or dry_run=True")
+    def __init__(self, token=None, dry_run=False, endpoint=DEFAULT_ENDPOINT, flush_seconds=60.0, log=print, endpoints=None, sink=None):
+        if not dry_run and not token and not sink:
+            raise ValueError("shapi_sensor: pass a token, a sink, or dry_run=True")
+        self.sink = sink
         self.token, self.dry_run, self.endpoint, self.log = token, dry_run, endpoint, log
         self.endpoints = endpoints if endpoints is not None else ENDPOINTS
         self.flush_seconds = flush_seconds
@@ -167,6 +168,12 @@ class Sensor:
                 return None
             batch = {"v": WIRE_VERSION, "sdk": "python", "observations": list(self._pending.values())}
             self._pending = {}
+        if self.sink:
+            try:
+                self.sink(batch)
+            except Exception as err:
+                self.log(f"[shapi-sensor] sink failed: {err}")
+            return batch
         data = json.dumps(batch, separators=(",", ":"))
         if self.dry_run:
             self.log(f"[shapi-sensor] dry run, would send: {data}")
@@ -240,6 +247,39 @@ class Sensor:
             undo()
         self._undo = []
         self.flush()
+
+
+OTEL_EVENT_NAME = "shapi.sensor.observation"
+
+
+def otel_attributes(o: dict) -> dict:
+    """One observation as OpenTelemetry attributes, named as in packages/sensor/otel/registry (F-02)."""
+    shape = o["shape"]
+    return {
+        "shapi.sensor.provider": o["provider"],
+        "shapi.sensor.request.method": o["method"],
+        "shapi.sensor.endpoint": o["endpoint"],
+        "shapi.sensor.response.status_code": shape["status"],
+        "shapi.sensor.response.body_kind": shape["body"]["kind"],
+        "shapi.sensor.response.fields": [f"{f['path']}:{'|'.join(f['types'])}" for f in shape["body"]["fields"]],
+        "shapi.sensor.response.headers": [f"{k}={v}" for k, v in shape["headers"].items()],
+        "shapi.sensor.count": o["count"],
+        "shapi.sensor.wire_version": WIRE_VERSION,
+    }
+
+
+def otel_sink(logger):
+    """A sink that emits each observation as a `shapi.sensor.observation` event on an OpenTelemetry logger.
+
+    `logger` is anything with `emit(event_name=..., attributes=...)`; with the OpenTelemetry SDK, pass a function
+    that builds a LogRecord, or use `otel_attributes` directly.
+    """
+
+    def sink(batch):
+        for o in batch["observations"]:
+            logger.emit(event_name=OTEL_EVENT_NAME, attributes=otel_attributes(o))
+
+    return sink
 
 
 def install(**kwargs) -> Sensor:

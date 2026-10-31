@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { getProvider, loadAdvisories } from "@shapi/core";
-import { createSensor, installSensor, matchEndpoint, patternRegex, SENSOR_ENDPOINTS, sensorShape } from "../src/index";
+import { createSensor, installSensor, matchEndpoint, otelSink, patternRegex, SENSOR_ENDPOINTS, sensorShape } from "../src/index";
 
 // Execution plan F-01: the traffic add-on for Node and Python.
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -91,5 +91,62 @@ describe("traffic sensor (F-01)", () => {
     expect(out.shapes).toEqual(BODIES.map((b) => sensorShape(200, [["Sunset", "x"], ["Content-Type", "application/json"]], b)));
     expect(out.match).toBe("/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches");
     expect(out.none).toBeNull();
+  });
+});
+
+describe("traffic sensor as OpenTelemetry (F-02)", () => {
+  const registry = readFileSync(path.join(here, "..", "otel", "registry", "shapi-sensor.yaml"), "utf8");
+  const defined = new Set([...registry.matchAll(/^ {6}- id: (shapi\.[\w.]+)$/gm)].map((m) => m[1]));
+  const referenced = new Set([...registry.matchAll(/^ {6}- ref: (shapi\.[\w.]+)$/gm)].map((m) => m[1]));
+
+  it("emits one shapi.sensor.observation event per shape, with only the registry's attributes", async () => {
+    const records: { eventName?: string; attributes?: Record<string, unknown> }[] = [];
+    const fetch = (async () => new Response(JSON.stringify({ id: "msg_1", content: [] }), { status: 200, headers: { "anthropic-version": "2023-06-01" } })) as typeof globalThis.fetch;
+    const sensor = createSensor({ sink: otelSink({ emit: (r) => records.push(r) }), fetch });
+    await sensor.fetch("https://api.anthropic.com/v1/messages", { method: "POST" });
+    await sensor.stop();
+    expect(records).toEqual([
+      {
+        eventName: "shapi.sensor.observation",
+        timestamp: expect.any(Date),
+        attributes: {
+          "shapi.sensor.provider": "anthropic",
+          "shapi.sensor.request.method": "POST",
+          "shapi.sensor.endpoint": "/v1/messages",
+          "shapi.sensor.response.status_code": 200,
+          "shapi.sensor.response.body_kind": "json",
+          "shapi.sensor.response.fields": ["content:array", "id:string"],
+          "shapi.sensor.response.headers": ["anthropic-version=2023-06-01"],
+          "shapi.sensor.count": 1,
+          "shapi.sensor.wire_version": 1,
+        },
+      },
+    ]);
+    // Every attribute is defined in the registry `weaver registry check` validates, and the event lists them all.
+    expect(new Set(Object.keys(records[0]!.attributes!))).toEqual(defined);
+    expect(referenced).toEqual(defined);
+  });
+
+  it("the Python sensor emits the same attributes", () => {
+    const py = process.platform === "win32" ? "python" : "python3";
+    const script = [
+      "import json, sys",
+      "sys.path.insert(0, sys.argv[1])",
+      "import shapi_sensor as s",
+      "out = []",
+      "class L:",
+      "    def emit(self, event_name, attributes): out.append({'eventName': event_name, 'attributes': attributes})",
+      "sensor = s.Sensor(sink=s.otel_sink(L()))",
+      "sensor.observe('POST', 'https://api.anthropic.com/v1/messages', 200, [('anthropic-version', '2023-06-01')], json.dumps({'id': 'm', 'content': []}))",
+      "sensor.flush()",
+      "print(json.dumps(out))",
+    ].join("\n");
+    const run = spawnSync(py, ["-I", "-c", script, path.join(here, "..", "python")], { encoding: "utf8" });
+    if (run.error) return expect.soft(run.error.message).toBe("Python is available");
+    expect(run.stderr).toBe("");
+    const [event] = JSON.parse(run.stdout);
+    expect(event.eventName).toBe("shapi.sensor.observation");
+    expect(new Set(Object.keys(event.attributes))).toEqual(defined);
+    expect(event.attributes["shapi.sensor.response.fields"]).toEqual(["content:array", "id:string"]);
   });
 });
