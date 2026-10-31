@@ -131,7 +131,24 @@ describe("generateContractTest: generated text", () => {
     const callSite = { ...site, file: "src/app.ts", line: 2, column: 21, endpoint: "/marketing/v3/emails", method: "GET" as const, provider: "hubspot", surface: { ...site.surface, fields: ["results[].folderId"] } };
     const test = generateContractTest({ callSite, advisory: renamed, sourceText: source });
     if (test.status !== "generated") throw new Error(test.status);
-    expect(test.content).toContain('{ name: "new", body: {"items":[{"folderIdV2":"shapi text"}]} }');
+    expect(test.content).toContain('{ name: "old", body: {"results":[{"folderId":"shapi results.folderId"}]} }');
+    expect(test.content).toContain('{ name: "new", body: {"items":[{"folderIdV2":"shapi results.folderId"}]} }');
+  });
+
+  it("gives each field the code reads its own value, so returning a different field counts as a change", () => {
+    const source = `export async function checkout(token: string) {
+  const res = await fetch("https://api.stripe.com/v1/checkout/sessions", { method: "POST", headers: { Authorization: \`Bearer \${token}\` } });
+  const session = await res.json();
+  if (session.ui_mode === "embedded") return session.client_secret;
+  return session.url;
+}
+`;
+    const stripe = loadAdvisories(path.join(root, "advisories")).find((a) => a.id === "stripe-checkout-session-ui-mode-values-renamed")!;
+    const callSite = { ...site, file: "src/app.ts", line: 2, column: 21, endpoint: "/v1/checkout/sessions", method: "POST" as const, provider: "stripe", surface: { ...site.surface, fields: ["ui_mode", "client_secret", "url"], enums: [{ field: "ui_mode", values: ["embedded"] }] } };
+    const test = generateContractTest({ callSite, advisory: stripe, sourceText: source });
+    if (test.status !== "generated") throw new Error(test.status);
+    expect(test.content).toContain('{ name: "old", body: {"ui_mode":"embedded","client_secret":"shapi client_secret","url":"shapi url"} }');
+    expect(test.content).toContain('{ name: "new", body: {"ui_mode":"embedded_page","client_secret":"shapi client_secret","url":"shapi url"} }');
   });
 });
 

@@ -358,6 +358,14 @@ function renamePair(site: LockedCallSite, fix: Fix): { before: unknown; after: u
   };
   const oldValues: Record<string, unknown> = {};
   const newValues: Record<string, unknown> = {};
+  // Each field the code reads gets its own value, kept across a rename: with one shared placeholder a
+  // function that returns session.url instead of session.client_secret would look unchanged.
+  const isLeaf = (p: string) => !paths.some((o) => o !== p && (o.startsWith(`${p}.`) || o.startsWith(`${p}[]`)));
+  for (const p of paths) {
+    if (!isLeaf(p) || p.endsWith("[]")) continue;
+    oldValues[p] = `shapi ${p.replace(/\[\]/g, "")}`;
+    newValues[rename(p)] = oldValues[p];
+  }
   for (const { field, values } of fix.enums ?? []) {
     const compared = site.surface.enums.find((e) => e.field === field)?.values ?? [];
     const pick = values.find((v) => compared.includes(v.from)) ?? values[0]!;
