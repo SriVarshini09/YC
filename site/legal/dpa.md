@@ -5,7 +5,7 @@ description: "SHAPI's data processing agreement, for personal data under the GDP
 # Data processing agreement
 
 ::: warning Draft
-This agreement applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 29, 2026.
+This agreement applies to SHAPI's early access, which is open to everyone now. It has not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 30, 2026.
 :::
 
 This data processing agreement ("DPA") is part of the [terms of service](/legal/terms) between you ("Customer") and SHAPI. It applies when SHAPI processes personal data for you that is protected by the EU GDPR, the UK GDPR or similar data protection laws. If this DPA and the terms conflict, this DPA wins for personal data.
@@ -20,9 +20,9 @@ You are the **controller** of the personal data in your repositories and GitHub 
 |---|---|
 | **Subject matter** | Finding and fixing code that breaks when third-party APIs change |
 | **Duration** | While the SHAPI GitHub App is installed on your account |
-| **Nature and purpose** | Downloading and analyzing code, running contract tests in a sandbox, storing call-site maps and findings, and opening checks, issues and pull requests |
+| **Nature and purpose** | Downloading and analyzing code, running contract tests in a sandbox, storing call-site maps and findings, opening checks, issues and pull requests, and counting active committers of private repositories for billing |
 | **Data subjects** | People who contribute to your repositories, and people whose data appears in your code |
-| **Personal data** | GitHub logins; commit authors' names and email addresses and commit messages in webhook payloads; any personal data contained in source files, which are processed only while a job runs and not stored, apart from the diff of each proposed fix |
+| **Personal data** | GitHub logins; commit authors' names and email addresses and commit messages in webhook payloads; hashes of the GitHub logins (or author email addresses) of people who committed to private repositories in the last 90 days, kept for billing; any personal data contained in source files, which are processed only while a job runs and not stored, apart from the diff of each proposed fix |
 | **Special categories** | None intended. Don't put special-category data in repositories you connect to SHAPI. |
 
 ## 3. SHAPI's obligations

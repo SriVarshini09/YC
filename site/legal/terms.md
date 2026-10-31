@@ -5,7 +5,7 @@ description: "The terms for using SHAPI's hosted GitHub App and web app."
 # Terms of service
 
 ::: warning Draft
-These terms apply to SHAPI's early access, which is open to everyone now. They have not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 29, 2026.
+These terms apply to SHAPI's early access, which is open to everyone now. They have not been reviewed by a lawyer yet and may change before general availability; changes are posted on this page. Last updated October 30, 2026.
 :::
 
 These terms are an agreement between you and SHAPI. SHAPI is operated by its founder and is not yet incorporated; "SHAPI", "we" and "us" mean the SHAPI project and its operator. If you use SHAPI for an organization, you accept these terms for that organization and confirm you're allowed to.
@@ -50,9 +50,10 @@ We may suspend an account that does these things, and we'll tell you why unless 
 
 ## 6. Plans and payment
 
-- **Free:** public repositories and one private repository.
-- **Paid:** each further private repository is charged monthly per repository, at the price shown in the web app before you pay. Payments are handled by Stripe.
-- **No surprise charges:** adding private repositories doesn't raise your bill on its own. The web app asks before you pay for more.
+- **Free:** public repositories, and private repositories with up to 3 active committers.
+- **Active committers:** anyone who committed to one of your private repositories in the last 90 days, counted once however many of them they commit to. Bots aren't counted. SHAPI counts them each time it scans a private repository.
+- **Paid:** each active committer beyond the first 3 is a seat, charged monthly at the price shown in the web app before you pay. Payments are handled by Stripe.
+- **No surprise charges:** new committers don't raise your bill on their own. While more people commit than your plan covers, SHAPI stops scanning and fixing your private repositories (public ones carry on), and the web app asks before you pay for more seats. When people stop committing, the seats go down automatically within a day.
 - **Cancelling:** cancel any time under *Manage billing*. You keep the paid plan until the end of the period you've paid for. Uninstalling the GitHub App cancels the subscription at once, without a refund for the current period.
 - **Refunds:** paid periods aren't refunded, except where the law requires.
 - **Price changes:** we'll give at least 30 days' notice in the web app and to your Stripe billing email before a new price applies to you.
