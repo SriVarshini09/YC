@@ -461,7 +461,7 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
     billingAction("portal", (billing, account) => portalUrl(billing, account));
     // Raising the paid quantity is always an explicit click; it is prorated by Stripe.
     billingAction("add-repos", async (billing, account) => {
-      const repos = await withTenant(deps.db, account.id, (tx) => tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at"]).execute());
+      const repos = await withTenant(deps.db, account.id, (tx) => tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at", "committers"]).execute());
       await setQuantity(billing, account.id, Math.max(1, requiredQuantity(repos)));
       return `/a/${account.id}/billing?billing=updated`;
     });

@@ -1,7 +1,8 @@
 import type { FixtureStatus } from "@shapi/canary";
 import { pathMatches, type Advisory, type LockedCallSite } from "@shapi/core";
 import { DEFAULT_PR_LIMITS, STOP_LABEL } from "@shapi/github-app";
-import { FREE_PRIVATE_REPOS, coverage, requiredQuantity } from "../billing/plan";
+import { FREE_COMMITTERS, activeCommitters, coverage, requiredQuantity } from "../billing/plan";
+import { COMMITTER_WINDOW_DAYS } from "../billing/committers";
 import { DOCS_URL, EMPTY, ICONS, MARK, html, initials, isoDay, navFor, plural, shortSha, timeAgo, type Html, type NavKey, type Shell, type Theme } from "./html";
 import { activityOf } from "./overview";
 import { autoFixable, daysUntil, deadlinesOf, hasRecipe, hitsByAdvisory, openProblems, problemsOf, providersOf, type AccountData, type FindingRow, type Problem, type PrRow, type RepoRow, type ScanRow } from "./queries";
@@ -497,7 +498,9 @@ export function billingPage(data: AccountData, enabled: boolean, notice: string 
   const b = accountHref(data);
   if (!enabled) return html`${head("Billing", "Billing is not configured on this server; every repository is covered.")}`;
   const privates = data.planRepos.filter((r) => r.private && r.enabled).length;
+  const committers = activeCommitters(data.planRepos);
   const needed = requiredQuantity(data.planRepos);
+  const people = (n: number) => `${n} active committer${n === 1 ? "" : "s"}`;
   const billing = data.billing;
   const paying = billing && ["active", "trialing", "past_due"].includes(billing.status);
   const paid = paying ? billing.quantity : 0;
@@ -505,7 +508,7 @@ export function billingPage(data: AccountData, enabled: boolean, notice: string 
     html`<form method="post" action="${b}/billing/${action}" class="inline"><input type="hidden" name="csrf" value="${csrf}"><button type="submit" class="${primary ? "primary" : ""}">${label}</button></form>`;
   const notices: Record<string, string> = {
     done: "Thanks. Your plan updates as soon as Stripe confirms the payment.",
-    updated: "Your plan now covers every private repository.",
+    updated: "Your plan now covers every active committer.",
     cancelled: "Checkout was cancelled. Nothing was charged.",
   };
   const covered = coverage(data.planRepos, data.billing, true);
@@ -513,28 +516,28 @@ export function billingPage(data: AccountData, enabled: boolean, notice: string 
   const uncoveredCount = data.planRepos.filter((r) => r.enabled && !covered.get(r.id)?.covered).length;
   const uncovered = data.repos.filter((r) => r.enabled && !covered.get(r.id)?.covered);
   const unlisted = uncoveredCount - uncovered.length;
-  return html`${head("Billing", "Public repositories are free, and so is one private repository. Pay only for private repositories beyond that.")}
+  return html`${head("Billing", `Public repositories are free. Private ones are billed per active committer: anyone who committed to one of them in the last ${COMMITTER_WINDOW_DAYS} days. The first ${FREE_COMMITTERS} are free.`)}
 ${notice && Object.hasOwn(notices, notice) ? html`<div class="notice">${notices[notice]}</div>` : EMPTY}
 <div class="grid cols-3">
-${statCard({ label: "Plan", value: paying ? "Paid" : "Free", sub: paying ? `${paid} paid private ${paid === 1 ? "repository" : "repositories"} plus ${FREE_PRIVATE_REPOS} free` : `public repositories and ${FREE_PRIVATE_REPOS} private repository` })}
-${statCard({ label: "Private repositories", value: privates, sub: uncoveredCount ? `${uncoveredCount} not covered` : "all covered", tone: uncoveredCount ? "bad" : "" })}
+${statCard({ label: "Plan", value: paying ? "Paid" : "Free", sub: paying ? `${paid} paid seat${paid === 1 ? "" : "s"} plus ${FREE_COMMITTERS} free` : `up to ${people(FREE_COMMITTERS)}` })}
+${statCard({ label: "Active committers", value: committers, sub: uncoveredCount ? `${uncoveredCount} private repositor${uncoveredCount === 1 ? "y" : "ies"} not covered` : `last ${COMMITTER_WINDOW_DAYS} days, across ${privates} private repositor${privates === 1 ? "y" : "ies"}`, tone: uncoveredCount ? "bad" : "" })}
 ${statCard({ label: paying && billing?.cancel_at ? "Cancels on" : "Renews", value: paying && billing?.cancel_at ? isoDay(billing.cancel_at) : paying && billing?.current_period_end ? isoDay(billing.current_period_end) : "—", sub: billing?.status === "past_due" ? "payment past due" : paying ? "billed by Stripe" : "no subscription" })}
 </div>
 <div class="card stack">
-<p>${paying ? html`<b>Paid plan</b>: ${paid} private repositor${paid === 1 ? "y" : "ies"} plus ${FREE_PRIVATE_REPOS} free` : html`<b>Free plan</b>: public repositories and ${FREE_PRIVATE_REPOS} private repository`}${billing?.status === "past_due" ? html` ${tag("payment past due", "warn")}` : EMPTY}</p>
-<p class="muted">${privates} private repositor${privates === 1 ? "y" : "ies"} installed.${
+<p>${paying ? html`<b>Paid plan</b>: ${paid} seat${paid === 1 ? "" : "s"} plus ${FREE_COMMITTERS} free` : html`<b>Free plan</b>: public repositories, and private ones for up to ${people(FREE_COMMITTERS)}`}${billing?.status === "past_due" ? html` ${tag("payment past due", "warn")}` : EMPTY}</p>
+<p class="muted">${people(committers)} across ${privates} private repositor${privates === 1 ? "y" : "ies"}, counted as SHAPI scans each one.${
     paying && billing?.cancel_at
-      ? html` ${tag(`Cancels on ${isoDay(billing.cancel_at)}`, "warn")} After that, only public repositories and ${FREE_PRIVATE_REPOS} private repository are scanned.`
+      ? html` ${tag(`Cancels on ${isoDay(billing.cancel_at)}`, "warn")} After that, private repositories are scanned while they have at most ${people(FREE_COMMITTERS)}.`
       : paying && billing?.current_period_end
         ? html` Renews ${isoDay(billing.current_period_end)}.`
         : ""
   }</p>
 <div class="btn-row">
-${!paying && needed > 0 ? form("checkout", `Upgrade to cover ${needed} more private repositor${needed === 1 ? "y" : "ies"}`, true) : EMPTY}
-${paying && needed > paid ? form("add-repos", `Add ${needed - paid} repositor${needed - paid === 1 ? "y" : "ies"} to the plan`, true) : EMPTY}
+${!paying && needed > 0 ? form("checkout", `Upgrade to cover ${needed} more committer${needed === 1 ? "" : "s"}`, true) : EMPTY}
+${paying && needed > paid ? form("add-repos", `Add ${needed - paid} seat${needed - paid === 1 ? "" : "s"} to the plan`, true) : EMPTY}
 ${billing?.stripe_customer_id ? form("portal", "Manage billing and invoices") : EMPTY}
 </div>
-<p class="note">Prices and invoices come from Stripe. Removing private repositories lowers the plan automatically; adding them raises it only when you click to add them here.${!paying && needed > 0 ? html` Upgrading means you accept the <a href="${DOCS_URL}/legal/terms">terms of service</a>.` : ""}</p>
+<p class="note">Prices and invoices come from Stripe. When fewer people commit, the plan goes down automatically; when more do, it goes up only when you click to add seats here.${!paying && needed > 0 ? html` Upgrading means you accept the <a href="${DOCS_URL}/legal/terms">terms of service</a>.` : ""}</p>
 </div>
 ${
     uncoveredCount

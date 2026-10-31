@@ -4,7 +4,7 @@ import Stripe from "stripe";
 import { createDb, migrateToLatest, withService, type Db } from "@shapi/db";
 import { fakeUserGitHub } from "../../../test-utils/fake-github";
 import { startTestPostgres, type TestPostgres } from "../../../test-utils/postgres";
-import { buildApp, coverage, githubClients, handleStripeEvent, loadConfig, processDelivery, requiredQuantity, runScanJob, syncAllQuantities, syncQuantity, stripeClient, type BillingDeps } from "../src/index";
+import { activeCommitters, buildApp, committerHashes, coverage, githubClients, handleStripeEvent, loadConfig, processDelivery, requiredQuantity, runScanJob, syncAllQuantities, syncQuantity, stripeClient, type BillingDeps } from "../src/index";
 
 let pg: TestPostgres;
 let db: Db;
@@ -96,16 +96,17 @@ beforeEach(async () => {
   const a = await owner.insertInto("accounts").values({ github_installation_id: 4242, login: "acme", type: "Organization", settings: JSON.stringify({}) }).returning("id").executeTakeFirstOrThrow();
   accountId = a.id;
   repoIds = {};
-  const repos: [string, boolean, string][] = [
-    ["acme/site", false, "2026-01-01"],
-    ["acme/api", true, "2026-01-02"],
-    ["acme/billing", true, "2026-01-03"],
-    ["acme/crm", true, "2026-01-04"],
+  // Five people commit to the private repositories (b to two of them): two beyond the three the free plan covers.
+  const repos: [string, boolean, string, string[]][] = [
+    ["acme/site", false, "2026-01-01", ["x", "y"]],
+    ["acme/api", true, "2026-01-02", ["a", "b"]],
+    ["acme/billing", true, "2026-01-03", ["b", "c", "d"]],
+    ["acme/crm", true, "2026-01-04", ["e"]],
   ];
-  for (const [i, [name, priv, created]] of repos.entries()) {
+  for (const [i, [name, priv, created, committers]] of repos.entries()) {
     const r = await owner
       .insertInto("repositories")
-      .values({ account_id: accountId, github_repo_id: 100 + i, full_name: name, default_branch: "main", private: priv, created_at: new Date(created) })
+      .values({ account_id: accountId, github_repo_id: 100 + i, full_name: name, default_branch: "main", private: priv, created_at: new Date(created), committers: JSON.stringify(committers) })
       .returning("id")
       .executeTakeFirstOrThrow();
     repoIds[name] = r.id;
@@ -136,20 +137,39 @@ const csrfFrom = (body: string) => /name="csrf" value="([^"]+)"/.exec(body)![1]!
 
 describe("plan rules", () => {
   const repos = [
-    { id: "1", private: false, enabled: true, created_at: new Date("2026-01-01") },
-    { id: "2", private: true, enabled: true, created_at: new Date("2026-01-02") },
-    { id: "3", private: true, enabled: true, created_at: new Date("2026-01-03") },
-    { id: "4", private: true, enabled: false, created_at: new Date("2026-01-04") },
+    { id: "1", private: false, enabled: true, created_at: new Date("2026-01-01"), committers: ["p", "q", "r", "s"] },
+    { id: "2", private: true, enabled: true, created_at: new Date("2026-01-02"), committers: ["a", "b"] },
+    { id: "3", private: true, enabled: true, created_at: new Date("2026-01-03"), committers: ["b", "c", "d"] },
+    { id: "4", private: true, enabled: false, created_at: new Date("2026-01-04"), committers: ["z"] },
   ];
-  it("covers public repositories and the oldest private one free; more private ones need a paid plan", () => {
+  it("counts active committers across enabled private repositories only; beyond the free three, private repositories need a paid seat each", () => {
+    expect(activeCommitters(repos)).toBe(4);
     expect(requiredQuantity(repos)).toBe(1);
     const free = coverage(repos, undefined, true);
-    expect([...free.values()].map((c) => (c.covered ? c.by : "no"))).toEqual(["public", "free", "no", "no"]);
+    expect([...free.values()].map((c) => (c.covered ? c.by : "no"))).toEqual(["public", "no", "no", "no"]);
+    expect(free.get("2")).toEqual({ covered: false, reason: "4 people committed to private repositories in the last 90 days; the free plan covers 3" });
+    expect(free.get("4")).toEqual({ covered: false, reason: "repository archived" });
+    expect(coverage(repos.slice(0, 2), undefined, true).get("2")).toEqual({ covered: true, by: "free" });
     const paid = coverage(repos, { status: "active", quantity: 1 }, true);
     expect(paid.get("3")).toEqual({ covered: true, by: "paid" });
     expect(coverage(repos, { status: "canceled", quantity: 1 }, true).get("3")!.covered).toBe(false);
     expect(coverage(repos, { status: "past_due", quantity: 1 }, true).get("3")!.covered).toBe(true);
     expect([...coverage(repos, undefined, false).values()].every((c) => c.covered)).toBe(true);
+  });
+
+  it("hashes committers per account, by GitHub login or else commit email, and leaves bots out", () => {
+    const commits = [
+      { author: { login: "Octo" }, commit: { author: { email: "octo@acme.dev" } } },
+      { author: { login: "octo" }, commit: { author: { email: "other@acme.dev" } } },
+      { author: null, commit: { author: { email: "Dev@Acme.dev" } } },
+      { author: { login: "dependabot[bot]", type: "Bot" }, commit: { author: { email: "49699333+dependabot[bot]@users.noreply.github.com" } } },
+      { author: null, commit: { author: { email: "41898282+github-actions[bot]@users.noreply.github.com" } } },
+    ];
+    const hashes = committerHashes("7", commits);
+    expect(hashes).toHaveLength(2);
+    expect(hashes.every((h) => /^[0-9a-f]{32}$/.test(h))).toBe(true);
+    expect(JSON.stringify(hashes)).not.toMatch(/octo|acme/i);
+    expect(committerHashes("8", commits)).not.toEqual(hashes);
   });
 
   it("config takes all three Stripe settings or none, and refuses a live key outside production", () => {
@@ -166,10 +186,11 @@ describe("billing in the web app", () => {
     const app = appWith(stripe);
     const cookie = await signIn(app);
     const repos = await app.inject({ url: `/a/${accountId}/repositories`, headers: { cookie } });
-    expect(repos.body.match(/not covered by plan/g)).toHaveLength(2);
+    expect(repos.body.match(/not covered by plan/g)).toHaveLength(3);
     const page = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
     expect(page.body).toContain("Free plan");
-    expect(page.body).toContain("Upgrade to cover 2 more private repositories");
+    expect(page.body).toContain("Upgrade to cover 2 more committers");
+    expect(page.body).toContain("5 active committers across 3 private repositories");
     expect(page.body).toContain('Upgrading means you accept the <a href="https://shapi.dev/legal/terms">terms of service</a>');
 
     // The browser follows the 303 to Stripe only if the page's CSP allows it as a form target.
@@ -197,11 +218,11 @@ describe("billing in the web app", () => {
     const app = appWith(stripe);
     const cookie = await signIn(app);
     // Installed after sign-in, so not in the session's access: hidden until the next sign-in.
-    await owner.insertInto("repositories").values({ account_id: accountId, github_repo_id: 300, full_name: "acme/added", default_branch: "main", private: true }).execute();
+    await owner.insertInto("repositories").values({ account_id: accountId, github_repo_id: 300, full_name: "acme/added", default_branch: "main", private: true, committers: JSON.stringify(["f"]) }).execute();
     const page = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
     expect(page.statusCode).toBe(200);
-    expect(page.body).toContain("Upgrade to cover 3 more private repositories");
-    expect(page.body).toContain("3 not covered");
+    expect(page.body).toContain("Upgrade to cover 3 more committers");
+    expect(page.body).toContain("4 private repositories not covered");
     expect(page.body).toContain("acme/billing");
     expect(page.body).toContain("acme/crm");
     expect(page.body).not.toContain("acme/added");
@@ -225,7 +246,7 @@ describe("billing in the web app", () => {
 
     const billing = await withService(db, (tx) => tx.selectFrom("billing").selectAll().executeTakeFirstOrThrow());
     expect(billing).toMatchObject({ stripe_subscription_id: "sub_1", status: "active", quantity: 2 });
-    const repos = await withService(db, (tx) => tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at"]).execute());
+    const repos = await withService(db, (tx) => tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at", "committers"]).execute());
     expect([...coverage(repos, billing, true).values()].every((c) => c.covered)).toBe(true);
 
     const cookie = await signIn(app);
@@ -252,17 +273,18 @@ describe("billing in the web app", () => {
     await app.close();
   });
 
-  it("raises the plan only on an explicit click, and lowers it automatically when private repositories go", async () => {
+  it("raises the plan only on an explicit click, and lowers it automatically when committers go", async () => {
     const stripe = fakeStripe();
     const app = appWith(stripe);
     stripe.subscribe("sub_2", "cus_2", accountId, 2);
     await withService(db, (tx) => tx.insertInto("billing").values({ account_id: accountId, stripe_customer_id: "cus_2", stripe_subscription_id: "sub_2", status: "active", quantity: 2, updated_at: new Date() }).execute());
-    await owner.insertInto("repositories").values({ account_id: accountId, github_repo_id: 200, full_name: "acme/new", default_branch: "main", private: true, created_at: new Date("2026-02-01") }).execute();
+    await owner.insertInto("repositories").values({ account_id: accountId, github_repo_id: 200, full_name: "acme/new", default_branch: "main", private: true, created_at: new Date("2026-02-01"), committers: JSON.stringify(["f"]) }).execute();
 
     const cookie = await signIn(app);
     const page = await app.inject({ url: `/a/${accountId}/billing`, headers: { cookie } });
-    expect(page.body).toContain("Add 1 repository to the plan");
-    expect((await app.inject({ url: `/a/${accountId}/repositories`, headers: { cookie } })).body.match(/not covered by plan/g)).toHaveLength(1);
+    expect(page.body).toContain("Add 1 seat to the plan");
+    // Six committers and five seats' worth of plan: no private repository is covered until the plan grows.
+    expect((await app.inject({ url: `/a/${accountId}/repositories`, headers: { cookie } })).body.match(/not covered by plan/g)).toHaveLength(4);
     expect(stripe.calls.filter((c) => c.method === "POST" && c.path.startsWith("/v1/subscriptions"))).toEqual([]);
 
     const add = await app.inject({ method: "POST", url: `/a/${accountId}/billing/add-repos`, headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(page.body)}` });
@@ -271,7 +293,7 @@ describe("billing in the web app", () => {
     expect(update.body.get("items[0][quantity]")).toBe("3");
     expect(update.body.get("proration_behavior")).toBe("create_prorations");
 
-    // two private repositories leave: the plan drops to what is used (never below one unit)
+    // three private repositories leave, and four committers with them: the plan drops to what is used (never below one unit)
     await owner.deleteFrom("repositories").where("full_name", "in", ["acme/billing", "acme/crm", "acme/new"]).execute();
     const deps: BillingDeps = { db, stripe: stripeClient(billingConfig, { fetch: stripe.fetch }), config: billingConfig };
     expect(await syncQuantity(deps, accountId)).toEqual({ from: 3, to: 1 });
@@ -300,7 +322,7 @@ describe("one subscription per account", () => {
     expect(again.headers.location).toBe(`/a/${accountId}/billing`);
     expect(stripe.calls.filter((c) => c.path === "/v1/checkout/sessions")).toEqual([]);
 
-    // Free again, with one private repository: the free plan covers it, so there is nothing to buy.
+    // Free again, with one private repository and its two committers: the free plan covers them, so there is nothing to buy.
     await withService(db, (tx) => tx.updateTable("billing").set({ status: "canceled", quantity: 0 }).execute());
     await owner.deleteFrom("repositories").where("full_name", "in", ["acme/billing", "acme/crm"]).execute();
     const none = await app.inject({ method: "POST", url: `/a/${accountId}/billing/checkout`, headers: { cookie, "content-type": "application/x-www-form-urlencoded" }, payload: `csrf=${csrfFrom(stale.body)}` });
@@ -467,8 +489,37 @@ describe("plan enforcement in jobs", () => {
     const privateKey = generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey.export({ type: "pkcs1", format: "pem" }).toString();
     const github = githubClients({ appId: "1", privateKey }, { fetch: (async () => new Response("{}", { status: 500 })) as typeof globalThis.fetch, resilient: false });
     const report = await runScanJob({ db, github, billingEnforced: true }, { scanId: scan.id });
-    expect(report).toMatchObject({ status: "skipped", reason: "not covered by the plan: the free plan covers one private repository" });
+    expect(report).toMatchObject({ status: "skipped", reason: "not covered by the plan: 5 people committed to private repositories in the last 90 days; the free plan covers 3" });
     const row = await withService(db, (tx) => tx.selectFrom("scans").select(["status", "error"]).where("id", "=", scan.id).executeTakeFirstOrThrow());
-    expect(row).toEqual({ status: "failed", error: "not covered by the plan: the free plan covers one private repository" });
+    expect(row).toEqual({ status: "failed", error: "not covered by the plan: 5 people committed to private repositories in the last 90 days; the free plan covers 3" });
+  });
+
+  it("recounts a private repository's committers of the last 90 days before deciding, and keeps only their hashes", async () => {
+    const scan = await withService(db, (tx) =>
+      tx.insertInto("scans").values({ account_id: accountId, repository_id: repoIds["acme/crm"]!, sha: "b".repeat(40), status: "queued" }).returning("id").executeTakeFirstOrThrow(),
+    );
+    const commits = [
+      { author: { login: "eve" }, commit: { author: { email: "eve@acme.dev" } } },
+      { author: { login: "frank" }, commit: { author: { email: "frank@acme.dev" } } },
+      { author: { login: "renovate[bot]", type: "Bot" }, commit: { author: { email: "bot@renovate" } } },
+    ];
+    const asked: string[] = [];
+    const fetch = (async (input: string | URL | Request) => {
+      const url = new URL(String(input));
+      asked.push(`${url.pathname}?${url.searchParams.get("since") ? "since" : ""}`);
+      if (url.pathname.endsWith("/access_tokens")) return new Response(JSON.stringify({ token: "t", expires_at: "2099-01-01T00:00:00Z" }), { status: 201, headers: { "content-type": "application/json" } });
+      if (url.pathname === "/repos/acme/crm/commits") return new Response(JSON.stringify(commits), { status: 200, headers: { "content-type": "application/json" } });
+      return new Response("{}", { status: 500 });
+    }) as typeof globalThis.fetch;
+    const privateKey = generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey.export({ type: "pkcs1", format: "pem" }).toString();
+    const github = githubClients({ appId: "1", privateKey }, { fetch, resilient: false });
+    const report = await runScanJob({ db, github, billingEnforced: true }, { scanId: scan.id });
+    // a, b, c and d from the other repositories, and now eve and frank instead of e: six.
+    expect(report).toMatchObject({ status: "skipped", reason: "not covered by the plan: 6 people committed to private repositories in the last 90 days; the free plan covers 3" });
+    expect(asked).toContain("/repos/acme/crm/commits?since");
+    const crm = await withService(db, (tx) => tx.selectFrom("repositories").select(["committers", "committers_at"]).where("id", "=", repoIds["acme/crm"]!).executeTakeFirstOrThrow());
+    expect(crm.committers).toEqual(committerHashes(accountId, commits));
+    expect(crm.committers).toHaveLength(2);
+    expect(crm.committers_at).not.toBeNull();
   });
 });

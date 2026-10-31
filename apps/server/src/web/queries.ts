@@ -111,7 +111,7 @@ export interface AccountData {
   scans: (ScanRow & { repo: string })[];
   billing?: BillingRow;
   /** Every repository of the account, the user's or not, with only what the plan rules read: coverage depends on all of them. */
-  planRepos: { id: string; private: boolean; enabled: boolean; created_at: Date }[];
+  planRepos: { id: string; private: boolean; enabled: boolean; created_at: Date; committers: string[] }[];
   /** The fix job asks Claude when no recipe fits: the account turned it on and the server has a key. */
   claudeFixes: boolean;
   now: Date;
@@ -241,7 +241,7 @@ export async function loadAccount(db: Db, accountId: string, opts: { readable: r
         mergedPrs: prs.filter((p) => p.repository_id === r.id && p.state === "merged").length,
       };
     });
-    const planRepos = allRepos.map((r) => ({ id: r.id, private: r.private, enabled: r.enabled, created_at: r.created_at }));
+    const planRepos = allRepos.map((r) => ({ id: r.id, private: r.private, enabled: r.enabled, created_at: r.created_at, committers: r.committers ?? [] }));
     return { account, repos, findings, prs, advisories, scans: recent.map((s) => ({ ...s, repo: repoName.get(s.repository_id) ?? "" })), billing, planRepos, claudeFixes: opts.llmAvailable === true && (account.settings as { llmFixes?: boolean }).llmFixes === true, now };
   });
 }

@@ -108,7 +108,7 @@ export async function setQuantity(deps: BillingDeps, accountId: string, quantity
 /** Lower the paid quantity when the account has fewer private repositories than it pays for (never raise it). */
 export async function syncQuantity(deps: BillingDeps, accountId: string): Promise<{ from: number; to: number } | undefined> {
   const plan = await withService(deps.db, async (tx) => {
-    const repos = await tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at"]).where("account_id", "=", accountId).execute();
+    const repos = await tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at", "committers"]).where("account_id", "=", accountId).execute();
     const billing = await tx.selectFrom("billing").select(["quantity", "status", "stripe_subscription_id"]).where("account_id", "=", accountId).executeTakeFirst();
     return { repos, billing };
   });
