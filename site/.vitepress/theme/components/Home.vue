@@ -593,7 +593,7 @@ onBeforeUnmount(() => {
         <div>
           <span class="eyebrow">Try it now</span>
           <h2>One command. <span class="it">No account.</span></h2>
-          <p>Run it in any TypeScript, JavaScript or Python repository. This is real output on SHAPI's demo project, with the fix hints left out; <code>npx shapi-cli fix . --write</code> fixes all three, each with a test.</p>
+          <p>Run it in any TypeScript, JavaScript, Python or Go repository. This is real output on SHAPI's demo project, with the fix hints left out; <code>npx shapi-cli fix . --write</code> fixes all three, each with a test.</p>
           <span class="cmd">$ <b>npx shapi-cli scan .</b></span>
         </div>
         <div class="term"><pre v-html="termHtml"></pre></div>
