@@ -2,7 +2,7 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 import { Project, ScriptKind, type SourceFile } from "ts-morph";
 import { GENERATED_TEST_HEADER, PYTHON_GENERATED_TEST_HEADER, type CallSite } from "@shapi/core";
-import { extractFromFile, looseUrlSites, type FoundCall } from "./callsites";
+import { expandWrappers, extractFromFile, looseUrlSites, type FoundCall } from "./callsites";
 import { addResponseSurface } from "./surface";
 import { declaredProviders, declaredPythonProviders, listRepoFiles, toPosix, type DeclaredProvider } from "./files";
 import { extractGo, goParserLoaded } from "./go";
@@ -89,6 +89,11 @@ export function extractCallSites(rootDir: string): ExtractResult {
       failed(rel, err);
     }
   }
+  // Requests inside wrappers, read once per caller (needs every file in the project, so after the loop).
+  const expanded = expandWrappers(found);
+  const original = new Set(found);
+  for (const f of expanded) if (!original.has(f)) addResponseSurface(f);
+  found.splice(0, found.length, ...expanded);
   found.sort((a, b) => a.site.file.localeCompare(b.site.file) || a.site.line - b.site.line || a.site.column - b.site.column);
 
   const pythonSites: CallSite[] = [];

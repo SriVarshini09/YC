@@ -13,7 +13,7 @@ import {
   type Surface,
 } from "@shapi/core";
 import { posix } from "node:path";
-import { Node, SyntaxKind, type ArrowFunction, type CallExpression, type FunctionExpression, type SourceFile } from "ts-morph";
+import { Node, SyntaxKind, type ArrowFunction, type CallExpression, type FunctionDeclaration, type FunctionExpression, type SourceFile } from "ts-morph";
 import { descendantsOfKind } from "./walk";
 
 export function emptySurface(): Surface {
@@ -78,7 +78,20 @@ interface FileContext {
   sdk: Map<string, SdkClient>;
   /** SDK clients that imported names resolve to in other files, once looked up. */
   importedSdk?: Map<string, SdkClient | undefined>;
+  /** While a wrapper's request is read for one caller: its parameters, bound to that caller's arguments. */
+  params?: Map<string, Bound>;
+  /** The wrapper whose parameters `params` binds: only names inside it are its parameters. */
+  paramsOwner?: Node;
 }
+
+/** A caller's argument, evaluated in the caller's own file. */
+interface Bound {
+  node: Node;
+  ctx: EvalContext;
+}
+
+/** What evalString needs from a file: its consts, and (to follow helpers and parameters) its imports and bindings. */
+type EvalContext = Pick<FileContext, "consts" | "declared"> & Partial<Pick<FileContext, "sf" | "imports" | "params" | "paramsOwner">>;
 
 /**
  * Call sites in one file. SDK clients imported from another file of the same project (`import { openai }
@@ -790,7 +803,7 @@ function methodFrom(ctx: FileContext, node: Node | undefined): HttpMethod | unde
  * Evaluate an expression to a string where possible. Unknown template
  * substitutions become "{name}" (from the identifier or last property) or "{}".
  */
-export function evalString(ctx: { consts: Map<string, Node>; declared?: Map<string, Node[]> }, node: Node | undefined, depth = 0): string | undefined {
+export function evalString(ctx: EvalContext, node: Node | undefined, depth = 0): string | undefined {
   if (!node || depth > 8) return undefined;
   const expr = unwrap(node);
   if (Node.isStringLiteral(expr) || Node.isNoSubstitutionTemplateLiteral(expr)) return expr.getLiteralValue();
@@ -822,6 +835,10 @@ export function evalString(ctx: { consts: Map<string, Node>; declared?: Map<stri
     return evalString(ctx, expr.getWhenTrue(), depth + 1) ?? evalString(ctx, expr.getWhenFalse(), depth + 1);
   }
   if (Node.isIdentifier(expr)) {
+    // A wrapper's parameter, read for one caller: that caller's argument, in the caller's file.
+    const owner = ctx.paramsOwner;
+    const bound = owner && expr.getStart() >= owner.getStart() && expr.getEnd() <= owner.getEnd() ? ctx.params?.get(expr.getText()) : undefined;
+    if (bound) return evalString(bound.ctx, bound.node, depth + 1);
     const init = nearestConst(ctx, expr) ?? ctx.consts.get(expr.getText());
     return init && init !== node ? evalString(ctx, init, depth + 1) : undefined;
   }
@@ -831,6 +848,14 @@ export function evalString(ctx: { consts: Map<string, Node>; declared?: Map<stri
     const args = expr.getArguments();
     if (Node.isPropertyAccessExpression(callee) && callee.getName() === "toString" && args.length === 0) return evalString(ctx, callee.getExpression(), depth + 1);
     if (Node.isIdentifier(callee) && callee.getText() === "String" && args.length === 1) return evalString(ctx, args[0], depth + 1);
+    // getBaseUrl(): a function of the project, here or imported from a relative module, by what it returns.
+    if (Node.isIdentifier(callee) && depth < 6) {
+      const fn = functionNamed(ctx, callee.getText());
+      if (fn) for (const ret of returnedValues(fn.decl)) {
+        const value = evalString(fn.ctx, ret, depth + 1);
+        if (value !== undefined) return value;
+      }
+    }
   }
   if (Node.isPropertyAccessExpression(expr) && expr.getName() === "href") return evalString(ctx, expr.getExpression(), depth + 1);
   if (Node.isNewExpression(expr) && expr.getExpression().getText() === "URL") {
@@ -854,6 +879,142 @@ function nearestConst(ctx: { declared?: Map<string, Node[]> }, id: Node): Node |
     if (!best || size < best.size) best = { init, size };
   }
   return best?.init;
+}
+
+type FunctionLike = FunctionDeclaration | ArrowFunction | FunctionExpression;
+
+/** A function of this file (`function f`, `const f = () =>`), or one imported from a relative module, with its file's context. */
+function functionNamed(ctx: EvalContext, name: string): { decl: FunctionLike; ctx: EvalContext } | undefined {
+  const sf = ctx.sf;
+  if (!sf) return undefined;
+  const local = (file: SourceFile, fname: string): FunctionLike | undefined => {
+    const decl = file.getFunction(fname);
+    if (decl?.getBody()) return decl;
+    const init = file.getVariableDeclaration(fname)?.getInitializer();
+    return init && (Node.isArrowFunction(init) || Node.isFunctionExpression(init)) ? init : undefined;
+  };
+  const here = local(sf, name);
+  if (here) return { decl: here, ctx };
+  const ref = ctx.imports?.get(name);
+  if (!ref || !ref.module.startsWith(".") || ref.imported === "*" || ref.imported === "default") return undefined;
+  const target = resolveModule(sf, ref.module);
+  const targetCtx = target && importedContext(target);
+  const decl = target && local(target, ref.imported);
+  return decl && targetCtx ? { decl, ctx: targetCtx } : undefined;
+}
+
+/** The expressions a function returns: an arrow's expression body, or its own `return` statements. */
+function returnedValues(fn: FunctionLike): Node[] {
+  const body = fn.getBody();
+  if (body && !Node.isBlock(body)) return [body];
+  return descendantsOfKind(fn, SyntaxKind.ReturnStatement)
+    .filter((r) => r.getFirstAncestor((a) => Node.isFunctionDeclaration(a) || Node.isArrowFunction(a) || Node.isFunctionExpression(a) || Node.isMethodDeclaration(a)) === fn)
+    .map((r) => r.getExpression())
+    .filter((e): e is NonNullable<typeof e> => e !== undefined);
+}
+
+/** The function a call sits in, when it has a name callers can use: `function f(…)` or `const f = (…) =>`. */
+function namedWrapper(call: CallExpression): { fn: FunctionLike; name: string } | undefined {
+  const fn = call.getFirstAncestor((a): a is FunctionLike => Node.isFunctionDeclaration(a) || Node.isArrowFunction(a) || Node.isFunctionExpression(a));
+  if (!fn) return undefined;
+  if (Node.isFunctionDeclaration(fn)) {
+    const name = fn.getName();
+    return name ? { fn, name } : undefined;
+  }
+  const decl = fn.getParent();
+  return decl && Node.isVariableDeclaration(decl) ? { fn, name: decl.getName() } : undefined;
+}
+
+/** Whether a call's arguments use one of `names`, directly or through a const they are built from. */
+function usesParameters(ctx: FileContext, call: CallExpression, names: Set<string>): boolean {
+  const seen = new Set<Node>();
+  const visit = (node: Node, depth: number): boolean =>
+    [node, ...descendantsOfKind(node, SyntaxKind.Identifier)].some((id) => {
+      if (!Node.isIdentifier(id) || seen.has(id)) return false;
+      seen.add(id);
+      if (names.has(id.getText())) return true;
+      const init = depth < 3 ? (nearestConst(ctx, id) ?? ctx.consts.get(id.getText())) : undefined;
+      return init ? visit(init, depth + 1) : false;
+    });
+  return call.getArguments().some((a) => visit(a, 0));
+}
+
+/**
+ * A request inside a wrapper whose URL or options come from the wrapper's parameters (`qboFetch(entityPath, init)`
+ * → `fetch(\`${getBaseUrl()}${entityPath}\`, init)`): read once per caller in the project, in this file or in one that
+ * imports the wrapper, with the caller's arguments. Callers of one endpoint are one call site with every distinct
+ * query value, header and body field they send. Found in a real breakage SHAPI missed (mindstone/mcp-servers).
+ */
+export function expandWrappers(found: FoundCall[]): FoundCall[] {
+  let byName: Map<string, CallExpression[]> | undefined;
+  const callsNamed = (project: ReturnType<SourceFile["getProject"]>, name: string) => {
+    if (!byName) {
+      byName = new Map();
+      for (const sf of project.getSourceFiles()) {
+        for (const c of descendantsOfKind(sf, SyntaxKind.CallExpression)) {
+          const callee = c.getExpression();
+          if (!Node.isIdentifier(callee)) continue;
+          const list = byName.get(callee.getText());
+          if (list) list.push(c);
+          else byName.set(callee.getText(), [c]);
+        }
+      }
+    }
+    return byName.get(name) ?? [];
+  };
+
+  const out: FoundCall[] = [];
+  for (const f of found) {
+    const wrapper = f.site.kind === "http" ? namedWrapper(f.call) : undefined;
+    const params = wrapper ? wrapper.fn.getParameters() : [];
+    const sf = f.call.getSourceFile();
+    const ctx = contextOf(sf);
+    const names = new Set(params.map((p) => p.getName()));
+    if (!wrapper || !params.length || !usesParameters(ctx, f.call, names)) {
+      out.push(f);
+      continue;
+    }
+    const expanded: FoundCall[] = [];
+    for (const caller of callsNamed(sf.getProject(), wrapper.name)) {
+      const callerSf = caller.getSourceFile();
+      // the wrapper calling itself (a retry) is not a caller
+      if (callerSf === sf && caller.getStart() >= wrapper.fn.getStart() && caller.getEnd() <= wrapper.fn.getEnd()) continue;
+      const callerCtx = importedContext(callerSf);
+      if (!callerCtx) continue;
+      if (callerSf !== sf) {
+        // another file: only through an import of this wrapper from this module
+        const ref = callerCtx.imports.get(wrapper.name);
+        if (!ref || ref.imported !== wrapper.name || !ref.module.startsWith(".") || resolveModule(callerSf, ref.module) !== sf) continue;
+      }
+      const args = caller.getArguments();
+      const bound = new Map<string, Bound>();
+      params.forEach((p, i) => {
+        const arg = args[i];
+        const value = arg ?? p.getInitializer();
+        if (value && !p.isRestParameter()) bound.set(p.getName(), { node: value, ctx: arg ? callerCtx : ctx });
+      });
+      const hit = matchHttp({ ...ctx, params: bound, paramsOwner: wrapper.fn }, f.call);
+      if (!hit) continue;
+      hit.site.file = f.site.file;
+      hit.site.line = f.site.line;
+      hit.site.column = f.site.column;
+      const same = expanded.find((e) => e.site.method === hit.site.method && e.site.host === hit.site.host && e.site.endpoint === hit.site.endpoint);
+      if (same) {
+        same.site.surface.query = mergeEntries(same.site.surface.query, hit.site.surface.query);
+        same.site.surface.headers = mergeEntries(same.site.surface.headers, hit.site.surface.headers);
+        if (hit.site.surface.body) same.site.surface.body = mergeEntries(same.site.surface.body ?? [], hit.site.surface.body);
+      } else expanded.push(hit);
+    }
+    if (expanded.some((e) => e.site.resolved)) out.push(...expanded);
+    else out.push(f);
+  }
+  return out;
+}
+
+function mergeEntries(a: NameValue[], b: NameValue[]): NameValue[] {
+  const key = (e: NameValue) => `${e.name}\u0000${e.value ?? ""}`;
+  const seen = new Set(a.map(key));
+  return [...a, ...b.filter((e) => !seen.has(key(e)))];
 }
 
 function placeholder(node: Node): string {

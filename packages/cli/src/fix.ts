@@ -8,6 +8,7 @@ import { loadRecording, replay } from "@shapi/canary";
 import { RECIPES, claudeFixer, localWorkspace, repairAdvisory, withCallBudget, type RepairResult } from "@shapi/repair";
 import { authFromEnv, octokitFor, prBranch, prTitle, renderPrBody, repoFromUrl, upsertFixPr, type OpenedPullRequest } from "@shapi/github-app";
 import { DEFAULT_ADVISORIES, cloneShallow } from "./scan";
+import { deliverToGitLab, gitlabProjectFromUrl, type GitLabProject } from "./gitlab";
 import { bundledDir } from "./paths";
 
 /** Recorded response sequences shipped with SHAPI (the published package's recordings/, or fixtures/recordings in the monorepo). */
@@ -22,6 +23,8 @@ export interface FixOptions {
   llm?: boolean;
   write?: boolean;
   pr?: boolean;
+  /** Open a GitLab merge request instead (U-06). */
+  mr?: boolean;
   now?: string;
 }
 
@@ -37,6 +40,8 @@ export interface FixDeps {
   log: (line: string) => void;
   /** Injected for tests; defaults to the real GitHub delivery. */
   deliver?: (repo: string, files: DeliveredFile[], meta: { title: string; body: string; branch: string; commitMessage: string; baseSha?: string }) => Promise<OpenedPullRequest>;
+  /** Injected for tests; defaults to the real GitLab delivery (GITLAB_TOKEN). */
+  deliverMr?: (project: GitLabProject, files: DeliveredFile[], meta: { title: string; body: string; branch: string; commitMessage: string; baseSha?: string }) => Promise<OpenedPullRequest>;
 }
 
 /** A file for the PR: its fixed content, and the content the fix was computed from ("" for a new file). */
@@ -49,9 +54,13 @@ export interface DeliveredFile {
 /** Scan, repair every affected call site test-first, and optionally write the fix locally or open a PR. */
 export async function fix(target: string | undefined, opts: FixOptions, deps: FixDeps): Promise<FixOutcome[]> {
   // Every check runs before cloning, so a refused run leaves no temp clone behind.
-  if (opts.repo && opts.write) throw new Error("--write writes into a local repository; with --repo, use --pr to deliver the fix");
-  const remote = opts.repo ? repoFromUrl(opts.repo) : opts.pr ? originRepo(path.resolve(target ?? ".")) : undefined;
+  if (opts.repo && opts.write) throw new Error("--write writes into a local repository; with --repo, use --pr or --mr to deliver the fix");
+  if (opts.pr && opts.mr) throw new Error("--pr and --mr: choose one");
+  const remote = opts.pr ? (opts.repo ? repoFromUrl(opts.repo) : originRepo(path.resolve(target ?? "."))) : opts.repo && !opts.mr ? repoFromUrl(opts.repo) : undefined;
   if (opts.pr && !remote) throw new Error("--pr needs a GitHub repository: pass --repo <github url> or run inside a clone whose origin is on GitHub");
+  const gitlab = opts.mr ? gitlabProjectFromUrl(opts.repo ?? originUrl(path.resolve(target ?? ".")) ?? "") : undefined;
+  if (opts.mr && !gitlab) throw new Error("--mr needs a GitLab repository: pass --repo <gitlab url> or run inside a clone whose origin is on GitLab");
+  if (opts.mr && !(deps.deliverMr || process.env.GITLAB_TOKEN)) throw new Error("--mr needs GITLAB_TOKEN: a GitLab access token with the api scope");
   const all = loadAdvisories(opts.advisories ?? DEFAULT_ADVISORIES);
   if (opts.advisory && !all.some((a) => a.id === opts.advisory)) throw new Error(`unknown advisory ${opts.advisory}`);
   const cleanup = opts.repo ? cloneShallow(opts.repo, "shapi-fix-") : undefined;
@@ -111,8 +120,8 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
         deps.log(`    wrote ${files.length} files into ${dir}`);
       }
       // C-03: an unverified advisory never opens a pull request; --write still applies its fix locally.
-      if (opts.pr && remote && !opensPullRequests(advisory)) deps.log(`    no pull request: ${advisory.id} is not verified yet`);
-      else if (opts.pr && remote) {
+      if ((opts.pr || opts.mr) && !opensPullRequests(advisory)) deps.log(`    no ${opts.mr ? "merge request" : "pull request"}: ${advisory.id} is not verified yet`);
+      else if ((opts.pr && remote) || (opts.mr && gitlab)) {
         const fixed = repair.sites.filter((s) => s.result.status === "fixed");
         const meta = {
           title: prTitle(advisory),
@@ -121,9 +130,11 @@ export async function fix(target: string | undefined, opts: FixOptions, deps: Fi
           body: renderPrBody({ advisory, repair, shapeSource: shapes.source }),
           baseSha,
         };
-        const pr = await (deps.deliver ?? deliverToGitHub)(remote, files, meta);
+        const pr = gitlab
+          ? await (deps.deliverMr ?? ((p, fs, m) => deliverToGitLab(p, fs, m, { token: process.env.GITLAB_TOKEN ?? "" })))(gitlab, files, meta)
+          : await (deps.deliver ?? deliverToGitHub)(remote!, files, meta);
         for (const o of mine) if (o.result?.status === "fixed") o.pr = pr;
-        deps.log(`    pull request: ${pr.url}`);
+        deps.log(`    ${gitlab ? "merge request" : "pull request"}: ${pr.url}`);
       }
     }
     return outcomes;
@@ -180,8 +191,13 @@ function findShapes(advisory: Advisory, opts: FixOptions): { before: ResponseSha
 }
 
 function originRepo(dir: string): string | undefined {
+  const url = originUrl(dir);
+  return url ? repoFromUrl(url) : undefined;
+}
+
+function originUrl(dir: string): string | undefined {
   try {
-    return repoFromUrl(execFileSync("git", ["remote", "get-url", "origin"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }));
+    return execFileSync("git", ["remote", "get-url", "origin"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
   } catch {
     return undefined;
   }
