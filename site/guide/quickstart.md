@@ -8,7 +8,7 @@ You need **Node.js 22.14 or later** (Node 23 and 25 are not supported).
 
 ## 1. Scan a repository
 
-From the root of a TypeScript, JavaScript or Python project:
+From the root of a TypeScript, JavaScript, Python or Go project (Go is scanned, not fixed, for now):
 
 ```sh
 npx shapi-cli scan .
