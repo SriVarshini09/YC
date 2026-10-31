@@ -2,6 +2,7 @@ import { matchEndpoint, SENSOR_ENDPOINTS, type SensorEndpoint } from "./endpoint
 import { sensorShape, shapeKey, WIRE_VERSION, type SensorBatch, type SensorObservation } from "./shape";
 
 export { matchEndpoint, patternRegex, SENSOR_ENDPOINTS, type SensorEndpoint } from "./endpoints";
+export { OTEL_EVENT_NAME, otelAttributes, otelSink, type OtelLogger } from "./otel";
 export { SIGNAL_HEADERS, WIRE_VERSION, sensorShape, shapeKey, type JsonType, type SensorBatch, type SensorObservation, type SensorShape } from "./shape";
 
 /**
@@ -18,6 +19,8 @@ export interface SensorOptions {
   token?: string;
   /** Print each batch instead of sending it. */
   dryRun?: boolean;
+  /** Hand each batch to this instead of uploading it, such as `otelSink(logger)` (F-02). No token is needed. */
+  sink?: (batch: SensorBatch) => void | Promise<void>;
   /** Where batches go. */
   endpoint?: string;
   flushMs?: number;
@@ -42,7 +45,7 @@ export interface Sensor {
 export const DEFAULT_SENSOR_ENDPOINT = "https://app.shapi.dev/api/v1/sensor/observations";
 
 export function createSensor(opts: SensorOptions = {}): Sensor {
-  if (!opts.dryRun && !opts.token) throw new Error("installSensor: pass a token, or dryRun: true");
+  if (!opts.dryRun && !opts.sink && !opts.token) throw new Error("installSensor: pass a token, a sink, or dryRun: true");
   const inner = opts.fetch ?? globalThis.fetch.bind(globalThis);
   const now = opts.now ?? (() => new Date());
   const log = opts.log ?? ((line: string) => console.log(line));
@@ -86,6 +89,14 @@ export function createSensor(opts: SensorOptions = {}): Sensor {
     if (pending.size === 0) return undefined;
     const batch: SensorBatch = { v: WIRE_VERSION, sdk: "node", observations: [...pending.values()] };
     pending.clear();
+    if (opts.sink) {
+      try {
+        await opts.sink(batch);
+      } catch (err) {
+        log(`[shapi-sensor] sink failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
+      return batch;
+    }
     if (opts.dryRun) {
       log(`[shapi-sensor] dry run, would send: ${JSON.stringify(batch)}`);
       return batch;

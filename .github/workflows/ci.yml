@@ -58,6 +58,18 @@ jobs:
       # The leaderboard (P-15): every submission covers exactly the scored instances, and LEADERBOARD.md is current.
       - run: pnpm --filter @shapi/bench bench:leaderboard -- --check
 
+  otel-registry:
+    # The traffic sensor's OpenTelemetry attributes (execution plan F-02) pass Weaver's registry check.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: weaver registry check
+        run: >-
+          docker run --rm -u "$(id -u):$(id -g)"
+          --mount "type=bind,source=$PWD/packages/sensor/otel/registry,target=/home/weaver/registry,readonly"
+          otel/weaver:v0.27.0 registry check --registry=/home/weaver/registry --diagnostic-format=gh_workflow_command
+
   npm-package:
     # Build the publishable shapi-cli package, install it into an empty folder and run scan and fix, on the
     # oldest Node it supports and the current LTS.
