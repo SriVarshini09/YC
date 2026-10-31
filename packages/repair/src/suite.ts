@@ -46,8 +46,13 @@ export function suiteCommand(packageJson: string | undefined, lockfiles: { pnpm:
   return ["npm", ["test"]];
 }
 
-/** The counts of vitest, Jest, Mocha or node:test, from the last summary the runner printed. */
-export function suiteCounts(output: string): string | undefined {
+/** Output without ANSI color codes: some runners color it even when asked not to (pytest whenever FORCE_COLOR is set at all). */
+const ANSI = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, "g");
+const plain = (s: string) => s.replace(ANSI, "");
+
+/** The counts of vitest, Jest, Mocha, node:test or pytest, from the last summary the runner printed. */
+export function suiteCounts(raw: string): string | undefined {
+  const output = plain(raw);
   const vitest = testCounts(output);
   if (vitest) return vitest;
   const jest = [...output.matchAll(/^[ \t]*Tests:[ \t]+((?:\d+ [a-z]+, )*\d+ total)[ \t]*\r?$/gm)].at(-1)?.[1];
@@ -59,7 +64,14 @@ export function suiteCounts(output: string): string | undefined {
   }
   const pass = [...output.matchAll(/^# pass (\d+)\r?$/gm)].at(-1)?.[1];
   const fail = [...output.matchAll(/^# fail (\d+)\r?$/gm)].at(-1)?.[1];
-  return pass !== undefined ? `${pass} passed${fail && fail !== "0" ? `, ${fail} failed` : ""}` : undefined;
+  if (pass !== undefined) return `${pass} passed${fail && fail !== "0" ? `, ${fail} failed` : ""}`;
+  // pytest: "3 passed, 1 failed, 2 warnings in 0.52s", framed by "=" in the default output. Warnings are not tests.
+  const pytest = [...output.matchAll(/^=*[ \t]*((?:\d+ [a-z]+(?:, )?)+) in [\d.]+s\b/gm)].at(-1)?.[1];
+  if (pytest) {
+    const counts = pytest.split(", ").filter((c) => /^\d+ (passed|failed|errors?|skipped|xfailed|xpassed)$/.test(c));
+    if (counts.length) return counts.join(", ");
+  }
+  return undefined;
 }
 
 /**
@@ -78,9 +90,18 @@ export function testTotal(counts: string | undefined): number | undefined {
  * The names of failing tests as the runner prints them: vitest's `×`/`FAIL` lines, Jest's `●` headings,
  * Mocha's numbered failures and node:test's `not ok`. Empty when the runner prints none of these.
  */
-export function failingTests(output: string): Set<string> {
+export function failingTests(raw: string): Set<string> {
+  const output = plain(raw);
   const names = new Set<string>();
-  const patterns = [/^[ \t]*(?:×|✕|✗)[ \t]+(.+?)(?:[ \t]+\d+ms)?\r?$/gm, /^[ \t]*FAIL[ \t]+(.+?)\r?$/gm, /^[ \t]*●[ \t]+(.+?)\r?$/gm, /^[ \t]*\d+\)[ \t]+(.+?)\r?$/gm, /^not ok \d+ - (.+?)\r?$/gm];
+  const patterns = [
+    /^[ \t]*(?:×|✕|✗)[ \t]+(.+?)(?:[ \t]+\d+ms)?\r?$/gm,
+    /^[ \t]*FAIL[ \t]+(.+?)\r?$/gm,
+    /^[ \t]*●[ \t]+(.+?)\r?$/gm,
+    /^[ \t]*\d+\)[ \t]+(.+?)\r?$/gm,
+    /^not ok \d+ - (.+?)\r?$/gm,
+    // pytest's short summary (-rfE): "FAILED tests/test_a.py::test_x - AssertionError", "ERROR tests/test_b.py".
+    /^(?:FAILED|ERROR) (\S+)/gm,
+  ];
   for (const p of patterns) for (const m of output.matchAll(p)) names.add(m[1]!.trim());
   return names;
 }

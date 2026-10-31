@@ -124,7 +124,15 @@ export interface InstallReport {
   output: string;
   /** vitest was missing and SHAPI added its own. */
   addedVitest: boolean;
+  /** A Python project's install into SHAPI's virtualenv (`.shapi-venv`): its dependencies and pytest. A failure is kept, not thrown. */
+  python?: { command: string; exitCode: number; output: string };
 }
+
+/** Where SHAPI puts a Python project's virtualenv, inside the sandbox's copy (pytest skips dot-folders). */
+export const PYTHON_VENV = ".shapi-venv";
+const PYTHON_FILES = ["requirements.txt", "pyproject.toml", "setup.py", "setup.cfg"];
+/** Extra requirement files tests usually need, installed when present. */
+const PYTHON_TEST_REQUIREMENTS = ["requirements-dev.txt", "requirements-test.txt", "requirements_dev.txt", "test-requirements.txt"];
 
 type Manager = InstallReport["packageManager"];
 
@@ -187,6 +195,32 @@ export async function sandboxWorkspace(
       install = { ...install, addedVitest: v.exitCode === 0, output: `${install.output}${v.stdout}${v.stderr}` };
     }
   }
+  // A Python project (U-03, V-01): its dependencies and pytest into a virtualenv, with only the registries (npm and
+  // PyPI) reachable. Setup scripts run here, as npm install scripts do. A failed install is reported, not fatal:
+  // a contract test that needs only the standard library still runs.
+  const isPython = PYTHON_FILES.some((name) => files.some((f) => f.path === name));
+  const venvPython = sandbox.provider === "local" && process.platform === "win32" ? `${PYTHON_VENV}\\Scripts\\python.exe` : `${PYTHON_VENV}/bin/python`;
+  let hasVenv = false;
+  if (isPython) {
+    await sandbox.setNetwork("registry");
+    const timeoutMs = opts.installTimeoutMs ?? 10 * 60_000;
+    const logs: string[] = [];
+    const steps: [string, string[]][] = [[sandbox.provider === "local" && process.platform === "win32" ? "python" : "python3", ["-m", "venv", PYTHON_VENV]]];
+    const pip = (args: string[]): [string, string[]] => [venvPython, ["-m", "pip", "install", "--disable-pip-version-check", "--no-input", ...args]];
+    if (files.some((f) => f.path === "requirements.txt")) steps.push(pip(["-r", "requirements.txt"]));
+    else steps.push(pip(["-e", "."]));
+    for (const name of PYTHON_TEST_REQUIREMENTS) if (files.some((f) => f.path === name)) steps.push(pip(["-r", name]));
+    steps.push(pip(["pytest"]));
+    let exitCode = 0;
+    for (const [cmd, args] of steps) {
+      const r = await exec(cmd, args, { timeoutMs, env: ENV });
+      logs.push(`$ ${[cmd, ...args].join(" ")}\n${r.stdout}${r.stderr}`);
+      if (r.exitCode !== 0) exitCode = r.exitCode;
+      if (cmd !== venvPython && r.exitCode !== 0) break;
+      if (cmd !== venvPython) hasVenv = true;
+    }
+    install = { ...install, python: { command: steps.map(([c, a]) => [c, ...a].join(" ")).join(" && "), exitCode, output: logs.join("\n") } };
+  }
   // From here on the repository's own code runs: no network at all.
   await sandbox.setNetwork("off");
   const repoConfig = VITEST_CONFIGS.find((c) => files.some((f) => f.path === c));
@@ -202,7 +236,7 @@ export async function sandboxWorkspace(
     },
     async runTest(file) {
       if (file.endsWith(".py")) {
-        const r = await exec("python3", [file], { timeoutMs: opts.testTimeoutMs ?? 120_000, env: { ...ENV, PYTHONDONTWRITEBYTECODE: "1" } });
+        const r = await exec(hasVenv ? venvPython : "python3", [file], { timeoutMs: opts.testTimeoutMs ?? 120_000, env: { ...ENV, PYTHONDONTWRITEBYTECODE: "1" } });
         return { passed: r.exitCode === 0, exitCode: r.exitCode, output: output(r, "test run") };
       }
       const config: string[] = [];
@@ -223,12 +257,20 @@ export async function sandboxWorkspace(
       return { passed: r.exitCode === 0, exitCode: r.exitCode, output: output(r, "type-check") };
     },
     async runSuite() {
-      const command = await suiteFor((f) => sandbox.read(f));
-      if (!command) return undefined;
-      const [cmd, args] = command;
       // The network is already off: the tests run with nothing reachable.
-      const r = await exec(cmd, args, { timeoutMs: SUITE_TIMEOUT_MS, env: { ...ENV, CI: "1" } });
-      return { passed: r.exitCode === 0, exitCode: r.exitCode, output: output(r, "test command"), command: [cmd, ...args].join(" ") };
+      const command = await suiteFor((f) => sandbox.read(f));
+      if (command) {
+        const [cmd, args] = command;
+        const r = await exec(cmd, args, { timeoutMs: SUITE_TIMEOUT_MS, env: { ...ENV, CI: "1" } });
+        return { passed: r.exitCode === 0, exitCode: r.exitCode, output: output(r, "test command"), command: [cmd, ...args].join(" ") };
+      }
+      if (!hasVenv) return undefined;
+      // A Python project's own tests, with SHAPI's contract tests left out (they are run on their own).
+      const args = ["-m", "pytest", "-q", "-rfE", "--color=no", "-p", "no:cacheprovider", "--ignore=test/shapi"];
+      const r = await exec(venvPython, args, { timeoutMs: SUITE_TIMEOUT_MS, env: { ...ENV, CI: "1", PYTHONDONTWRITEBYTECODE: "1" } });
+      // 5: pytest collected no tests, so there is no suite to compare.
+      if (r.exitCode === 5) return undefined;
+      return { passed: r.exitCode === 0, exitCode: r.exitCode, output: output(r, "pytest"), command: `python ${args.join(" ")}` };
     },
   };
 }
