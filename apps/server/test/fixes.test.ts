@@ -420,4 +420,15 @@ describe("fix delivery", () => {
     expect(await webhook(t, "pull_request", { action: "closed", pull_request: { number: 9, html_url: "x", merged: false, head: { ref: "feature/x", sha: "s" }, labels: [] } })).toBe("ignored: not a SHAPI branch");
     expect(await webhook(t, "pull_request", { action: "closed", pull_request: { number: 9, html_url: "x", merged: false, head: { ref: "shapi/unknown", sha: "s" }, labels: [] } })).toBe("ignored: not a PR SHAPI opened");
   });
+
+  it("ignores another PR on a SHAPI branch name (a person's, or another SHAPI install's) and keeps its own record", async () => {
+    const t = setup();
+    await deliverRepoFixes(t.deps, { repositoryId, fixes: [candidate(crit, "src/a.ts")], now: new Date() });
+    const mine = t.github.pulls[0]!;
+    expect(await webhook(t, "pull_request", { action: "closed", pull_request: { number: mine.number, html_url: "x", merged: true, head: { ref: "shapi/crit", sha: "s" }, labels: [] } })).toBe(`fix PR #${mine.number} closed`);
+    // A dev install opens its own PR on the same branch name later, and it is closed unmerged.
+    expect(await webhook(t, "pull_request", { action: "labeled", pull_request: { number: 14, html_url: "y", merged: false, head: { ref: "shapi/crit", sha: "s2" }, labels: [{ name: STOP_LABEL }] } })).toBe(`ignored: PR #14 is not the PR SHAPI opened on shapi/crit (#${mine.number})`);
+    expect(await webhook(t, "pull_request", { action: "closed", pull_request: { number: 14, html_url: "y", merged: false, head: { ref: "shapi/crit", sha: "s2" }, labels: [] } })).toBe(`ignored: PR #14 is not the PR SHAPI opened on shapi/crit (#${mine.number})`);
+    expect(await rows()).toEqual([{ advisory_id: "crit", number: mine.number, state: "merged", stopped: false }]);
+  });
 });
