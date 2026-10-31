@@ -292,8 +292,11 @@ async function handlePullRequest(tx: Tx, payload: WebhookPayload, fixes: FixRequ
   if (!pr.head.ref.startsWith("shapi/")) return "ignored: not a SHAPI branch";
   const repo = await tx.selectFrom("repositories").select("id").where("github_repo_id", "=", String(payload.repository.id)).executeTakeFirst();
   if (!repo) return "ignored: unknown repository";
-  const row = await tx.selectFrom("fix_prs").select("id").where("repository_id", "=", repo.id).where("branch", "=", pr.head.ref).executeTakeFirst();
+  const row = await tx.selectFrom("fix_prs").select(["id", "number"]).where("repository_id", "=", repo.id).where("branch", "=", pr.head.ref).executeTakeFirst();
   if (!row) return "ignored: not a PR SHAPI opened";
+  // Same branch name, another pull request: one a person or another SHAPI install (a dev app, say) opened.
+  // It must not overwrite the record of the PR SHAPI opened there.
+  if (row.number !== null && row.number !== pr.number) return `ignored: PR #${pr.number} is not the PR SHAPI opened on ${pr.head.ref} (#${row.number})`;
 
   const now = new Date();
   const set = (() => {
