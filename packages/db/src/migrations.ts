@@ -373,6 +373,25 @@ const migrations: Record<string, Migration> = {
       await sql`alter table repositories drop column if exists committers, drop column if exists committers_at`.execute(db);
     },
   },
+  "0018_sensor_tokens": {
+    async up(db: Kysely<unknown>) {
+      // The traffic sensor's upload token (F-01), one per account: the row holds its SHA-256, never the token.
+      await sql`
+        create table sensor_tokens (
+          account_id bigint primary key references accounts on delete cascade,
+          token_hash text not null unique,
+          created_at timestamptz not null default now(),
+          last_used_at timestamptz
+        );
+      `.execute(db);
+      await sql`alter table sensor_tokens enable row level security`.execute(db);
+      await sql`alter table sensor_tokens force row level security`.execute(db);
+      await sql`create policy tenant_isolation on sensor_tokens using (${tenantPredicate("account_id")}) with check (${tenantPredicate("account_id")})`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`drop table if exists sensor_tokens`.execute(db);
+    },
+  },
 };
 
 /**

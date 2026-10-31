@@ -55,7 +55,7 @@ export function buildApp({ db, config, enqueueWebhook, enqueueFix, fetch }: AppD
   stripeWebhookRoutes(app, { billing });
   const { SHAPI_RECORDINGS: recordings, SHAPI_SHAPE_SECRET: secret } = config;
   const fixtures = recordings && secret ? () => fixtureStatuses(db, recordings, secret, new Date()) : undefined;
-  webRoutes(app, { db, config: config.webApp, fetch, billing, enqueueFix, llmAvailable: Boolean(config.ANTHROPIC_API_KEY), feedbackSecret: config.SHAPI_SHAPE_SECRET, fixtures });
+  webRoutes(app, { db, config: config.webApp, fetch, billing, enqueueFix, llmAvailable: Boolean(config.ANTHROPIC_API_KEY), feedbackSecret: config.SHAPI_SHAPE_SECRET, shapeSecret: config.SHAPI_SHAPE_SECRET, fixtures });
 
   return app;
 }

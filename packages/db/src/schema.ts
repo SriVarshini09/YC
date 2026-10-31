@@ -185,6 +185,14 @@ export interface PrFeedbackTable {
   created_at: CreatedAt;
 }
 
+/** The traffic sensor's upload token (F-01): its SHA-256, one per account. */
+export interface SensorTokensTable {
+  account_id: string;
+  token_hash: string;
+  created_at: CreatedAt;
+  last_used_at: Timestamp | null;
+}
+
 /** Internal: a signed-in web session. The cookie holds the token; this row holds its SHA-256. */
 export interface SessionsTable {
   token_hash: string;
@@ -229,7 +237,8 @@ export interface Database {
   stripe_events: StripeEventsTable;
   fix_job_llm_calls: FixJobLlmCallsTable;
   pr_feedback: PrFeedbackTable;
+  sensor_tokens: SensorTokensTable;
 }
 
 /** Tables holding one customer's data; row-level security keeps each customer to its own rows. */
-export const TENANT_TABLES = ["accounts", "repositories", "scans", "findings", "fix_prs", "billing", "pr_feedback"] as const;
+export const TENANT_TABLES = ["accounts", "repositories", "scans", "findings", "fix_prs", "billing", "pr_feedback", "sensor_tokens"] as const;

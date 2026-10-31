@@ -18,6 +18,7 @@ COPY packages/canary/bin packages/canary/bin
 COPY packages/mcp/bin packages/mcp/bin
 COPY packages/db/package.json packages/db/
 COPY packages/sandbox/package.json packages/sandbox/
+COPY packages/sensor/package.json packages/sensor/
 COPY apps/server/package.json apps/server/
 COPY site/package.json site/
 RUN pnpm install --frozen-lockfile --ignore-scripts

@@ -84,6 +84,11 @@ export function providerSalt(provider: string, secret: string): string {
   return createHmac("sha256", secret).update(provider).digest("hex");
 }
 
+/** A field path's hash under a provider salt, as every stored shape has it (the traffic sensor's shapes too). */
+export function pathHash(salt: string, path: string): string {
+  return hmac(salt, path);
+}
+
 function hmac(salt: string, value: string): string {
   return createHmac("sha256", salt).update(value).digest("hex").slice(0, 16);
 }

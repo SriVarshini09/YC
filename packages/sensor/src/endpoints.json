@@ -1,0 +1,644 @@
+[
+  {
+    "provider": "anthropic",
+    "method": "POST",
+    "path": "/v1/messages",
+    "hosts": [
+      "api.anthropic.com"
+    ],
+    "re": "^/v1/messages/?$"
+  },
+  {
+    "provider": "github",
+    "method": "POST",
+    "path": "/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches",
+    "hosts": [
+      "api.github.com",
+      "uploads.github.com"
+    ],
+    "re": "^/repos/[^/]+/[^/]+/actions/workflows/[^/]+/dispatches/?$"
+  },
+  {
+    "provider": "google",
+    "method": "GET",
+    "path": "/customsearch/v1/**",
+    "hosts": [
+      "*.googleapis.com"
+    ],
+    "re": "^/customsearch/v1(?:/.*)?/?$"
+  },
+  {
+    "provider": "google",
+    "method": "*",
+    "path": "/v22/**",
+    "hosts": [
+      "*.googleapis.com"
+    ],
+    "re": "^/v22(?:/.*)?/?$"
+  },
+  {
+    "provider": "google-gemini",
+    "method": "POST",
+    "path": "/*/models/{?}:*",
+    "hosts": [
+      "generativelanguage.googleapis.com"
+    ],
+    "re": "^/[^/]*/models/[^/]+:[^/]*/?$"
+  },
+  {
+    "provider": "google-gemini",
+    "method": "POST",
+    "path": "/*/models/gemini-2.0-flash*:*",
+    "hosts": [
+      "generativelanguage.googleapis.com"
+    ],
+    "re": "^/[^/]*/models/gemini-2\\.0-flash[^/]*:[^/]*/?$"
+  },
+  {
+    "provider": "google-gemini",
+    "method": "POST",
+    "path": "/*/models/gemini-2.5-*-preview-tts:*",
+    "hosts": [
+      "generativelanguage.googleapis.com"
+    ],
+    "re": "^/[^/]*/models/gemini-2\\.5-[^/]*-preview-tts:[^/]*/?$"
+  },
+  {
+    "provider": "google-gemini",
+    "method": "POST",
+    "path": "/*/models/gemini-2.5-flash-image:*",
+    "hosts": [
+      "generativelanguage.googleapis.com"
+    ],
+    "re": "^/[^/]*/models/gemini-2\\.5-flash-image:[^/]*/?$"
+  },
+  {
+    "provider": "hubspot",
+    "method": "GET",
+    "path": "/contacts/v1/contact/**",
+    "hosts": [
+      "api.hubapi.com",
+      "api.hubspot.com"
+    ],
+    "re": "^/contacts/v1/contact(?:/.*)?/?$"
+  },
+  {
+    "provider": "hubspot",
+    "method": "*",
+    "path": "/contacts/v1/lists/**",
+    "hosts": [
+      "api.hubapi.com",
+      "api.hubspot.com"
+    ],
+    "re": "^/contacts/v1/lists(?:/.*)?/?$"
+  },
+  {
+    "provider": "hubspot",
+    "method": "*",
+    "path": "/crm-pipelines/v1/**",
+    "hosts": [
+      "api.hubapi.com",
+      "api.hubspot.com"
+    ],
+    "re": "^/crm-pipelines/v1(?:/.*)?/?$"
+  },
+  {
+    "provider": "hubspot",
+    "method": "*",
+    "path": "/marketing-emails/v1/**",
+    "hosts": [
+      "api.hubapi.com",
+      "api.hubspot.com"
+    ],
+    "re": "^/marketing-emails/v1(?:/.*)?/?$"
+  },
+  {
+    "provider": "hubspot",
+    "method": "GET",
+    "path": "/marketing/v3/emails/**",
+    "hosts": [
+      "api.hubapi.com",
+      "api.hubspot.com"
+    ],
+    "re": "^/marketing/v3/emails(?:/.*)?/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "GET",
+    "path": "/*",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^/[^/]*/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "*",
+    "path": "/**",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^(?:/.*)?/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "GET",
+    "path": "/**/commerce_orders",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^(?:/.*)?/commerce_orders/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "GET",
+    "path": "/**/delivery_estimate",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^(?:/.*)?/delivery_estimate/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "GET",
+    "path": "/**/insights",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^(?:/.*)?/insights/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "GET",
+    "path": "/**/instagram_oembed",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^(?:/.*)?/instagram_oembed/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "*",
+    "path": "/v20.0/**",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^/v20\\.0(?:/.*)?/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "*",
+    "path": "/v21.0/**",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^/v21\\.0(?:/.*)?/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "*",
+    "path": "/v24.0/act_*/**",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^/v24\\.0/act_[^/]*(?:/.*)?/?$"
+  },
+  {
+    "provider": "meta-graph",
+    "method": "*",
+    "path": "/v25.0/act_*/**",
+    "hosts": [
+      "graph.facebook.com",
+      "graph.instagram.com"
+    ],
+    "re": "^/v25\\.0/act_[^/]*(?:/.*)?/?$"
+  },
+  {
+    "provider": "openai",
+    "method": "*",
+    "path": "/v1/assistants/**",
+    "hosts": [
+      "api.openai.com"
+    ],
+    "re": "^/v1/assistants(?:/.*)?/?$"
+  },
+  {
+    "provider": "openai",
+    "method": "POST",
+    "path": "/v1/audio/translations",
+    "hosts": [
+      "api.openai.com"
+    ],
+    "re": "^/v1/audio/translations/?$"
+  },
+  {
+    "provider": "openai",
+    "method": "POST",
+    "path": "/v1/chat/completions",
+    "hosts": [
+      "api.openai.com"
+    ],
+    "re": "^/v1/chat/completions/?$"
+  },
+  {
+    "provider": "openai",
+    "method": "*",
+    "path": "/v1/evals/**",
+    "hosts": [
+      "api.openai.com"
+    ],
+    "re": "^/v1/evals(?:/.*)?/?$"
+  },
+  {
+    "provider": "openai",
+    "method": "POST",
+    "path": "/v1/responses",
+    "hosts": [
+      "api.openai.com"
+    ],
+    "re": "^/v1/responses/?$"
+  },
+  {
+    "provider": "openai",
+    "method": "*",
+    "path": "/v1/threads/**",
+    "hosts": [
+      "api.openai.com"
+    ],
+    "re": "^/v1/threads(?:/.*)?/?$"
+  },
+  {
+    "provider": "quickbooks",
+    "method": "POST",
+    "path": "/oauth2/v1/tokens/bearer",
+    "hosts": [
+      "oauth.platform.intuit.com",
+      "quickbooks.api.intuit.com",
+      "sandbox-quickbooks.api.intuit.com"
+    ],
+    "re": "^/oauth2/v1/tokens/bearer/?$"
+  },
+  {
+    "provider": "quickbooks",
+    "method": "*",
+    "path": "/v3/company/{realmId}/**",
+    "hosts": [
+      "oauth.platform.intuit.com",
+      "quickbooks.api.intuit.com",
+      "sandbox-quickbooks.api.intuit.com"
+    ],
+    "re": "^/v3/company/[^/]+(?:/.*)?/?$"
+  },
+  {
+    "provider": "quickbooks",
+    "method": "GET",
+    "path": "/v3/company/{realmId}/companyinfo/{companyId}",
+    "hosts": [
+      "oauth.platform.intuit.com",
+      "quickbooks.api.intuit.com",
+      "sandbox-quickbooks.api.intuit.com"
+    ],
+    "re": "^/v3/company/[^/]+/companyinfo/[^/]+/?$"
+  },
+  {
+    "provider": "reddit",
+    "method": "GET",
+    "path": "/**/*.json",
+    "hosts": [
+      "old.reddit.com",
+      "reddit.com",
+      "www.reddit.com"
+    ],
+    "re": "^(?:/.*)?/[^/]*\\.json/?$"
+  },
+  {
+    "provider": "salesforce",
+    "method": "POST",
+    "path": "/services/Soap/*/*",
+    "hosts": [
+      "login.salesforce.com",
+      "test.salesforce.com"
+    ],
+    "re": "^/services/Soap/[^/]*/[^/]*/?$"
+  },
+  {
+    "provider": "shopify",
+    "method": "POST",
+    "path": "/admin/api/{version}/carrier_services.json",
+    "hosts": [
+      "*.myshopify.com",
+      "discover.shopifyapps.com"
+    ],
+    "re": "^/admin/api/[^/]+/carrier_services\\.json/?$"
+  },
+  {
+    "provider": "shopify",
+    "method": "POST",
+    "path": "/admin/api/{version}/graphql.json",
+    "hosts": [
+      "*.myshopify.com",
+      "discover.shopifyapps.com"
+    ],
+    "re": "^/admin/api/[^/]+/graphql\\.json/?$"
+  },
+  {
+    "provider": "shopify",
+    "method": "POST",
+    "path": "/admin/api/{version}/inventory_levels/connect.json",
+    "hosts": [
+      "*.myshopify.com",
+      "discover.shopifyapps.com"
+    ],
+    "re": "^/admin/api/[^/]+/inventory_levels/connect\\.json/?$"
+  },
+  {
+    "provider": "shopify",
+    "method": "GET",
+    "path": "/admin/api/{version}/orders**",
+    "hosts": [
+      "*.myshopify.com",
+      "discover.shopifyapps.com"
+    ],
+    "re": "^/admin/api/[^/]+/orders.*/?$"
+  },
+  {
+    "provider": "shopify",
+    "method": "PUT",
+    "path": "/admin/api/{version}/orders/{id}.json",
+    "hosts": [
+      "*.myshopify.com",
+      "discover.shopifyapps.com"
+    ],
+    "re": "^/admin/api/[^/]+/orders/[^/]+\\.json/?$"
+  },
+  {
+    "provider": "shopify",
+    "method": "*",
+    "path": "/admin/api/{version}/script_tags**",
+    "hosts": [
+      "*.myshopify.com",
+      "discover.shopifyapps.com"
+    ],
+    "re": "^/admin/api/[^/]+/script_tags.*/?$"
+  },
+  {
+    "provider": "shopify",
+    "method": "*",
+    "path": "/admin/api/2026-01/**",
+    "hosts": [
+      "*.myshopify.com",
+      "discover.shopifyapps.com"
+    ],
+    "re": "^/admin/api/2026-01(?:/.*)?/?$"
+  },
+  {
+    "provider": "shopify",
+    "method": "*",
+    "path": "/admin/api/2026-04/**",
+    "hosts": [
+      "*.myshopify.com",
+      "discover.shopifyapps.com"
+    ],
+    "re": "^/admin/api/2026-04(?:/.*)?/?$"
+  },
+  {
+    "provider": "shopify",
+    "method": "*",
+    "path": "/global/v2/**",
+    "hosts": [
+      "*.myshopify.com",
+      "discover.shopifyapps.com"
+    ],
+    "re": "^/global/v2(?:/.*)?/?$"
+  },
+  {
+    "provider": "slack",
+    "method": "POST",
+    "path": "/api/files.upload",
+    "hosts": [
+      "hooks.slack.com",
+      "slack.com"
+    ],
+    "re": "^/api/files\\.upload/?$"
+  },
+  {
+    "provider": "stripe",
+    "method": "POST",
+    "path": "/v1/checkout/sessions",
+    "hosts": [
+      "api.stripe.com",
+      "files.stripe.com"
+    ],
+    "re": "^/v1/checkout/sessions/?$"
+  },
+  {
+    "provider": "stripe",
+    "method": "*",
+    "path": "/v1/checkout/sessions/**",
+    "hosts": [
+      "api.stripe.com",
+      "files.stripe.com"
+    ],
+    "re": "^/v1/checkout/sessions(?:/.*)?/?$"
+  },
+  {
+    "provider": "stripe",
+    "method": "POST",
+    "path": "/v1/payment_intents/**",
+    "hosts": [
+      "api.stripe.com",
+      "files.stripe.com"
+    ],
+    "re": "^/v1/payment_intents(?:/.*)?/?$"
+  },
+  {
+    "provider": "stripe",
+    "method": "POST",
+    "path": "/v1/setup_intents/**",
+    "hosts": [
+      "api.stripe.com",
+      "files.stripe.com"
+    ],
+    "re": "^/v1/setup_intents(?:/.*)?/?$"
+  },
+  {
+    "provider": "stripe",
+    "method": "POST",
+    "path": "/v1/subscriptions/{id}/**",
+    "hosts": [
+      "api.stripe.com",
+      "files.stripe.com"
+    ],
+    "re": "^/v1/subscriptions/[^/]+(?:/.*)?/?$"
+  },
+  {
+    "provider": "twilio",
+    "method": "GET",
+    "path": "/2010-04-01/Accounts/{AccountSid}/Conferences.json",
+    "hosts": [
+      "*.twilio.com",
+      "api.twilio.com"
+    ],
+    "re": "^/2010-04-01/Accounts/[^/]+/Conferences\\.json/?$"
+  },
+  {
+    "provider": "twilio",
+    "method": "GET",
+    "path": "/2010-04-01/Accounts/{AccountSid}/Messages**",
+    "hosts": [
+      "*.twilio.com",
+      "api.twilio.com"
+    ],
+    "re": "^/2010-04-01/Accounts/[^/]+/Messages.*/?$"
+  },
+  {
+    "provider": "twilio",
+    "method": "POST",
+    "path": "/v1/Services/{ServiceSid}/Notifications",
+    "hosts": [
+      "*.twilio.com",
+      "api.twilio.com"
+    ],
+    "re": "^/v1/Services/[^/]+/Notifications/?$"
+  },
+  {
+    "provider": "twilio",
+    "method": "GET",
+    "path": "/v1/Voice/{CallSid}/Summary",
+    "hosts": [
+      "*.twilio.com",
+      "api.twilio.com"
+    ],
+    "re": "^/v1/Voice/[^/]+/Summary/?$"
+  },
+  {
+    "provider": "x",
+    "method": "*",
+    "path": "/2/activity/**",
+    "hosts": [
+      "api.twitter.com",
+      "api.x.com",
+      "upload.twitter.com"
+    ],
+    "re": "^/2/activity(?:/.*)?/?$"
+  },
+  {
+    "provider": "x",
+    "method": "POST",
+    "path": "/2/users/{id}/following",
+    "hosts": [
+      "api.twitter.com",
+      "api.x.com",
+      "upload.twitter.com"
+    ],
+    "re": "^/2/users/[^/]+/following/?$"
+  },
+  {
+    "provider": "x",
+    "method": "POST",
+    "path": "/2/users/{id}/likes",
+    "hosts": [
+      "api.twitter.com",
+      "api.x.com",
+      "upload.twitter.com"
+    ],
+    "re": "^/2/users/[^/]+/likes/?$"
+  },
+  {
+    "provider": "xero",
+    "method": "*",
+    "path": "/api.xro/2.0/**",
+    "hosts": [
+      "api.xero.com",
+      "identity.xero.com",
+      "login.xero.com"
+    ],
+    "re": "^/api\\.xro/2\\.0(?:/.*)?/?$"
+  },
+  {
+    "provider": "xero",
+    "method": "PUT",
+    "path": "/api.xro/2.0/*/{id}/Allocations",
+    "hosts": [
+      "api.xero.com",
+      "identity.xero.com",
+      "login.xero.com"
+    ],
+    "re": "^/api\\.xro/2\\.0/[^/]*/[^/]+/Allocations/?$"
+  },
+  {
+    "provider": "xero",
+    "method": "POST",
+    "path": "/api.xro/2.0/Invoices/{InvoiceID}/Email",
+    "hosts": [
+      "api.xero.com",
+      "identity.xero.com",
+      "login.xero.com"
+    ],
+    "re": "^/api\\.xro/2\\.0/Invoices/[^/]+/Email/?$"
+  },
+  {
+    "provider": "xero",
+    "method": "GET",
+    "path": "/api.xro/2.0/Organisation",
+    "hosts": [
+      "api.xero.com",
+      "identity.xero.com",
+      "login.xero.com"
+    ],
+    "re": "^/api\\.xro/2\\.0/Organisation/?$"
+  },
+  {
+    "provider": "xero",
+    "method": "GET",
+    "path": "/finance.xro/1.0/AccountingActivities/**",
+    "hosts": [
+      "api.xero.com",
+      "identity.xero.com",
+      "login.xero.com"
+    ],
+    "re": "^/finance\\.xro/1\\.0/AccountingActivities(?:/.*)?/?$"
+  },
+  {
+    "provider": "xero",
+    "method": "POST",
+    "path": "/payroll.xro/1.0/PayItems",
+    "hosts": [
+      "api.xero.com",
+      "identity.xero.com",
+      "login.xero.com"
+    ],
+    "re": "^/payroll\\.xro/1\\.0/PayItems/?$"
+  },
+  {
+    "provider": "xero",
+    "method": "POST",
+    "path": "/payroll.xro/2.0/earningsRates",
+    "hosts": [
+      "api.xero.com",
+      "identity.xero.com",
+      "login.xero.com"
+    ],
+    "re": "^/payroll\\.xro/2\\.0/earningsRates/?$"
+  },
+  {
+    "provider": "xero",
+    "method": "POST",
+    "path": "/payroll.xro/2.0/Employees/{EmployeeID}/Tax",
+    "hosts": [
+      "api.xero.com",
+      "identity.xero.com",
+      "login.xero.com"
+    ],
+    "re": "^/payroll\\.xro/2\\.0/Employees/[^/]+/Tax/?$"
+  }
+]

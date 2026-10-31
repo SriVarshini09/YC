@@ -1,3 +1,4 @@
+import { createSensorToken, ingestSensorBatch, revokeSensorToken, SensorBatchSchema, sensorAccount, sensorTokenInfo } from "../sensor";
 import { createRequire } from "node:module";
 import { readFile } from "node:fs/promises";
 import cookie from "@fastify/cookie";
@@ -71,6 +72,8 @@ export interface WebDeps {
   llmAvailable?: boolean;
   /** Verifies the signed 👍/👎 links in fix PRs (SHAPI_SHAPE_SECRET); unset, the feedback page is not served. */
   feedbackSecret?: string;
+  /** Salts the traffic sensor's field paths like the canary's (SHAPI_SHAPE_SECRET, or the dev secret). */
+  shapeSecret?: string;
   /** The shipped recordings' expiry and drift status (A-02); unset, the API changes page doesn't show them. */
   fixtures?: () => Promise<(FixtureStatus & { file: string })[]>;
 }
@@ -396,7 +399,7 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
       const data = await dataFor(ctx);
       const key = (req.query as { slack?: string }).slack ?? "";
       const notice = Object.hasOwn(SLACK_NOTICES, key) ? SLACK_NOTICES[key] : undefined;
-      return send(reply, page("Settings", settingsPage(data, notice, ctx.session.csrf, { llm: deps.llmAvailable === true }), shellFor(data, ctx.ctx, "settings")));
+      return send(reply, page("Settings", settingsPage(data, notice, ctx.session.csrf, { llm: deps.llmAvailable === true, sensor: { info: await sensorTokenInfo(deps.db, ctx.account.id) } }), shellFor(data, ctx.ctx, "settings")));
     });
 
     scope.post("/a/:accountId/settings", async (req, reply) => {
@@ -418,6 +421,35 @@ export function webRoutes(app: FastifyInstance, deps: WebDeps): void {
         await tx.updateTable("accounts").set({ settings: JSON.stringify(next) }).where("id", "=", ctx.account.id).execute();
       });
       return reply.redirect(`/a/${ctx.account.id}/settings`, 303);
+    });
+
+    // The traffic sensor (F-01): an upload token per account, shown once, and the upload endpoint the sensors call.
+    scope.post("/a/:accountId/sensor/token", async (req, reply) => {
+      const ctx = await adminFor(req, reply);
+      if (!ctx) return;
+      if (!csrfOk(ctx.session, req.body)) return expired(req, reply, ctx.session);
+      const token = await createSensorToken(deps.db, ctx.account.id);
+      const data = await dataFor(ctx);
+      return send(reply, page("Settings", settingsPage(data, undefined, ctx.session.csrf, { llm: deps.llmAvailable === true, sensor: { token, info: await sensorTokenInfo(deps.db, ctx.account.id) } }), shellFor(data, ctx.ctx, "settings")));
+    });
+
+    scope.post("/a/:accountId/sensor/revoke", async (req, reply) => {
+      const ctx = await adminFor(req, reply);
+      if (!ctx) return;
+      if (!csrfOk(ctx.session, req.body)) return expired(req, reply, ctx.session);
+      await revokeSensorToken(deps.db, ctx.account.id);
+      return reply.redirect(`/a/${ctx.account.id}/settings`, 303);
+    });
+
+    scope.post("/api/v1/sensor/observations", async (req, reply) => {
+      const auth = String(req.headers.authorization ?? "");
+      const token = /^Bearer (shapi_sensor_[\w-]{20,})$/.exec(auth)?.[1];
+      const accountId = token ? await sensorAccount(deps.db, token) : undefined;
+      if (!accountId) return reply.code(401).send({ error: "a valid sensor token is required (web app: Settings, Traffic sensor)" });
+      const batch = SensorBatchSchema.safeParse(req.body);
+      if (!batch.success) return reply.code(400).send({ error: "not a shapi.sensor/v1 batch" });
+      const result = await ingestSensorBatch(deps.db, accountId, batch.data, deps.shapeSecret ?? "shapi-dev-secret");
+      return reply.send(result);
     });
 
     scope.post("/a/:accountId/slack/test", async (req, reply) => {

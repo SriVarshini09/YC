@@ -16,3 +16,4 @@ export type { ScanRequest } from "./github/events";
 export { FREE_COMMITTERS, activeCommitters, coverage, requiredQuantity, repositoryCovered, type Coverage } from "./billing/plan";
 export { COMMITTER_WINDOW_DAYS, committerHashes, countCommitters } from "./billing/committers";
 export { applySubscription, completeCheckout, handleStripeEvent, portalUrl, setQuantity, startCheckout, stripeClient, syncAllQuantities, syncQuantity, type BillingConfig, type BillingDeps } from "./billing/stripe";
+export { MIN_ACCOUNTS, createSensorToken, ingestSensorBatch, revokeSensorToken, sensorAccount, sensorChanges, sensorSource, toResponseShape, type SensorChange } from "./sensor";
