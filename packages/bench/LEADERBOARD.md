@@ -8,7 +8,7 @@ To add a tool, see [SUBMISSIONS.md](SUBMISSIONS.md).
 | Tool | Version | Flag recall | Fixed-state precision | Errors | Submitted by | Run |
 | --- | --- | --- | --- | --- | --- | --- |
 | [grep baseline](https://github.com/SriVarshini09/YC/blob/main/packages/bench/scripts/baseline-grep.ts) | 1 | 100% (14/14, 95% CI 79–100%) | 29% (4/14, 95% CI 12–55%) | 0 | SHAPI maintainers | 2026-10-31 |
-| [SHAPI](https://shapi.dev) | 0.3.5 | 86% (12/14, 95% CI 60–96%) | 79% (11/14, 95% CI 52–92%) | 0 | SHAPI maintainers | 2026-10-31 |
+| [SHAPI](https://shapi.dev) | 0.3.4 | 79% (11/14, 95% CI 52–92%) | 93% (13/14, 95% CI 69–99%) | 0 | SHAPI maintainers | 2026-10-31 |
 | [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) | 2.1.316 (claude-sonnet-5-5, read-only) | 57% (8/14, 95% CI 33–79%) | 86% (12/14, 95% CI 60–96%) | 0 | SHAPI maintainers | 2026-10-31 |
 <!-- leaderboard:end -->
 
