@@ -5,6 +5,7 @@ import { GENERATED_TEST_HEADER, PYTHON_GENERATED_TEST_HEADER, type CallSite } fr
 import { extractFromFile, looseUrlSites, type FoundCall } from "./callsites";
 import { addResponseSurface } from "./surface";
 import { declaredProviders, declaredPythonProviders, listRepoFiles, toPosix, type DeclaredProvider } from "./files";
+import { extractGo, goParserLoaded } from "./go";
 import { extractPython, pythonParserLoaded } from "./python";
 
 export type { CallKind, CallSite, NameValue, Surface } from "@shapi/core";
@@ -12,6 +13,7 @@ export type { FoundCall } from "./callsites";
 export { evalString, parseUrl } from "./callsites";
 export type { DeclaredProvider, RepoFiles } from "./files";
 export { listRepoFiles, toPosix } from "./files";
+export { goParserLoaded, loadGoParser } from "./go";
 export { loadPythonParser, parsePython, pythonParserLoaded, type PyNode, type PyTree } from "./python";
 
 export interface ExtractResult {
@@ -37,12 +39,12 @@ const SCRIPT_KINDS: Record<string, ScriptKind> = {
 };
 
 /**
- * Find every third-party API call site under `rootDir`, in TypeScript, JavaScript and Python. Syntax only:
- * no type checking, no dependency resolution. Python needs `await loadPythonParser()` once beforehand.
+ * Find every third-party API call site under `rootDir`, in TypeScript, JavaScript, Python and Go. Syntax only:
+ * no type checking, no dependency resolution. Python needs `await loadPythonParser()` once beforehand, Go `await loadGoParser()`.
  */
 export function extractCallSites(rootDir: string): ExtractResult {
   const root = path.resolve(rootDir);
-  const { sources, manifests, python, pythonManifests } = listRepoFiles(root);
+  const { sources, manifests, python, pythonManifests, go } = listRepoFiles(root);
   const project = new Project({
     useInMemoryFileSystem: true,
     skipFileDependencyResolution: true,
@@ -106,11 +108,24 @@ export function extractCallSites(rootDir: string): ExtractResult {
       failed(rel, err);
     }
   }
-  const callSites = [...found.map((f) => f.site), ...loose, ...pythonSites].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column);
+  const goSites: CallSite[] = [];
+  for (const abs of go) {
+    const rel = toPosix(path.relative(root, abs));
+    if (!goParserLoaded()) {
+      skipped.push({ file: rel, reason: "the Go parser was not loaded" });
+      continue;
+    }
+    try {
+      goSites.push(...extractGo(readFileSync(abs, "utf8"), rel));
+    } catch (err) {
+      failed(rel, err);
+    }
+  }
+  const callSites = [...found.map((f) => f.site), ...loose, ...pythonSites, ...goSites].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column);
 
   return {
     root,
-    filesScanned: sources.length - generated + python.length - skipped.length,
+    filesScanned: sources.length - generated + python.length + go.length - skipped.length,
     callSites,
     declared: [...declaredProviders(root, manifests), ...declaredPythonProviders(root, pythonManifests)],
     found,

@@ -2,6 +2,8 @@
 
 APIBreak-Replay measures whether SHAPI catches real third-party API breakages. Every instance is a public GitHub repository whose maintainers fixed the breakage by hand. SHAPI scans the commit before the fix, where it should flag the code, and the fix commit, where the flag should be gone. Nothing in the repositories is run: the scan is static.
 
+Other tools are scored the same way on the [leaderboard](LEADERBOARD.md); [SUBMISSIONS.md](SUBMISSIONS.md) says how to add one.
+
 ## Data
 
 - **Source:** SHAPI's commit mining of public GitHub commits that adapt to a provider change, hand-classified on 2026-10-22. That covers 71 repositories: 58 for GitHub's `workflow_dispatch` 204→200 change and 13 for QuickBooks Online ignoring `minorversion` below 75.

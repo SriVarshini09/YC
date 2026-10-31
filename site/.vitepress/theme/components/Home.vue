@@ -607,11 +607,11 @@ onBeforeUnmount(() => {
         <h2>Free <span class="it">to start.</span></h2>
         <div class="plan">
           <b>Free</b>
-          <p>Public repositories and one private repository. Scans, checks, fix pull requests and Slack alerts included.</p>
+          <p>Public repositories, and private ones with up to 3 committers. Scans, checks, fix pull requests and Slack alerts included.</p>
         </div>
         <div class="plan">
-          <b>More private repositories</b>
-          <p>A monthly price per repository, announced before it starts. SHAPI asks before anything is charged. Free during early access.</p>
+          <b>Bigger teams</b>
+          <p>A monthly price per active committer beyond the first 3 (anyone who committed to a private repository in the last 90 days), announced before it starts. SHAPI asks before anything is charged. Free during early access.</p>
         </div>
       </div>
       <div class="col">

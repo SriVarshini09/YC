@@ -53,11 +53,13 @@ for (const output of Object.values(metafile.outputs)) {
   }
 }
 rmSync(path.join(out, "dist", "metafile-esm.json"));
-// The Python grammar ships as a file next to the bundle, not as the tree-sitter-python package (whose
-// install script builds a native binding the scanner never uses).
+// The Python and Go grammars ship as files next to the bundle, not as the tree-sitter-python and tree-sitter-go packages (whose
+// install scripts build a native binding the scanner never uses).
 const extractorRequire = createRequire(path.join(root, "packages", "extractor", "package.json"));
 copyFileSync(extractorRequire.resolve("tree-sitter-python/tree-sitter-python.wasm"), path.join(out, "dist", "tree-sitter-python.wasm"));
+copyFileSync(extractorRequire.resolve("tree-sitter-go/tree-sitter-go.wasm"), path.join(out, "dist", "tree-sitter-go.wasm"));
 imported.delete("tree-sitter-python");
+imported.delete("tree-sitter-go");
 const unknown = [...imported].filter((d) => !declared.has(d) && !isBuiltin(d));
 if (unknown.length) throw new Error(`bundle imports undeclared packages: ${unknown.join(", ")}`);
 // `fix` runs contract tests with vitest when the repository has none; it is resolved at runtime, so the bundler cannot see it.

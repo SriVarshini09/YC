@@ -27,6 +27,8 @@
     "bench:spec-replay:openai": "node ../../scripts/run-ts.mjs scripts/spec-replay-openai.ts",
     "bench:wayback": "node ../../scripts/run-ts.mjs scripts/wayback.ts",
     "bench:provenance": "node ../../scripts/run-ts.mjs scripts/provenance.ts",
+    "bench:leaderboard": "node ../../scripts/run-ts.mjs scripts/leaderboard.ts",
+    "bench:baseline-grep": "node ../../scripts/run-ts.mjs scripts/baseline-grep.ts",
     "bench:canary-backtest": "node ../../scripts/run-ts.mjs scripts/canary-backtest.ts",
     "bench:stripe-coverage": "node ../../scripts/run-ts.mjs scripts/stripe-coverage.ts",
     "bench:shopify-coverage": "node ../../scripts/run-ts.mjs scripts/shopify-coverage.ts",

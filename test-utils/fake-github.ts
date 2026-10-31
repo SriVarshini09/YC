@@ -57,7 +57,7 @@ async function tarball(owner: string, repo: string, sha: string, files: Map<stri
   }
 }
 
-export function fakeRepoGitHub(fullName: string, files: Record<string, string>, opts: { defaultBranch?: string; repoId?: number; refuseDrafts?: boolean } = {}) {
+export function fakeRepoGitHub(fullName: string, files: Record<string, string>, opts: { defaultBranch?: string; repoId?: number; refuseDrafts?: boolean; issuesDisabled?: boolean } = {}) {
   const [owner, repo] = fullName.split("/") as [string, string];
   const defaultBranch = opts.defaultBranch ?? "main";
   let seq = 0;
@@ -296,6 +296,7 @@ export function fakeRepoGitHub(fullName: string, files: Record<string, string>, 
       return json(200, pr.labels);
     }
     if (method === "POST" && rest === "/issues") {
+      if (opts.issuesDisabled) return json(410, { message: "Issues has been disabled in this repository." });
       const issue: FakeIssue = { number: nextNumber++, title: body.title, body: body.body, state: "open" };
       issues.push(issue);
       return json(201, issue);
