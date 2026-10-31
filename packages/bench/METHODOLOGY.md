@@ -120,6 +120,31 @@ Each gap becomes a fix in SHAPI's extractor or matcher. Its acceptance test is t
 - **The Meta incidents test a version sunset.** The code before the fix pins a Graph API version that Meta retires, and the fix moves it to a supported one.
 - **Where it runs.** v1 runs on demand in the `bench v1` workflow (`.github/workflows/bench-v1.yml`), which keeps its results as an artifact. CI's regression gate stays on v0.
 
+### v1 results (shapi-cli 0.3.5, dataset `ef24b946b806`, 2026-10-31)
+
+From the `bench v1` workflow run [41185568409](https://github.com/SriVarshini09/YC/actions/runs/41185568409). Per instance: `results/0.3.5/ef24b946b806.json`.
+
+| Incident | Scored | Flag recall | Fixed-state precision |
+| --- | --- | --- | --- |
+| Meta Graph v20.0 sunset | 60 | 98% (59/60, 95% CI 91–100%) | 92% (55/60, 95% CI 82–96%) |
+| Meta Graph v21.0 sunset | 108 | 80% (86/108, 95% CI 71–86%) | 82% (89/108, 95% CI 74–88%) |
+| QuickBooks minorversion | 21 | 67% (14/21, 95% CI 45–83%) | 71% (15/21, 95% CI 50–86%) |
+| GitHub workflow_dispatch | 14 | 50% (7/14, 95% CI 27–73%) | 100% (14/14, 95% CI 79–100%) |
+| **All** | **203** | **82% (166/203, 95% CI 76–86%)** | **85% (173/203, 95% CI 80–89%)** |
+
+- **Errors.** Five instances could not be scanned (unavailable archives) and count against SHAPI.
+- **Precision is a lower bound.** On v0, every fix commit SHAPI still flagged turned out to have left an old value somewhere else.
+- **v1's 30 such commits were checked on 2026-10-31**, by reading up to 40 likely source files of each fix commit through GitHub's API.
+  - **15 are real leftovers, so SHAPI is right.** 13 still hold the old value in source, two of them in tests, for example:
+    - `agent/sources/instagram-graph.js:9` `https://graph.instagram.com/v21.0` (ntrofimov59-hash/smm-bot);
+    - `src/app/api/webhook/whatsapp/route.ts:155` `graph.facebook.com/v20.0` (MdAbdehakim/whatsapp-booking-crm.);
+    - `server/quickbooks.ts:423` `minorversion=65` (ikeyraymedia-netizen/nurseryos).
+
+    The other two, hfscdogg/outgrow and tioperfumes07/IH35-TMS, are adjudicated above.
+  - **14 are unconfirmed**, in large repositories where the search read only part of the code.
+  - **1 shows the old version only in a comment** (abdullohbohodirov96/Target-yordamchi).
+- **Adjudicated precision** is at least 93% (188/203). The 15 open cases need a hand check.
+
 ## Limits
 
 - **Small, public, hobby-leaning repositories.** Public commit search skews toward small projects, so this is evidence of the pattern, not of market size.

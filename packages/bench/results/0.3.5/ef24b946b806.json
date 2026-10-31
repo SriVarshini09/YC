@@ -1,0 +1,3426 @@
+{
+  "dataset": "APIBreak-Replay v1",
+  "datasetHash": "ef24b946b806",
+  "shapiVersion": "0.3.5",
+  "gitSha": "008e49dffe56c116fcda7c2ce1f145f0cf66238f",
+  "runAt": "2026-10-31T09:49:45.710Z",
+  "summary": {
+    "instances": 363,
+    "inScope": 208,
+    "scored": 203,
+    "errors": 5,
+    "flagRecall": {
+      "k": 166,
+      "n": 203,
+      "rate": 0.818,
+      "low": 0.759,
+      "high": 0.865
+    },
+    "flagRecallWithPossible": {
+      "k": 166,
+      "n": 203,
+      "rate": 0.818,
+      "low": 0.759,
+      "high": 0.865
+    },
+    "fixedStatePrecision": {
+      "k": 173,
+      "n": 203,
+      "rate": 0.852,
+      "low": 0.797,
+      "high": 0.894
+    },
+    "flagRecallScannedFiles": {
+      "k": 141,
+      "n": 169,
+      "rate": 0.834,
+      "low": 0.771,
+      "high": 0.883
+    },
+    "byIncident": {
+      "github-workflow-dispatch-204-to-200": {
+        "flagRecall": {
+          "k": 7,
+          "n": 14,
+          "rate": 0.5,
+          "low": 0.268,
+          "high": 0.732
+        },
+        "fixedStatePrecision": {
+          "k": 14,
+          "n": 14,
+          "rate": 1,
+          "low": 0.785,
+          "high": 1
+        }
+      },
+      "meta-graph-v20-sunset": {
+        "flagRecall": {
+          "k": 59,
+          "n": 60,
+          "rate": 0.983,
+          "low": 0.911,
+          "high": 0.997
+        },
+        "fixedStatePrecision": {
+          "k": 55,
+          "n": 60,
+          "rate": 0.917,
+          "low": 0.819,
+          "high": 0.964
+        }
+      },
+      "meta-graph-v21-sunset": {
+        "flagRecall": {
+          "k": 86,
+          "n": 108,
+          "rate": 0.796,
+          "low": 0.711,
+          "high": 0.861
+        },
+        "fixedStatePrecision": {
+          "k": 89,
+          "n": 108,
+          "rate": 0.824,
+          "low": 0.742,
+          "high": 0.884
+        }
+      },
+      "quickbooks-minorversion-below-75": {
+        "flagRecall": {
+          "k": 14,
+          "n": 21,
+          "rate": 0.667,
+          "low": 0.454,
+          "high": 0.828
+        },
+        "fixedStatePrecision": {
+          "k": 15,
+          "n": 21,
+          "rate": 0.714,
+          "low": 0.5,
+          "high": 0.862
+        }
+      }
+    },
+    "fixRate": null,
+    "fixErrors": 0
+  },
+  "results": [
+    {
+      "id": "github-workflow-dispatch-204-to-200__vincentng295__gemini_fbchat",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "github_utils.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__stategraph__stategraph",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "OCaml",
+      "evidenceFile": "code/src/githubc2/githubc2_actions.ml",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__refracta__df-translations",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": null,
+      "evidenceFile": ".github/workflows/trigger-dfint-rust-cjk-ko.yml",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mend__docker-base-images",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": false,
+      "language": "Shell",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kikujizo__ai-harness",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": ".github/workflows/harness-dispatch.yml",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__dlstupka__hth",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "hth/optimizer_dispatch.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__opaque-dev__opaque",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Rust",
+      "evidenceFile": "crates/opaque-providers/src/github/release.rs",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__pyzz58__gpt-recommendations",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "newspaper/startup/worker.js",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__oliverwirthsalpine__planner-delta-tracker",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__fullsend-ai__fullsend",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mmtm-studios__twinfang",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__TITANICBHAI__3gpTube",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__augustintiberghien__five-lundi",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__Shebovich__business-sites-bot",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__unfoldingWord__bible-editor",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__ruslankanat-sdet__sdet-portfolio",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__emrevegas__flipbot",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__fischervincent__webwatch",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mlender-ai__fomo-club",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__PoojaJeeva__marketing-dashboard",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__B3B3097__VIBE-CODE",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__lenaxia__talos-ops-prod",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__lenaxia__LLMSafeSpaces",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__noencke__agentic-emojis",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__HereLiesAz__aive",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Kotlin",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__icandoitccc-jpg__chenstricks-motion",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__onlykappa__KappaForge",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__craigoley__remudero",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__jairdiazrios95-web__sunset-world-data-platform",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__irilminakhai-rgb__main",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__git-for-windows__gfw-helper-github-app",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__stefanpenner-cs__org-dispatch-test",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Shell",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__vinicius33__heimdall",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__port-labs__ocean",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__gitgitgadget__gitgitgadget-github-app",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__zetatech-a__finance-news-monitor",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__PyGithub__PyGithub",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__alwaysmeticulous__report-diffs-action",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__garden-co__jazz",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Rust",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__lhpaul__ai-dev-framework-template",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Shell",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__deepregatta__forecast-tiles",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__hoffresearch__urna",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Rust",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__SylphxAI__.github",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__armosec__helm-charts",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__helm-charts",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__node-agent",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__kubescape",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kubescape__workflows",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__daniel-ospina__tortoise",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kibertoad__cat-factory",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__euvvel__veil",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__BestNathan__nession",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__bashrusakh__DeskForge",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__compliance-framework__workflows",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Go",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__willemkokke__livery",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__HumblebragAB__computercat-api",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "PHP",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__Keshaqaz__aures",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__primus-brennan__billing-automation",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__yashjain5194-cpu__copy-yourlegal",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__VantaX-Org__Atheon",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__ACIConst__cmbutchers",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__excelle-insights__quickbooks",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "PHP",
+      "evidenceFile": null
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__hfscdogg__outgrow",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "sync/qbo.py",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__RCOLKITT__AccountingQB-MCP",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "web/src/app/api/oauth/callback/route.ts",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__tioperfumes07__IH35-TMS",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "apps/backend/src/admin/health-deep.service.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__mindstone__mcp-servers",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "connectors/quickbooks/src/tools/bills.ts",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__theomleslie-ops__bakery-dashboard-2",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "pipeline/qb-pl-fetcher.js",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Chamfer-Consulting__gpc-purchase-order-hx",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "dashboard/qbo_client.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Tans2101__Trenston",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "backend/quickbooks.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__toyslatam__dl-qb-sync",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__SriVarshini09__shapi-demo",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/deploy.ts",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__POIGAME-LAB__poigamelab",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "scripts/point-income-device-capture.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__mithro__rp1-jtag",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "C",
+      "evidenceFile": ".github/scripts/notify_fpga_tools.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__poepoe33__nexus-data",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "HTML",
+      "evidenceFile": "scripts/dispatch.sh",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__GBOGEB__pipeline-automation-hub",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "tools/metric-atlas/docs/QPS_CENSUS_FEDERATION_N1.md",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__fcapiral-bot__ai-automation-public-test",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "tests/test_bridge_gate_retry_chain.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__Abstract-Data__texas-turnout-scraper",
+      "incident": "github-workflow-dispatch-204-to-200",
+      "advisoryId": "github-workflow-dispatch-204-to-200",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "tests/unit/test_ev_worker_cron.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__SriVarshini09__shapi-demo",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/accounting.ts",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__JasonLuciani__rgnr8",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "packages/qbo/src/rgnr8_qbo/client.py",
+      "base": "exposed",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__murumoto-rgb__Timesheet",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "CLAUDE.md",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__easytestdata__easytestdata",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "packages/server/src/services/connection-lock.js",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__singer-io__tap-quickbooks",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "tap_quickbooks/client.py",
+      "base": "exposed",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__SrishtiKalpa__qbo-mcp",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "src/qbo_mcp/qbo/client.py",
+      "base": "exposed",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__nextform-app__quickbooks-js",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "dist/index.js",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__suburban-fiber-company__QuickBooks_App_Service",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "settings/config.js",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__sivaharanj7805__QBMigration",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "QBMigrationService/tests/test_qbd_to_qbo_flow.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__RyanLBuchanan__ridian-agency",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "apps/api/app/services/quickbooks_service.py",
+      "base": "affected",
+      "fix": "exposed"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__agentroj__mini_hackathon",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": ".env",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__ikeyraymedia-netizen__nurseryos",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "server/quickbooks.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__cyrusgilbertrolfe__back-bar",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/quickbooks.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__dlommm__OpenPoolPro",
+      "incident": "quickbooks-minorversion-below-75",
+      "advisoryId": "quickbooks-minorversion-below-75-ignored",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "app/qbo_api.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__aandreskss__SyncLead",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__jansiddiqui__courage-national-talent-search-app",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/services/whatsappService.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-older-version__hafizabdulbar3-creator__news-snap-automation",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__contatoinovaco100-spec__agency-ace-64-c3526bb9",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "supabase/functions/_shared/platforms/instagram.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__Michael-ctrl-eng__zemest",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "repos/zemest/app/config.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__Anibru300__Publishop",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__nikit34__bot-portugal-news",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__magnetoiphone-cmd__igor",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__caiogn-dev__server",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "apps/instagram/management/commands/refresh_instagram_token.py",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__jroblesluna__robles.ai",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".kiro/specs/analytics-dashboard/design.md",
+      "error": "archive is 208 MB, over the limit"
+    },
+    {
+      "id": "meta-graph-v21-sunset__CALQIX__Themex-Calqix",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Liquid",
+      "evidenceFile": "calqix-capi/api/cron/catalog-sync-monitor.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__chamgil71__dailynews",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "HTML",
+      "evidenceFile": "scripts/post_cardnews.py",
+      "error": "archive is 263 MB, over the limit"
+    },
+    {
+      "id": "meta-graph-older-version__ajansen2__adwyse",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__abderrahmane1463__skechers-dashboard",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__040916073mustapha__rcagents-saas",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__itzdhruvagarwal-debug__Decisional",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__Ankitrana-321__the-great-insta",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "backend/src/controllers/authController.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__itzdhruvagarwal-debug__ReachOut",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__ludaisca__WAB",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "lib/whatsapp.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__kiwijourneys__kj-dashboard-2.0",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__TBROS68__genlab-platform",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": null,
+      "evidenceFile": "genlab-core/src/genlab_core/engagement/poller.py",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v20-sunset__andypascalpress-ops__pascal-press-planner",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "lib/meta-ads.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__Marcom-acl__dashboard",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__Britter01__social-media-automation",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__cipherhq__waaiio",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__RhuanArtuzzi__ads-dashboard",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "backend/src/routes/authMeta.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__elkinpelaez1-tech__autopostlab-v2",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__SuperfastSAT1600__landing_2512",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__moisesmoussan__rapidpro-nono-dev-v2",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__HillyAttic__whatsappbot",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__unsuspected2__marinasc-chatbot",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__AmouReichun__fleur-homepage",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__rafaelminatto1__fisioflow-51658291",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "apps/api/src/lib/whatsapp-interactive.ts",
+      "error": "archive is 181 MB, over the limit"
+    },
+    {
+      "id": "meta-graph-v21-sunset__Rifaai12__proprent",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "backend/src/services/whatsappService.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__trongbaoprime-png__luoi-cms",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__JulioGrados__utilsbz",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "functions/cloudapi/getMedia.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__LuanaRamos__zenit-dashboard",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "src/dashboard/api/instagram_client.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__Ganapathi1618__Nextjs-Fastrill-ai",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__Alef-Denobile__crm-consorcio",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__up2stay__meta-mcp",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": null,
+      "evidenceFile": "src/client.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__badejotravis777__psychowrld-bot",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__badejotravis777__psychowrld-admin",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__ThalesRuben__dashboardmetricas",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__YazanMou23__Warehause-TEST",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__KGSTechway39__Whatsapp-Saas",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__gustavoamv2__copal",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__aagii9912__Vertmonhub",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/marketing/meta-capi.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__ntrofimov59-hash__smm-bot",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "agent/publishers/instagram.js",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-older-version__rarebirds-svg__popory",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__eduelias__rittenregistratie-bot",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "deploy/check-delivery.sh",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__conuongai-aimake__BANG-PHONG-THAN",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__Maziyaaaaay__satyascan",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__sandydixit8-ux__creatoros",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "creatoros/docs/FACEBOOK-SETUP.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__ElonMakamoto__crypto-trade-ai",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "instagram_auto/config.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__dawidsbrzozowski__avufu-event-social",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": ".github/workflows/publish.yml",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__ServiAi__servoglobal-voice",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__Mateusjsp__ig-story-scheduler",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "image-service/.env.example",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__garvjain-netizen__garvjain",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".env.example",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__invetechs1__Companies-Social-media-",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/providers/facebook.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__uiuxnick__fizmoh",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/app/api/templates/[id]/submit-to-meta/route.ts",
+      "error": "archive is 271 MB, over the limit"
+    },
+    {
+      "id": "meta-graph-v21-sunset__dreamteamservicespvt__School-OS",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/messaging/providers/whatsapp.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__analisismitosheet-svg__hub-mito",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "HTML",
+      "evidenceFile": "CONTEXTO.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__RustDzhur__synergia_CRM_client",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__segadiallo382-create__babylone",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "server/messaging.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__kosovychivan14-ux__ik-transport",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "api/_lib/oauth_meta.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__kaianestevao-del__crm",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "apps/api/src/modules/templates/templates.controller.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__Siddhartha9434__clasiqo-bot",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "config.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__PopuliCenter__blastWA_surveionline",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "backend/src/env.ts",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__MARKETINGGD__plataforma-gestao-marketing",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "routes/socialAccounts.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__mateopirela__padelya",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "services/notifications/whatsapp.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__satemafac__njangi-on-chain",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".env.example",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__Aditya-132__flowbot",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "backend/codegen.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__arunachalamvenkatachalapathy-dev__market-debunk-tamil-carousels",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "src/config.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__alyssacavosie12__whatsapp-bot",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "settings.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__bielet20__reel-news-bot",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__PauloHenriqueL__sofia_whatsapp",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__yathamsridharreddy__hashira-jd-resume-analyzer",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__kickup-technologies__cliche",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__Daniel-moen__CarverJobs-Mono",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__arunachalamvenkatachalapathy-dev__market-debunk-carousels",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "src/config.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__sendbee__whatsapp-business-python-client-api",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__yudisaefulrizal__NC-IG",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/instagram/messaging.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__appcasaia__casaia",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__jadsajsdlkdqwioqodkwl__claudetarot",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "src/lib/whatsapp.js",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__boden0323-cyber__noodle-shop-ordering",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "server.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__milesmanEric__milesman-crm",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "HTML",
+      "evidenceFile": "index.html",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__foxtecnologiaonline__zapscript",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__DayMoonDevelopment__post-for-me",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "api/src/instagram/instagram.service.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__jonathanSCM__chats",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/app/dashboard/whatsapp/_components/embedded-signup-button.tsx",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__josangl08__SocialLab",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__tarcisiopsb23-ux__CRM",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__thakyanamtumhara__yt-shorts-bot",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "daily_short.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__MONZA-SAL-TEAM__glance-dashboard",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "docs/META_SETUP.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__happyaicoding__openclawthreads_skill",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__Ahmed-hesham11__for-her",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "lib/meta-capi.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__Jinu004__Booking_platform",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__Kiczu__MW",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__r2d2agency__esse-ja-foi-f6f7663b",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/db/comunicacoes.server.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__adapakse__CRMtree-backend",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "src/services/socialPublish/metaService.js",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__theglove44__instagram-post-refiner",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "docs/technical-reference.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__ezequielcorbalan__vendepro",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__PortNumber53-org__simple-social-thing",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__Mauro990345__vexo-platform",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/instagram.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__lynns-dev__veil-ecommerce",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__lynns-dev__Anese",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__ECOMKING7__sales.hacking",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__doraswamyraju__manacity",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__BrainsyETH__Eddy",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "missouri-float-planner/src/lib/social/meta-client.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__pptcwn__fb-ads-platform",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "apps/api/src/facebook/facebook.service.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__BBISMblockay__financehub",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "scripts/lib/ad-platforms-sync-core.mjs",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__Propyte-Team__propyte-crm",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/connectors/test-connection.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__xDican__project-harmony",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "supabase/functions/meta-embedded-signup/index.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__mohdhafizi83__fixzy-marketing-tools",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "adapters/messenger.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__stacksjs__stacks",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__codemedavid__TheWhatStage-v3",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__1x7xxxxxxx__Dashboard_music_platform_algo_spotify",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__pzzychowicz-blip__megustastu-bookings",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "ROADMAP.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__divyanshu9166__sekoltiles-calling-dograh",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".env.example",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__diegoroco__pixelbridge",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__GHANSHYAM2712__facebook_oauth",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "HTML",
+      "evidenceFile": "signup.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__usisst8888-glitch__sellerport",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/app/api/auth/instagram/callback/route.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__PiotrRomanczuk__instagram-stories-webhook",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "__tests__/mocks/handlers.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__dev-gwv__platform",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "apps/web/src/features/studio-whatsapp/facebook-signup.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__amitgalvor-178__compliance",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/instagram/metaGraphClient.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__appdidelivery__si-delivery-app",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__buraker1903be-star__ArvoOS",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "lib/whatsapp-cloud.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__sysblok__sysblokbot",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__w3panel__payload-notifications",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "docs/providers.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__rahul0776__liveon_fb_checkout",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__postbasehq__postbase",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "lib/platforms/meta.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__bikiran__frill-clone",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "app/api/meta/diagnostics/route.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__ntg-start__Postiz-social",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__JcLimonero__DS_PostMarketing",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__klarc-dev__postiz",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__florianbreide__postiz",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__FedrBodr__vezdepost",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__Mo8eight__8-digital-publisher-source",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__Adityanpx__ApnaBot-server",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__samidoomsday-star__postiz",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__abdullohbohodirov96__Target-yordamchi",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "app/meta_api.py",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v20-sunset__704572066__postiz-app",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__rogenecarl__fdg-workspace",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__Magnis9059__postizgw",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__solver492__ds-postiz-app",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__yudantaadhipramana__postiz-app",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__Affivault__postiz",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__Jam7-UK__bizzblox-social",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__marioromero959__postiz-cns",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__hudsonargollo__postea",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__support897__postiz-app",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__pranavadityaneti__docket",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "apps/api/src/config/env.ts",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__MD0516__postiz-demo",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__Noumenon-ai__linkself-social",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__shuochan__my-postiz",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__teamxivago__congenial-pancake",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__RenderWorks1__the-boathouse-residences",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/meta/capi.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__0xkabdev__socialbox",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": null,
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__hellosafain-dev__safar-postiz",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__muhammad-mansoor9__postiz-app",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__seniqify__store",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "api/meta/_meta.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__studiocog__postcherry",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__ululhikam__be_FnC",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__thiagojordao98__postiz-app",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__ReeceHarding__postguy-app",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__bro-xuan__paper-kite-studio",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__Feratin0s__postiz-artifex-custom",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__PPHelios__whatsapp-broker-bot",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "docs/runbook.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__daemondevpub__vm-play-imformer",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "src/config.js",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v20-sunset__Ali-Tamerr__postiz-app",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": null,
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__saifullahkhan-software-engineer__link-easy",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__islanddave__garden-app",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "lambda/facebook-share/graph.js",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__moicohg__wtp",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "README.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__pheobeayo__sellai",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/integrations/whatsapp.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__kushalvunnam__mvss-erp-backend",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__lhotea__TriAgent",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "src/triagent/publisher.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__yaldemouser__viralz",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__Naseem337__Jijo-angamaly",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "app/core/client_config.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__barthiwu__wordquest",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__adithyaoshada7-spec__meta-dsh-brd",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".env.example",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__matheusfonseca-ia__TOCHA",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".env.example",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__innotechat__autoposter-zawaago",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "workers/api.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__ahmedali-aihub__Gym-managment-Software",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".env.example",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__aabiro__xcelsior",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__global-news-platform__humshehri-autoposter",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "main.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__raselrk5588-source__smritilife",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__SRIHARI-VB__fusion-flow",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "backend/src/fusionflow/modules/connectors/config.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__migue19__medora",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "apps/api/src/config.ts",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__martian3062__giani_reporter",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "apps/api/src/newsroom_api/config.py",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__kintsurashviligaga-ops__avatar-g-frontend-v3",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "app/api/agent-g/whatsapp/send/route.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__kushalvunnam__mvssautomobilesfiles",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__DuvanP11__Agente-Comercial",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/whatsapp-cloud.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__WurfelSPA__STLC",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "app/lib/renovaciones/canal.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__IlestChouette__tourist-book",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "src/lib/whatsapp.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__ozmenkaya__socialbag",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "libraries/nestjs-libraries/src/integrations/social/facebook.provider.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__thousif7722__automation-tool",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__VocalFlash__vocalflash-bot",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "app.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__moti515__global-cms",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "mebli_instagram_story/utils_meb_instagram_story.py",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-older-version__japanprep25-ship-it__vistoosa2",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__Tio-dev71__Topify",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".env.example",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-older-version__Samlite250__samora_app",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__drax6055__Sendzyy-whatsapp-marketing",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Dart",
+      "evidenceFile": "sendzyy_final_backend/.env.example",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__Sam2445__meta-agent-sdk",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "ARTICLE.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__sophie2353__SOVYX.Backend",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__AmirShamim__al-astoora-agent",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "app/module_b/whatsapp_sender.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__edwar__pronty",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__adrianak2026__autoflow-ig-automation",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__HenriqueRJ-dev__adai-saas",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "app/api/campaign/deploy/route.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-older-version__kiet0303__doann8n",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__GTec0__gtec0.github.io",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "HTML",
+      "evidenceFile": "autopilot/autopilot/social.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__meidipro__JustorAi",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__snapthinktrader__backinsta",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__egeruennamdi-cmd__football-prediction-app",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__varoonk21__AutoSocial",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "backend/src/social/facebook.provider.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__effazrayhan__fastSloth-news",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__dbuatti__soul-conscious-events",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "docs/instagram-setup.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__meta__ThreatExchange",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "C++",
+      "evidenceFile": "python-threatexchange/threatexchange/exchanges/clients/fb_threatexchange/api.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__nikhilsgond__social-poster",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__petroven__here.tn",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__jimmytardy__cutevideo-agent",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__jcsainz95-cloud__tcg-vault-mx",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "backend/src/modules/measurement/measurement.config.ts",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__AayushRd7__AAA-tracker",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "HTML",
+      "evidenceFile": "backend/app_pages/integrations.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__lindltaylor7__avantage",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "backend/services/metaConversionsService.js",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__Bengo-Hub__marketflow-ui",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/providers/catalog.ts",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__NAMSOO-KIM__auto-cpna",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__Themis128__cloudless.gr",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__andresayac__botmesh",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "packages/instagram-provider/src/InstagramProvider.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v20-sunset__Themis128__cu130-slim",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "social-automation/backend/app/api/analytics.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__ElAmir-Mansour__instagram-dm-automation",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "docs/TOKEN_GUIDE.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__yousuftalukder__contentEngine",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "server.js",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__mocktar2021__kolabo",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__BrandCoor__agency-cortex",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "backend/app/core/config.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__omergungor11__social-pro",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__uzzirulzz-cyber__izoko",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__Jesheeba__Sirah-CRM",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/app/(app)/whatsapp/actions.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__JossethCastaneda__FlowChart",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "app/api/meta/adaccounts/route.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__growersb-netizen__ECOFIVER-SISTEMA",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__aman1245678__dleafcrm",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "backend/src/routes/communicationRoutes.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__saint4ai__OmniDash",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__MdAbdehakim__whatsapp-booking-crm.",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/whatsapp.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-older-version__zuko14__medassist-AI",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__victorfpaula-cloud__SmartAds",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".env.example",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__raziel-gershoni__just-an-order-manager",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/whatsapp.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__wellsm__receivy",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "packages/api/src/vendors/whatsapp/transports/whap.test.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__SonidoLiquidoGitHu__sonido-liquido-crew",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/clients/meta.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__RenaCotalker__luke-design-base",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": ".docs/META_WHATSAPP_INTEGRATION.md",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v20-sunset__Bearfoot2345356__bearfoot-proxy",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": null,
+      "evidenceFile": "index.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__zersoares__bookpilot",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "netlify/functions/bookpilot-lib/meta.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__rejafahm-pixel__tabitanew",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "HTML",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v20-sunset__rafaelrac25-crypto__traffic-manager",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "backend/src/routes/platforms.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__yarivluts__smart-marketing",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "packages/firebase-orm-models/src/plugin-runtime/meta-ads/api-client.test.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__twittez__cartapetes",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "JavaScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__GoodNurseCRM__SocialAI",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__clawdiavector__swing-shack-dashboard",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__InstitucionalKp__kp-sales-compass",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "supabase/functions/sync-meta/index.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__Paullux__SocialHubDashboard",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__eduardostefani-20__karolla-",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "backend/src/config/env.ts",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__cencori__cencori",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "__tests__/channels/whatsapp.test.ts",
+      "error": "archive is 154 MB, over the limit"
+    },
+    {
+      "id": "meta-graph-v20-sunset__daleoragu__mcolegio.com.co",
+      "incident": "meta-graph-v20-sunset",
+      "advisoryId": "meta-graph-v20-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "notas/mensajeria.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__stefbach__Scoial-Hub",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "lib/connectors/meta-ads.ts",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-older-version__jinhaesu__mythirdproject",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__otaldoicaro__crm-wpp",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "app/config.py",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__GabrielCaliari__naturmarketing",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "TypeScript",
+      "evidenceFile": "src/lib/meta-conversion.ts",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__SolunaBiolight__soluna-gestion",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "api/meta-callback.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__jackgrace__meta-strategy",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "meta_api.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__Praveenkurupati__perfectpic",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-older-version__ramonfilho__bringdata",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "Python",
+      "evidenceFile": null
+    },
+    {
+      "id": "meta-graph-v21-sunset__TKBSMarketing__MarketingAssetDevelopment",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "reporting/generate_report.py",
+      "base": "affected",
+      "fix": "affected"
+    },
+    {
+      "id": "meta-graph-v21-sunset__pabadvogados-hub__caldeira-advogados-sistema",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "INTEGRACOES/meta_ads_integration.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__pabadvogados-hub__caldeira-advogados",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "Python",
+      "evidenceFile": "INTEGRACOES/meta_ads_integration.py",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__kaycomminc__kaycomm-mcp",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": "server.js",
+      "base": "affected",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-v21-sunset__pierreblas__crm-prime",
+      "incident": "meta-graph-v21-sunset",
+      "advisoryId": "meta-graph-v21-sunset",
+      "inScope": true,
+      "language": "JavaScript",
+      "evidenceFile": ".env.example.production",
+      "base": "none",
+      "fix": "none"
+    },
+    {
+      "id": "meta-graph-older-version__CoimbraViih__adtech",
+      "incident": "meta-graph-older-version",
+      "advisoryId": null,
+      "inScope": false,
+      "language": "TypeScript",
+      "evidenceFile": null
+    }
+  ]
+}
