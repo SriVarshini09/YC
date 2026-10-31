@@ -247,6 +247,9 @@ importers:
       '@shapi/sandbox':
         specifier: workspace:*
         version: link:../../packages/sandbox
+      '@shapi/sensor':
+        specifier: workspace:*
+        version: link:../../packages/sensor
       '@shapi/shapes':
         specifier: workspace:*
         version: link:../../packages/shapes
@@ -468,6 +471,12 @@ importers:
       e2b:
         specifier: 2.52.1
         version: 2.52.1
+
+  packages/sensor:
+    devDependencies:
+      '@shapi/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/shapes:
     dependencies:

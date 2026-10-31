@@ -455,7 +455,7 @@ ${r.changes.length ? r.changes.map(diffView) : html`<p class="muted">No file cha
 
 /* ---------- settings ---------- */
 
-export function settingsPage(data: AccountData, notice: string | undefined, csrf: string, opts: { llm?: boolean } = {}): Html {
+export function settingsPage(data: AccountData, notice: string | undefined, csrf: string, opts: { llm?: boolean; sensor?: { token?: string; info?: { createdAt: Date; lastUsedAt: Date | null } } } = {}): Html {
   const b = accountHref(data);
   const settings = data.account.settings as { prLimits?: { hourly?: number; open?: number }; failOnAffected?: boolean; llmFixes?: boolean; slackWebhookUrl?: string };
   const limits = { ...DEFAULT_PR_LIMITS, ...(settings.prLimits ?? {}) };
@@ -486,10 +486,19 @@ ${
     ? html`<div class="card stack"><h2>Test Slack</h2><p class="note">Posts one message to the connected channel.</p><form method="post" action="${b}/slack/test" class="inline"><input type="hidden" name="csrf" value="${csrf}"><button type="submit">Send a test message to Slack</button></form></div>`
     : EMPTY
 }
+${sensorCard(b, csrf, opts.sensor)}
 <div class="card stack"><h2>Pausing</h2><p class="note">Pause a repository from its page (it takes write access to the repository on GitHub), or tick the box on its SHAPI Dashboard issue. Scans continue; no PRs are opened or updated while paused. Add the <span class="mono">${STOP_LABEL}</span> label to a SHAPI PR to stop updates to that PR.</p></div>
 <div class="card stack"><h2>Appearance</h2><p class="note">The app is light by default. Switch to dark with the Theme buttons under your name in the sidebar.</p></div>
 </div>
 </div>`;
+}
+
+/** The traffic sensor (F-01): opt in with a token; the sensor sends value-free shapes only. */
+function sensorCard(b: string, csrf: string, sensor: { token?: string; info?: { createdAt: Date; lastUsedAt: Date | null } } | undefined): Html {
+  const button = (action: string, label: string) => html`<form method="post" action="${b}/sensor/${action}" class="inline"><input type="hidden" name="csrf" value="${csrf}"><button type="submit">${label}</button></form>`;
+  return html`<div class="card stack"><h2>Traffic sensor</h2><p class="note">Optional. The sensor runs in your app (<span class="mono">@shapi/sensor</span> for Node, <span class="mono">shapi_sensor</span> for Python) and sends SHAPI the shape of responses from endpoints SHAPI watches: status, field names, JSON types and deprecation headers. Never values, request paths, bodies or credentials. A change counts once 3 accounts see it. Try <span class="mono">dryRun</span> first to see exactly what would be sent. <a href="https://shapi.dev/guide/sensor">How it works</a></p>
+${sensor?.token ? html`<div class="notice">Your sensor token, shown once: <span class="mono">${sensor.token}</span>. Set it as <span class="mono">SHAPI_SENSOR_TOKEN</span> where your app runs.</div>` : EMPTY}
+${sensor?.info ? html`<p class="note">A token exists (created ${sensor.info.createdAt.toISOString().slice(0, 10)}, ${sensor.info.lastUsedAt ? `last upload ${sensor.info.lastUsedAt.toISOString().slice(0, 10)}` : "no uploads yet"}).</p>${button("token", "Replace the token")} ${button("revoke", "Turn the sensor off")}` : button("token", "Create a sensor token")}</div>`;
 }
 
 /* ---------- billing ---------- */

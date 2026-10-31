@@ -15,6 +15,7 @@ Advisories are open data (CC BY 4.0). Each lists the endpoint, what changed, the
 - [GitHub App](https://shapi.dev/guide/github-app): What the SHAPI GitHub App does on each push, the permissions it asks for, its pull request limits, and plans.
 - [How SHAPI works](https://shapi.dev/guide/how-it-works): How SHAPI maps your third-party API calls into an api.lock, matches them against advisories, and fixes what breaks.
 - [Quickstart](https://shapi.dev/guide/quickstart): Scan a repository for the code a third-party API change breaks, then fix it test-first. Two commands, no account.
+- [Traffic sensor (optional)](https://shapi.dev/guide/sensor): SHAPI's optional traffic sensor for Node and Python: what it sends (field names and types, never values), dry run, turning it on, and the three-account rule.
 - [Spec churn index](https://shapi.dev/guide/spec-churn): How often each API provider's OpenAPI spec changes in a way that breaks clients, measured over the full history of the APIs.guru directory.
 - [Security and code handling](https://shapi.dev/security): What SHAPI reads, runs and stores when it scans and fixes your code, and how customers are kept apart.
 

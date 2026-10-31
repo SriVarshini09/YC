@@ -57,6 +57,7 @@ export default defineConfig({
         items: [
           { text: "GitHub App", link: "/guide/github-app" },
           { text: "Coding agents (MCP)", link: "/guide/agents" },
+          { text: "Traffic sensor (optional)", link: "/guide/sensor" },
         ],
       },
       {
