@@ -524,9 +524,9 @@ describe("fixes after an upgrade", () => {
     const scanId = await queueScan(t.github.refs.get("main")!);
     await runScanJob({ db, github: t.githubClients }, { scanId });
     expect(await scansToRefix(db, "build-6", { billingEnforced: true })).toEqual([{ scanId, repositoryId }]);
-    // An older private repository takes the free slot.
+    // Another private repository brings four committers: more than the free plan covers.
     const account = await owner.selectFrom("repositories").select("account_id").where("id", "=", repositoryId).executeTakeFirstOrThrow();
-    await owner.insertInto("repositories").values({ account_id: account.account_id, github_repo_id: 778, full_name: "acme/older", default_branch: "main", private: true, created_at: new Date("2020-01-01") }).execute();
+    await owner.insertInto("repositories").values({ account_id: account.account_id, github_repo_id: 778, full_name: "acme/older", default_branch: "main", private: true, created_at: new Date("2020-01-01"), committers: JSON.stringify(["a", "b", "c", "d"]) }).execute();
     expect(await scansToRefix(db, "build-6", { billingEnforced: true })).toEqual([]);
     expect(await scansToRefix(db, "build-6")).toEqual([{ scanId, repositoryId }]);
   }, 120_000);

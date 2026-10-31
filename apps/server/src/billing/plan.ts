@@ -1,8 +1,13 @@
 import { withService, type Tx } from "@shapi/db";
 import type { Db } from "@shapi/db";
+import { COMMITTER_WINDOW_DAYS, activeCommitters } from "./committers";
 
-/** Private repositories every account gets free. Public repositories are always free. */
-export const FREE_PRIVATE_REPOS = 1;
+/**
+ * Active committers every account gets free (execution plan I-03): people who committed to its private repositories
+ * in the last 90 days. Public repositories are always free. A placeholder until the plan's numbers are set; the
+ * price per committer lives in Stripe, not here.
+ */
+export const FREE_COMMITTERS = 3;
 
 /** Stripe statuses that keep paid repositories covered (past_due: Stripe is still retrying the payment). */
 const PAYING = new Set(["active", "trialing", "past_due"]);
@@ -12,6 +17,8 @@ export interface PlanRepo {
   private: boolean;
   enabled: boolean;
   created_at: Date;
+  /** Hashes of its committers in the last 90 days (see countCommitters). */
+  committers?: string[];
 }
 
 export interface PlanBilling {
@@ -21,15 +28,17 @@ export interface PlanBilling {
 
 export type Coverage = { covered: true; by: "public" | "free" | "paid" | "unlimited" } | { covered: false; reason: string };
 
-/** Private repositories the account pays for beyond the free one. */
+export { activeCommitters };
+
+/** Seats the account pays for: its active committers beyond the free ones. */
 export function requiredQuantity(repos: PlanRepo[]): number {
-  return Math.max(0, repos.filter((r) => r.private && r.enabled).length - FREE_PRIVATE_REPOS);
+  return Math.max(0, activeCommitters(repos) - FREE_COMMITTERS);
 }
 
 /**
- * Which repositories SHAPI works on. Public ones always; the oldest private one free; the next
- * `quantity` private ones while the subscription is paying; the rest wait for the plan to grow.
- * Without billing configured (local development, self-hosting) everything is covered.
+ * Which repositories SHAPI works on. Public ones always. Private ones while the account's active committers fit the
+ * plan: the free ones, plus `quantity` seats while the subscription is paying. Beyond that no private repository is
+ * covered until the plan grows. Without billing configured (local development, self-hosting) everything is covered.
  */
 export function coverage(repos: PlanRepo[], billing: PlanBilling | undefined, enforced: boolean): Map<string, Coverage> {
   const out = new Map<string, Coverage>();
@@ -38,19 +47,21 @@ export function coverage(repos: PlanRepo[], billing: PlanBilling | undefined, en
     return out;
   }
   const paid = billing && PAYING.has(billing.status) ? billing.quantity : 0;
-  const privates = repos.filter((r) => r.private && r.enabled).sort((a, b) => a.created_at.getTime() - b.created_at.getTime() || Number(a.id) - Number(b.id));
-  for (const r of repos) if (!r.private) out.set(r.id, { covered: true, by: "public" });
-  privates.forEach((r, i) => {
-    if (i < FREE_PRIVATE_REPOS) out.set(r.id, { covered: true, by: "free" });
-    else if (i < FREE_PRIVATE_REPOS + paid) out.set(r.id, { covered: true, by: "paid" });
-    else out.set(r.id, { covered: false, reason: paid ? "beyond the private repositories in your plan" : "the free plan covers one private repository" });
-  });
-  for (const r of repos) if (!out.has(r.id)) out.set(r.id, { covered: false, reason: "repository archived" });
+  const committers = activeCommitters(repos);
+  const fits = committers <= FREE_COMMITTERS + paid;
+  const people = `${committers} ${committers === 1 ? "person" : "people"} committed to private repositories in the last ${COMMITTER_WINDOW_DAYS} days`;
+  const reason = paid ? `${people}; the plan covers ${FREE_COMMITTERS + paid}` : `${people}; the free plan covers ${FREE_COMMITTERS}`;
+  for (const r of repos) {
+    if (!r.enabled) out.set(r.id, { covered: false, reason: "repository archived" });
+    else if (!r.private) out.set(r.id, { covered: true, by: "public" });
+    else if (fits) out.set(r.id, { covered: true, by: committers <= FREE_COMMITTERS ? "free" : "paid" });
+    else out.set(r.id, { covered: false, reason });
+  }
   return out;
 }
 
 async function loadPlan(tx: Tx, accountId: string) {
-  const repos = await tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at"]).where("account_id", "=", accountId).execute();
+  const repos = await tx.selectFrom("repositories").select(["id", "private", "enabled", "created_at", "committers"]).where("account_id", "=", accountId).execute();
   const billing = await tx.selectFrom("billing").select(["status", "quantity"]).where("account_id", "=", accountId).executeTakeFirst();
   return { repos, billing };
 }

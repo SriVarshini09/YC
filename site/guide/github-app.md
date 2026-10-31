@@ -69,4 +69,4 @@ Sign in with GitHub to see each repository's latest scan, its findings with link
 
 ## Plans
 
-Public repositories and one private repository are free. Each additional private repository has a monthly fee, shown in the web app before you pay, and it's free during early access. Adding private repositories never raises the bill on its own: the web app asks first.
+Public repositories are free. Private ones are billed per active committer: anyone who committed to one of them in the last 90 days, counted once however many repositories they commit to. Bots don't count, and the first 3 committers are free. Each further one has a monthly fee, shown in the web app before you pay, and it's free during early access. SHAPI counts committers when it scans a private repository and keeps only a salted hash of each one, never the name or email. New committers never raise the bill on their own: the web app asks first, and the plan goes down by itself when people stop committing.

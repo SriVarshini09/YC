@@ -13,5 +13,6 @@ export { runFixJob, sandboxRunner, scansToRefix, type FixDeps, type FixReport, t
 export { runAdvisoryFanout, type FanoutReport } from "./jobs/fanout";
 export { shapesFor, type AdvisoryShapes } from "./jobs/shapes";
 export type { ScanRequest } from "./github/events";
-export { FREE_PRIVATE_REPOS, coverage, requiredQuantity, repositoryCovered, type Coverage } from "./billing/plan";
+export { FREE_COMMITTERS, activeCommitters, coverage, requiredQuantity, repositoryCovered, type Coverage } from "./billing/plan";
+export { COMMITTER_WINDOW_DAYS, committerHashes, countCommitters } from "./billing/committers";
 export { applySubscription, completeCheckout, handleStripeEvent, portalUrl, setQuantity, startCheckout, stripeClient, syncAllQuantities, syncQuantity, type BillingConfig, type BillingDeps } from "./billing/stripe";

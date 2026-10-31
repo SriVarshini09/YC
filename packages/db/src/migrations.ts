@@ -360,6 +360,19 @@ const migrations: Record<string, Migration> = {
       await sql`drop table if exists pr_feedback`.execute(db);
     },
   },
+  "0017_repository_committers": {
+    async up(db: Kysely<unknown>) {
+      // Per-committer billing (I-03): who committed to a private repository in the last 90 days, as hashes of their
+      // GitHub login (or commit email when there is none), never the identities themselves.
+      await sql`
+        alter table repositories add column committers jsonb not null default '[]';
+        alter table repositories add column committers_at timestamptz;
+      `.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`alter table repositories drop column if exists committers, drop column if exists committers_at`.execute(db);
+    },
+  },
 };
 
 /**

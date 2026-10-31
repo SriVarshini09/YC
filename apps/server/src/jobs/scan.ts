@@ -7,6 +7,7 @@ import { AdvisorySchema, ApiLockSchema, createApiLock, isLintable, lintFiles, ma
 import { withService, type Db, type Tx } from "@shapi/db";
 import { extractCallSites } from "@shapi/extractor";
 import { checkRunOutput, completeCheckRun, fetchRepoSnapshot, startCheckRun } from "@shapi/github-app";
+import { countCommitters } from "../billing/committers";
 import type { SnapshotFile } from "@shapi/sandbox";
 import { repositoryCovered } from "../billing/plan";
 import type { Notifier } from "../notify/slack";
@@ -252,6 +253,7 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob, run: ScanRun = {}
         "repositories.full_name",
         "repositories.github_repo_id",
         "repositories.enabled",
+        "repositories.private",
         "accounts.github_installation_id",
         "accounts.suspended_at",
         "accounts.settings",
@@ -271,6 +273,18 @@ export async function runScanJob(deps: ScanDeps, job: ScanJob, run: ScanRun = {}
   });
   const scan = ctx.row;
   if (!scan || !ctx.claimed) return { scanId, status: "skipped", reason: scan ? `scan is ${scan.status}` : "scan not found" };
+  // I-03: refresh a private repository's active committers first, so the plan check counts them as they are now.
+  // Best effort: when GitHub refuses, the plan uses the last count.
+  if (scan.private && deps.billingEnforced && scan.github_installation_id) {
+    const [o, r] = scan.full_name.split("/") as [string, string];
+    try {
+      const reader = await deps.github.readOnly(scan.github_installation_id, scan.github_repo_id);
+      const committers = await countCommitters(reader, { owner: o, repo: r, accountId: scan.account_id, now: now() });
+      await withService(deps.db, (tx) => tx.updateTable("repositories").set({ committers: JSON.stringify(committers), committers_at: now() }).where("id", "=", scan.repository_id).execute());
+    } catch {
+      // keep the previous count
+    }
+  }
   const plan = await repositoryCovered(deps.db, scan.account_id, scan.repository_id, deps.billingEnforced ?? false);
   if (!plan.covered) {
     const reason = `not covered by the plan: ${plan.reason}`;

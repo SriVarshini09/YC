@@ -32,6 +32,9 @@ export interface RepositoriesTable {
   /** Dashboard state: { paused, createNow: advisory ids, retry: advisory ids }. */
   settings: ColumnType<Record<string, unknown>, string | undefined, string>;
   dashboard_issue: number | null;
+  /** Hashes of who committed to it in the last 90 days, for per-committer billing (I-03); counted for private repositories. */
+  committers: ColumnType<string[], string | undefined, string>;
+  committers_at: Timestamp | null;
 }
 
 export interface ScansTable {
