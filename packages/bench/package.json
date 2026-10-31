@@ -29,6 +29,7 @@
     "bench:provenance": "node ../../scripts/run-ts.mjs scripts/provenance.ts",
     "bench:leaderboard": "node ../../scripts/run-ts.mjs scripts/leaderboard.ts",
     "bench:baseline-grep": "node ../../scripts/run-ts.mjs scripts/baseline-grep.ts",
+    "bench:claude-code": "node ../../scripts/run-ts.mjs scripts/claude-code.ts",
     "bench:canary-backtest": "node ../../scripts/run-ts.mjs scripts/canary-backtest.ts",
     "bench:stripe-coverage": "node ../../scripts/run-ts.mjs scripts/stripe-coverage.ts",
     "bench:shopify-coverage": "node ../../scripts/run-ts.mjs scripts/shopify-coverage.ts",
@@ -47,6 +48,7 @@
     "@shapi/repair": "workspace:*",
     "@shapi/sandbox": "workspace:*",
     "@types/js-yaml": "4.0.9",
+    "e2b": "2.52.1",
     "js-yaml": "4.1.0"
   }
 }

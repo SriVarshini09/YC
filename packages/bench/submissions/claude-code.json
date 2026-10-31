@@ -1,0 +1,82 @@
+{
+  "tool": "Claude Code",
+  "version": "2.1.316 (claude-sonnet-5-5, read-only)",
+  "url": "https://docs.claude.com/en/docs/claude-code/overview",
+  "submittedBy": "SHAPI maintainers",
+  "runAt": "2026-10-31T05:42:44.792Z",
+  "dataset": "APIBreak-Replay",
+  "datasetHash": "37fa931e8278",
+  "command": "E2B_API_KEY=… AI_GATEWAY_API_KEY=… pnpm --filter @shapi/bench bench:claude-code -- --runs <file>",
+  "results": [
+    {
+      "id": "github-workflow-dispatch-204-to-200__vincentng295__gemini_fbchat",
+      "base": "flagged",
+      "fix": "clear"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__stategraph__stategraph",
+      "base": "flagged",
+      "fix": "clear"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__refracta__df-translations",
+      "base": "flagged",
+      "fix": "clear"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__kikujizo__ai-harness",
+      "base": "flagged",
+      "fix": "clear"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__dlstupka__hth",
+      "base": "flagged",
+      "fix": "clear"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__opaque-dev__opaque",
+      "base": "clear",
+      "fix": "flagged"
+    },
+    {
+      "id": "github-workflow-dispatch-204-to-200__pyzz58__gpt-recommendations",
+      "base": "flagged",
+      "fix": "clear"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__hfscdogg__outgrow",
+      "base": "clear",
+      "fix": "clear"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__RCOLKITT__AccountingQB-MCP",
+      "base": "clear",
+      "fix": "clear"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__tioperfumes07__IH35-TMS",
+      "base": "clear",
+      "fix": "flagged"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__mindstone__mcp-servers",
+      "base": "flagged",
+      "fix": "clear"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__theomleslie-ops__bakery-dashboard-2",
+      "base": "clear",
+      "fix": "clear"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Chamfer-Consulting__gpc-purchase-order-hx",
+      "base": "clear",
+      "fix": "clear"
+    },
+    {
+      "id": "quickbooks-minorversion-below-75__Tans2101__Trenston",
+      "base": "flagged",
+      "fix": "clear"
+    }
+  ]
+}
