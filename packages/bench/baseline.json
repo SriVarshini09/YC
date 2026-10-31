@@ -1,9 +1,9 @@
 {
   "dataset": "APIBreak-Replay v0",
   "datasetHash": "37fa931e8278",
-  "gitSha": "9a11fc2f8d15568989534dc5d017cb8b8b12b3eb",
-  "flagRecall": "11 / 14",
-  "fixedStatePrecision": "13 / 14",
+  "gitSha": "ecc0a994053df302bf91cc68f4937d1c3d7f1fbb",
+  "flagRecall": "12 / 14",
+  "fixedStatePrecision": "11 / 14",
   "instances": [
     {
       "id": "github-workflow-dispatch-204-to-200__vincentng295__gemini_fbchat",
@@ -53,17 +53,17 @@
     {
       "id": "quickbooks-minorversion-below-75__tioperfumes07__IH35-TMS",
       "base": "affected",
-      "fix": "exposed"
+      "fix": "affected"
     },
     {
       "id": "quickbooks-minorversion-below-75__mindstone__mcp-servers",
-      "base": "exposed",
+      "base": "affected",
       "fix": "exposed"
     },
     {
       "id": "quickbooks-minorversion-below-75__theomleslie-ops__bakery-dashboard-2",
       "base": "affected",
-      "fix": "exposed"
+      "fix": "affected"
     },
     {
       "id": "quickbooks-minorversion-below-75__Chamfer-Consulting__gpc-purchase-order-hx",
