@@ -57,7 +57,7 @@ export async function run(argv: string[], io: Io = processIo, fixDeps: Partial<F
     .command("fix")
     .description("Repair affected call sites test-first: generate a contract test, apply the recipe (or Claude), keep the change only if the test passes")
     .argument("[path]", "repository to fix", ".")
-    .option("--repo <url>", "clone a GitHub repository (shallow) and fix it; with --pr the PR goes to that repository")
+    .option("--repo <url>", "clone a GitHub or GitLab repository (shallow) and fix it; with --pr or --mr the fix goes to that repository")
     .option("--advisory <id>", "only this advisory")
     .option("--advisories <dir>", "advisory directory (default: the bundled advisories/)")
     .option("--db <file>", "shape store with canary observations (checked before recordings)", ".shapi/shapes.db")
@@ -65,11 +65,12 @@ export async function run(argv: string[], io: Io = processIo, fixDeps: Partial<F
     .option("--llm", "ask Claude when no recipe fixes the call site (needs ANTHROPIC_API_KEY)")
     .option("--write", "write the fix and the contract test into the local repository")
     .option("--pr", "open a pull request with the fix and the contract test")
+    .option("--mr", "open a GitLab merge request with the fix and the contract test (needs GITLAB_TOKEN)")
     .addOption(new Option("--now <date>", "evaluate deadlines as of this date").hideHelp())
     .action(async (target: string, opts: FixOptions) => {
       io.stdout(`${title(Boolean(io.isTTY))}\n`);
       const outcomes = await fix(opts.repo ? undefined : target, opts, { log: (l) => io.stdout(`${l}\n`), ...fixDeps });
-      if (outcomes.some((o) => o.result?.status === "fixed") && !opts.write && !opts.pr) io.stdout("\nNothing was changed. Add --write to keep these fixes, or --pr to open pull requests.\n");
+      if (outcomes.some((o) => o.result?.status === "fixed") && !opts.write && !opts.pr && !opts.mr) io.stdout("\nNothing was changed. Add --write to keep these fixes, --pr to open pull requests, or --mr for GitLab merge requests.\n");
       io.stdout(`Fix PRs and a dashboard on every push: install the GitHub App at ${APP_URL}\n`);
       exitCode = outcomes.every((o) => o.result?.status === "fixed" || o.result?.status === "already-handled") ? 0 : 1;
     });
