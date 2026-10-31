@@ -217,9 +217,11 @@ export function pathMatches(endpoint: string, pattern: Pick<EndpointPattern, "pa
 
 /**
  * Names code gives a variable holding `owner/name`: GitHub's `full_name`, Actions' `github.repository`, a
- * "slug". Found in a real fix: `f"{api_base}/actions/..."` with `api_base = f".../repos/{repo}"` (APIBreak-Replay).
+ * "slug", or one named for its role (`target_repo`, `source_repository`, as workflow inputs are). Found in real
+ * fixes: `f"{api_base}/actions/..."` with `api_base = f".../repos/{repo}"`, and `gh api "repos/${TARGET_REPO}/…"`
+ * (APIBreak-Replay).
  */
-const FULL_NAME_PARAM = /\/repos\/\{((?:github[_.])?repo(?:sitory)?(?:[_-]?(?:full[_-]?name|slug|nwo|path))?|full[_-]?name|slug|nwo|owner[_-]?repo)\}(?=\/|$)/gi;
+const FULL_NAME_PARAM = /\/repos\/\{((?:[a-z]+[_.-])?repo(?:sitory)?(?:[_-]?(?:full[_-]?name|slug|nwo|path))?|full[_-]?name|slug|nwo|owner[_-]?repo)\}(?=\/|$)/gi;
 
 function matchesPath(endpoint: string, patternPath: string): boolean {
   const sample = endpoint.replace(/\{[^}]*\}/g, "\u0000");

@@ -7,6 +7,7 @@ import { addResponseSurface } from "./surface";
 import { declaredProviders, declaredPythonProviders, listRepoFiles, toPosix, type DeclaredProvider } from "./files";
 import { extractGo, goParserLoaded } from "./go";
 import { extractPython, pythonParserLoaded } from "./python";
+import { extractShell } from "./shell";
 
 export type { CallKind, CallSite, NameValue, Surface } from "@shapi/core";
 export type { FoundCall } from "./callsites";
@@ -44,7 +45,7 @@ const SCRIPT_KINDS: Record<string, ScriptKind> = {
  */
 export function extractCallSites(rootDir: string): ExtractResult {
   const root = path.resolve(rootDir);
-  const { sources, manifests, python, pythonManifests, go } = listRepoFiles(root);
+  const { sources, manifests, python, pythonManifests, go, shell } = listRepoFiles(root);
   const project = new Project({
     useInMemoryFileSystem: true,
     skipFileDependencyResolution: true,
@@ -121,11 +122,21 @@ export function extractCallSites(rootDir: string): ExtractResult {
       failed(rel, err);
     }
   }
-  const callSites = [...found.map((f) => f.site), ...loose, ...pythonSites, ...goSites].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column);
+  // Shell scripts and workflow run: steps (curl, gh api). A file without either adds nothing.
+  const shellSites: CallSite[] = [];
+  for (const abs of shell) {
+    const rel = toPosix(path.relative(root, abs));
+    try {
+      shellSites.push(...extractShell(readFileSync(abs, "utf8"), rel));
+    } catch (err) {
+      failed(rel, err);
+    }
+  }
+  const callSites = [...found.map((f) => f.site), ...loose, ...pythonSites, ...goSites, ...shellSites].sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column);
 
   return {
     root,
-    filesScanned: sources.length - generated + python.length + go.length - skipped.length,
+    filesScanned: sources.length - generated + python.length + go.length + shell.length - skipped.length,
     callSites,
     declared: [...declaredProviders(root, manifests), ...declaredPythonProviders(root, pythonManifests)],
     found,
