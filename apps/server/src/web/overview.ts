@@ -4,6 +4,7 @@ import {
   autoFixable,
   deadlinesOf,
   firstScanPending,
+  fixGivenUp,
   healthOf,
   latestCatchOf,
   providersOf,
@@ -175,7 +176,7 @@ function attentionRow(data: AccountData, item: AttentionItem): Html {
       return row(pr.url ?? `${accountHref(data)}/fixes?state=open`, "info", ICONS.pr, html`Review fix PR ${pr.number ? `#${pr.number}` : pr.branch}`, `${pr.advisory?.title ?? pr.advisory_id} · ${pr.repo}`);
     }
     case "manual":
-      return row(findingHref(data, item.finding.id), "bad", ICONS.alert, html`Fix by hand: ${item.finding.advisory?.title ?? item.finding.advisory_id}`, `${item.finding.repo} · no automatic fix for this change`);
+      return row(findingHref(data, item.finding.id), "bad", ICONS.alert, html`Fix by hand: ${item.finding.advisory?.title ?? item.finding.advisory_id}`, `${item.finding.repo} · ${fixGivenUp(item.finding.fix) ? `SHAPI could not fix it: ${item.finding.fix.reason ?? item.finding.fix.status}` : "no automatic fix for this change"}`);
     case "closed":
       return row(findingHref(data, item.finding.id), "warn", ICONS.cross, html`Decide on: ${item.finding.advisory?.title ?? item.finding.advisory_id}`, `${item.finding.repo} · fix PR ${item.pr?.number ? `#${item.pr.number} ` : ""}was closed without merging`);
     case "scan-failed":

@@ -5,7 +5,7 @@ import { FREE_COMMITTERS, activeCommitters, coverage, requiredQuantity } from ".
 import { COMMITTER_WINDOW_DAYS } from "../billing/committers";
 import { DOCS_URL, EMPTY, ICONS, MARK, html, initials, isoDay, navFor, plural, shortSha, timeAgo, type Html, type NavKey, type Shell, type Theme } from "./html";
 import { activityOf } from "./overview";
-import { autoFixable, daysUntil, deadlinesOf, hasRecipe, hitsByAdvisory, openProblems, problemsOf, providersOf, type AccountData, type FindingRow, type Problem, type PrRow, type RepoRow, type ScanRow } from "./queries";
+import { autoFixable, daysUntil, deadlinesOf, fixGivenUp, hasRecipe, hitsByAdvisory, openProblems, problemsOf, providersOf, type AccountData, type FindingRow, type Problem, type PrRow, type RepoRow, type ScanRow } from "./queries";
 import {
   accountHref,
   activityFeed,
@@ -226,10 +226,10 @@ function scanTable(repo: RepoRow, scans: ScanRow[], now: Date): Html {
   )}</tbody></table></div>`;
 }
 
-/** The fix for a problem: its pull request and state, "on the way" while SHAPI prepares one, "fix by hand" when no automatic fix exists. */
+/** The fix for a problem: its pull request and state, "on the way" while SHAPI prepares one, "fix by hand" when no automatic fix exists or SHAPI could not make one. */
 function fixPrCell(data: AccountData, pr: PrRow | undefined, finding: FindingRow | undefined): Html {
   if (pr) return html`${prLink(pr)} ${stateTag(pr.state)}`;
-  if (finding?.kind === "affected") return html`<span class="muted small">${autoFixable(data, finding.advisory) ? "on the way" : "fix by hand"}</span>`;
+  if (finding?.kind === "affected") return html`<span class="muted small">${autoFixable(data, finding.advisory) && !fixGivenUp(finding.fix) ? "on the way" : "fix by hand"}</span>`;
   return html`<span class="muted">—</span>`;
 }
 
@@ -375,6 +375,7 @@ interface FindingDetail {
   finished_at: Date | null;
   /** The same problem in other places of this repository. */
   others: { id: string; kind: "affected" | "exposed"; file: string; line: number }[];
+  fix?: FindingRow["fix"];
   pr?: Pick<PrRow, "url" | "number" | "branch" | "state" | "stopped" | "repair">;
 }
 
@@ -429,6 +430,9 @@ function fixSection(f: FindingDetail, b: string, opts: FixOptions): Html {
     if (!autoFixable(opts, a)) {
       const claude = opts.llm ? (opts.admin ? html` unless the account turns on Claude fixes in <a href="${b}/settings">Settings</a>` : html` unless an account admin turns on Claude fixes in Settings`) : EMPTY;
       return html`<div class="card stack"><p><b>Manual fix.</b> SHAPI has no deterministic recipe for this change, so no PR is opened${claude}.</p>${a ? html`<div class="notice">${a.migrationNote}</div>` : EMPTY}</div>`;
+    }
+    if (fixGivenUp(f.fix)) {
+      return html`<div class="card stack"><p><b>Manual fix.</b> SHAPI tried and made no fix for this code, so no PR is opened: ${f.fix.reason ?? f.fix.status}.</p>${a ? html`<div class="notice">${a.migrationNote}</div>` : EMPTY}</div>`;
     }
     return html`<div class="card"><p>The fix is on the way. SHAPI opens its pull request after the next fix run, within your PR limits, unless the repository is paused or not covered by the plan.</p></div>`;
   }

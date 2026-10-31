@@ -392,6 +392,16 @@ const migrations: Record<string, Migration> = {
       await sql`drop table if exists sensor_tokens`.execute(db);
     },
   },
+  "0019_scans_fix_report": {
+    async up(db: Kysely<unknown>) {
+      // What the fix job did with each affected advisory of the scan, so the web app can tell a fix still
+      // coming from one SHAPI could not make.
+      await sql`alter table scans add column fix_report jsonb`.execute(db);
+    },
+    async down(db: Kysely<unknown>) {
+      await sql`alter table scans drop column if exists fix_report`.execute(db);
+    },
+  },
 };
 
 /**

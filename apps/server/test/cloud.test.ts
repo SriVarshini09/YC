@@ -718,6 +718,11 @@ describe("triggers", () => {
       expect(scans).toEqual([{ id: oldScan, fix_engine: "old-build" }, { id: expect.any(String), fix_engine: "new-build" }]);
       expect((logs.find((l) => l.msg === "fix job finished")!.obj as { scanId: string }).scanId).toBe(scans[1]!.id);
       expect(t.github.pulls).toHaveLength(2);
+      // what it did with each change is kept on that scan, for the web app
+      const report = (logs.find((l) => l.msg === "fix job finished")!.obj as { repairs: { advisoryId: string; status: string; reason?: string }[] }).repairs;
+      const stored = await owner.selectFrom("scans").select("fix_report").where("id", "=", scans[1]!.id).executeTakeFirstOrThrow();
+      expect(stored.fix_report).toEqual(report.map(({ advisoryId, status, reason }) => (reason === undefined ? { advisoryId, status } : { advisoryId, status, reason })));
+      expect(stored.fix_report!.some((r) => r.status === "fixed")).toBe(true);
     } finally {
       await boss.stop({ graceful: false, timeout: 5_000 });
     }
