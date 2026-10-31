@@ -38,7 +38,7 @@ A Python call site gets the same steps, with a contract test written for Python:
 
 If the function returns before it calls the endpoint (for example on a missing setting the test does not know about), SHAPI says it cannot test the call rather than claiming a fix.
 
-The two deterministic recipes work on Python: `apply-fix` rewrites the URL (a string, an f-string, a concatenation, or a name assigned one), the `params=` and `headers=` dicts, and body fields in an SDK call's keyword arguments or a `json=` dict; `status-code-accept-set` turns `resp.status_code != 204` into `resp.status_code not in (200, 204)`. For now Python fixes are not type-checked, Claude is not asked to fix Python, and your repository's own Python tests are not run: they need its dependencies from PyPI, which the sandbox does not reach.
+The two deterministic recipes work on Python: `apply-fix` rewrites the URL (a string, an f-string, a concatenation, or a name assigned one), the `params=` and `headers=` dicts, and body fields in an SDK call's keyword arguments or a `json=` dict; `status-code-accept-set` turns `resp.status_code != 204` into `resp.status_code not in (200, 204)`. Your repository's own Python tests run too, before and after the fix: SHAPI installs your dependencies (`requirements.txt`, or `pip install -e .`) and pytest into a virtualenv with only PyPI reachable, cuts the network, and runs pytest; a test that passed before and fails after rejects the fix. For now Python fixes are not type-checked, and Claude is not asked to fix Python.
 
 ## Where the test runs
 
