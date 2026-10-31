@@ -20,7 +20,8 @@ export function latestRun(resultsDir: string): BenchmarkRun {
     .filter((d) => d.isDirectory() && /^\d+\.\d+\.\d+$/.test(d.name))
     .flatMap((d) => readdirSync(path.join(resultsDir, d.name)).filter((f) => f.endsWith(".json")).map((f) => path.join(resultsDir, d.name, f)))
     .map((file) => JSON.parse(readFileSync(file, "utf8")) as BenchmarkRun)
-    .filter((run) => run.results.some((r) => r.fixOutcome !== undefined));
+    // a run file has results; other files there (adjudications) are not runs
+    .filter((run) => Array.isArray(run.results) && run.results.some((r) => r.fixOutcome !== undefined));
   const latest = runs.sort((a, b) => a.runAt.localeCompare(b.runAt)).at(-1);
   if (!latest) throw new Error(`no benchmark run under ${resultsDir}`);
   return latest;
