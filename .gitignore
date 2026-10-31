@@ -24,3 +24,7 @@ site/.vitepress/cache/
 
 # Benchmark archives (bench:run --cache): downloaded commits, never committed.
 packages/bench/.cache/
+
+# Python bytecode (tests import the sensor and the Python fixtures)
+__pycache__/
+*.pyc
