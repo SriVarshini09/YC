@@ -817,6 +817,10 @@ export function evalString(ctx: { consts: Map<string, Node>; declared?: Map<stri
       return evalString(ctx, expr.getLeft(), depth + 1) ?? evalString(ctx, expr.getRight(), depth + 1);
     }
   }
+  // sandbox ? "https://sandbox-…" : "https://…": both are the same API, so the first that evaluates.
+  if (Node.isConditionalExpression(expr)) {
+    return evalString(ctx, expr.getWhenTrue(), depth + 1) ?? evalString(ctx, expr.getWhenFalse(), depth + 1);
+  }
   if (Node.isIdentifier(expr)) {
     const init = nearestConst(ctx, expr) ?? ctx.consts.get(expr.getText());
     return init && init !== node ? evalString(ctx, init, depth + 1) : undefined;

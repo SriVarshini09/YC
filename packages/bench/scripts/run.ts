@@ -33,6 +33,9 @@ const { values } = parseArgs({ args: process.argv.slice(2).filter((a) => a !== "
     only: { type: "string" },
     cache: { type: "string" },
     check: { type: "boolean", default: false },
+    // With --check: also write the run's results here (CI keeps them as an artifact, so the numbers of a
+    // change can be committed without scanning the instances again).
+    "results-out": { type: "string" },
     "update-baseline": { type: "boolean", default: false },
     fix: { type: "boolean", default: false },
     "llm-calls": { type: "string", default: "40" },
@@ -87,6 +90,7 @@ if (values.check) {
   const report = gateReport(gate, baseline, summary);
   console.log(report);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${report}\n`);
+  if (values["results-out"]) writeFileSync(values["results-out"], `${JSON.stringify({ dataset: meta.dataset, datasetHash, shapiVersion: cliPackage.version, gitSha, runAt: new Date().toISOString(), summary, results }, null, 2)}\n`);
   process.exit(gate.passed ? 0 : 1);
 }
 if (values["update-baseline"]) {

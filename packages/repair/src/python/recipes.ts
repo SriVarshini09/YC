@@ -74,6 +74,8 @@ function strings(n: PyNode | null | undefined, seen = new Set<number>()): PyNode
   if (n.type === "concatenated_string" || n.type === "parenthesized_expression") return n.namedChildren.flatMap((c) => strings(c, seen));
   if (n.type === "binary_operator") return [n.childForFieldName("left"), n.childForFieldName("right")].flatMap((c) => strings(c, seen));
   if (n.type === "identifier") return strings(assigned(n.text, n), seen);
+  // urlopen(req) with req = urllib.request.Request(url, …): the URL is the Request's.
+  if (n.type === "call" && /(^|\.)Request$/.test(n.childForFieldName("function")?.text ?? "")) return strings(argument(n, "url"), seen);
   return [];
 }
 
