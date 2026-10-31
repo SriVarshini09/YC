@@ -25,14 +25,15 @@ Exit codes: `0` nothing at or above `--fail-on`, `1` an affected call site at or
 
 ## `shapi fix [path]`
 
-Repairs affected call sites test-first. Without `--write` or `--pr` it only reports.
+Repairs affected call sites test-first. Without `--write`, `--pr` or `--mr` it only reports.
 
 | Option | What it does |
 |---|---|
 | `--advisory <id>` | Only this advisory. An unknown id is an error (exit `2`). |
 | `--write` | Write the fix and its contract test into the repository. Not with `--repo`: the clone is temporary. |
 | `--pr` | Open a pull request with the fix and the contract test. Uses `GITHUB_TOKEN`, `GH_TOKEN` or your `gh` login. From a local checkout, a changed file must match the one on GitHub's default branch (pull first), so the PR never reverts newer commits or publishes local edits. |
-| `--repo <url>` | Shallow-clone a GitHub repository and fix it; with `--pr` the PR goes to that repository. |
+| `--mr` | Open a GitLab merge request instead, with the same fix, contract test and description, on a `shapi/<advisory>` branch (a rerun updates it). Uses `GITLAB_TOKEN`, an access token with the `api` scope; works with gitlab.com and self-managed GitLab. A changed file must match the one on the project's default branch. |
+| `--repo <url>` | Shallow-clone a GitHub or GitLab repository and fix it; with `--pr` or `--mr` the fix goes to that repository. |
 | `--llm` | When no recipe fixes a call site, ask Claude (needs `ANTHROPIC_API_KEY`). The change is still kept only if the contract test passes and the code still type-checks. At most 20 calls per run (`SHAPI_LLM_CALLS_PER_JOB`). |
 | `--advisories <dir>` | Use this advisory folder. |
 | `--recordings <dir>` | Recorded before/after responses (default: the bundled recordings). |
@@ -45,4 +46,5 @@ Exit codes: `0` every affected call site was fixed or already handles the new re
 | Variable | Used for |
 |---|---|
 | `GITHUB_TOKEN`, `GH_TOKEN` | `fix --pr` (otherwise your `gh` login). |
+| `GITLAB_TOKEN` | `fix --mr`. |
 | `ANTHROPIC_API_KEY` | `fix --llm`. |
